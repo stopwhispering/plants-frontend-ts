@@ -1,0 +1,24 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+
+    <Popover
+    	title="{plants>plant_name} [ {plants>id} ]"
+		placement="HorizontalPreferredRight"
+		horizontalScrolling="false"
+		verticalScrolling="false"
+		id="popoverPopupImage"
+		>
+
+    		<!-- src="{plants>url_preview}"  -->
+    	<Image 
+			id="idHoverImage"
+    		press=".onClickImagePopupImage"
+			src="{
+					path: 'plants>filename_previewimage',
+					formatter: '.formatter.getSrcMasterHoverImage'
+					}"
+			/>
+
+    </Popover>
+</core:FragmentDefinition>

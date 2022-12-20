@@ -1,0 +1,44 @@
+{
+  "name": "plants.ui",
+  "version": "1.0.0",
+  "description": "Plants Library UI",
+  "author": "Johannes Heller",
+  "license": "MIT",
+  "scripts": {
+    "build": "npm-run-all build:ts build:ui5",
+    "build:opt": "npm-run-all build:ts build:ui5:opt",
+    "build:ts": "babel src --out-dir webapp --source-maps true --extensions \".ts,.js\" --copy-files",
+    "build:ui5": "ui5 build --clean-dest",
+    "build:ui5:opt": "ui5 build self-contained --clean-dest --all",
+    "start": "npm-run-all --parallel watch:ts start:ui5",
+    "watch:ts": "babel src --out-dir webapp --source-maps true --extensions \".ts,.js\" --copy-files --watch",
+    "start:ui5": "ui5 serve --port 8080 -o index.html",
+    "start:dist": "ui5 serve  --port 8080 -o index.html --config ui5-dist.yaml",
+    "ts-typecheck": "tsc --noEmit",
+    "lint": "eslint src"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stopwhispering/pollination-ui-ts"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.18.6",
+    "@babel/core": "^7.18.6",
+    "@babel/preset-env": "^7.18.6",
+    "@babel/preset-typescript": "^7.18.6",
+    "@types/openui5": "1.104.0",
+    "@typescript-eslint/eslint-plugin": "^5.30.6",
+    "@typescript-eslint/parser": "^5.30.6",
+    "@ui5/cli": "^2.14.9",
+    "babel-preset-transform-ui5": "^7.0.5",
+    "eslint": "^8.20.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^4.7.4",
+    "ui5-middleware-livereload": "^0.5.13"
+  },
+  "ui5": {
+    "dependencies": [
+      "ui5-middleware-livereload"
+    ]
+  }
+}

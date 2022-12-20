@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "target": "es2015",
+        "module": "es2015",
+        "moduleResolution": "node",
+        "skipLibCheck": true,
+        "preserveConstEnums": true,
+        "inlineSourceMap": true,
+        "allowJs": true,
+        "strict": true,
+        "strictNullChecks": true,
+        "strictPropertyInitialization": false,
+        "rootDir": "./src",
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "paths": {
+            "plants/ui/*": [
+                "./src/*"
+            ]
+        }
+    },
+    "include": [
+        "./src/**/*"
+    ]
+}
