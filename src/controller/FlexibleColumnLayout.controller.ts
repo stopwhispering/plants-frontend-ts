@@ -9,7 +9,7 @@ import Token from "sap/m/Token"
 import Filter from "sap/ui/model/Filter"
 import FilterOperator from "sap/ui/model/FilterOperator"
 import Navigation from "plants/ui/customClasses/Navigation"
-import { IdToFragmentMap } from "../definitions/entities"
+import { IdToFragmentMap } from "../definitions/shared_types"
 import Router from "sap/ui/core/routing/Router"
 import SearchManager from "sap/f/SearchManager"
 import ListBinding from "sap/ui/model/ListBinding"
@@ -22,6 +22,7 @@ import Menu from "sap/m/Menu"
 import { MessageType } from "sap/ui/core/library"
 import Popover from "sap/m/Popover"
 import ImageEventHandlers from "../customClasses/ImageEventHandlers"
+import { UIState } from "sap/f/FlexibleColumnLayoutSemanticHelper"
 
 /**
  * @namespace plants.ui.controller
@@ -46,7 +47,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		this._oRouter = this.oComponent.getRouter();
 		this._oRouter.attachBeforeRouteMatched(this._onBeforeRouteMatched, this);
 		this._oRouter.attachRouteMatched(this._onRouteMatched, this);
-		
+
 		this.imageEventHandlers = ImageEventHandlers.getInstance(this.applyToFragment.bind(this));
 	}
 
@@ -54,7 +55,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		// called each time any route is triggered, i.e. each time one of the views change
 		// updates the layout model: inserts the new layout into it
 		var oLayoutModel = this.oComponent.getModel();
-		var sLayout = oEvent.getParameter('arguments').layout;
+		var sLayout = oEvent.getParameter('arguments').layout; // e.g. "TwoColumnsMidExpanded"
 
 		// If there is no layout parameter, query for the default level 0 layout (normally OneColumn)
 		if (!sLayout) {
@@ -75,7 +76,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		this._updateUIElements();
 
 		// Save the current route name
-		this._currentRouteName = sRouteName;
+		this._currentRouteName = sRouteName;  // e.g. "detail"
 		// this.currentPlant = oArguments.product;
 		this._currentPlantId = oArguments.plant_id;
 	}
@@ -88,13 +89,12 @@ export default class FlexibleColumnLayout extends BaseController {
 	}
 
 	public onStateChanged(oEvent: Event) {
-		var bIsNavigationArrow = oEvent.getParameter("isNavigationArrow"),
-			sLayout = oEvent.getParameter("layout");
-
 		this._updateUIElements();
-
+		
 		// Replace the URL with the new layout if a navigation arrow was used
+		const bIsNavigationArrow = oEvent.getParameter("isNavigationArrow");
 		if (bIsNavigationArrow) {
+			const sLayout = oEvent.getParameter("layout");  // e.g. "OneColumn"
 			this._oRouter.navTo(this._currentRouteName, { 
 				layout: sLayout, 
 				plant_id: this._currentPlantId 
@@ -105,12 +105,22 @@ export default class FlexibleColumnLayout extends BaseController {
 
 	private _updateUIElements() {
 		// Update the close/fullscreen buttons visibility
-		var oModel = this.oComponent.getModel();
-		var oUIState = this.oComponent.getHelper().getCurrentUIState();
-		if (oModel) {
-			oModel.setData(oUIState);
+		var oUIState: UIState = this.oComponent.getHelper().getCurrentUIState();
+
+		// somehow with the migration to TS, starting the page with a TwoColumnLayout as URL does
+		// not work. Therefore, we need an ugly hack here. Todo: Make it better.
+		if (window.location.hash.includes('TwoColumnsMidExpanded')){
+			oUIState.layout = "TwoColumnsMidExpanded"
+			oUIState.columnsVisibility!.midColumn = true
+		} else if (window.location.hash.includes('ThreeColumnsMidExpanded')){
+			oUIState.layout = "ThreeColumnsMidExpanded"
+			oUIState.columnsVisibility!.midColumn = true
+			oUIState.columnsVisibility!.endColumn = true
 		}
 
+		var oModel = this.oComponent.getModel();
+		if (oModel) 
+			oModel.setData(oUIState);
 	}
 
 	public onExit() {

@@ -13,6 +13,7 @@ import View from "sap/ui/core/mvc/View"
 import { LayoutType } from "sap/f/library"
 import FlexibleColumnLayout from "sap/f/FlexibleColumnLayout"
 import { CategoryToPropertiesInCategoryMap, PlantIdToPropertyCollectionMap } from "./definitions/property_entities"
+import VariantItem from "sap/m/VariantItem"
 
 /**
  * @namespace plants.ui
@@ -161,14 +162,16 @@ export default class Component extends UIComponent {
 	 * Returns an instance of the semantic helper
 	 * @returns {sap.f.FlexibleColumnLayoutSemanticHelper} An instance of the semantic helper
 	 */
-
 	public getHelper() {
 		const oRootControl = <View>this.getRootControl();
-		const oFlexibleColumnLayout = <FlexibleColumnLayout> oRootControl.byId("idFlexibleColumnLayout"),
-			oParams = UriParameters.fromQuery(),
-			oSettings = {
+		const oFlexibleColumnLayout = <FlexibleColumnLayout> oRootControl.byId("idFlexibleColumnLayout");
+		const oParams = UriParameters.fromQuery();
+		// const oParams = jQuery.sap.getUriParameters();
+		const oSettings = {
 				defaultTwoColumnLayoutType: LayoutType.TwoColumnsMidExpanded,
+				// defaultTwoColumnLayoutType: sap.f.LayoutType.TwoColumnsMidExpanded,
 				defaultThreeColumnLayoutType: LayoutType.ThreeColumnsMidExpanded,
+				// defaultThreeColumnLayoutType: sap.f.LayoutType.ThreeColumnsMidExpanded,
 				mode: oParams.get("mode"),
 				initialColumnsCount: oParams.get("initial"),
 				maxColumnsCount: oParams.get("max")

@@ -11,15 +11,13 @@ import Navigation from "plants/ui/customClasses/Navigation"
 import Dialog from "sap/m/Dialog";
 import Component from "../Component";
 import Router from "sap/ui/core/routing/Router";
-import { IdToFragmentMap, PConfirmation, PlantIdToEventsMap, PMessage, Taxon, TaxonMap } from "../definitions/entities";
-import Event from "sap/ui/base/Event";
+import { Taxon, TaxonMap } from "../definitions/entities";
 import { ImageMap, PImage } from "../definitions/image_entities";
 import Control from "sap/ui/core/Control";
 import { CategoryToPropertiesInCategoryMap, PlantIdToPropertyCollectionMap, PPropertyCollectionPlant, PropertiesTaxonModelData } from "../definitions/property_entities";
 import { LPropagationType, PPlant, PResultsPlantsUpdate } from "../definitions/plant_entities";
 import ListBinding from "sap/ui/model/ListBinding";
 import Label from "sap/ui/webc/main/Label";
-import Tokenizer from "sap/m/Tokenizer";
 
 /**
  * @namespace plants.ui.controller

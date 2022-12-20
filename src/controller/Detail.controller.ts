@@ -17,10 +17,14 @@ import TaxonomyUtil from "plants/ui/customClasses/TaxonomyUtil"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
 import Fragment from "sap/ui/core/Fragment"
 import Dialog from "sap/m/Dialog"
+import { PConfirmation } from "../definitions/MessagesFromBackend"
 import {
-	BackendResultPlantCloned, CancellationReasonChoice, IdToFragmentMap, NewPlant, ObjectStatusCollection,
-	ObjectStatusData, ParentalPlant, PConfirmation, PEvent, PSoil, SoilEditData, Tag
+	BackendResultPlantCloned, CancellationReasonChoice, NewPlant, ObjectStatusCollection,
+	ObjectStatusData, ParentalPlant, Tag
 } from "../definitions/entities"
+import { IdToFragmentMap } from "../definitions/shared_types"
+import {PEvent, PEvents, PResultsEventResource, PSoil} from "../definitions/EventsFromBackend"
+import { EventEditData, SoilEditData } from "../definitions/EventsLocal"
 import DatePicker from "sap/m/DatePicker"
 import Event from "sap/ui/base/Event"
 import Control from "sap/ui/core/Control"
@@ -48,6 +52,9 @@ import Token from "sap/m/Token"
 import { CancellationReason, DescendantPlantInput, LPropagationType, PPlant } from "../definitions/plant_entities"
 import Tokenizer from "sap/m/Tokenizer"
 import ColumnListItem from "sap/m/ColumnListItem"
+import ResourceModel from "sap/ui/model/resource/ResourceModel"
+import ResourceBundle from "sap/base/i18n/ResourceBundle"
+import Toast from "sap/ui/webc/main/Toast"
 
 /**
  * @namespace plants.ui.controller
@@ -223,13 +230,12 @@ export default class Detail extends BaseController {
 		}
 	}
 
-	private _loadEventsForCurrentPlant() {
+	private _loadEventsForCurrentPlant(): void {
 		// request data from backend
 		// data is added to local events model and bound to current view upon receivement
-		var uri = 'events/' + this._currentPlantId;
+		const uri = 'events/' + this._currentPlantId;
 		$.ajax({
 			url: Util.getServiceUrl(uri),
-			data: {},
 			context: this,
 			async: true
 		})
@@ -237,16 +243,12 @@ export default class Detail extends BaseController {
 			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Event (GET)'))
 	}
 
-	private _onReceivingEventsForPlant(plantId: int, oData: any) {
+	private _onReceivingEventsForPlant(plantId: int, oData: PResultsEventResource): void {
 		//insert (overwrite!) events data for current plant with data received from backend
-		var oEventsModel = <JSONModel>this.oComponent.getModel('events');
-		oEventsModel.setProperty('/PlantsEventsDict/' + plantId + '/', oData.events);
-
-		// //for tracking changes, save a clone  //todo required to init here?
-		// if (!this.oComponent.oEventsDataClone) {
-		// 	this.oComponent.oEventsDataClone = {};
-		// }
-		this.oComponent.oEventsDataClone[plantId] = Util.getClonedObject(oData.events);
+		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
+		const aEvents = <PEvents>oData.events;
+		oEventsModel.setProperty('/PlantsEventsDict/' + plantId + '/', aEvents);
+		this.oComponent.oEventsDataClone[plantId] = Util.getClonedObject(aEvents);
 		MessageUtil.getInstance().addMessageFromBackend(oData.message);
 	}
 
@@ -1133,34 +1135,65 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Event Handlers
 	//////////////////////////////////////////////////////////
-	public activateRadioButton(oRadioButton: RadioButton) {
+	public activateRadioButton(oEvent: Event): void {
+		const oSource = <Control>oEvent.getSource();
+		const sRadioButtonId: string = oSource.data('radiobuttonId');
+		const oRadioButton = <RadioButton>this.byId(sRadioButtonId);
 		oRadioButton.setSelected(true);
 	}
 
-
 	onSoilMixSelect(oEvent: Event) {
-		// transfer selected soil from soils model to new-event model (which has only one entry)
+		// transfer selected soil from soils model to new/edit-event model (which has only one entry)
 		const oSource = <List>oEvent.getSource()
 		const oContexts = <Context[]>oSource.getSelectedContexts();
-		// var sPath = oContexts[0].sPath;
-		const sPath = oContexts[0].getPath();
+		if (oContexts.length !== 1) {
+			MessageToast.show('No or more than one soil selected');
+			throw new Error('No or more than one soil selected');
+		}
+		var oSelectedSoil = <PSoil>oContexts[0].getObject();
 		this.applyToFragment('dialogEvent', (oDialog: Dialog) => {
-			const oSelectedData = oDialog.getModel('soils').getProperty(sPath);
-			const oModelNewEvent = <JSONModel>oDialog.getModel("new");
-
-			const oSelectedDataNew = Util.getClonedObject(oSelectedData);
+			const oModelNewEvent = <JSONModel>oDialog.getModel("editOrNewEvent");
+			const oSelectedDataNew = Util.getClonedObject(oSelectedSoil);
 			oModelNewEvent.setProperty('/soil', oSelectedDataNew);
 		});
 	}
+
 	onOpenDialogAddEvent(oEvent: Event) {
-		this.eventsUtil.openDialogAddEvent(this.getView());
+		this.applyToFragment('dialogEvent', (oDialog: Dialog) => {
+			// get soils collection from backend proposals resource
+			this.eventsUtil._loadSoils(this.getView());
+
+			// if dialog was used for editing an event before, then destroy it first
+			if (!!oDialog.getModel("editOrNewEvent") && oDialog.getModel("editOrNewEvent").getProperty('/mode') !== 'new') {
+				oDialog.getModel("editOrNewEvent").destroy();
+				oDialog.setModel(null, "editOrNewEvent");
+
+				// set header and button to add instead of edit
+				const oI18Model = <ResourceModel>this.getView().getModel("i18n");
+				const oResourceBundle = <ResourceBundle>oI18Model.getResourceBundle();
+				oDialog.setTitle(oResourceBundle.getText("header_event"));
+				const oBtnSave = <Button>this.getView().byId('btnEventUpdateSave');
+				oBtnSave.setText('Add');
+			}
+
+			// set defaults for new event
+			if (!oDialog.getModel("editOrNewEvent")) {
+				let mEventEditData: EventEditData = this.eventsUtil._getInitialEvent(this._oCurrentPlant.id!);
+				mEventEditData.mode = 'new';
+				const oEventEditModel = new JSONModel(mEventEditData);
+				oDialog.setModel(oEventEditModel, "editOrNewEvent");
+			}
+
+			this.getView().addDependent(oDialog);
+			oDialog.open();
+		})
 	}
 
 	onEditEvent(oEvent: Event) {
 		// triggered by edit button in a custom list item header in events list
 		const oSource = <Button>oEvent.getSource();
 		const oSelectedEvent = <PEvent>oSource.getBindingContext('events')!.getObject();
-		this.eventsUtil.editEvent(oSelectedEvent, this.getView())
+		this.eventsUtil.editEvent(oSelectedEvent, this.getView(), this._oCurrentPlant.id!);
 	}
 	onOpenDialogEditSoil(oEvent: Event) {
 		const oSource = <Button>oEvent.getSource();

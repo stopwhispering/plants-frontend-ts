@@ -2,6 +2,7 @@
 import BusyDialog from "sap/m/BusyDialog"
 import Constants from "plants/ui/Constants"
 import { AnyDict, StringToNumberMap } from "../definitions/shared_types";
+import MessageToast from "sap/m/MessageToast";
 
 /**
  * @namespace plants.ui.customClasses
@@ -37,7 +38,7 @@ export function getImageUrl(filename: string, size_type?: string, width?: float,
 	return this.getServiceUrl(path);
 }
 
-export function getClonedObject(oOriginal: object) {
+export function getClonedObject(oOriginal: any) {
 	// create a clone, not a reference
 	// there's no better way in js...
 	return JSON.parse(JSON.stringify(oOriginal));
@@ -62,13 +63,21 @@ export function stopBusyDialog() {
 	}
 }
 
-export function getToday() {
+export function getToday(): staring {
 	var today = new Date();
 	var dd = String(today.getDate()).padStart(2, '0');
 	var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
 	var yyyy = today.getFullYear();
 	today = yyyy + '-' + mm + '-' + dd;
 	return today;
+}
+
+export function assertCorrectDate(sdate: string): void{
+	// validate date via regex (must match "YYYY-MM-DD")
+	if (!/^\d{4}\-(0[1-9]|1[012])\-(0[1-9]|[12][0-9]|3[01])$/.test(sdate)){
+		MessageToast.show('Invalid date. Date must have Format "YYYY-MM-DD"');
+		throw new Error('Invalid date. Date must have Format "YYYY-MM-DD"');
+	}
 }
 
 export function formatDate(date: Date): string {

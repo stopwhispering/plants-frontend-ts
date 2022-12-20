@@ -5,11 +5,14 @@
 	<VBox 
 		class="eventsListPot"
 		id="eventPot">
-		<VBox visible="{ path: 'events>pot_event_type',
+		<!-- <VBox visible="{ path: 'events>pot_event_type', -->
+		<VBox visible="{ path: 'events>pot',
 					     formatter: '.formatter.existsAndNotEmpty'
 						}">
-				<Label design="Bold"
-				text="{ path: 'events>pot_event_type' }" 
+				<!-- text="{ path: 'events>pot_event_type' }"  -->
+			<Label 
+				design="Bold"
+				text="Repotting" 
 				wrapping="true"/>
 		</VBox>
 		<VBox visible="{ path: 'events>pot/material',

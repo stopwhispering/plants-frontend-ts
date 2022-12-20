@@ -4,7 +4,7 @@ import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import GridListItem from "sap/f/GridListItem";
 import { PImage, PImagePlantTag, PKeyword } from "../definitions/image_entities";
-import { PEvent} from "../definitions/entities";
+import { PEvent } from "../definitions/EventsFromBackend";
 import Popover from "sap/m/Popover";
 import Icon from "sap/ui/core/Icon";
 import FileUploader from "sap/ui/unified/FileUploader";

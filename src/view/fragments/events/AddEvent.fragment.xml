@@ -1,11 +1,11 @@
 <core:FragmentDefinition
 	xmlns="sap.m"
 	xmlns:core="sap.ui.core"
->
+	xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
+	>
 	<Dialog
 		title="{i18n>header_event}"
-		id="dialogEvent"
-	>
+		id="dialogEvent">
 		<content>
 			<IconTabBar
 				id="idIconTabBarNoIcons"
@@ -18,103 +18,61 @@
 						text="General"
 					>
 						<VBox class="sapUiTinyMarginBottom">
-							<Label
-								text="Observation"
-								labelFor="segmentObservation"
-								required="true"
-							/>
-							<SegmentedButton
-								id="segmentObservation"
-								class="sapUiTinyMarginBottom"
-								selectedKey="{new>/segments/observation}"
-							>
-								<items>
-									<SegmentedButtonItem
-										icon="sap-icon://cancel"
-										key="cancel"
-										width="6em"
+							<HBox>
+								<VBox class="sapUiSmallMarginEnd">
+									<Label
+										text="Observation"
 									/>
-									<SegmentedButtonItem
-										icon="sap-icon://detail-view"
-										text="Status"
-										key="status"
-										width="6em"
+									<Switch 
+										state="{editOrNewEvent>/segments/observation}"
+										customTextOn=" " 
+										customTextOff=" ">
+										<layoutData>
+											<FlexItemData growFactor="1" />
+										</layoutData>
+							</Switch>
+								</VBox>
+								<VBox class="sapUiSmallMarginEnd">
+									<Label
+										text="Pot"
 									/>
-								</items>
-							</SegmentedButton>
-							<Label
-								text="Pot"
-								labelFor="segmentPot"
-								required="true"
-							/>
-							<SegmentedButton
-								id="segmentPot"
-								class="sapUiTinyMarginBottom"
-								selectedKey="{new>/segments/pot}"
-							>
-								<items>
-									<SegmentedButtonItem
-										icon="sap-icon://cancel"
-										key="cancel"
-										width="6em"
+									<Switch 
+										state="{editOrNewEvent>/segments/pot}"
+										customTextOn=" " 
+										customTextOff=" ">
+										<layoutData>
+											<FlexItemData growFactor="1" />
+										</layoutData>
+									</Switch>
+								</VBox>
+								<VBox class="sapUiSmallMarginEnd">
+									<Label
+										text="Soil"
 									/>
-									<SegmentedButtonItem
-										icon="sap-icon://detail-view"
-										text="Status"
-										key="Status"
-										width="6em"
-									/>
-									<SegmentedButtonItem
-										icon="sap-icon://edit-outside"
-										text="Repot"
-										key="Repotting"
-										width="6em"
-									/>
-								</items>
-							</SegmentedButton>
-							<Label
-								text="Soil"
-								labelFor="segmentSoil"
-								required="true"
-							/>
-							<SegmentedButton
-								id="segmentSoil"
-								class="sapUiTinyMarginBottom"
-								selectedKey="{new>/segments/soil}"
-							>
-								<items>
-									<SegmentedButtonItem
-										icon="sap-icon://cancel"
-										key="cancel"
-										width="6em"
-									/>
-									<SegmentedButtonItem
-										icon="sap-icon://detail-view"
-										text="Status"
-										key="Status"
-										width="6em"
-									/>
-									<SegmentedButtonItem
-										icon="sap-icon://edit-outside"
-										text="Change"
-										key="Changing Soil"
-										width="6em"
-									/>
-								</items>
-							</SegmentedButton>
+									<Switch 
+										state="{editOrNewEvent>/segments/soil}"
+										customTextOn=" " 
+										customTextOff=" ">
+										<layoutData>
+											<FlexItemData growFactor="1" />
+										</layoutData>
+									</Switch>
+								</VBox>
+							</HBox>
 						</VBox>
 						<VBox class="sapUiTinyMarginBottom">
 							<Label
-								text="Date (YYYY-MM-DD HH:MM) (parts from the right optional)"
+								text="Date (YYYY-MM-DD)"
 								wrapping="true"
 								labelFor="maskDate"
 								width="14em"
+								required="true"
 							/>
 							<MaskInput
 								required="true"
 								id="maskDate"
-								mask="9999-99-99 99:99"
-								value="{new>/date}"
+								mask="9999-99-99"
+								value="{editOrNewEvent>/date}"
 								placeholder="Date"
 							/>
 						</VBox>
@@ -123,19 +81,19 @@
 							<TextArea
 								width="14em"
 								height="10em"
-								value="{new>/event_notes}"
+								value="{editOrNewEvent>/event_notes}"
 							/>
 						</VBox>
 					</IconTabFilter>
 					<IconTabFilter
 						id="tabObservation"
-						enabled="{= ${new>/segments/observation} !== 'cancel' }"
+						enabled="{= ${editOrNewEvent>/segments/observation}}"
 						text="Observation"
 					>
 						<VBox class="sapUiTinyMarginBottom">
 							<Label text="Height"/>
 							<StepInput
-								value="{new>/observation/height}"
+								value="{editOrNewEvent>/observation/height}"
 								displayValuePrecision="1"
 								min="0"
 								max="999"
@@ -148,7 +106,7 @@
 						<VBox class="sapUiTinyMarginBottom">
 							<Label text="Stem/Caudex diameter at max."/>
 							<StepInput
-								value="{new>/observation/stem_max_diameter}"
+								value="{editOrNewEvent>/observation/stem_max_diameter}"
 								displayValuePrecision="1"
 								min="0"
 								max="999"
@@ -161,21 +119,21 @@
 						<VBox class="sapUiTinyMarginBottom">
 							<Label text="Diseases &amp; Treatments"/>
 							<TextArea
-								value="{new>/observation/diseases}"
+								value="{editOrNewEvent>/observation/diseases}"
 								height="6em"
 							/>
 						</VBox>
 						<VBox class="sapUiTinyMarginBottom">
 							<Label text="Other Observations"/>
 							<TextArea
-								value="{new>/observation/observation_notes}"
+								value="{editOrNewEvent>/observation/observation_notes}"
 								height="6em"
 							/>
 						</VBox>
 					</IconTabFilter>
 					<IconTabFilter
 						id="tabPot"
-						enabled="{= ${new>/segments/pot} !== 'cancel' }"
+						enabled="{= ${editOrNewEvent>/segments/pot}}"
 						text="Pot"
 					>
 						<Label
@@ -192,8 +150,8 @@
 									src="css/pot_very_flat.png"
 									width="60px"
 									tooltip="very flat"
-									press=".activateRadioButton($controller.byId('idPotHeight0')
-										)"
+									press=".activateRadioButton"
+									app:radiobuttonId="idPotHeight0"
 								/>
 								<RadioButton
 									id="idPotHeight0"
@@ -208,9 +166,8 @@
 									src="css/pot_flat.png"
 									width="60px"
 									tooltip="flat"
-									press=".activateRadioButton($controller.byId('idPotHeight1')"
-									app:radiobuttonId= "idPotHeight1"
-										)"
+									press=".activateRadioButton"
+									app:radiobuttonId="idPotHeight1"
 								/>
 								<RadioButton
 									id="idPotHeight1"
@@ -225,8 +182,8 @@
 									src="css/pot_high.png"
 									width="60px"
 									tooltip="high"
-									press=".activateRadioButton($controller.byId('idPotHeight2')
-										)"
+									press=".activateRadioButton"
+									app:radiobuttonId="idPotHeight2"
 								/>
 								<RadioButton
 									id="idPotHeight2"
@@ -242,8 +199,8 @@
 									src="css/pot_very_high.png"
 									width="60px"
 									tooltip="very high"
-									press=".activateRadioButton($controller.byId('idPotHeight3')
-										)"
+									press=".activateRadioButton"
+									app:radiobuttonId="idPotHeight3"
 								/>
 								<RadioButton
 									id="idPotHeight3"
@@ -265,8 +222,8 @@
 									src="css/square.png"
 									height="60px"
 									tooltip="square"
-									press=".activateRadioButton($controller.byId('idPotShape0')
-										)"
+									press=".activateRadioButton"
+									app:radiobuttonId="idPotShape0"
 								/>
 								<RadioButton
 									id="idPotShape0"
@@ -282,8 +239,8 @@
 									src="css/circle.png"
 									height="60px"
 									tooltip="round"
-									press=".activateRadioButton($controller.byId('idPotShape1')
-										)"
+									press=".activateRadioButton"
+									app:radiobuttonId="idPotShape1"
 								/>
 								<RadioButton
 									id="idPotShape1"
@@ -298,8 +255,8 @@
 									src="css/oval.png"
 									height="60px"
 									tooltip="oval"
-									press=".activateRadioButton($controller.byId('idPotShape2')
-										)"
+									press=".activateRadioButton"
+									app:radiobuttonId="idPotShape2"
 								/>
 								<RadioButton
 									id="idPotShape2"
@@ -314,8 +271,8 @@
 									src="css/hexagonal.png"
 									height="60px"
 									tooltip="hexagonal"
-									press=".activateRadioButton($controller.byId('idPotShape3')
-										)"
+									press=".activateRadioButton"
+									app:radiobuttonId="idPotShape3"
 								/>
 								<RadioButton
 									id="idPotShape3"
@@ -326,7 +283,7 @@
 						<VBox class="sapUiSmallMarginTop">
 							<Label text="Width (square pot) or Diameter (other shapes) in cm"/>
 							<StepInput
-								value="{new>/pot/diameter_width}"
+								value="{editOrNewEvent>/pot/diameter_width}"
 								displayValuePrecision="1"
 								min="0"
 								max="999"
@@ -342,7 +299,7 @@
 							/>
 							<Select
 								width="10rem"
-								selectedKey="{new>/pot/material}"
+								selectedKey="{editOrNewEvent>/pot/material}"
 								items="{
 									path: 'suggestions>/potMaterialCollection',
 									sorter: {
@@ -360,7 +317,7 @@
 					<IconTabFilter
 						id="tabSoil"
 						text="Soil"
-						enabled="{= ${new>/segments/soil} !== 'cancel' }"
+						enabled="{= ${editOrNewEvent>/segments/soil}}"
 					>
 						<List
 							backgroundDesign="Transparent"

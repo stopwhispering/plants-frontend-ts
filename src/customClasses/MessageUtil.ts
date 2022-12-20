@@ -2,7 +2,7 @@ import Message from "sap/ui/core/message/Message"
 import ManagedObject from "sap/ui/base/ManagedObject";
 import { MessageType } from "sap/ui/core/library";
 import Component from "sap/ui/core/Component";
-import { PMessage } from "../definitions/entities";
+import { PMessage } from "../definitions/MessagesFromBackend";
 
 /**
  * @namespace plants.ui.customClasses

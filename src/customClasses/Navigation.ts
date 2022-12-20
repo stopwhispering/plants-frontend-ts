@@ -40,7 +40,7 @@ export default class Navigation extends ManagedObject {
 
 		// use detail (two-col) route or untagged(three-col) route
 		var aHash = this._component.getRouter().getHashChanger().getHash().split('/');
-		var sLastItem = aHash.pop();
+		var sLastItem = aHash.pop();  // e.g. "TwoColumnsMidExpanded"
 		if (sLastItem === 'untagged') {
 			this._component.getRouter().navTo("untagged", { layout: oNextUIState.layout, plant_id: iPlant });
 		} else {
