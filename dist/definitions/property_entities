@@ -1,0 +1,32 @@
+import ManagedObject from "sap/ui/base/ManagedObject";
+
+/**
+ * @namespace plants.ui.definitions
+ */
+export interface PPropertyValue {
+    type: string;
+    property_value: string;
+    property_value_id?: number;
+}
+
+export interface PPropertiesInCategory {
+    category_name: string;
+    category_id: number;
+    sort?: number;
+    properties: PProperty[];
+    property_value?: string;
+}
+
+export interface PProperty {
+    property_name: string;
+    property_name_id?: number;
+    property_values: PPropertyValue[];
+    property_value?: string;
+    property_value_id?: number;
+}
+
+export interface PPropertyName {
+    property_name_id?: number;
+    property_name: string;
+    countPlants: number;
+}

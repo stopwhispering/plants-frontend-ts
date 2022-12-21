@@ -45,10 +45,6 @@ export default class EventsUtil extends ManagedObject {
 		this.oSuggestionsData = oSuggestionsData;
 	}
 
-	// public openDialogAddEvent(oView: View) {
-
-	// }
-
 	eventsListFactory(sId: string, oBindingContext: Context) {
 		//executed in Detail Controller Context
 		let that: Controller = this as unknown as Controller
@@ -132,16 +128,16 @@ export default class EventsUtil extends ManagedObject {
 
 		const oObservationDataClone = JSON.parse(JSON.stringify(oEventEditData.observation));
 		// if height or diameter are 0, reset them to undefined
-		if (oObservationDataClone.observation?.height === 0) {
+		if (oObservationDataClone.observation.height === 0) {
 			oObservationDataClone.observation.height = undefined;
 		}
-		if (oObservationDataClone.observation?.stem_max_diameter === 0) {
+		if (oObservationDataClone.observation.stem_max_diameter === 0) {
 			oObservationDataClone.observation.stem_max_diameter = undefined;
 		}
-		if (!oObservationDataClone?.diseases || oObservationDataClone.diseases.length === 0) {
+		if (!oObservationDataClone.diseases || oObservationDataClone.diseases.length === 0) {
 			oObservationDataClone.diseases = undefined;
 		}
-		if (!oObservationDataClone?.event_notes || oObservationDataClone.diseases.event_notes === 0) {
+		if (!oObservationDataClone.event_notes || oObservationDataClone.diseases.event_notes === 0) {
 			oObservationDataClone.event_notes = undefined;
 		}
 		return <PObservation>oObservationDataClone;
@@ -189,82 +185,11 @@ export default class EventsUtil extends ManagedObject {
 			return null;
 		
 		const oSoilDataClone = <PSoil>JSON.parse(JSON.stringify(oEventEditData.soil));
-		if (!oSoilDataClone?.description || oSoilDataClone.description.length == 0) {
+		if (!oSoilDataClone.description || oSoilDataClone.description.length == 0) {
 			oSoilDataClone.description = undefined;
 		}
 		return oSoilDataClone;
 	}
-
-
-	// private _handleEventSegments(oEventEditData: EventEditData, oView: View) {
-	// 	//modifies the data by reading/updating/validating the segments observation, pot, and soil
-	// 	const oEventDataClone = JSON.parse(JSON.stringify(oEventEditData));
-
-	// 	//observation tab
-	// 	if (oEventDataClone.segments.observation) {
-
-	// 		// if height or diameter are 0, reset them to undefined
-	// 		if (oEventDataClone.observation.height === 0)
-	// 			oEventDataClone.observation.height = undefined;
-			
-	// 		if (oEventDataClone.observation.stem_max_diameter === 0) 
-	// 			oEventDataClone.observation.stem_max_diameter = undefined;
-			
-	// 	} else {
-	// 		delete oEventDataClone.observation;
-	// 	}
-
-	// 	//pot tab
-	// 	if (oEventDataClone.segments.pot && oEventDataClone.pot) {
-	// 		// if width/diameter is 0, resetz it to undefined
-	// 		if (oEventDataClone.pot.diameter_width === 0) {
-	// 			oEventDataClone.pot.diameter_width = undefined;
-	// 		}
-
-	// 		// dDataSave.pot_event_type = dDataSave.segments.pot;  //repot or status
-
-	// 		//pot shape properties can't be taken directly from model because of radiobutton handling without formal RadioGroup class
-	// 		if ((<RadioButton>oView.byId('idPotHeight0')).getSelected()) {
-	// 			oEventDataClone.pot.shape_side = 'very flat';
-	// 		} else if ((<RadioButton>oView.byId('idPotHeight1')).getSelected()) {
-	// 			oEventDataClone.pot.shape_side = 'flat';
-	// 		} else if ((<RadioButton>oView.byId('idPotHeight2')).getSelected()) {
-	// 			oEventDataClone.pot.shape_side = 'high';
-	// 		} else if ((<RadioButton>oView.byId('idPotHeight3')).getSelected()) {
-	// 			oEventDataClone.pot.shape_side = 'very high';
-	// 		}
-
-	// 		if ((<RadioButton>oView.byId('idPotShape0')).getSelected()) {
-	// 			oEventDataClone.pot.shape_top = 'square';
-	// 		} else if ((<RadioButton>oView.byId('idPotShape1')).getSelected()) {
-	// 			oEventDataClone.pot.shape_top = 'round';
-	// 		} else if ((<RadioButton>oView.byId('idPotShape2')).getSelected()) {
-	// 			oEventDataClone.pot.shape_top = 'oval';
-	// 		} else if ((<RadioButton>oView.byId('idPotShape3')).getSelected()) {
-	// 			oEventDataClone.pot.shape_top = 'hexagonal';
-	// 		}
-	// 	} else {
-	// 		delete oEventDataClone.pot;
-	// 	}
-
-	// 	//soil tab
-	// 	if (oEventDataClone.segments.soil && oEventDataClone.soil) {
-
-	// 		// dDataSave.soil_event_type = dDataSave.segments.soil;  //change or status
-
-	// 		//make sure soil was seleccted
-	// 		//note: we submit the whole soil object to the backend, but the backend does only care about the id
-	// 		//for modifying or creating a soil, there's a separate service
-	// 		if (!oEventDataClone.soil.id) {
-	// 			throw new Error('Choose soil.');
-	// 		}
-	// 		// this.validateSoilSelection.call(this, dDataSave);	
-	// 	} else {
-	// 		delete oEventDataClone.soil;
-	// 	}
-
-	// 	return oEventDataClone;
-	// }
 
 	public _loadSoils(oView: View) {
 		// triggered when opening dialog to add/edit event
@@ -296,7 +221,7 @@ export default class EventsUtil extends ManagedObject {
 		// clone the data so we won't change the original new model
 		const oNewEventSave = <EventEditData>Util.getClonedObject(oNewEventData);
 
-		if (oNewEventSave.segments.soil && !oNewEventSave.soil?.id){
+		if (oNewEventSave.segments.soil && (!oNewEventSave.soil || !oNewEventSave.soil.id)){
 			MessageToast.show('Please choose soil first.');
 			return;
 		}
@@ -311,23 +236,14 @@ export default class EventsUtil extends ManagedObject {
 			date: oNewEventSave.date,
 			event_notes: oNewEventSave.event_notes,
 			observation: oNewObservation,
-			// pot_id: oNewPot?.id,
 			pot: oNewPot,
-			// pot_event_type?: string;
 			soil: oNewSoil,
-			// soil_event_type?: string;
 			plant_id: oNewEventSave.plant_id,
 			images: <PImage[]>[]
 		}
 
-		// // no need to submit the segments selection to the backend
-		// delete oNewEventData.segments;
-
-		// // actual saving is done upon hitting save button
-		// // here, we only update the events model
-		// // the plant's events have been loaded upon first visiting the plant's details view
-		// delete oNewEventData.mode;
-
+		// actual saving is done upon hitting save button
+		// here, we only update the events model
 		aEventsCurrentPlant.push(oNewEvent);
 		oEventsModel.updateBindings(false);
 		oDialog.close();
@@ -365,34 +281,13 @@ export default class EventsUtil extends ManagedObject {
 		// assert date matches pattern "YYYY-MM-DD"
 		Util.assertCorrectDate(oEventEditData.date);
 		this._assertNoDuplicateOnDate(aEventsCurrentPlant, oEventEditData.date, oOldEvent);
-		// // make sure there's only one event per day and plant; here: there may not be an existing event on that date except for
-		// // the event updated itself
-		// const found = aEventsCurrentPlant.find(function (element) {
-		// 	return (element.date === oEventEditData.date && element !== oOldEvent);
-		// });
-		// if (!!found) {
-		// 	MessageToast.show('Duplicate event on that date.');
-		// 	throw new Error('Duplicate event on that date.');
-		// }
 
 		if (oOldEvent.plant_id !== oEventEditData.plant_id) {
 			MessageToast.show('Plant ID cannot be changed.');
 			throw new Error('Plant ID cannot be changed.');
 		}
 
-		// //just to be sure; todo remove one of them; remove once sure
-		// if ((oOldEvent.observation?.id || oOldEvent.observation_id) && (oOldEvent.observation?.id !== oOldEvent.observation_id)) {
-		// 	MessageToast.show('Somehow the observation_id is not the same as the observation.id. Aborting.');
-		// 	throw new Error('Somehow the observation_id is not the same as the observation.id. Aborting.');
-		// }
-
-		// //just to be sure; todo remove one of them; remove once sure
-		// if ((oOldEvent.pot?.id || oOldEvent.pot_id) && (oOldEvent.pot?.id !== oOldEvent.pot_id)) {
-		// 	MessageToast.show('Somehow the pot_id is not the same as the pot.id. Aborting.');
-		// 	throw new Error('Somehow the pot_id is not the same as the pot.id. Aborting.');
-		// }
-
-		if (oEventEditData.segments.soil && !oEventEditData.soil?.id){
+		if (oEventEditData.segments.soil && (!oEventEditData.soil || !oEventEditData.soil.id)){
 			MessageToast.show('Please choose soil first.');
 			return;
 		}
@@ -406,20 +301,12 @@ export default class EventsUtil extends ManagedObject {
 		oOldEvent.date = <string>oEventEditData.date;
 		oOldEvent.event_notes = <string|undefined>oEventEditData.event_notes;
 		
-		const iOldObservationId = <int|undefined>oEditedObservation?.id;
+		const iOldObservationId = <int|undefined>oEditedObservation.id;
 		oOldEvent.observation = <PObservation>oEditedObservation;
 		if (oOldEvent.observation)
 			oOldEvent.observation.id = <int|undefined>iOldObservationId;
 
-		// const iOldPotId = <int|undefined>oEditedPot?.id;
 		oOldEvent.pot = <PPot|undefined>oEditedPot;
-		// if (oOldEvent.pot){
-		// 	oOldEvent.pot_id = <int|undefined>iOldPotId;
-		// 	oOldEvent.pot_id = <int|undefined>iOldPotId;
-		// } else {
-		// 	oOldEvent.pot_id = undefined;
-		// }
-
 		oOldEvent.soil = <PSoil|undefined>oEditedSoil;
 
 		// have events factory function in details controller regenerate the events list

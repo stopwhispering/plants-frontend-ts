@@ -297,7 +297,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		var oControl = <MultiInput>this.byId('multiInputUploadImagePlants');
 		if (!oControl.getTokens().find(ele => ele.getProperty('key') == plant.plant_name)) {
 			var oPlantToken = new Token({
-					key: plant.id?.toString(),
+					key: (<int>plant.id).toString(),
 					text: plant.plant_name
 				});
 			oControl.addToken(oPlantToken);

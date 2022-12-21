@@ -54,7 +54,6 @@ import Tokenizer from "sap/m/Tokenizer"
 import ColumnListItem from "sap/m/ColumnListItem"
 import ResourceModel from "sap/ui/model/resource/ResourceModel"
 import ResourceBundle from "sap/base/i18n/ResourceBundle"
-import Toast from "sap/ui/webc/main/Toast"
 
 /**
  * @namespace plants.ui.controller
@@ -102,12 +101,10 @@ export default class Detail extends BaseController {
 		this.imageEventHandlers = ImageEventHandlers.getInstance(this.applyToFragment.bind(this));
 
 		this.oLayoutModel = this.oComponent.getModel();
-		// this.oLayoutModel = this.oComponent.getModel();
 
 		// default: view mode for plants information
 		this.oComponent.getModel('status').setProperty('/details_editable', false);
 
-		// this.oRouter.getRoute("master").attachPatternMatched(this._onPatternMatched, this);
 		this.oRouter.getRoute("detail").attachPatternMatched(this._onPatternMatched, this);
 		this.oRouter.getRoute("untagged").attachPatternMatched(this._onPatternMatched, this);
 
@@ -134,10 +131,7 @@ export default class Detail extends BaseController {
 
 		//bind taxon of current plant and events to view (deferred as we may not know the plant name here, yet)
 		this._currentPlantId = parseInt(oEvent.getParameter("arguments").plant_id || this._currentPlantId || "0");
-		this._bindModelsForCurrentPlant();
-
-		//unbind events data (to avoid events from previous plants being shown)
-		// this.getView().unbindElement('events');					
+		this._bindModelsForCurrentPlant();				
 	}
 
 	private _bindModelsForCurrentPlant() {
@@ -355,10 +349,7 @@ export default class Detail extends BaseController {
 				plant_name: undefined,
 				active: undefined
 			}
-			// oEvent.getSource().setValue(undefined);
-			// var parentPlantName = undefined;
-			// var parentPlantId = undefined;
-			// var parentPlantActive = undefined;
+
 		} else {
 			// set parent plant
 			parentalPlant = <ParentalPlant>{
@@ -366,20 +357,12 @@ export default class Detail extends BaseController {
 				plant_name: parentPlant.plant_name,
 				active: parentPlant.active
 			}
-			// oEvent.getSource().setValue(parentPlant.plant_name);
-			// parentPlantName = parentPlant.plant_name;
-			// parentPlantId = parentPlant.id;
-			// parentPlantActive = parentPlant.active;
 		}
 
 		// fn is fired by changes for parent and parent_ollen
 		if ((<Input>oEvent.getSource()).data('parentType') === "parent_pollen") {
-			// this._oCurrentPlant.parent_plant_pollen = parentPlantName;
-			// this._oCurrentPlant.parent_plant_pollen_id = parentPlantId;
 			this._oCurrentPlant.parent_plant_pollen = parentalPlant;
 		} else {
-			// this._oCurrentPlant.parent_plant = parentPlantName;
-			// this._oCurrentPlant.parent_plant_id = parentPlantId;
 			this._oCurrentPlant.parent_plant = parentalPlant;
 		}
 	}

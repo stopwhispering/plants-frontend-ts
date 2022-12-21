@@ -1,0 +1,64 @@
+<core:FragmentDefinition
+	xmlns:core="sap.ui.core"
+	xmlns="sap.m">
+
+   <Popover
+		id="dialogAddProperties"
+		title="Available Properties"
+		class="sapUiContentPadding"
+		placement="Vertical"
+		contentWidth="30em"
+		initialFocus="btnAddSelectedProperties"
+		afterClose=".onCloseAddPropertiesDialog">
+
+		<content>
+			
+			<HBox>
+				<List
+					headerText="Plant"
+					id="availablePropertiesList"
+					items="{propertiesCompare>/}"
+					mode="MultiSelect"
+					includeItemInSelection="true">
+
+						<!-- blocked="{propertiesCompare>blocked_plant}" -->
+					<StandardListItem
+						title="{propertiesCompare>property_name}"
+						selected="{propertiesCompare>selected_plant}"
+						counter="{propertiesCompare>countPlants}"
+						/>
+				</List>	
+				
+				<List
+					headerText="Taxon"
+					id="availablePropertiesListTaxon"
+					items="{propertiesCompare>/}"
+					mode="MultiSelect"
+					includeItemInSelection="true">
+					
+						<!-- blocked="{propertiesCompare>blocked_taxon}" -->
+					<StandardListItem
+						title="{propertiesCompare>property_name}"
+						selected="{propertiesCompare>selected_taxon}"
+						counter="{propertiesCompare>countPlants}"
+						/>
+				</List>					
+			</HBox>
+	
+		</content>
+
+		<footer>
+			<OverflowToolbar>
+				<ToolbarSpacer/>
+				<Button
+					id="btnAddSelectedProperties"
+					text="Add"
+					icon="sap-icon://add"
+					type="Accept"
+					press=".onAddProperty" />		
+			</OverflowToolbar>
+		</footer>
+		
+	</Popover>
+
+</core:FragmentDefinition>

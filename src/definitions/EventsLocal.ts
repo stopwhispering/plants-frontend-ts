@@ -22,21 +22,6 @@ export interface PlantIdToEventsMap {
     [key: int]: PEvent[];  //plant_it to Events array
 }
 
-// export interface EventEditData {
-//     // for new event or editing existing event
-//     date: any;
-//     event_notes?: string;
-//     observation?: PObservation;
-//     mode?: 'new' | 'edit' | undefined;
-//     oldEvent?: EventEditData;
-//     segments : EventEditDataSegments;  // deleted before saving to backend
-//     soil?: PSoil;
-//     plant_id: int;
-//     pot?: PPot;
-//     // pot_event_type?: 'cancel' | 'Repotting'
-//     // soil_event_type?: 'cancel' | 'Changing Soil'
-// }
-
 export interface EventEditData{
     // for new event or editing existing event
     // might have no id, yet; has additional fields for dialog control

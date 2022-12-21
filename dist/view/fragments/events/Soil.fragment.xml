@@ -1,0 +1,48 @@
+<core:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:core="sap.ui.core">
+	
+	<VBox class="eventsListPot" id="eventSoil">
+		<!-- <VBox visible="{ path: 'events>soil_event_type', -->
+		<VBox visible="{ path: 'events>soil',
+					     formatter: '.formatter.existsAndNotEmpty'
+						}">
+				<Label design="Bold"
+				text="Changing Soil" 
+				wrapping="true"/>
+		</VBox>
+		<VBox visible="{ path: 'events>soil/soil_name',
+					     formatter: '.formatter.existsAndNotEmpty'
+						}"
+			class="sapUiTinyMarginTop">
+			<!-- <Label text="Soil"/> -->
+			<Label
+				design="Bold"
+				text="{path: 'events>soil/soil_name'}"
+				wrapping="true"/>
+		</VBox>
+
+		<!-- soil description -->
+		<VBox visible="{ path: 'events>soil/description',
+					     formatter: '.formatter.existsAndNotEmpty'
+						}"
+			class="sapUiTinyMarginTop">
+			<!-- <Label text="Description"/> -->
+			<Text text="{ path: 'events>soil/description'
+						}"/>
+		</VBox>
+
+		<!-- soil mix -->
+		<VBox visible="{ path: 'events>soil/mix',
+					     formatter: '.formatter.existsAndNotEmpty'
+						}"
+			class="sapUiTinyMarginTop">
+			<!-- <Label text="Mix"/> -->
+			<Text 
+				class = "unobtrusiveText"
+				text="{ path: 'events>soil/mix'
+					}"/>
+		</VBox>
+	</VBox>		
+
+</core:FragmentDefinition>

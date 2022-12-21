@@ -9,7 +9,6 @@ import MessageToast from "sap/m/MessageToast"
 import * as Util from "plants/ui/customClasses/Util";
 import Navigation from "plants/ui/customClasses/Navigation"
 import Fragment from "sap/ui/core/Fragment"
-import { IdToFragmentMap } from "../definitions/entities"
 import Popover from "sap/m/Popover"
 import Control from "sap/ui/core/Control"
 import Table from "sap/m/Table"
@@ -27,7 +26,7 @@ import Dialog from "sap/m/Dialog"
 import Input from "sap/m/Input"
 import Avatar from "sap/m/Avatar"
 import { PPlant, PPlantTag } from "../definitions/plant_entities"
-
+import { IdToFragmentMap } from "../definitions/shared_types"
 
 /**
  * @namespace plants.ui.controller
@@ -56,7 +55,7 @@ export default class Master extends BaseController {
 		oTable.attachUpdateFinished(this.updateTableHeaderPlantsCount.bind(this));
 	}
 
-	protected applyToFragment(sId: string, fn: Function, fnInit?: Function){
+	protected applyToFragment(sId: string, fn: Function, fnInit?: Function) {
 		// to enable vs code to connect fragments with a controller, we may not mention
 		// the Dialog/Popover ID in the base controller; therefore we have these names
 		// hardcoded in each controller 
@@ -77,19 +76,19 @@ export default class Master extends BaseController {
 
 		//check for  filter on active plants
 		const oPlantsTableBinding = <ListBinding>this.getView().byId("plantsTable").getBinding('items')
-		const aActiveFilters = <Filter[]> oPlantsTableBinding.getFilters(FilterType.Application);
+		const aActiveFilters = <Filter[]>oPlantsTableBinding.getFilters(FilterType.Application);
 		// var aActiveFilters = oBinding.aApplicationFilters;
 
 		//modify filters only on fields plant_name and botanical_name
 		//leave active state filter (and possible others) as is
 		//therefore collect other filters
 		var aNewFilters = [];
-		const aRelevantPaths: (string|undefined)[] = ['plant_name', 'botanical_name', undefined]
+		const aRelevantPaths: (string | undefined)[] = ['plant_name', 'botanical_name', undefined]
 		for (var i = 0; i < aActiveFilters.length; i++) {
 			const oActiveFilter = <Filter>aActiveFilters[i];
 			const sPath: string | undefined = oActiveFilter.getPath();
 			if (!(aRelevantPaths.indexOf(sPath) > -1)) {
-			// if (!aRelevantPaths.includes(sPath)) {
+				// if (!aRelevantPaths.includes(sPath)) {
 				aNewFilters.push(aActiveFilters[i]);  //and	
 			}
 		}
@@ -115,7 +114,7 @@ export default class Master extends BaseController {
 		// collect distinct tags assigned to any plant
 		var aTagsAll = <string[]>[];
 		for (var i = 0; i < aPlants.length; i++) {
-			var aTagObjects = <PPlantTag[]> aPlants[i].tags;
+			var aTagObjects = <PPlantTag[]>aPlants[i].tags;
 			if (!!aTagObjects.length) {
 				// get tag texts from tag object list
 				var aTags = <string[]>aTagObjects.map(function (tag_obj) { return tag_obj.text; });
@@ -155,11 +154,25 @@ export default class Master extends BaseController {
 			this.oModelTaxonTree = new JSONModel(sUrl);
 		}
 
-		this.applyToFragment('settingsDialogFilter',
-			(oViewSettingsDialog: ViewSettingsDialog) => {
-				oViewSettingsDialog.setModel(this.oModelTaxonTree, 'selection');
-				oViewSettingsDialog.open();
+		var oView = this.getView();
+		const oDialog = <Dialog>this.byId('settingsDialogFilter');
+		if (!oDialog) {
+			Fragment.load({
+				name: 'plants.ui.view.fragments.master.MasterFilter',
+				id: oView.getId(),
+				controller: this
+			}).then((oControl: Control | Control[]) => {
+				const oDialog: Dialog = oControl as Dialog;
+				oView.addDependent(oDialog);
+				oDialog.setModel(this.oModelTaxonTree, 'selection');
+				oDialog.open();
 			});
+		} else {
+			oDialog.setModel(this.oModelTaxonTree, 'selection');
+			oDialog.open();
+		}
+
+
 	}
 
 	private _addSelectedFlag(aNodes: PTaxonTreeNode[], bSelected: boolean) {
@@ -195,7 +208,7 @@ export default class Master extends BaseController {
 		aNodes.forEach(function (oNode: TaxonTreeNodeInFilterDialog) {
 			if (oNode.level === iDeepestLevel && oNode.selected) {
 				aSelected.push(oNode);
-				if (oNode.plant_ids) 
+				if (oNode.plant_ids)
 					aPlantIds = aPlantIds.concat(oNode.plant_ids);
 			} else if (oNode.nodes && oNode.nodes.length > 0) {
 				var aInner = that._getSelectedItems(oNode.nodes, iDeepestLevel);
@@ -220,7 +233,7 @@ export default class Master extends BaseController {
 
 		//get currently active filters on plant/botanical name (set via search function)
 		//and add them to the new filter list
-		const aRelevantPaths: (string|undefined)[] = ['plant_name', 'botanical_name']
+		const aRelevantPaths: (string | undefined)[] = ['plant_name', 'botanical_name']
 		const aActiveFilters = <Filter[]>oBinding.getFilters('Application');;
 		for (var i = 0; i < aActiveFilters.length; i++) {
 			// if (aRelevantPaths.includes(aActiveFilters[i]['sPath'])
@@ -335,7 +348,19 @@ export default class Master extends BaseController {
 	}
 
 	onAdd(oEvent: Event) {
-		this.applyToFragment('dialogNewPlant', (oDialog: Dialog) => oDialog.open());
+		var oView = this.getView();
+		const oDialog = <Dialog>this.byId('dialogNewPlant');
+		if (!oDialog) {
+			Fragment.load({
+				name: this.mIdToFragment["dialogNewPlant"],
+				id: oView.getId(),
+				controller: this
+			}).then((oControl: Control | Control[]) => {
+				(<Dialog>oControl).open();
+			});
+		} else {
+			oDialog.open();
+		}
 	}
 
 	public onAddSaveButton(oEvent: Event) {
@@ -376,7 +401,6 @@ export default class Master extends BaseController {
 		const oTable = this.byId("plantsTable");
 		const oSortItem = oEvent.getParameter('sortItem');
 		const bDescending = oEvent.getParameter('sortDescending');
-		const mParams = oEvent.getParameters();
 		const oBinding = <ListBinding>oTable.getBinding("items");
 		let sPath;
 		const aSorters = [];
@@ -388,24 +412,23 @@ export default class Master extends BaseController {
 		oBinding.sort(aSorters);
 	}
 
-	private onResetFilters(oEvent: Event) {
+	public onResetFilters(oEvent: Event) {
 		var sUrl = Util.getServiceUrl('selection_data');
 		this.oModelTaxonTree.loadData(sUrl);
 	}
 
 	public onHoverImage(oAvatar: Avatar, evtDelegate: JQuery.Event) {
-		// apply _onHoverImageShow function to popover; hoisted
-
+		// apply _onHoverImageShow function to popover
 		var oBindingContext = oAvatar.getBindingContext('plants')!;
 		var oView = this.getView();
-		const oPopover = <Popover> this.byId('popoverPopupImage');
+		const oPopover = <Popover>this.byId('popoverPopupImage');
 		if (!oPopover) {
 			Fragment.load({
 				name: "plants.ui.view.fragments.master.MasterImagePopover",
 				id: oView.getId(),
 				controller: this
-			}).then((oControl: Control|Control[]) => {
-				const oPopover: Popover = oControl as Popover; 
+			}).then((oControl: Control | Control[]) => {
+				const oPopover: Popover = oControl as Popover;
 				oView.addDependent(oPopover);
 				oPopover.setBindingContext(oBindingContext, 'plants');
 				oPopover.openBy(oView, true);

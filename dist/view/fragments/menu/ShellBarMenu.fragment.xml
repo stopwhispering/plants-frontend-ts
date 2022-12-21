@@ -1,0 +1,13 @@
+<core:FragmentDefinition
+    xmlns="sap.m"
+    xmlns:core="sap.ui.core">
+    <Menu
+    	title="Administration"
+		id="menuShellBarMenu">
+    	<MenuItem
+    		text="Generate missing thumbnails"
+    		icon="sap-icon://crop"
+    		tooltip="Generate missing thumbnails"
+			press=".generateMissingThumbnails"/>
+	</Menu>
+</core:FragmentDefinition>

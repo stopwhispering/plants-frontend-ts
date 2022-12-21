@@ -1,0 +1,1 @@
+sap.ui.define([],function(){function n(n,o,e){console.log(n,o,e);console.log(this)}return n});

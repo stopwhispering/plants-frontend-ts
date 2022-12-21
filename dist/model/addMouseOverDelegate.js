@@ -1,0 +1,1 @@
+sap.ui.define([],function(){function e(e){let t=this;let n=t.getParent();let o=n.getParent();let r=o.getParent();let a=r.getParent();let l=a.getController();var g=l.onHoverImage;var i=l.onHoverAwayFromImage;t.addEventDelegate({onmouseover:g.bind(l,t),onmouseout:i.bind(l,t)})}return e});

@@ -1,0 +1,9 @@
+<c:FragmentDefinition
+	xmlns="sap.m"
+	xmlns:c="sap.ui.core"
+>
+	<BusyDialog 
+		id="busyDialog"
+		text="... now loading the data from a far away server"
+	/>
+</c:FragmentDefinition>
