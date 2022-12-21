@@ -301,7 +301,7 @@ export default class EventsUtil extends ManagedObject {
 		oOldEvent.date = <string>oEventEditData.date;
 		oOldEvent.event_notes = <string|undefined>oEventEditData.event_notes;
 		
-		const iOldObservationId = <int|undefined>oEditedObservation.id;
+		const iOldObservationId = oEditedObservation ? <int|undefined>oEditedObservation.id: undefined;
 		oOldEvent.observation = <PObservation>oEditedObservation;
 		if (oOldEvent.observation)
 			oOldEvent.observation.id = <int|undefined>iOldObservationId;

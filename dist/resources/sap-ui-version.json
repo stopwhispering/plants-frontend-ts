@@ -1,43 +1,43 @@
 {
 	"name": "plants.ui",
 	"version": "1.0.0",
-	"buildTimestamp": "202212211154",
+	"buildTimestamp": "202212211252",
 	"scmRevision": "",
 	"libraries": [
 		{
 			"name": "sap.f",
 			"version": "1.104.0",
-			"buildTimestamp": "202212211154",
+			"buildTimestamp": "202212211252",
 			"scmRevision": ""
 		},
 		{
 			"name": "sap.m",
 			"version": "1.104.0",
-			"buildTimestamp": "202212211154",
+			"buildTimestamp": "202212211252",
 			"scmRevision": ""
 		},
 		{
 			"name": "sap.ui.core",
 			"version": "1.104.0",
-			"buildTimestamp": "202212211154",
+			"buildTimestamp": "202212211252",
 			"scmRevision": ""
 		},
 		{
 			"name": "sap.ui.layout",
 			"version": "1.104.0",
-			"buildTimestamp": "202212211154",
+			"buildTimestamp": "202212211252",
 			"scmRevision": ""
 		},
 		{
 			"name": "sap.ui.unified",
 			"version": "1.104.0",
-			"buildTimestamp": "202212211154",
+			"buildTimestamp": "202212211252",
 			"scmRevision": ""
 		},
 		{
 			"name": "sap.uxap",
 			"version": "1.104.0",
-			"buildTimestamp": "202212211154",
+			"buildTimestamp": "202212211252",
 			"scmRevision": ""
 		}
 	]

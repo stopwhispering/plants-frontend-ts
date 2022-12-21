@@ -241,7 +241,7 @@ sap.ui.define(["plants/ui/customClasses/Util", "sap/m/MessageToast", "sap/ui/mod
       // update each attribute from the new model into the old event
       oOldEvent.date = oEventEditData.date;
       oOldEvent.event_notes = oEventEditData.event_notes;
-      const iOldObservationId = oEditedObservation.id;
+      const iOldObservationId = oEditedObservation ? oEditedObservation.id : undefined;
       oOldEvent.observation = oEditedObservation;
       if (oOldEvent.observation) oOldEvent.observation.id = iOldObservationId;
       oOldEvent.pot = oEditedPot;
