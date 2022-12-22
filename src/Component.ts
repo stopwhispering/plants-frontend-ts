@@ -91,7 +91,7 @@ export default class Component extends UIComponent {
 		// oModelsHelper.reloadImagesFromBackend();
 		oModelsHelper.reloadTaxaFromBackend();
 		oModelsHelper.reloadKeywordProposalsFromBackend();
-		oModelsHelper.reloadTraitCategoryProposalsFromBackend();
+		// oModelsHelper.reloadTraitCategoryProposalsFromBackend();
 		oModelsHelper.reloadNurserySourceProposalsFromBackend();
 		oModelsHelper.reloadPropertyNamesFromBackend();
 		// this.oEventsDataClone = {};  // avoid exceptions when saving before any event has been loaded

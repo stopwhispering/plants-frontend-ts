@@ -78,7 +78,7 @@ export interface Taxon {
     ipni_id_short: string;
     distribution: any;
     images: any[];
-    trait_categories: any[];
+    // trait_categories: any[];
     occurrenceImages?: any[];
     latest_image: any;
     tags: any[];
