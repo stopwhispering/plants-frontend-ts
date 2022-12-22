@@ -19,11 +19,11 @@ import Fragment from "sap/ui/core/Fragment"
 import Dialog from "sap/m/Dialog"
 import { PConfirmation } from "../definitions/MessagesFromBackend"
 import {
-	BackendResultPlantCloned, CancellationReasonChoice, NewPlant, ObjectStatusCollection,
-	ObjectStatusData, ParentalPlant, Tag
+	NewPlant, ObjectStatusCollection,
+	ObjectStatusData
 } from "../definitions/entities"
-import { IdToFragmentMap } from "../definitions/shared_types"
-import {PEvent, PEvents, PResultsEventResource, PSoil} from "../definitions/EventsFromBackend"
+import { IdToFragmentMap } from "../definitions/SharedLocal"
+import {PEvent, PEvents, PResultsEventResource, PRSoil} from "../definitions/EventsFromBackend"
 import { EventEditData, SoilEditData } from "../definitions/EventsLocal"
 import DatePicker from "sap/m/DatePicker"
 import Event from "sap/ui/base/Event"
@@ -47,13 +47,15 @@ import Component from "../Component"
 import RadioButton from "sap/m/RadioButton"
 import List from "sap/m/List"
 import GridListItem from "sap/f/GridListItem"
-import { PImage, PImagePlantTag, PKeyword } from "../definitions/image_entities"
+import { PImage, PImagePlantTag, PKeyword } from "../definitions/ImageFromBackend"
 import Token from "sap/m/Token"
-import { CancellationReason, DescendantPlantInput, LPropagationType, PPlant } from "../definitions/plant_entities"
+import { CancellationReason, PAssociatedPlantExtractForPlant, PPlant, PPlantTag, PResultsPlantCloned } from "../definitions/PlantsFromBackend"
+import { LDescendantPlantInput, LPropagationTypeData } from "../definitions/PlantsLocal"
 import Tokenizer from "sap/m/Tokenizer"
 import ColumnListItem from "sap/m/ColumnListItem"
 import ResourceModel from "sap/ui/model/resource/ResourceModel"
 import ResourceBundle from "sap/base/i18n/ResourceBundle"
+import { LCancellationReasonChoice } from "../definitions/PlantsLocal"
 
 /**
  * @namespace plants.ui.controller
@@ -98,7 +100,7 @@ export default class Detail extends BaseController {
 		const oSuggestionsModel = <JSONModel>this.getOwnerComponent().getModel('suggestions');
 		this.eventsUtil = EventsUtil.getInstance(this.applyToFragment.bind(this), oSuggestionsModel.getData());
 		this.propertiesUtil = PropertiesUtil.getInstance(this.applyToFragment.bind(this));
-		this.imageEventHandlers = ImageEventHandlers.getInstance(this.applyToFragment.bind(this));
+		this.imageEventHandlers = new ImageEventHandlers(this.applyToFragment.bind(this));
 
 		this.oLayoutModel = this.oComponent.getModel();
 
@@ -186,18 +188,18 @@ export default class Detail extends BaseController {
 		var sPathCurrentPlant = "/PlantsCollection/" + this._currentPlantIndex;
 		this._oCurrentPlant = this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
 		if (!this._oCurrentPlant.parent_plant) {
-			this._oCurrentPlant.parent_plant = {
-				id: undefined,
-				plant_name: undefined,
-				active: undefined
-			}
+			// this._oCurrentPlant.parent_plant = {
+			// 	id: undefined,
+			// 	plant_name: undefined,
+			// 	active: undefined
+			// }
 		}
 		if (!this._oCurrentPlant.parent_plant_pollen) {
-			this._oCurrentPlant.parent_plant_pollen = {
-				id: undefined,
-				plant_name: undefined,
-				active: undefined
-			}
+			// this._oCurrentPlant.parent_plant_pollen = {
+			// 	id: undefined,
+			// 	plant_name: undefined,
+			// 	active: undefined
+			// }
 		}
 		this.getView().bindElement({
 			path: sPathCurrentPlant,
@@ -321,7 +323,7 @@ export default class Detail extends BaseController {
 	onSetInactive(oEvent: Event) {
 		//set plant inactive after choosing a reason (e.g. freezing, drought, etc.)
 		//we don't use radiobuttongroup helper, so we must get selected element manually
-		var aReasons = <CancellationReasonChoice[]>this.oComponent.getModel('suggestions').getProperty('/cancellationReasonCollection');
+		var aReasons = <LCancellationReasonChoice[]>this.oComponent.getModel('suggestions').getProperty('/cancellationReasonCollection');
 		var oReasonSelected = aReasons.find(ele => ele.selected);
 
 		//set current plant's cancellation reason and date
@@ -344,15 +346,16 @@ export default class Detail extends BaseController {
 
 		if (!oEvent.getParameter('newValue').trim() || !parentPlant) {
 			// delete parent plant
-			var parentalPlant = <ParentalPlant>{
-				id: undefined,
-				plant_name: undefined,
-				active: undefined
-			}
+			var parentalPlant = undefined;
+			// var parentalPlant = <LParentalPlantInitial>{
+			// 	id: undefined,
+			// 	plant_name: undefined,
+			// 	active: undefined
+			// }
 
 		} else {
 			// set parent plant
-			parentalPlant = <ParentalPlant>{
+			parentalPlant = <PAssociatedPlantExtractForPlant>{
 				id: parentPlant.id,
 				plant_name: parentPlant.plant_name,
 				active: parentPlant.active
@@ -592,7 +595,7 @@ export default class Detail extends BaseController {
 		// check if same-text tag already exists for plant
 		var oPlant = this.oComponent.getModel('plants').getData().PlantsCollection[this._currentPlantIndex];
 		if (oPlant.tags) {
-			var bFound = oPlant.tags.find(function (oTag: Tag) {
+			var bFound = oPlant.tags.find(function (oTag: PPlantTag) {
 				return oTag.text === dDialogData.Value;
 			});
 			if (bFound) {
@@ -681,7 +684,7 @@ export default class Detail extends BaseController {
 			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Clone Plant (POST)'));
 	}
 
-	private _onReceivingPlantCloned(oBackendResultPlantCloned: BackendResultPlantCloned) {
+	private _onReceivingPlantCloned(oBackendResultPlantCloned: PResultsPlantCloned) {
 		// Cloning plant was successful; add clone to model and open in details view
 		this.applyToFragment('dialogClonePlant', (oDialog: Dialog) => oDialog.close());
 		MessageUtil.getInstance().addMessageFromBackend(oBackendResultPlantCloned.message);
@@ -868,7 +871,7 @@ export default class Detail extends BaseController {
 
 		if (!!descendantPlantData.parentPlantPollen && descendantPlantData.parentPlantPollen.length) {
 			var oParentPlantPollen = this.getPlantByName(descendantPlantData.parentPlantPollen);
-			newPlant.parent_plant_pollen = <ParentalPlant>{
+			newPlant.parent_plant_pollen = <PAssociatedPlantExtractForPlant>{
 				id: oParentPlantPollen.id,
 				plant_name: descendantPlantData.parentPlantPollen,
 				active: oParentPlantPollen.active
@@ -934,12 +937,12 @@ export default class Detail extends BaseController {
 			return;
 		}
 		const oDescendantModel = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
-		let descendantPlantData = <DescendantPlantInput>oDescendantModel.getData();
+		let descendantPlantData = <LDescendantPlantInput>oDescendantModel.getData();
 		
 		if (!descendantPlantData.propagationType || !descendantPlantData.propagationType.length) {
 			return;
 		}
-		const propagationType: LPropagationType = this.getSuggestionItem('propagationTypeCollection', descendantPlantData.propagationType);
+		const propagationType: LPropagationTypeData = this.getSuggestionItem('propagationTypeCollection', descendantPlantData.propagationType);
 		
 		if (descendantPlantData.parentPlant && descendantPlantData.parentPlant.trim().length) {
 			const oParentPlant: PPlant = this.getPlantByName(descendantPlantData.parentPlant);
@@ -1132,7 +1135,7 @@ export default class Detail extends BaseController {
 			MessageToast.show('No or more than one soil selected');
 			throw new Error('No or more than one soil selected');
 		}
-		var oSelectedSoil = <PSoil>oContexts[0].getObject();
+		var oSelectedSoil = <PRSoil>oContexts[0].getObject();
 		this.applyToFragment('dialogEvent', (oDialog: Dialog) => {
 			const oModelNewEvent = <JSONModel>oDialog.getModel("editOrNewEvent");
 			const oSelectedDataNew = Util.getClonedObject(oSelectedSoil);
@@ -1179,7 +1182,7 @@ export default class Detail extends BaseController {
 	}
 	onOpenDialogEditSoil(oEvent: Event) {
 		const oSource = <Button>oEvent.getSource();
-		const oSoil = <PSoil>oSource.getBindingContext('soils')!.getObject();
+		const oSoil = <PRSoil>oSource.getBindingContext('soils')!.getObject();
 		this.eventsUtil.openDialogEditSoil(this.getView(), oSoil);
 	}
 	onOpenDialogNewSoil(oEvent: Event) {

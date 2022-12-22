@@ -3,30 +3,22 @@ import * as Util from "plants/ui/customClasses/Util";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import GridListItem from "sap/f/GridListItem";
-import { PImage, PImagePlantTag, PKeyword } from "../definitions/image_entities";
+import { PImage, PImagePlantTag, PKeyword } from "../definitions/ImageFromBackend";
 import { PEvent } from "../definitions/EventsFromBackend";
 import Popover from "sap/m/Popover";
 import Icon from "sap/ui/core/Icon";
 import FileUploader from "sap/ui/unified/FileUploader";
-import { PPlant } from "../definitions/plant_entities";
+import { PPlant } from "../definitions/PlantsFromBackend";
 
 
 /**
  * @namespace plants.ui.customClasses
  */
 export default class ImageEventHandlers extends ManagedObject{
-		private static _instance: ImageEventHandlers;
 		private applyToFragment: Function;
 		       
-        // generate or return singleton
-        public static getInstance(applyToFragment?: Function): ImageEventHandlers {
-            if (!ImageEventHandlers._instance && applyToFragment) {
-                ImageEventHandlers._instance = new ImageEventHandlers(applyToFragment);
-            }
-            return ImageEventHandlers._instance;
-        }
 
-		private constructor(applyToFragment: Function) {
+		public constructor(applyToFragment: Function) {
 			super();
 			this.applyToFragment = applyToFragment;
 		}

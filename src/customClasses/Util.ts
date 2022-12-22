@@ -1,7 +1,7 @@
 //static utility functions
 import BusyDialog from "sap/m/BusyDialog"
 import Constants from "plants/ui/Constants"
-import { AnyDict, StringToNumberMap } from "../definitions/shared_types";
+import { AnyDict, StringToNumberMap } from "../definitions/SharedLocal";
 import MessageToast from "sap/m/MessageToast";
 
 /**
@@ -63,7 +63,7 @@ export function stopBusyDialog() {
 	}
 }
 
-export function getToday(): staring {
+export function getToday(): string {
 	var today = new Date();
 	var dd = String(today.getDate()).padStart(2, '0');
 	var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!

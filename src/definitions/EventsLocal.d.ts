@@ -1,6 +1,5 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
-import { PSoil, PObservation, PPot, PEvent } from "./EventsFromBackend";
-import { PImage } from "./image_entities";
+import { PRSoil, PRObservation, PRPot, PEvent } from "./EventsFromBackend";
 
 /**
  * @namespace plants.ui.definitions.entities
@@ -30,10 +29,10 @@ export interface EventEditData{
 
     date: string;
     event_notes?: string;
-    observation?: PObservation;
-    soil?: PSoil;
+    observation?: PRObservation;
+    soil?: PRSoil;
     plant_id: number;
-    pot?: PPot;
+    pot?: PRPot;
 
     segments : EventEditDataSegments;
     mode: 'new' | 'edit'
@@ -59,3 +58,9 @@ export interface PlantsEventsDict{
 export interface EventsModelData {
     PlantsEventsDict: PlantsEventsDict;
 }
+
+export interface InitialSoil extends Omit<PRSoil, "id" | "soil_name">{
+// for initially opening the dialog before selecting a soil
+    id?: number;
+    soil_name?: string;
+  }

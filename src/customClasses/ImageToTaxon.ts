@@ -2,8 +2,8 @@ import MessageToast from "sap/m/MessageToast"
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Icon from "sap/ui/core/Icon";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { PImage } from "../definitions/image_entities";
-import { PTaxon, PTaxonImage } from "../definitions/taxon_entities";
+import { PImage } from "../definitions/ImageFromBackend";
+import { PTaxon, PTaxonImage } from "../definitions/TaxonFromBackend";
 
 /**
  * @namespace plants.ui.customClasses

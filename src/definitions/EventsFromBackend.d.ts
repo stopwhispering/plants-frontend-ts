@@ -88,4 +88,8 @@ export interface RCreateOrUpdateEvent {
   pot?: PRPot;
   images: PImage[];
 }
-export interface RRequestCreateOrUpdateEvent {}
+export interface RRequestCreateOrUpdateEvent {
+  plants_to_events: {
+    [k: string]: RCreateOrUpdateEvent[];
+  };
+}

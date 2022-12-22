@@ -1,7 +1,7 @@
 // helper class for navigation/route-specific methods used applied in multiple controllers
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Component from "../Component";
-import { PPlant } from "../definitions/plant_entities";
+import { PPlant } from "../definitions/PlantsFromBackend";
 
 /**
  * @namespace plants.ui.customClasses

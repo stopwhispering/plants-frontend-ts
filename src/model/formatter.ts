@@ -1,6 +1,6 @@
 import * as Util from "plants/ui/customClasses/Util";
 import BaseController from "../controller/BaseController";
-import { LPropagationType } from "../definitions/plant_entities";
+import { LPropagationTypeData } from "../definitions/PlantsLocal";
 
 /**
  * @namespace plants.ui.model
@@ -48,19 +48,7 @@ export default class formatter{
 		}
 	}
 	
-	// propertyDesignByType(propertyType){
-	// 	switch (propertyType){
-	// 		case 'plant':
-	// 			return 'Success';
-	// 		case 'taxon':
-	// 			return 'None';
-	// 		default:
-	// 			return 'Error';
-	// 	}	
-	// },
-	
 	public colorByPreviewOrNot(sImage: string, sPlantPreviewImage: string){
-		// if(sPlantPreviewImage !== null && sPlantPreviewImage !== undefined){
 		if(!!sImage && !!sPlantPreviewImage){
 			// uri may be split via forward or backward slashes
 			var sSplit = (sPlantPreviewImage.indexOf('/') === -1) ? '\\' : '/';
@@ -81,7 +69,7 @@ export default class formatter{
 				return 'blue';
 			}
 		}
-		return '#E69A17';
+		return '#E69A17';  // orange
 	}
 
 	public timestampToDateShort(ts: string){
@@ -237,7 +225,7 @@ export default class formatter{
 		}
 	}
 	
-	public createDescendantParentPollenVisibleByPropagationType(propagationType: LPropagationType){
+	public createDescendantParentPollenVisibleByPropagationType(propagationType: LPropagationTypeData){
 		if (!propagationType){
 			// undefined or empty string
 			return false;

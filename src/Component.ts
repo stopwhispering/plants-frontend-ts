@@ -5,29 +5,32 @@ import FlexibleColumnLayoutSemanticHelper from "sap/f/FlexibleColumnLayoutSemant
 import ModelsHelper from "plants/ui/model/ModelsHelper"
 import MessageUtil from "plants/ui/customClasses/MessageUtil"
 import * as Util from "plants/ui/customClasses/Util";
-import {PlantIdToEventsMap, PlantsCollection, TaxonData } from "./definitions/entities"
+import {
+	LTaxonData } from "./definitions/TaxonLocal"
 import Navigation from "./customClasses/Navigation"
-import { ImageMap, PImage, PResultsImageResource } from "./definitions/image_entities"
+import { PImage, PResultsImageResource } from "./definitions/ImageFromBackend"
+import { LImageMap } from "./definitions/ImageLocal"
 import UriParameters from "sap/base/util/UriParameters"
 import View from "sap/ui/core/mvc/View"
 import { LayoutType } from "sap/f/library"
 import FlexibleColumnLayout from "sap/f/FlexibleColumnLayout"
-import { CategoryToPropertiesInCategoryMap, PlantIdToPropertyCollectionMap } from "./definitions/property_entities"
-import VariantItem from "sap/m/VariantItem"
+import { LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap } from "./definitions/PropertiesLocal"
+import { PlantIdToEventsMap } from "./definitions/EventsLocal"
+import { PPlantsUpdateRequest } from "./definitions/PlantsFromBackend"
 
 /**
  * @namespace plants.ui
  */
 export default class Component extends UIComponent {
 
-	public imagesRegistry: ImageMap = {};
-	public imagesRegistryClone: ImageMap = {};
+	public imagesRegistry: LImageMap = {};
+	public imagesRegistryClone: LImageMap = {};
 	public imagesPlantsLoaded = new Set();
 	public oEventsDataClone = <PlantIdToEventsMap>{};  // avoid exceptions when saving before any event has been loaded
-	public oPropertiesDataClone: PlantIdToPropertyCollectionMap = {};
-	public oPlantsDataClone = <PlantsCollection>{};
-	public oTaxonDataClone = <TaxonData>{};
-	public oPropertiesTaxonDataClone = <CategoryToPropertiesInCategoryMap>{};
+	public oPropertiesDataClone: LPlantIdToPropertyCollectionMap = {};
+	public oPlantsDataClone = <PPlantsUpdateRequest>{};
+	public oTaxonDataClone = <LTaxonData>{};
+	public oPropertiesTaxonDataClone = <LCategoryToPropertiesInCategoryMap>{};
 
 	public static metadata = {
 		manifest: "json"

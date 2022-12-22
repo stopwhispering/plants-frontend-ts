@@ -1,5 +1,6 @@
 services:
       plants-frontend-ts:
+        container_name: plants-frontend-container
         image: nginx:latest
 
         volumes:

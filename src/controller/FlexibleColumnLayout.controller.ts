@@ -9,14 +9,14 @@ import Token from "sap/m/Token"
 import Filter from "sap/ui/model/Filter"
 import FilterOperator from "sap/ui/model/FilterOperator"
 import Navigation from "plants/ui/customClasses/Navigation"
-import { IdToFragmentMap } from "../definitions/shared_types"
+import { IdToFragmentMap } from "../definitions/SharedLocal"
 import Router from "sap/ui/core/routing/Router"
 import SearchManager from "sap/f/SearchManager"
 import ListBinding from "sap/ui/model/ListBinding"
 import Event from "sap/ui/base/Event"
 import MultiInput from "sap/m/MultiInput"
 import FileUploader from "sap/ui/unified/FileUploader"
-import { PImageUploadedMetadata } from "../definitions/image_entities"
+import { PImageUploadedMetadata } from "../definitions/ImageFromBackend"
 import Dialog from "sap/m/Dialog"
 import Menu from "sap/m/Menu"
 import { MessageType } from "sap/ui/core/library"
@@ -48,7 +48,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		this._oRouter.attachBeforeRouteMatched(this._onBeforeRouteMatched, this);
 		this._oRouter.attachRouteMatched(this._onRouteMatched, this);
 
-		this.imageEventHandlers = ImageEventHandlers.getInstance(this.applyToFragment.bind(this));
+		this.imageEventHandlers = new ImageEventHandlers(this.applyToFragment.bind(this));
 	}
 
 	private _onBeforeRouteMatched(oEvent: Event) {

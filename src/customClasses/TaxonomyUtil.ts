@@ -8,14 +8,14 @@ import Dialog from "sap/m/Dialog";
 import Input from "sap/m/Input";
 import GenericTag from "sap/m/GenericTag";
 import Detail from "../controller/Detail.controller";
-import { Taxon, TaxonData } from "../definitions/entities";
 import View from "sap/ui/core/mvc/View";
 import Component from "../Component";
 import Table from "sap/m/Table";
 import ColumnListItem from "sap/m/ColumnListItem";
-import { PPlant } from "../definitions/plant_entities";
-import { PKewSearchResultEntry, PResultsFetchTaxonImages, PResultsSaveTaxonRequest, PResultsTaxonInfoRequest } from "../definitions/taxon_entities";
-import { ResponseStatus } from "../definitions/shared_types";
+import { PPlant } from "../definitions/PlantsFromBackend";
+import { PKewSearchResultEntry, PResultsFetchTaxonImages, PResultsSaveTaxonRequest, PResultsTaxonInfoRequest, PTaxon } from "../definitions/TaxonFromBackend";
+import { ResponseStatus } from "../definitions/SharedLocal";
+import { LTaxonData } from "../definitions/TaxonLocal";
 
 /**
  * @namespace plants.ui.customClasses
@@ -128,7 +128,7 @@ export default class TaxonomyUtil extends ManagedObject {
 		}
 
 		//add taxon to model's clone if new
-		var oTaxonDataClone = <TaxonData> (<Component> oDetailController.getOwnerComponent()).oTaxonDataClone;
+		var oTaxonDataClone = <LTaxonData> (<Component> oDetailController.getOwnerComponent()).oTaxonDataClone;
 		if (oTaxonDataClone.TaxaDict[data.taxon_data.id] === undefined) {
 			oTaxonDataClone.TaxaDict[data.taxon_data.id] = Util.getClonedObject(data.taxon_data);
 		}
@@ -196,7 +196,7 @@ export default class TaxonomyUtil extends ManagedObject {
 		if (oView.getBindingContext('taxon') === undefined || oView.getBindingContext('taxon')!.getObject() === undefined) {
 			var sCurrentBotanicalName = '';
 		} else {
-			sCurrentBotanicalName = (<Taxon> oView.getBindingContext('taxon')!.getObject()).name;
+			sCurrentBotanicalName = (<PTaxon> oView.getBindingContext('taxon')!.getObject()).name;
 		}
 		(<Input> oView.byId('inputFindSpecies')).setValue(sCurrentBotanicalName);
 

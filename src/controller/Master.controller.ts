@@ -17,7 +17,8 @@ import Event from "sap/ui/base/Event"
 import ListBinding from "sap/ui/model/ListBinding"
 import ViewSettingsDialog from "sap/m/ViewSettingsDialog"
 import StandardTreeItem from "sap/m/StandardTreeItem"
-import { PTaxonTreeNode, TaxonTreeNodeInFilterDialog } from "../definitions/selection"
+import { PTaxonTreeNode } from "../definitions/SelectionFromBackend"
+import { LTaxonTreeNodeInFilterDialog } from "../definitions/SelectionLocal"
 import SegmentedButton from "sap/m/SegmentedButton"
 import Tree from "sap/m/Tree"
 import OverflowToolbar from "sap/m/OverflowToolbar"
@@ -25,8 +26,8 @@ import Text from "sap/m/Text"
 import Dialog from "sap/m/Dialog"
 import Input from "sap/m/Input"
 import Avatar from "sap/m/Avatar"
-import { PPlant, PPlantTag } from "../definitions/plant_entities"
-import { IdToFragmentMap } from "../definitions/shared_types"
+import { PPlant, PPlantTag } from "../definitions/PlantsFromBackend"
+import { IdToFragmentMap } from "../definitions/SharedLocal"
 
 /**
  * @namespace plants.ui.controller
@@ -178,7 +179,7 @@ export default class Master extends BaseController {
 	private _addSelectedFlag(aNodes: PTaxonTreeNode[], bSelected: boolean) {
 		const that = this;
 		aNodes.forEach(function (oNode: PTaxonTreeNode) {
-			let oNodeInFilterDialog: TaxonTreeNodeInFilterDialog = <TaxonTreeNodeInFilterDialog>oNode;
+			let oNodeInFilterDialog: LTaxonTreeNodeInFilterDialog = <LTaxonTreeNodeInFilterDialog>oNode;
 			oNodeInFilterDialog.selected = bSelected;
 			if (!!oNodeInFilterDialog.nodes && oNodeInFilterDialog.nodes.length > 0) {
 				that._addSelectedFlag(oNodeInFilterDialog.nodes, bSelected);
@@ -199,13 +200,13 @@ export default class Master extends BaseController {
 		this.oModelTaxonTree.refresh();
 	}
 
-	private _getSelectedItems(aNodes: TaxonTreeNodeInFilterDialog[], iDeepestLevel: int): [TaxonTreeNodeInFilterDialog[], int[]] {
+	private _getSelectedItems(aNodes: LTaxonTreeNodeInFilterDialog[], iDeepestLevel: int): [LTaxonTreeNodeInFilterDialog[], int[]] {
 		// find selected nodes on deepest levels and collect their plant ids
 		// recursive!
-		let aSelected: TaxonTreeNodeInFilterDialog[] = [];
+		let aSelected: LTaxonTreeNodeInFilterDialog[] = [];
 		let aPlantIds: int[] = [];
 		const that = this;
-		aNodes.forEach(function (oNode: TaxonTreeNodeInFilterDialog) {
+		aNodes.forEach(function (oNode: LTaxonTreeNodeInFilterDialog) {
 			if (oNode.level === iDeepestLevel && oNode.selected) {
 				aSelected.push(oNode);
 				if (oNode.plant_ids)

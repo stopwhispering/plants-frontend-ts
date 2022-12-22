@@ -6,9 +6,12 @@ import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
 import Context from "sap/ui/model/Context";
 import {
-	CategoryToPropertiesInCategoryMap, PlantPropertiesRequest, PPropertiesInCategory, PProperty,
-	PPropertyName, PPropertyValue, PResultsPropertiesForPlant, TemporaryAvailableProperties
-} from "../definitions/property_entities";
+	PPropertiesInCategory, PProperty,
+	PPropertyName, PPropertyValue, PResultsPropertiesForPlant
+} from "../definitions/PropertiesFromBackend";
+import {
+	LCategoryToPropertiesInCategoryMap, LPlantPropertiesRequest, LTemporaryAvailableProperties
+} from "../definitions/PropertiesLocal";
 import View from "sap/ui/core/mvc/View";
 import Button from "sap/m/Button";
 import Popover from "sap/m/Popover";
@@ -16,8 +19,8 @@ import Component from "../Component";
 import Input from "sap/m/Input";
 import CheckBox from "sap/m/CheckBox";
 import Dialog from "sap/m/Dialog";
-import { PPlant } from "../definitions/plant_entities";
-import { ResponseStatus } from "../definitions/shared_types";
+import { PPlant } from "../definitions/PlantsFromBackend";
+import { ResponseStatus } from "../definitions/SharedLocal";
 
 /**
  * @namespace plants.ui.customClasses
@@ -94,13 +97,13 @@ export default class PropertiesUtil extends ManagedObject {
 		var aPropertiesAvailable: PPropertyName[] = oModelPropertyNames.getProperty(sPathPropertiesAvailable);
 
 		// check which properties are already used for this plant
-		var aCompared: TemporaryAvailableProperties[] = this._comparePropertiesLists(aPropertiesAvailable, oCategory.properties);
+		var aCompared: LTemporaryAvailableProperties[] = this._comparePropertiesLists(aPropertiesAvailable, oCategory.properties);
 		return new JSONModel(aCompared);
 	}
 
-	private _comparePropertiesLists(aPropertiesAvailable: PPropertyName[], aPropertiesUsed: PProperty[]): TemporaryAvailableProperties[] {
+	private _comparePropertiesLists(aPropertiesAvailable: PPropertyName[], aPropertiesUsed: PProperty[]): LTemporaryAvailableProperties[] {
 
-		var aList: TemporaryAvailableProperties[] = [];
+		var aList: LTemporaryAvailableProperties[] = [];
 		if (aPropertiesAvailable === undefined) {
 			aPropertiesAvailable = [];
 		}
@@ -127,7 +130,7 @@ export default class PropertiesUtil extends ManagedObject {
 				selected_taxon = false;
 				blocked_taxon = false;
 			}
-			var oItem: TemporaryAvailableProperties = {
+			var oItem: LTemporaryAvailableProperties = {
 				property_name: sName,
 				property_name_id: entry.property_name_id!,
 				selected_plant: selected_plant,
@@ -225,7 +228,7 @@ export default class PropertiesUtil extends ManagedObject {
 			oCategory.properties.push(oProperty);
 
 			//properties taxon model
-			var oEntry = <TemporaryAvailableProperties>{
+			var oEntry = <LTemporaryAvailableProperties>{
 				property_name: sPropertyName,
 				property_name_id: undefined
 			};
@@ -285,7 +288,7 @@ export default class PropertiesUtil extends ManagedObject {
 	public addProperty(oView: View, oSource: Button) {
 		// add selected properties to the plant's properties
 		// var aModelProperties = this.getView().getModel('properties');
-		var aPropertiesFromDialog = <TemporaryAvailableProperties[]>(<JSONModel>oSource.getModel('propertiesCompare')).getData();
+		var aPropertiesFromDialog = <LTemporaryAvailableProperties[]>(<JSONModel>oSource.getModel('propertiesCompare')).getData();
 		// var iCountBefore = evt.getSource().getBindingContext('properties').getObject().properties.length;
 		const oPropertiesInCategory = <PPropertiesInCategory>oSource.getBindingContext('properties')!.getObject();
 		var aProperties = <PProperty[]>oPropertiesInCategory.properties;
@@ -293,7 +296,7 @@ export default class PropertiesUtil extends ManagedObject {
 		var iTaxonId = (<PPlant>oSource.getBindingContext('plants')!.getObject()).taxon_id;
 		// aPropertiesFromDialog.forEach(function(entry) {
 		for (var i = 0; i < aPropertiesFromDialog.length; i++) {
-			var entry = <TemporaryAvailableProperties>aPropertiesFromDialog[i];
+			var entry = <LTemporaryAvailableProperties>aPropertiesFromDialog[i];
 			if ((entry.selected_plant && !entry.blocked_plant) || (entry.selected_taxon && !entry.blocked_taxon)) {
 				// find out if we already have that proprety name node for taxon or if we need to create it
 				var found = aProperties.find(ele => ele.property_name_id == entry.property_name_id);
@@ -350,7 +353,7 @@ export default class PropertiesUtil extends ManagedObject {
 		oPopover.destroy();
 	}
 
-	private _insertPropertyIntoPropertiesTaxaModel(oPropertyValue: PPropertyValue, iCategoryId: int, iTaxonId: int, entry: TemporaryAvailableProperties, oPropertiesTaxaModel: JSONModel) {
+	private _insertPropertyIntoPropertiesTaxaModel(oPropertyValue: PPropertyValue, iCategoryId: int, iTaxonId: int, entry: LTemporaryAvailableProperties, oPropertiesTaxaModel: JSONModel) {
 		// add a property value to taxon properties model
 		var aCurrentPropertyNames: PProperty[] = oPropertiesTaxaModel.getData().propertiesTaxon[iTaxonId][iCategoryId].properties;
 
@@ -388,7 +391,7 @@ export default class PropertiesUtil extends ManagedObject {
 
 		// if plant's taxon's properties have not been already loaded, load them as well
 		if (oPlant.taxon_id && !this._taxon_properties_already_loaded(oOwnerComponent, oPlant.taxon_id))
-			var oPayload = <PlantPropertiesRequest>{ taxon_id: oPlant.taxon_id };
+			var oPayload = <LPlantPropertiesRequest>{ taxon_id: oPlant.taxon_id };
 		else
 			oPayload = {};
 
@@ -439,7 +442,7 @@ export default class PropertiesUtil extends ManagedObject {
 
 		var oModelPropertiesTaxon = oOwnerComponent.getModel('propertiesTaxa');
 		var oModelPropertiesPlant = oOwnerComponent.getModel('properties');
-		var oCategoriesTaxon: CategoryToPropertiesInCategoryMap = oModelPropertiesTaxon.getProperty('/propertiesTaxon/' + oPlant.taxon_id + '/');
+		var oCategoriesTaxon: LCategoryToPropertiesInCategoryMap = oModelPropertiesTaxon.getProperty('/propertiesTaxon/' + oPlant.taxon_id + '/');
 		var aCategoriesPlant: PPropertiesInCategory[] = oModelPropertiesPlant.getProperty('/propertiesPlants/' + oPlant.id + '/categories/');
 		const aCategoryIds: int[] = Object.keys(oCategoriesTaxon).map(sCategoryId => parseInt(sCategoryId));
 		for (var i = 0; i < Object.keys(oCategoriesTaxon).length; i++) {

@@ -7,7 +7,7 @@ import formatter from "plants/ui/model/formatter";
 import Component from "../Component";
 import { MessageType } from "sap/ui/core/library";
 import Event from "sap/ui/base/Event";
-import { PImage } from "../definitions/image_entities";
+import { PImage } from "../definitions/ImageFromBackend";
 
 /**
  * @namespace plants.ui.model
@@ -158,16 +158,6 @@ export default class ModelsHelper extends ManagedObject {
 			this._component.getModel('keywords').loadData(sUrl);
 		}
 	}
-
-	// reloadTraitCategoryProposalsFromBackend() {
-	// 	// get trait categories collection from backend proposals resource
-	// 	var sUrl = Util.getServiceUrl('proposals/TraitCategoryProposals');
-	// 	if (!this._component.getModel('trait_categories')) {
-	// 		this._component.setModel(new JSONModel(sUrl), 'trait_categories');
-	// 	} else {
-	// 		this._component.getModel('trait_categories').loadData(sUrl);
-	// 	}
-	// }
 
 	reloadNurserySourceProposalsFromBackend() {
 		var sUrl = Util.getServiceUrl('proposals/NurserySourceProposals');

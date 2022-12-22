@@ -11,19 +11,23 @@ import Navigation from "plants/ui/customClasses/Navigation"
 import Dialog from "sap/m/Dialog";
 import Component from "../Component";
 import Router from "sap/ui/core/routing/Router";
-import { Taxon, TaxonMap } from "../definitions/entities";
-import { ImageMap, PImage } from "../definitions/image_entities";
+import { LTaxonMap } from "../definitions/TaxonLocal";
+import { PImage } from "../definitions/ImageFromBackend";
+import { LImageMap } from "../definitions/ImageLocal";
 import Control from "sap/ui/core/Control";
-import { CategoryToPropertiesInCategoryMap, PlantIdToPropertyCollectionMap, PPropertyCollectionPlant, PropertiesTaxonModelData } from "../definitions/property_entities";
-import { LPropagationType, PPlant, PResultsPlantsUpdate } from "../definitions/plant_entities";
+import { PPropertyCollectionPlant } from "../definitions/PropertiesFromBackend";
+import { LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap, LPropertiesTaxonModelData } from "../definitions/PropertiesLocal";
+import { PPlant, PResultsPlantsUpdate } from "../definitions/PlantsFromBackend";
 import ListBinding from "sap/ui/model/ListBinding";
 import Label from "sap/ui/webc/main/Label";
-import { IdToFragmentMap } from "../definitions/shared_types";
+import { IdToFragmentMap } from "../definitions/SharedLocal";
 import { PlantIdToEventsMap } from "../definitions/EventsLocal";
 import { PConfirmation, PMessage } from "../definitions/MessagesFromBackend";
 import Event from "sap/ui/base/Event";
 import Popover from "sap/m/Popover";
 import ViewSettingsDialog from "sap/m/ViewSettingsDialog";
+import { PTaxon } from "../definitions/TaxonFromBackend";
+import { LPropagationTypeData } from "../definitions/PlantsLocal";
 
 /**
  * @namespace plants.ui.controller
@@ -113,7 +117,7 @@ export default class BaseController extends Controller {
 		return aModifiedPlants;
 	}
 
-	public getModifiedTaxa(): Taxon[] {
+	public getModifiedTaxa(): PTaxon[] {
 		// get taxon model and identify modified items
 		// difference to plants and images: data is stored with key in a dictionary, not in an array
 		// we identify the modified sub-dictionaries and return a list of these
@@ -121,15 +125,15 @@ export default class BaseController extends Controller {
 		//	     to the clone as well
 		// we don't check for deleted taxa as there's no function for doing this in frontend
 		var oModelTaxon = this.oComponent.getModel('taxon');
-		var dDataTaxon: TaxonMap = oModelTaxon.getData().TaxaDict;
-		var dDataTaxonOriginal: TaxonMap = this.oComponent.oTaxonDataClone['TaxaDict'];
+		var dDataTaxon: LTaxonMap = oModelTaxon.getData().TaxaDict;
+		var dDataTaxonOriginal: LTaxonMap = this.oComponent.oTaxonDataClone['TaxaDict'];
 
 		//get taxon id's, i.e. keys of the taxa dict
 		var keys_s = <string[]>Object.keys(dDataTaxonOriginal);
 		var keys = <int[]>keys_s.map(k => parseInt(k));
 
 		//for each key, check if it's value is different from the clone
-		var aModifiedTaxonList: Taxon[] = [];
+		var aModifiedTaxonList: PTaxon[] = [];
 
 		keys.forEach(function (key) {
 			if (!Util.dictsAreEqual(dDataTaxonOriginal[key],
@@ -172,8 +176,8 @@ export default class BaseController extends Controller {
 		return oModifiedEventsDict;
 	}
 
-	private _getPropertiesSansTaxa(dProperties_: PlantIdToPropertyCollectionMap): PlantIdToPropertyCollectionMap {
-		var dProperties: PlantIdToPropertyCollectionMap = Util.getClonedObject(dProperties_);
+	private _getPropertiesSansTaxa(dProperties_: LPlantIdToPropertyCollectionMap): LPlantIdToPropertyCollectionMap {
+		var dProperties: LPlantIdToPropertyCollectionMap = Util.getClonedObject(dProperties_);
 		for (var i = 0; i < Object.keys(dProperties).length; i++) {
 			const iPlantId: int = parseInt(Object.keys(dProperties)[i]);
 			var oTaxonPropertiesInCategories: PPropertyCollectionPlant = dProperties[iPlantId] as unknown as PPropertyCollectionPlant;
@@ -206,14 +210,14 @@ export default class BaseController extends Controller {
 		// returns a dict with properties for those plants where at least one property has been modified, added, or deleted
 		// for these plants, properties are supplied completely; modifications are then identified in backend
 		const oModelProperties = this.oComponent.getModel('properties');
-		const dDataProperties: PlantIdToPropertyCollectionMap = oModelProperties.getData().propertiesPlants;
+		const dDataProperties: LPlantIdToPropertyCollectionMap = oModelProperties.getData().propertiesPlants;
 		// clean up the properties model data (returns a clone, not the original object!)
-		const dDataPropertiesCleaned: PlantIdToPropertyCollectionMap = this._getPropertiesSansTaxa(dDataProperties);
-		const dDataPropertiesOriginal: PlantIdToPropertyCollectionMap = this.oComponent.oPropertiesDataClone;
+		const dDataPropertiesCleaned: LPlantIdToPropertyCollectionMap = this._getPropertiesSansTaxa(dDataProperties);
+		const dDataPropertiesOriginal: LPlantIdToPropertyCollectionMap = this.oComponent.oPropertiesDataClone;
 
 		// get plants for which we have properties in the original dataset
 		// then, for each of them, check whether properties have been changed
-		let dModifiedPropertiesDict: PlantIdToPropertyCollectionMap = {};
+		let dModifiedPropertiesDict: LPlantIdToPropertyCollectionMap = {};
 		const keys_clone_s = Object.keys(dDataPropertiesOriginal);
 		const keys_clone = <int[]>keys_clone_s.map(k => parseInt(k));
 		keys_clone.forEach(function (key) {
@@ -227,11 +231,11 @@ export default class BaseController extends Controller {
 		return dModifiedPropertiesDict;
 	}
 
-	private _getModifiedPropertiesTaxa(): CategoryToPropertiesInCategoryMap {
+	private _getModifiedPropertiesTaxa(): LCategoryToPropertiesInCategoryMap {
 		const oModelProperties = this.oComponent.getModel('propertiesTaxa');
-		const oDataPropertiesTaxon: PropertiesTaxonModelData = oModelProperties.getData();
-		const oPropertiesTaxon: CategoryToPropertiesInCategoryMap = oDataPropertiesTaxon.propertiesTaxon;
-		const oPropertiesTaxonOriginal: CategoryToPropertiesInCategoryMap = this.oComponent.oPropertiesTaxonDataClone;
+		const oDataPropertiesTaxon: LPropertiesTaxonModelData = oModelProperties.getData();
+		const oPropertiesTaxon: LCategoryToPropertiesInCategoryMap = oDataPropertiesTaxon.propertiesTaxon;
+		const oPropertiesTaxonOriginal: LCategoryToPropertiesInCategoryMap = this.oComponent.oPropertiesTaxonDataClone;
 
 		if (!oPropertiesTaxonOriginal) {
 			return {};
@@ -239,7 +243,7 @@ export default class BaseController extends Controller {
 
 		// get taxa for which we have properties in the original dataset
 		// then, for each of them, check whether properties have been changed
-		var oModifiedPropertiesDict: CategoryToPropertiesInCategoryMap = {};
+		var oModifiedPropertiesDict: LCategoryToPropertiesInCategoryMap = {};
 		const keys_clone_s = Object.keys(oPropertiesTaxonOriginal);
 		const keys_clone = keys_clone_s.map(key => parseInt(key));
 		keys_clone.forEach(function (key) {
@@ -255,8 +259,8 @@ export default class BaseController extends Controller {
 
 	getModifiedImages(): PImage[] {
 		// identify modified images by comparing images with their clones (created after loading)
-		var oImages: ImageMap = this.oComponent.imagesRegistry;
-		var oImagesClone: ImageMap = this.oComponent.imagesRegistryClone;
+		var oImages: LImageMap = this.oComponent.imagesRegistry;
+		var oImagesClone: LImageMap = this.oComponent.imagesRegistryClone;
 
 		var aModifiedImages: PImage[] = [];
 		Object.keys(oImages).forEach(path => {
@@ -328,7 +332,7 @@ export default class BaseController extends Controller {
 
 
 			// cutting occurrence images (read-only)
-			var aModifiedTaxaSave: Taxon[] = Util.getClonedObject(aModifiedTaxa);
+			var aModifiedTaxaSave: PTaxon[] = Util.getClonedObject(aModifiedTaxa);
 			aModifiedTaxaSave = aModifiedTaxaSave.map(m => {
 				delete m.occurrenceImages;
 				return m;
@@ -622,13 +626,13 @@ export default class BaseController extends Controller {
 		Util.stopBusyDialog(); // had been started in details onPatternMatched
 	}
 
-	getSuggestionItem(rootKey: 'propagationTypeCollection', key: string | LPropagationType) {
+	getSuggestionItem(rootKey: 'propagationTypeCollection', key: string | LPropagationTypeData) {
 		// retrieve an item from suggestions model via root key and key
 		// example usage: var selected = getSuggestionItem('propagationTypeCollection', 'bulbil');
 		let suggestions;
 		switch (rootKey) {
 			case 'propagationTypeCollection':
-				suggestions = <LPropagationType[]>this.oComponent.getModel('suggestions').getProperty('/' + rootKey);
+				suggestions = <LPropagationTypeData[]>this.oComponent.getModel('suggestions').getProperty('/' + rootKey);
 				break;
 
 			default:

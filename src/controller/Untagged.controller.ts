@@ -7,7 +7,7 @@ import MessageToast from "sap/m/MessageToast"
 import ImageEventHandlers from "plants/ui/customClasses/ImageEventHandlers";
 import Event from "sap/ui/base/Event";
 import Button from "sap/m/Button";
-import { PImage, PImagePlantTag, PKeyword } from "../definitions/image_entities";
+import { PImage, PImagePlantTag, PKeyword } from "../definitions/ImageFromBackend";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import Input from "sap/m/Input";
 import Token from "sap/m/Token";
@@ -16,7 +16,7 @@ import Icon from "sap/ui/core/Icon";
 import List from "sap/m/List";
 import OverflowToolbarButton from "sap/m/OverflowToolbarButton";
 import Tokenizer from "sap/m/Tokenizer";
-import { PPlant } from "../definitions/plant_entities";
+import { PPlant } from "../definitions/PlantsFromBackend";
 
 /**
  * @namespace plants.ui.controller
@@ -33,7 +33,7 @@ export default class Untagged extends BaseController {
 	onInit() {
 		super.onInit();
 		this.oRouter.getRoute("untagged").attachPatternMatched(this._onPatternMatched, this);
-		this.imageEventHandlers = ImageEventHandlers.getInstance(this.applyToFragment.bind(this));
+		this.imageEventHandlers = new ImageEventHandlers(this.applyToFragment.bind(this));
 		(this.oComponent.getModel('status')).setProperty('/untagged_selectable', false);
 	}
 

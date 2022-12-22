@@ -11,8 +11,3 @@ export interface PTaxonTreeNode {
     nodes?: PTaxonTreeNode[];
     plant_ids?: number[];
   }
-
-  export interface TaxonTreeNodeInFilterDialog extends PTaxonTreeNode {
-    selected: boolean
-    nodes?: TaxonTreeNodeInFilterDialog[];
-  }  
