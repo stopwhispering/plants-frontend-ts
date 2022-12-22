@@ -16,7 +16,6 @@
 				<Label
 					text="New Property Name"
 					wrapping="true"
-					labelFor="switchEditTraitObserved"
 				/>
 				<Input
 					id="inpPropertyName"

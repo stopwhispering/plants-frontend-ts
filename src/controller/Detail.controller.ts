@@ -859,7 +859,6 @@ export default class Detail extends BaseController {
 				plant_name: parentPlant.plant_name,
 				active: parentPlant.active
 			},
-			hide: false,
 			'last_update': undefined,  //auto-derived in backend
 			'descendant_plants_all': [],  //auto-derived in backend
 			'sibling_plants': [],  //auto-derived in backend

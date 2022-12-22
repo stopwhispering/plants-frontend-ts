@@ -15,17 +15,17 @@ export interface PTaxonImage {
     description?: string;
 }
 
-export interface PTraitCategoryWithTraits {
-    id?: number;
-    category_name: string;
-    sort_flag?: number;
-    traits: PTraitWithStatus[];
-}
-export interface PTraitWithStatus {
-    id?: number;
-    trait: string;
-    status: string;
-}
+// export interface PTraitCategoryWithTraits {
+//     id?: number;
+//     category_name: string;
+//     sort_flag?: number;
+//     traits: PTraitWithStatus[];
+// }
+// export interface PTraitWithStatus {
+//     id?: number;
+//     trait: string;
+//     status: string;
+// }
 
 export interface PTaxon {
     id: number;
@@ -55,7 +55,7 @@ export interface PTaxon {
     ipni_id_short: string;
     distribution?: PDistribution;
     images?: PTaxonImage[];
-    trait_categories?: PTraitCategoryWithTraits[];
+    // trait_categories?: PTraitCategoryWithTraits[];
     occurrenceImages?: PTaxonOccurrenceImage[];
 }
 export interface PTaxonOccurrenceImage {

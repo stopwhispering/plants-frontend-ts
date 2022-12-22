@@ -133,17 +133,7 @@ sap.ui.define(["sap/ui/model/json/JSONModel", "plants/ui/customClasses/MessageUt
         this._component.getModel('keywords').loadData(sUrl);
       }
     },
-    reloadTraitCategoryProposalsFromBackend: function _reloadTraitCategoryProposalsFromBackend() {
-      // get trait categories collection from backend proposals resource
-      var sUrl = Util.getServiceUrl('proposals/TraitCategoryProposals');
-      if (!this._component.getModel('trait_categories')) {
-        this._component.setModel(new JSONModel(sUrl), 'trait_categories');
-      } else {
-        this._component.getModel('trait_categories').loadData(sUrl);
-      }
-    },
     reloadNurserySourceProposalsFromBackend: function _reloadNurserySourceProposalsFromBackend() {
-      // get trait categories collection from backend proposals resource
       var sUrl = Util.getServiceUrl('proposals/NurserySourceProposals');
       if (!this._component.getModel('nurseries_sources')) {
         var oModel = new JSONModel(sUrl);

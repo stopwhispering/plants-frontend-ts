@@ -756,7 +756,6 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
           plant_name: parentPlant.plant_name,
           active: parentPlant.active
         },
-        hide: false,
         'last_update': undefined,
         //auto-derived in backend
         'descendant_plants_all': [],

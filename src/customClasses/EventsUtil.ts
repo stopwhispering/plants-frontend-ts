@@ -128,17 +128,17 @@ export default class EventsUtil extends ManagedObject {
 
 		const oObservationDataClone = JSON.parse(JSON.stringify(oEventEditData.observation));
 		// if height or diameter are 0, reset them to undefined
-		if (oObservationDataClone.observation.height === 0) {
-			oObservationDataClone.observation.height = undefined;
+		if (oObservationDataClone.height === 0.0) {
+			oObservationDataClone.height = undefined;
 		}
-		if (oObservationDataClone.observation.stem_max_diameter === 0) {
-			oObservationDataClone.observation.stem_max_diameter = undefined;
+		if (oObservationDataClone.stem_max_diameter === 0.0) {
+			oObservationDataClone.stem_max_diameter = undefined;
 		}
 		if (!oObservationDataClone.diseases || oObservationDataClone.diseases.length === 0) {
 			oObservationDataClone.diseases = undefined;
 		}
-		if (!oObservationDataClone.event_notes || oObservationDataClone.diseases.event_notes === 0) {
-			oObservationDataClone.event_notes = undefined;
+		if (!oObservationDataClone.observation_notes || oObservationDataClone.observation_notes === 0) {
+			oObservationDataClone.observation_notes = undefined;
 		}
 		return <PObservation>oObservationDataClone;
 	}
@@ -227,14 +227,14 @@ export default class EventsUtil extends ManagedObject {
 		}
 
 		// get the data in the dialog's segments
-		const oNewObservation = <PObservation>this._getObservationData(oNewEventSave);
-		const oNewPot = <PPot>this._getPotData(oNewEventSave, oView);
-		const oNewSoil = <PSoil>this._getSoilData(oNewEventSave, oView);
+		const oNewObservation = <PObservation | undefined>this._getObservationData(oNewEventSave);
+		const oNewPot = <PPot | undefined>this._getPotData(oNewEventSave, oView);
+		const oNewSoil = <PSoil | undefined>this._getSoilData(oNewEventSave, oView);
 
 		const oNewEvent: EventInEventsModel = {
 			// id: number; no id, yet
 			date: oNewEventSave.date,
-			event_notes: oNewEventSave.event_notes,
+			event_notes: <string|undefined>(oNewEventSave.event_notes && oNewEventSave.event_notes.length > 0 ? oNewEventSave.event_notes : undefined);
 			observation: oNewObservation,
 			pot: oNewPot,
 			soil: oNewSoil,
@@ -299,7 +299,7 @@ export default class EventsUtil extends ManagedObject {
 
 		// update each attribute from the new model into the old event
 		oOldEvent.date = <string>oEventEditData.date;
-		oOldEvent.event_notes = <string|undefined>oEventEditData.event_notes;
+		oOldEvent.event_notes = <string|undefined>(oEventEditData.event_notes && oEventEditData.event_notes.length > 0 ? oEventEditData.event_notes : undefined);
 		
 		const iOldObservationId = oEditedObservation ? <int|undefined>oEditedObservation.id: undefined;
 		oOldEvent.observation = <PObservation>oEditedObservation;

@@ -88,14 +88,10 @@ export default class Component extends UIComponent {
 		//(helper class is used to reload data via button as well)
 		var oModelsHelper = ModelsHelper.getInstance(this);
 		oModelsHelper.reloadPlantsFromBackend();
-		// oModelsHelper.reloadImagesFromBackend();
 		oModelsHelper.reloadTaxaFromBackend();
 		oModelsHelper.reloadKeywordProposalsFromBackend();
-		// oModelsHelper.reloadTraitCategoryProposalsFromBackend();
 		oModelsHelper.reloadNurserySourceProposalsFromBackend();
 		oModelsHelper.reloadPropertyNamesFromBackend();
-		// this.oEventsDataClone = {};  // avoid exceptions when saving before any event has been loaded
-		// this.oPropertiesDataClone = {};
 
 		// settings model
 		var oSettingsModel = new JSONModel({preview_image: 'favourite_image'});

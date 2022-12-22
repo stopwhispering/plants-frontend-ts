@@ -86,17 +86,17 @@ sap.ui.define(["plants/ui/customClasses/Util", "sap/m/MessageToast", "sap/ui/mod
       if (!oEventEditData.segments.observation) return null;
       const oObservationDataClone = JSON.parse(JSON.stringify(oEventEditData.observation));
       // if height or diameter are 0, reset them to undefined
-      if (oObservationDataClone.observation.height === 0) {
-        oObservationDataClone.observation.height = undefined;
+      if (oObservationDataClone.height === 0.0) {
+        oObservationDataClone.height = undefined;
       }
-      if (oObservationDataClone.observation.stem_max_diameter === 0) {
-        oObservationDataClone.observation.stem_max_diameter = undefined;
+      if (oObservationDataClone.stem_max_diameter === 0.0) {
+        oObservationDataClone.stem_max_diameter = undefined;
       }
       if (!oObservationDataClone.diseases || oObservationDataClone.diseases.length === 0) {
         oObservationDataClone.diseases = undefined;
       }
-      if (!oObservationDataClone.event_notes || oObservationDataClone.diseases.event_notes === 0) {
-        oObservationDataClone.event_notes = undefined;
+      if (!oObservationDataClone.observation_notes || oObservationDataClone.observation_notes === 0) {
+        oObservationDataClone.observation_notes = undefined;
       }
       return oObservationDataClone;
     },
@@ -240,7 +240,7 @@ sap.ui.define(["plants/ui/customClasses/Util", "sap/m/MessageToast", "sap/ui/mod
 
       // update each attribute from the new model into the old event
       oOldEvent.date = oEventEditData.date;
-      oOldEvent.event_notes = oEventEditData.event_notes;
+      oOldEvent.event_notes = oEventEditData.event_notes && oEventEditData.event_notes.length > 0 ? oEventEditData.event_notes : undefined;
       const iOldObservationId = oEditedObservation ? oEditedObservation.id : undefined;
       oOldEvent.observation = oEditedObservation;
       if (oOldEvent.observation) oOldEvent.observation.id = iOldObservationId;
