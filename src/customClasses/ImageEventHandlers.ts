@@ -4,7 +4,7 @@ import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import GridListItem from "sap/f/GridListItem";
 import { PImage, PImagePlantTag, PKeyword } from "../definitions/ImageFromBackend";
-import { PEvent } from "../definitions/EventsFromBackend";
+import { PEvent, PRImageAssignedToEvent } from "../definitions/EventsFromBackend";
 import Popover from "sap/m/Popover";
 import Icon from "sap/ui/core/Icon";
 import FileUploader from "sap/ui/unified/FileUploader";
@@ -61,40 +61,36 @@ export default class ImageEventHandlers extends ManagedObject{
 			});	
 		}
 		
-		assignEventToImage(oSource: GridListItem, oEventsModel: JSONModel, oPopoverAssignEventToImage: Popover){
-			
-
-			const oImage = <PImage>oSource.getBindingContext('images')!.getObject();
-
-			// get image
-			var oImageAssignment = {
-				filename:      oImage.filename
-			};
-			
+		assignEventToImage(oImage: PImage, oSelectedEvent: PEvent, oEventsModel: JSONModel){
 			// check if already assigned
-			const oSelectedEvent = <PEvent>oSource.getBindingContext('events')!.getObject();
-			if(!!oSelectedEvent.images && oSelectedEvent.images.length > 0){
-				var found = oSelectedEvent.images.find(function(image) {
-				  return image.filename === oImageAssignment.filename;
+			const aSelectedEventImages = <PRImageAssignedToEvent[]>oSelectedEvent.images;
+			if(!!aSelectedEventImages && aSelectedEventImages.length > 0){
+				var oImageAssignmentFound = aSelectedEventImages.find(function(oCurrentImageAssignment) {
+				  return oCurrentImageAssignment.id === oImage.id;
 				});
-				if(found){
-					MessageToast.show('Event already assigned to image.');
-					oPopoverAssignEventToImage.close();
-					return;					
+				if(oImageAssignmentFound){
+					// already assigned --> move to end of list
+					var iIndex = aSelectedEventImages.indexOf(oImageAssignmentFound)
+					aSelectedEventImages.splice(iIndex, 1);
+					aSelectedEventImages.push(oImageAssignmentFound);
+					MessageToast.show('Event already assigned to image. Moved to end of list.');
+					oEventsModel.updateBindings(false);  // true not required here
+					return;
 				}
 			}
 			
-			// assign
+			// assign and add assignment to end of list
+			const oNewImageAssignedToEvent: PRImageAssignedToEvent = {
+				id: oImage.id,
+				filename: oImage.filename
+			};
 			if(!oSelectedEvent.images){
-				oSelectedEvent.images = [oImageAssignment];
+				oSelectedEvent.images = <PRImageAssignedToEvent[]>[oNewImageAssignedToEvent];
 			} else {
-				oSelectedEvent.images.push(oImageAssignment);
+				oSelectedEvent.images.push(oNewImageAssignedToEvent);
 			}
-			
 			MessageToast.show('Assigned.');
-			oEventsModel.updateBindings(false);
-			oPopoverAssignEventToImage.close();
-			
+			oEventsModel.updateBindings(true);  // true required here
 		}
 		
 		public unassignImageFromEvent(sEventsBindingPath: string, oEventsModel: JSONModel){

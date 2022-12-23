@@ -48,29 +48,17 @@ export default class formatter{
 		}
 	}
 	
-	// todo repair
-	public colorByPreviewOrNot(sImage: string, sPlantPreviewImage: string){
-		if(!!sImage && !!sPlantPreviewImage){
-			// uri may be split via forward or backward slashes
-			var sSplit = (sPlantPreviewImage.indexOf('/') === -1) ? '\\' : '/';
-			
-			var sImageFilename = sImage.split(sSplit)[sImage.split(sSplit).length-1];
-			var sPlantPreviewImageFilename = sPlantPreviewImage.split(sSplit)[sPlantPreviewImage.split(sSplit).length-1];
-			// # sPlantPreviewImage has a suffix before the file type (e.g. 300_300), except temporily set
-			// # just get the base filenames without suffix and file type
-			var aImage = sImageFilename.split('.');
-			aImage.pop();
-			var aPreview = sPlantPreviewImageFilename.split('.');
-			aPreview.pop();
-			if (aPreview.length >= 2){
-				aPreview.pop();
-			}
-			//if image is current preview image, then return blue, otherwise yellow
-			if(aPreview.join('.') === aImage.join('.')){
-				return 'blue';
-			}
-		}
-		return '#E69A17';  // orange
+	public colorByPreviewOrNot(sImageFilename: string, sPlantFilenamePreviewimage: string){
+		//return blue or orange, depending on whether supplied image is the preview image of the plant 
+		return (sImageFilename && sPlantFilenamePreviewimage && sImageFilename === sPlantFilenamePreviewimage) ? 'blue' : '#E69A17';
+	}
+
+	public colorByAssigedToEventOrNot(sImageFilename: string, aEvents: any[]){	
+		// flatten array of events' images 
+		if (!sImageFilename || !aEvents || !aEvents.length) return '#000000';
+		let aImages = aEvents.flatMap(event => event.images);
+		let oImageFound = aImages.find(image => image.filename === sImageFilename); 
+		return !oImageFound ? '#000000' : 'blue';
 	}
 
 	public timestampToDateShort(ts: string){

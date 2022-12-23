@@ -1217,8 +1217,10 @@ export default class Detail extends BaseController {
 		// triggered upon selection of event in event selection dialog for an image get selected event
 		const oSource = <GridListItem>oEvent.getSource();
 		const oEventsModel = <JSONModel>this.getView().getModel('events');
-		const oPopoverAssignEventToImage = <Popover>this.byId('dialogAssignEventToImage')
-		this.imageEventHandlers.assignEventToImage(oSource, oEventsModel, oPopoverAssignEventToImage);
+		const oImage = <PImage>oSource.getBindingContext('images')!.getObject();
+		const oSelectedEvent = <PEvent>oSource.getBindingContext('events')!.getObject();
+		this.imageEventHandlers.assignEventToImage(oImage, oSelectedEvent, oEventsModel);
+		(<Popover>this.byId('dialogAssignEventToImage')).close();
 	}
 	onIconPressAssignImageToEvent(oEvent: Event) {
 		const oSource = <Icon>oEvent.getSource();

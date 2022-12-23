@@ -22,7 +22,7 @@ export interface PEvent {
   observation?: PRObservation;
   soil?: PRSoil;
   pot?: PRPot;
-  images?: PImage[];
+  images?: PRImageAssignedToEvent[];
 }
 export interface PRObservation {
   id?: number;
@@ -44,7 +44,7 @@ export interface PRPot {
   shape_side: ShapeSide;
   diameter_width: number;
 }
-export interface PImage {
+export interface PRImageAssignedToEvent {
   id?: number;
   filename: string;
 }
@@ -87,7 +87,7 @@ export interface RCreateOrUpdateEvent {
   observation?: PRObservation;
   soil?: PRSoil;
   pot?: PRPot;
-  images: PImage[];
+  images: PRImageAssignedToEvent[];
 }
 export interface RRequestCreateOrUpdateEvent {
   plants_to_events: {

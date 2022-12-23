@@ -140,6 +140,8 @@ export default class EventsUtil extends ManagedObject {
 		}
 		if (!oObservationDataClone.observation_notes || oObservationDataClone.observation_notes === 0) {
 			oObservationDataClone.observation_notes = undefined;
+		} else {
+			oObservationDataClone.observation_notes = oObservationDataClone.observation_notes.trim();
 		}
 		return <PRObservation>oObservationDataClone;
 	}
@@ -235,7 +237,7 @@ export default class EventsUtil extends ManagedObject {
 		const oNewEvent: EventInEventsModel = {
 			// id: number; no id, yet
 			date: oNewEventSave.date,
-			event_notes: <string|undefined>(oNewEventSave.event_notes && oNewEventSave.event_notes.length > 0 ? oNewEventSave.event_notes : undefined),
+			event_notes: <string|undefined>(oNewEventSave.event_notes && oNewEventSave.event_notes.length > 0 ? oNewEventSave.event_notes.trim() : undefined),
 			observation: oNewObservation,
 			pot: oNewPot,
 			soil: oNewSoil,
@@ -300,7 +302,7 @@ export default class EventsUtil extends ManagedObject {
 
 		// update each attribute from the new model into the old event
 		oOldEvent.date = <string>oEventEditData.date;
-		oOldEvent.event_notes = <string|undefined>(oEventEditData.event_notes && oEventEditData.event_notes.length > 0 ? oEventEditData.event_notes : undefined);
+		oOldEvent.event_notes = <string|undefined>(oEventEditData.event_notes && oEventEditData.event_notes.length > 0 ? oEventEditData.event_notes.trim() : undefined);
 		
 		const iOldObservationId = oEditedObservation ? <int|undefined>oEditedObservation.id: undefined;
 		oOldEvent.observation = <PRObservation>oEditedObservation;

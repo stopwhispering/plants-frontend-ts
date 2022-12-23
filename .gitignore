@@ -1,6 +1,6 @@
 # build results
-webapp
-dist
+webapp/
+dist/
 
 # Logs
 logs

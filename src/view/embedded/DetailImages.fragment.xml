@@ -89,7 +89,7 @@
                                     src="sap-icon://favorite"
                                     size="1rem"
                                     color="{ parts: ['images>filename',
-                                                     'plants>url_preview'],
+                                                     'plants>filename_previewimage'],
                                             formatter: '.formatter.colorByPreviewOrNot'
                                             }"
                                     hoverColor="blue"
@@ -118,7 +118,10 @@
                                 <core:Icon 
                                     src="sap-icon://toaster-up"
                                     size="1rem"
-                                    color="#000000"
+                                    color="{ parts: ['images>filename',
+                                                     'events>'],
+                                            formatter: '.formatter.colorByAssigedToEventOrNot'
+                                            }"
                                     hoverColor="blue"
                                     activeColor="blue"
                                     tooltip="Assign to Event"
