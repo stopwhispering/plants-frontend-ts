@@ -97,7 +97,7 @@ export default class Detail extends BaseController {
 	onInit() {
 		super.onInit();
 
-		const oSuggestionsModel = <JSONModel>this.getOwnerComponent().getModel('suggestions');
+		const oSuggestionsModel = <JSONModel>this.oComponent.getModel('suggestions');
 		this.eventsUtil = EventsUtil.getInstance(this.applyToFragment.bind(this), oSuggestionsModel.getData());
 		this.propertiesUtil = PropertiesUtil.getInstance(this.applyToFragment.bind(this));
 		this.imageEventHandlers = new ImageEventHandlers(this.applyToFragment.bind(this));
@@ -1048,13 +1048,13 @@ export default class Detail extends BaseController {
 
 	onIconPressUnassignImageFromTaxon(oEvent: Event) {
 		const oSource = <Icon>oEvent.getSource();
-		const oTaxonModel = <JSONModel>this.getOwnerComponent().getModel('taxon')
+		const oTaxonModel = <JSONModel>this.oComponent.getModel('taxon')
 		this.ImageToTaxon.unassignImageFromTaxon(oSource, oTaxonModel);
 	}
 
 	onIconPressAssignImageToTaxon(oEvent: Event) {
 		const oSource = <Icon>oEvent.getSource();
-		const oTaxonModel = <JSONModel>this.getOwnerComponent().getModel('taxon')
+		const oTaxonModel = <JSONModel>this.oComponent.getModel('taxon')
 		this.ImageToTaxon.assignImageToTaxon(oSource, oTaxonModel);
 	}
 
@@ -1063,8 +1063,8 @@ export default class Detail extends BaseController {
 	// Properties Handlers
 	//////////////////////////////////////////////////////////
 	onEditPropertyValueDelete(oEvent: Event) {
-		var oPropertiesModel = <JSONModel>this.getOwnerComponent().getModel('properties');
-		const oPropertiesTaxaModel = <JSONModel>this.getOwnerComponent().getModel('propertiesTaxa');
+		var oPropertiesModel = <JSONModel>this.oComponent.getModel('properties');
+		const oPropertiesTaxaModel = <JSONModel>this.oComponent.getModel('propertiesTaxa');
 		const oPropertiesBindingContext = <Context>(<Button>oEvent.getSource()).getBindingContext('properties');
 		this.propertiesUtil.editPropertyValueDelete(oPropertiesModel, oPropertiesTaxaModel, oPropertiesBindingContext, this._oCurrentPlant)
 	}
@@ -1203,13 +1203,13 @@ export default class Detail extends BaseController {
 	}
 	onDeleteEventsTableRow(oEvent: Event) {
 		const oSelectedEvent = <PEvent>oEvent.getParameter('listItem').getBindingContext('events').getObject();
-		const oEventsModel = <JSONModel>this.getOwnerComponent().getModel('events');
+		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
 		this.eventsUtil.deleteEventsTableRow(oSelectedEvent, oEventsModel, this._oCurrentPlant)
 
 	}
 	onIconPressUnassignImageFromEvent(oEvent: Event) {
 		const sEventsBindingPath = oEvent.getParameter('listItem').getBindingContextPath('events');
-		const oEventsModel = <JSONModel>this.getOwnerComponent().getModel('events');
+		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
 		this.imageEventHandlers.unassignImageFromEvent(sEventsBindingPath, oEventsModel);
 	}
 
@@ -1247,10 +1247,11 @@ export default class Detail extends BaseController {
 		const oSource = <Token>oEvent.getSource();
 		const oPlantTag = <PImagePlantTag>oSource.getBindingContext('images')!.getObject();
 		if (!oPlantTag.plant_id || oPlantTag.plant_id <= 0) throw new Error("Unexpected error: No Plant ID");
-		const oComponent = <Component>this.getOwnerComponent();
+
+		if (oPlantTag.plant_id === this._oCurrentPlant.id) return; //already on this plant (no need to navigate)
 
 		//navigate to plant in layout's current column (i.e. middle column)
-		Navigation.getInstance().navToPlant(this.getPlantById(oPlantTag.plant_id), oComponent);
+		Navigation.getInstance().navToPlant(this.getPlantById(oPlantTag.plant_id), this.oComponent);
 	}
 	
 	onIconPressDeleteImage(oEvent: Event){
@@ -1297,21 +1298,68 @@ export default class Detail extends BaseController {
 		oImagesModel.updateBindings(false);
 	}
 
-	onTokenizerTokenDelete(oEvent: Event){
-		// triggered upon changes of image's plant assignments and image's keywords
+	// onTokenizerTokenDelete(oEvent: Event){
+	// 	// triggered upon changes of image's plant assignments and image's keywords
+	// 	// note: the token itself has already been deleted; here, we only delete the 
+	// 	// 		 corresponding entry from the model
+	// 	//note: there's a same-named function in untagged controller doing the same thing for untagged images
+	// 	// if (oEvent.getParameter('type') !== 'removed')
+	// 	// 	return;
+
+	// 	// const sKey = oEvent.getParameter('token').getProperty('key');  //either plant name or keyword
+	// 	const aTokens = <Token[]>oEvent.getParameter('tokens');
+	// 	if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
+	// 	const oToken = <Token>aTokens[0];
+	// 	const sKey = oToken.getKey();
+	// 	const oImage = <PImage>oToken.getBindingContext('images')!.getObject();
+		
+	// 	// const oImage = <PImage>oTokenizer.getParent()!.getBindingContext('images')!.getObject();
+	// 	const oModel = this.oComponent.getModel('images');
+
+	// 	const oTokenizer = <Tokenizer> oEvent.getSource();
+	// 	const sType = oTokenizer.data('type'); // plant|keyword
+
+	// 	this.imageEventHandlers.removeTokenFromModel(sKey, oImage, oModel, sType);
+	// }
+
+	onTokenizerKeywordImageTokenDelete(oEvent: Event){
 		// note: the token itself has already been deleted; here, we only delete the 
-		// 		 corresponding entry from the model
+		// 		 corresponding plant-to-image entry from the model
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
-		if (oEvent.getParameter('type') !== 'removed')
-			return;
+		
+		// we get the token from the event parameters
+		const aTokens = <Token[]>oEvent.getParameter('tokens');
+		if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
+		const oToken = <Token>aTokens[0];
+		const sKeywordTokenKey = oToken.getKey();
 
-		const sKey = oEvent.getParameter('token').getProperty('key');  //either plant name or keyword
+		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer> oEvent.getSource();
-		const oImage = <PImage>oTokenizer.getParent()!.getBindingContext('images')!.getObject();
-		const oModel = this.oComponent.getModel('images');
-		const sType = oTokenizer.data('type'); // plant|keyword
+		const oImage = <PImage>oTokenizer.getBindingContext('images')!.getObject();
+		
+		const oImagesModel = this.oComponent.getModel('images');
 
-		this.imageEventHandlers.removeTokenFromModel(sKey, oImage, oModel, sType);
+		this.imageEventHandlers.removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oImagesModel);
+	}
+
+	onTokenizerPlantImageTokenDelete(oEvent: Event){
+		// note: the token itself has already been deleted; here, we only delete the 
+		// 		 corresponding keyword-to-image entry from the model
+		//note: there's a same-named function in untagged controller doing the same thing for untagged images
+		
+		// we get the token from the event parameters
+		const aTokens = <Token[]>oEvent.getParameter('tokens');
+		if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
+		const oToken = <Token>aTokens[0];
+		const sPlantTokenKey = oToken.getKey();
+
+		// the event's source is the tokenizer
+		const oTokenizer = <Tokenizer> oEvent.getSource();
+		const oImage = <PImage>oTokenizer.getBindingContext('images')!.getObject();
+		
+		const oImagesModel = this.oComponent.getModel('images');
+
+		this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);
 	}
 
 	//////////////////////////////////////////////////////////
@@ -1329,8 +1377,11 @@ export default class Detail extends BaseController {
 		Util.startBusyDialog('Uploading...', 'Image File(s)');
 		var sUrl = Util.getServiceUrl(sPath);
 		oFileUploader.setUploadUrl(sUrl);
-
 		oFileUploader.upload();
+	}
+
+	handleUploadPlantImagesAborted(oEvent: Event) {
+		// unfortunately never triggered at all by FileUploader
 	}
 
 	handleUploadPlantImagesComplete(oEvent: Event) {

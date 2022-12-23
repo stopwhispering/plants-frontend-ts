@@ -28,7 +28,7 @@ sap.ui.define(["plants/ui/controller/BaseController", "plants/ui/model/ModelsHel
       this._oRouter = this.oComponent.getRouter();
       this._oRouter.attachBeforeRouteMatched(this._onBeforeRouteMatched, this);
       this._oRouter.attachRouteMatched(this._onRouteMatched, this);
-      this.imageEventHandlers = ImageEventHandlers.getInstance(this.applyToFragment.bind(this));
+      this.imageEventHandlers = new ImageEventHandlers(this.applyToFragment.bind(this));
     },
     _onBeforeRouteMatched: function _onBeforeRouteMatched(oEvent) {
       // called each time any route is triggered, i.e. each time one of the views change

@@ -215,20 +215,60 @@ export default class Untagged extends BaseController {
 		oImagesModel.updateBindings(false);
 	}
 
-	public onTokenizerTokenDelete(oEvent: Event){
-		// triggered upon changes of image's plant assignments and image's keywords
+	// public onTokenizerTokenDelete(oEvent: Event){
+	// 	// triggered upon changes of image's plant assignments and image's keywords
+	// 	// note: the token itself has already been deleted; here, we only delete the 
+	// 	// 		 corresponding entry from the model
+	// 	//note: there's a same-named function in detail controller doing the same thing for non-untagged images
+	// 	// if (oEvent.getParameter('type') !== 'removed')
+	// 	// 	return;
+
+	// 	const sKey = oEvent.getParameter('token').getProperty('key');  //either plant name or keyword
+	// 	const oTokenizer = <Tokenizer> oEvent.getSource();
+	// 	const oImage = <PImage>oTokenizer.getParent()!.getBindingContext('untaggedImages')!.getObject();
+	// 	const oModel = this.oComponent.getModel('untaggedImages');
+	// 	const sType = oTokenizer.data('type'); // plant|keyword
+
+	// 	this.imageEventHandlers.removeTokenFromModel(sKey, oImage, oModel, sType);
+	// }
+
+	onTokenizerKeywordImageTokenDelete(oEvent: Event){
 		// note: the token itself has already been deleted; here, we only delete the 
-		// 		 corresponding entry from the model
-		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
-		if (oEvent.getParameter('type') !== 'removed')
-			return;
+		// 		 corresponding plant-to-image entry from the model
+		//note: there's a same-named function in details controller doing the same thing for already tagged images
+		
+		// we get the token from the event parameters
+		const aTokens = <Token[]>oEvent.getParameter('tokens');
+		if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
+		const oToken = <Token>aTokens[0];
+		const sKeywordTokenKey = oToken.getKey();
 
-		const sKey = oEvent.getParameter('token').getProperty('key');  //either plant name or keyword
+		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer> oEvent.getSource();
-		const oImage = <PImage>oTokenizer.getParent()!.getBindingContext('untaggedImages')!.getObject();
-		const oModel = this.oComponent.getModel('untaggedImages');
-		const sType = oTokenizer.data('type'); // plant|keyword
+		const oImage = <PImage>oTokenizer.getBindingContext('untaggedImages')!.getObject();
+		
+		const oImagesModel = this.oComponent.getModel('untaggedImages');
 
-		this.imageEventHandlers.removeTokenFromModel(sKey, oImage, oModel, sType);
+		this.imageEventHandlers.removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oImagesModel);
 	}
+
+	onTokenizerPlantImageTokenDelete(oEvent: Event){
+		// note: the token itself has already been deleted; here, we only delete the 
+		// 		 corresponding keyword-to-image entry from the model
+		//note: there's a same-named function in details controller doing the same thing for already tagged images
+		
+		// we get the token from the event parameters
+		const aTokens = <Token[]>oEvent.getParameter('tokens');
+		if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
+		const oToken = <Token>aTokens[0];
+		const sPlantTokenKey = oToken.getKey();
+
+		// the event's source is the tokenizer
+		const oTokenizer = <Tokenizer> oEvent.getSource();
+		const oImage = <PImage>oTokenizer.getBindingContext('untaggedImages')!.getObject();
+		
+		const oImagesModel = this.oComponent.getModel('untaggedImages');
+
+		this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);
+	}	
 }

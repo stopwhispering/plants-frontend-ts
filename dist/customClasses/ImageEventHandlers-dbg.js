@@ -93,33 +93,35 @@ sap.ui.define(["sap/m/MessageToast", "plants/ui/customClasses/Util", "sap/ui/bas
       var sSupportedFileTypes = aFileTypes.join(", ");
       MessageToast.show("The file type *." + sFileType + " is not supported. Choose one of the following types: " + sSupportedFileTypes);
     },
-    removeTokenFromModel: function _removeTokenFromModel(sKey, oImage, oModel, sType) {
-      // triggered upon changes of image's plant assignments and image's keywords
+    removePlantImageTokenFromModel: function _removePlantImageTokenFromModel(sPlantTokenKey, oImage, oModel) {
+      // triggered upon changes of image's plant assignments
       // either in untagged view or in detail view
-      // sKey is either a keyword or a plant name
+      //   ==> oModel can be either images or untagged_images model
       // note: the token itself has already been deleted; here, we only delete the 
       // 		 corresponding entry from the model
 
-      // find plant/keyword in the image's corresponding array and delete
-      if (sType === 'plant') {
-        const aPlantTags = oImage.plants;
-        const iIndex = aPlantTags.findIndex(ele => ele.key === sKey);
-        aPlantTags.splice(iIndex, 1);
-      } else {
-        //'keyword'
-        const aKeywordTags = oImage.keywords;
-        const iIndex = aKeywordTags.findIndex(ele => ele.keyword === sKey);
-        aKeywordTags.splice(iIndex, 1);
-      }
+      // find plant in the image's corresponding array and delete
+      const aPlantTags = oImage.plants;
+      const iIndex = aPlantTags.findIndex(ele => ele.key === sPlantTokenKey);
+      if (iIndex < 0) throw new Error("Plant not found in image's plants tags array.");
+      aPlantTags.splice(iIndex, 1);
+      oModel.updateBindings(false);
+    },
+    removeKeywordImageTokenFromModel: function _removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oModel) {
+      // triggered upon changes of image's keywords assignments
+      // either in untagged view or in detail view
+      //   ==> oModel can be either images or untagged_images model
+      // note: the token itself has already been deleted; here, we only delete the 
+      // 		 corresponding entry from the model
+
+      // find keyword in the image's corresponding array and delete
+      const aKeywordTags = oImage.keywords;
+      const iIndex = aKeywordTags.findIndex(ele => ele.keyword === sKeywordTokenKey);
+      if (iIndex < 0) throw new Error("Keyword not found in image's keywords tags array.");
+      aKeywordTags.splice(iIndex, 1);
       oModel.updateBindings(false);
     }
   });
-  ImageEventHandlers.getInstance = function getInstance(applyToFragment) {
-    if (!ImageEventHandlers._instance && applyToFragment) {
-      ImageEventHandlers._instance = new ImageEventHandlers(applyToFragment);
-    }
-    return ImageEventHandlers._instance;
-  };
   return ImageEventHandlers;
 });
 //# sourceMappingURL=ImageEventHandlers.js.map

@@ -17,11 +17,12 @@
                 buttonText="Drag here or Browse"
                 icon="sap-icon://touch"
                 tooltip="{i18n>file_uploader_tooltip}"
-                uploadComplete="handleUploadPlantImagesComplete"
+                uploadComplete=".handleUploadPlantImagesComplete"
                 sendXHR="true"
                 typeMissmatch=".onHandleTypeMissmatch"
                 style="Emphasized"
                 fileType="jpg,jpeg"
+                uploadAborted=".handleUploadPlantImagesAborted"
                 change="onUploadPlantPhotosToServer"
                 placeholder="{i18n>file_uploader_placeholder}"/>
         </HBox>
@@ -77,6 +78,8 @@
                         </Image>
                         
                         <!-- side icons -->
+                        <!-- todo url_preview was  removed in backend -->
+                        <!-- replace with filename_previewimage??? -->
                         <VBox 
                             height="7rem" 
                             class="sapUiTinyMargin">
@@ -257,8 +260,7 @@
                                         width="21rem"
                                         renderMode="Loose"
                                         id="tokenizerPlants"
-                                        tokenDelete="onTokenizerTokenDelete"
-                                        app:type="plant"
+                                        tokenDelete="onTokenizerPlantImageTokenDelete"
                                         tokens="{
                                             path: 'images>plants', templateShareable: false,
                                             sorter: { path: 'text' }
@@ -310,7 +312,7 @@
                                         class="sapUiSizeCompact"
                                         width="20rem"
                                         renderMode="Loose"
-                                        tokenDelete="onTokenizerTokenDelete"
+                                        tokenDelete="onTokenizerKeywordImageTokenDelete"
                                         app:type="keyword"
                                         tokens="{
                                             path: 'images>keywords',

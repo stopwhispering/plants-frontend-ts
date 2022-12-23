@@ -381,14 +381,14 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
       const oPopover = this.byId('popoverPopupImage');
       if (!oPopover) {
         Fragment.load({
-          name: "plants.ui.view.fragments.master.MasterImagePopover",
+          name: this.mIdToFragment["popoverPopupImage"],
           id: oView.getId(),
           controller: this
         }).then(oControl => {
           const oPopover = oControl;
           oView.addDependent(oPopover);
           oPopover.setBindingContext(oBindingContext, 'plants');
-          oPopover.openBy(oView, true);
+          oPopover.openBy(oAvatar, true);
         });
       } else {
         oPopover.setBindingContext(oBindingContext, 'plants');

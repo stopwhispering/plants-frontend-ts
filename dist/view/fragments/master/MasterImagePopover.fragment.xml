@@ -10,7 +10,6 @@
 		id="popoverPopupImage"
 		>
 
-    		<!-- src="{plants>url_preview}"  -->
     	<Image 
 			id="idHoverImage"
     		press=".onClickImagePopupImage"

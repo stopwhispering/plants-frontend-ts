@@ -179,7 +179,7 @@ sap.ui.define(["plants/ui/customClasses/Util", "sap/m/MessageToast", "sap/ui/mod
       const oNewEvent = {
         // id: number; no id, yet
         date: oNewEventSave.date,
-        event_notes: oNewEventSave.event_notes,
+        event_notes: oNewEventSave.event_notes && oNewEventSave.event_notes.length > 0 ? oNewEventSave.event_notes : undefined,
         observation: oNewObservation,
         pot: oNewPot,
         soil: oNewSoil,
@@ -379,9 +379,9 @@ sap.ui.define(["plants/ui/customClasses/Util", "sap/m/MessageToast", "sap/ui/mod
       };
       const oSoil = {
         id: undefined,
-        soil_name: '',
-        mix: '',
-        description: ''
+        soil_name: undefined,
+        mix: undefined,
+        description: undefined
       };
       const oEventEditDataSegments = {
         // defaults to inactive segments

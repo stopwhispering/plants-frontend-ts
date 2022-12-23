@@ -42,10 +42,10 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
     },
     onInit: function _onInit() {
       BaseController.prototype.onInit.call(this);
-      const oSuggestionsModel = this.getOwnerComponent().getModel('suggestions');
+      const oSuggestionsModel = this.oComponent.getModel('suggestions');
       this.eventsUtil = EventsUtil.getInstance(this.applyToFragment.bind(this), oSuggestionsModel.getData());
       this.propertiesUtil = PropertiesUtil.getInstance(this.applyToFragment.bind(this));
-      this.imageEventHandlers = ImageEventHandlers.getInstance(this.applyToFragment.bind(this));
+      this.imageEventHandlers = new ImageEventHandlers(this.applyToFragment.bind(this));
       this.oLayoutModel = this.oComponent.getModel();
 
       // default: view mode for plants information
@@ -125,18 +125,18 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
       var sPathCurrentPlant = "/PlantsCollection/" + this._currentPlantIndex;
       this._oCurrentPlant = this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
       if (!this._oCurrentPlant.parent_plant) {
-        this._oCurrentPlant.parent_plant = {
-          id: undefined,
-          plant_name: undefined,
-          active: undefined
-        };
+        // this._oCurrentPlant.parent_plant = {
+        // 	id: undefined,
+        // 	plant_name: undefined,
+        // 	active: undefined
+        // }
       }
       if (!this._oCurrentPlant.parent_plant_pollen) {
-        this._oCurrentPlant.parent_plant_pollen = {
-          id: undefined,
-          plant_name: undefined,
-          active: undefined
-        };
+        // this._oCurrentPlant.parent_plant_pollen = {
+        // 	id: undefined,
+        // 	plant_name: undefined,
+        // 	active: undefined
+        // }
       }
       this.getView().bindElement({
         path: sPathCurrentPlant,
@@ -244,8 +244,8 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
       // upon reloading plants model, a specific preview image will be generated 
       var sUrlOriginal = oCurrentImage['filename'];
       var s = JSON.stringify(sUrlOriginal); // model stores backslash unescaped, so we need a workaround
-      var s2 = s.substring(1, s.length - 1);
-      oCurrentPlant['url_preview'] = s2;
+      // var s2 = s.substring(1, s.length - 1);
+      // oCurrentPlant['url_preview'] = s2;
       oCurrentPlant['filename_previewimage'] = oCurrentImage['filename'];
       this.oComponent.getModel('plants').updateBindings(false);
     },
@@ -272,11 +272,12 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
       var parentPlant = aPlants.find(plant => plant.plant_name === oEvent.getParameter('newValue').trim());
       if (!oEvent.getParameter('newValue').trim() || !parentPlant) {
         // delete parent plant
-        var parentalPlant = {
-          id: undefined,
-          plant_name: undefined,
-          active: undefined
-        };
+        var parentalPlant = undefined;
+        // var parentalPlant = <LParentalPlantInitial>{
+        // 	id: undefined,
+        // 	plant_name: undefined,
+        // 	active: undefined
+        // }
       } else {
         // set parent plant
         parentalPlant = {
@@ -915,17 +916,17 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
     },
     onIconPressUnassignImageFromTaxon: function _onIconPressUnassignImageFromTaxon(oEvent) {
       const oSource = oEvent.getSource();
-      const oTaxonModel = this.getOwnerComponent().getModel('taxon');
+      const oTaxonModel = this.oComponent.getModel('taxon');
       this.ImageToTaxon.unassignImageFromTaxon(oSource, oTaxonModel);
     },
     onIconPressAssignImageToTaxon: function _onIconPressAssignImageToTaxon(oEvent) {
       const oSource = oEvent.getSource();
-      const oTaxonModel = this.getOwnerComponent().getModel('taxon');
+      const oTaxonModel = this.oComponent.getModel('taxon');
       this.ImageToTaxon.assignImageToTaxon(oSource, oTaxonModel);
     },
     onEditPropertyValueDelete: function _onEditPropertyValueDelete(oEvent) {
-      var oPropertiesModel = this.getOwnerComponent().getModel('properties');
-      const oPropertiesTaxaModel = this.getOwnerComponent().getModel('propertiesTaxa');
+      var oPropertiesModel = this.oComponent.getModel('properties');
+      const oPropertiesTaxaModel = this.oComponent.getModel('propertiesTaxa');
       const oPropertiesBindingContext = oEvent.getSource().getBindingContext('properties');
       this.propertiesUtil.editPropertyValueDelete(oPropertiesModel, oPropertiesTaxaModel, oPropertiesBindingContext, this._oCurrentPlant);
     },
@@ -1049,12 +1050,12 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
     },
     onDeleteEventsTableRow: function _onDeleteEventsTableRow(oEvent) {
       const oSelectedEvent = oEvent.getParameter('listItem').getBindingContext('events').getObject();
-      const oEventsModel = this.getOwnerComponent().getModel('events');
+      const oEventsModel = this.oComponent.getModel('events');
       this.eventsUtil.deleteEventsTableRow(oSelectedEvent, oEventsModel, this._oCurrentPlant);
     },
     onIconPressUnassignImageFromEvent: function _onIconPressUnassignImageFromEvent(oEvent) {
       const sEventsBindingPath = oEvent.getParameter('listItem').getBindingContextPath('events');
-      const oEventsModel = this.getOwnerComponent().getModel('events');
+      const oEventsModel = this.oComponent.getModel('events');
       this.imageEventHandlers.unassignImageFromEvent(sEventsBindingPath, oEventsModel);
     },
     onAssignEventToImage: function _onAssignEventToImage(oEvent) {
@@ -1087,10 +1088,10 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
       const oSource = oEvent.getSource();
       const oPlantTag = oSource.getBindingContext('images').getObject();
       if (!oPlantTag.plant_id || oPlantTag.plant_id <= 0) throw new Error("Unexpected error: No Plant ID");
-      const oComponent = this.getOwnerComponent();
+      if (oPlantTag.plant_id === this._oCurrentPlant.id) return; //already on this plant (no need to navigate)
 
       //navigate to plant in layout's current column (i.e. middle column)
-      Navigation.getInstance().navToPlant(this.getPlantById(oPlantTag.plant_id), oComponent);
+      Navigation.getInstance().navToPlant(this.getPlantById(oPlantTag.plant_id), this.oComponent);
     },
     onIconPressDeleteImage: function _onIconPressDeleteImage(oEvent) {
       //note: there's a same-named function in untagged controller doing the same thing for untagged images
@@ -1130,19 +1131,39 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
       const oImagesModel = this.oComponent.getModel('images');
       oImagesModel.updateBindings(false);
     },
-    onTokenizerTokenDelete: function _onTokenizerTokenDelete(oEvent) {
-      // triggered upon changes of image's plant assignments and image's keywords
+    onTokenizerKeywordImageTokenDelete: function _onTokenizerKeywordImageTokenDelete(oEvent) {
       // note: the token itself has already been deleted; here, we only delete the 
-      // 		 corresponding entry from the model
+      // 		 corresponding plant-to-image entry from the model
       //note: there's a same-named function in untagged controller doing the same thing for untagged images
-      if (oEvent.getParameter('type') !== 'removed') return;
-      const sKey = oEvent.getParameter('token').getProperty('key'); //either plant name or keyword
-      const oTokenizer = oEvent.getSource();
-      const oImage = oTokenizer.getParent().getBindingContext('images').getObject();
-      const oModel = this.oComponent.getModel('images');
-      const sType = oTokenizer.data('type'); // plant|keyword
 
-      this.imageEventHandlers.removeTokenFromModel(sKey, oImage, oModel, sType);
+      // we get the token from the event parameters
+      const aTokens = oEvent.getParameter('tokens');
+      if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
+      const oToken = aTokens[0];
+      const sKeywordTokenKey = oToken.getKey();
+
+      // the event's source is the tokenizer
+      const oTokenizer = oEvent.getSource();
+      const oImage = oTokenizer.getBindingContext('images').getObject();
+      const oImagesModel = this.oComponent.getModel('images');
+      this.imageEventHandlers.removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oImagesModel);
+    },
+    onTokenizerPlantImageTokenDelete: function _onTokenizerPlantImageTokenDelete(oEvent) {
+      // note: the token itself has already been deleted; here, we only delete the 
+      // 		 corresponding keyword-to-image entry from the model
+      //note: there's a same-named function in untagged controller doing the same thing for untagged images
+
+      // we get the token from the event parameters
+      const aTokens = oEvent.getParameter('tokens');
+      if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
+      const oToken = aTokens[0];
+      const sPlantTokenKey = oToken.getKey();
+
+      // the event's source is the tokenizer
+      const oTokenizer = oEvent.getSource();
+      const oImage = oTokenizer.getBindingContext('images').getObject();
+      const oImagesModel = this.oComponent.getModel('images');
+      this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);
     },
     onUploadPlantPhotosToServer: function _onUploadPlantPhotosToServer(oEvent) {
       //upload images and directly assign them to supplied plant; no keywords included
@@ -1156,6 +1177,9 @@ sap.ui.define(["plants/ui/controller/BaseController", "sap/ui/model/json/JSONMod
       var sUrl = Util.getServiceUrl(sPath);
       oFileUploader.setUploadUrl(sUrl);
       oFileUploader.upload();
+    },
+    handleUploadPlantImagesAborted: function _handleUploadPlantImagesAborted(oEvent) {
+      // unfortunately never triggered at all by FileUploader
     },
     handleUploadPlantImagesComplete: function _handleUploadPlantImagesComplete(oEvent) {
       // handle message, show error if required

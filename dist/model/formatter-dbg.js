@@ -42,19 +42,8 @@ sap.ui.define(["plants/ui/customClasses/Util"], function (Util) {
       }
     }
 
-    // propertyDesignByType(propertyType){
-    // 	switch (propertyType){
-    // 		case 'plant':
-    // 			return 'Success';
-    // 		case 'taxon':
-    // 			return 'None';
-    // 		default:
-    // 			return 'Error';
-    // 	}	
-    // },
-
+    // todo repair
     colorByPreviewOrNot(sImage, sPlantPreviewImage) {
-      // if(sPlantPreviewImage !== null && sPlantPreviewImage !== undefined){
       if (!!sImage && !!sPlantPreviewImage) {
         // uri may be split via forward or backward slashes
         var sSplit = sPlantPreviewImage.indexOf('/') === -1 ? '\\' : '/';
@@ -74,8 +63,9 @@ sap.ui.define(["plants/ui/customClasses/Util"], function (Util) {
           return 'blue';
         }
       }
-      return '#E69A17';
+      return '#E69A17'; // orange
     }
+
     timestampToDateShort(ts) {
       if (ts === '1900-01-01') {
         // dummy date if no image at all; required for correct sorting

@@ -122,23 +122,53 @@ export default class ImageEventHandlers extends ManagedObject{
 									sSupportedFileTypes);
 		}
 
-		public removeTokenFromModel(sKey: string, oImage: PImage, oModel: JSONModel, sType: 'plant'|'keyword'){
-			// triggered upon changes of image's plant assignments and image's keywords
+		// public removeTokenFromModel(sTokenKey: string, oImage: PImage, oModel: JSONModel, sType: 'plant'|'keyword'){
+		// 	// triggered upon changes of image's plant assignments and image's keywords
+		// 	// either in untagged view or in detail view
+		// 	// sKey is either a keyword or a plant name
+		// 	// note: the token itself has already been deleted; here, we only delete the 
+		// 	// 		 corresponding entry from the model
+			
+		// 	// find plant/keyword in the image's corresponding array and delete
+		// 	if (sType === 'plant'){
+		// 		const aPlantTags = <PImagePlantTag[]>oImage.plants;
+		// 		const iIndex: int = aPlantTags.findIndex(ele=>ele.key === sKey);
+		// 		aPlantTags.splice(iIndex, 1);
+		// 	} else { //'keyword'
+		// 		const aKeywordTags = <PKeyword[]>oImage.keywords;
+		// 		const iIndex: int = aKeywordTags.findIndex(ele=>ele.keyword === sKey);
+		// 		aKeywordTags.splice(iIndex, 1);
+		// 	}
+		// 	oModel.updateBindings(false);
+		// }
+
+		public removePlantImageTokenFromModel(sPlantTokenKey: string, oImage: PImage, oModel: JSONModel){
+			// triggered upon changes of image's plant assignments
 			// either in untagged view or in detail view
-			// sKey is either a keyword or a plant name
+			//   ==> oModel can be either images or untagged_images model
 			// note: the token itself has already been deleted; here, we only delete the 
 			// 		 corresponding entry from the model
 			
-			// find plant/keyword in the image's corresponding array and delete
-			if (sType === 'plant'){
-				const aPlantTags = <PImagePlantTag[]>oImage.plants;
-				const iIndex: int = aPlantTags.findIndex(ele=>ele.key === sKey);
-				aPlantTags.splice(iIndex, 1);
-			} else { //'keyword'
-				const aKeywordTags = <PKeyword[]>oImage.keywords;
-				const iIndex: int = aKeywordTags.findIndex(ele=>ele.keyword === sKey);
-				aKeywordTags.splice(iIndex, 1);
-			}
+			// find plant in the image's corresponding array and delete
+			const aPlantTags = <PImagePlantTag[]>oImage.plants;
+			const iIndex: int = aPlantTags.findIndex(ele=>ele.key === sPlantTokenKey);
+			if (iIndex < 0) throw new Error("Plant not found in image's plants tags array.");
+			aPlantTags.splice(iIndex, 1);
+			oModel.updateBindings(false);
+		}
+
+		public removeKeywordImageTokenFromModel(sKeywordTokenKey: string, oImage: PImage, oModel: JSONModel){
+			// triggered upon changes of image's keywords assignments
+			// either in untagged view or in detail view
+			//   ==> oModel can be either images or untagged_images model
+			// note: the token itself has already been deleted; here, we only delete the 
+			// 		 corresponding entry from the model
+			
+			// find keyword in the image's corresponding array and delete
+			const aKeywordTags = <PKeyword[]>oImage.keywords;
+			const iIndex: int = aKeywordTags.findIndex(ele=>ele.keyword === sKeywordTokenKey);
+			if (iIndex < 0) throw new Error("Keyword not found in image's keywords tags array.");
+			aKeywordTags.splice(iIndex, 1);
 			oModel.updateBindings(false);
 		}
 }
