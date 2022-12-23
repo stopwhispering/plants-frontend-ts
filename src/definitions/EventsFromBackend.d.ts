@@ -48,11 +48,12 @@ export interface PImage {
   id?: number;
   filename: string;
 }
-export interface PImageDelete {
+export interface RImageDelete {
+  id: int;
   filename: string;
 }
-export interface PImagesDelete {
-  images: PImageDelete[];
+export interface RImagesDelete {
+  images: RImageDelete[];
 }
 export interface PResultsEventResource {
   events: PEvents;

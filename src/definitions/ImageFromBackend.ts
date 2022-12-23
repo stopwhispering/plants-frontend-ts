@@ -12,6 +12,7 @@ export interface GenerateMissingThumbnails {
   count_generated: number;
 }
 export interface PImage {
+  id: int;
   filename: string;
   keywords: PKeyword[];
   plants: PImagePlantTag[];

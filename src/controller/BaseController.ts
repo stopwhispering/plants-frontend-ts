@@ -28,6 +28,7 @@ import Popover from "sap/m/Popover";
 import ViewSettingsDialog from "sap/m/ViewSettingsDialog";
 import { PTaxon } from "../definitions/TaxonFromBackend";
 import { LPropagationTypeData } from "../definitions/PlantsLocal";
+import { RImageDelete, RImagesDelete } from "../definitions/EventsFromBackend";
 
 /**
  * @namespace plants.ui.controller
@@ -533,12 +534,12 @@ export default class BaseController extends Controller {
 			oControl = <Control>oControl.getParent();
 		} while (oControl.getParent() !== undefined && !(oControl instanceof Dialog) && !(oControl instanceof Popover) && !(oControl instanceof ViewSettingsDialog));
 
-		if (!oControl){
+		if (!oControl) {
 			MessageToast.show("Error: Could not find Dialog or Popover to close");
 			return
 		}
 
-		(<Dialog|Popover>oControl).close();
+		(<Dialog | Popover>oControl).close();
 
 		// this.applyToFragment(dialogId, (oDialog: Dialog) => oDialog.close());
 	}
@@ -549,8 +550,13 @@ export default class BaseController extends Controller {
 			return;
 		}
 
-		//send delete request
-		var oPayload = { 'images': [{ 'filename': oImage.filename }] }
+		const oPayload = <RImagesDelete>{
+			images: [<RImageDelete>{
+				id: oImage.id,
+				filename: oImage.filename
+			}]
+		};
+
 		$.ajax({
 			url: Util.getServiceUrl('images/'),
 			type: 'DELETE',

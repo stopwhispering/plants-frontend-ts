@@ -17,6 +17,7 @@ import List from "sap/m/List";
 import OverflowToolbarButton from "sap/m/OverflowToolbarButton";
 import Tokenizer from "sap/m/Tokenizer";
 import { PPlant } from "../definitions/PlantsFromBackend";
+import { PImageDelete, RImageDelete, RImagesDelete } from "../definitions/EventsFromBackend";
 
 /**
  * @namespace plants.ui.controller
@@ -120,11 +121,16 @@ export default class Untagged extends BaseController {
 			return;
 		}
 
+		const oPayload = <RImagesDelete>{
+			images: aSelectedImages.map((image) => (<RImageDelete>{id: image.id,
+								                                   filename: image.filename}))
+			};
+
 		$.ajax({
 			url: Util.getServiceUrl('images/'),
 			type: 'DELETE',
 			contentType: "application/json",
-			data: JSON.stringify({ 'images': aSelectedImages }),
+			data: JSON.stringify(oPayload),
 			context: this
 		})
 			.done(this.onAjaxDeletedImagesSuccess.bind(this, aSelectedImages, this.onSelectNone.bind(this)))
