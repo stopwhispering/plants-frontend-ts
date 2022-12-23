@@ -77,6 +77,8 @@
                         </Image>
                         
                         <!-- side icons -->
+                        <!-- todo url_preview was  removed in backend -->
+                        <!-- replace with filename_previewimage??? -->
                         <VBox 
                             height="7rem" 
                             class="sapUiTinyMargin">

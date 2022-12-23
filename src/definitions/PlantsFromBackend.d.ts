@@ -60,7 +60,6 @@ export interface PPlant {
   descendant_plants_all: PAssociatedPlantExtractForPlant[];
   sibling_plants: PAssociatedPlantExtractForPlant[];
   same_taxon_plants: PAssociatedPlantExtractForPlant[];
-  url_preview?: string;
   current_soil?: PPlantCurrentSoil;
   latest_image?: PPlantLatestImage;
   tags: PPlantTag[];

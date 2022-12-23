@@ -307,14 +307,14 @@ export default class Detail extends BaseController {
 		var sPathCurrentImage = oSource.getBindingContext("images")!.getPath();
 		var oCurrentImage = this.oComponent.getModel('images').getProperty(sPathCurrentImage);
 		var sPathCurrentPlant = oSource.getBindingContext("plants")!.getPath();
-		var oCurrentPlant = this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
+		var oCurrentPlant = <PPlant>this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
 
 		// temporarily set original image as preview image
 		// upon reloading plants model, a specific preview image will be generated 
 		var sUrlOriginal = oCurrentImage['filename'];
 		var s = JSON.stringify(sUrlOriginal); // model stores backslash unescaped, so we need a workaround
-		var s2 = s.substring(1, s.length - 1);
-		oCurrentPlant['url_preview'] = s2;
+		// var s2 = s.substring(1, s.length - 1);
+		// oCurrentPlant['url_preview'] = s2;
 		oCurrentPlant['filename_previewimage'] = oCurrentImage['filename'];
 
 		this.oComponent.getModel('plants').updateBindings(false);

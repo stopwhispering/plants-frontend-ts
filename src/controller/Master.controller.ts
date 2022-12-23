@@ -425,14 +425,14 @@ export default class Master extends BaseController {
 		const oPopover = <Popover>this.byId('popoverPopupImage');
 		if (!oPopover) {
 			Fragment.load({
-				name: "plants.ui.view.fragments.master.MasterImagePopover",
+				name: this.mIdToFragment["popoverPopupImage"],
 				id: oView.getId(),
 				controller: this
 			}).then((oControl: Control | Control[]) => {
 				const oPopover: Popover = oControl as Popover;
 				oView.addDependent(oPopover);
 				oPopover.setBindingContext(oBindingContext, 'plants');
-				oPopover.openBy(oView, true);
+				oPopover.openBy(oAvatar, true);
 			});
 		} else {
 			oPopover.setBindingContext(oBindingContext, 'plants');

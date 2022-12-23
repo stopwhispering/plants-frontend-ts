@@ -48,6 +48,7 @@ export default class formatter{
 		}
 	}
 	
+	// todo repair
 	public colorByPreviewOrNot(sImage: string, sPlantPreviewImage: string){
 		if(!!sImage && !!sPlantPreviewImage){
 			// uri may be split via forward or backward slashes
