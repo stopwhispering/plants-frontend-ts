@@ -1,1 +1,0 @@
-sap.ui.define(["sap/m/MessageBox","sap/ui/core/mvc/Controller"],function(e,n){const t=n.extend("plants.ui.controller.App",{onInit:function e(){this.getView().addStyleClass(this.getOwnerComponent().getContentDensityClass())},sayHello:function n(){e.show("Hello World!")}});return t});
