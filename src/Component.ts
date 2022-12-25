@@ -6,7 +6,7 @@ import ModelsHelper from "plants/ui/model/ModelsHelper"
 import MessageUtil from "plants/ui/customClasses/MessageUtil"
 import * as Util from "plants/ui/customClasses/Util";
 import {
-	LTaxonData } from "./definitions/TaxonLocal"
+	LTaxonData, LTaxonMap } from "./definitions/TaxonLocal"
 import Navigation from "./customClasses/Navigation"
 import { FBImage, BResultsImageResource } from "./definitions/Images"
 import { LImageMap } from "./definitions/ImageLocal"
@@ -29,7 +29,7 @@ export default class Component extends UIComponent {
 	public oEventsDataClone = <PlantIdToEventsMap>{};  // avoid exceptions when saving before any event has been loaded
 	public oPropertiesDataClone: LPlantIdToPropertyCollectionMap = {};
 	public oPlantsDataClone = <FPlantsUpdateRequest>{};
-	public oTaxonDataClone = <LTaxonData>{};
+	public oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
 	public oPropertiesTaxonDataClone = <LCategoryToPropertiesInCategoryMap>{};
 
 	public static metadata = {
@@ -62,7 +62,7 @@ export default class Component extends UIComponent {
 		oUntaggedImagesModel.setSizeLimit(250);
 		this.setModel(oUntaggedImagesModel, 'untaggedImages');
 
-		var oTaxonModel = new JSONModel();
+		var oTaxonModel = new JSONModel(<LTaxonData>{TaxaDict: <LTaxonMap>{}});
 		oTaxonModel.setSizeLimit(2000);
 		this.setModel(oTaxonModel, 'taxon');
 		
@@ -91,7 +91,7 @@ export default class Component extends UIComponent {
 		//(helper class is used to reload data via button as well)
 		var oModelsHelper = ModelsHelper.getInstance(this);
 		oModelsHelper.reloadPlantsFromBackend();
-		oModelsHelper.reloadTaxaFromBackend();
+		// oModelsHelper.reloadTaxaFromBackend();
 		oModelsHelper.reloadKeywordProposalsFromBackend();
 		oModelsHelper.reloadNurserySourceProposalsFromBackend();
 		oModelsHelper.reloadPropertyNamesFromBackend();

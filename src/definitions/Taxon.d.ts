@@ -4,24 +4,29 @@ import ManagedObject from "sap/ui/base/ManagedObject";
  * @namespace plants.ui.definitions.TaxonFromBackend
  */
 export interface BKewSearchResultEntry {
-  source: string;
+  source: BSearchResultSource;
   id?: number;
   count: number;
   count_inactive: number;
   is_custom: boolean;
-  synonym: boolean;
+  synonym?: boolean;
   authors: string;
   family: string;
   name: string;
   rank: string;
-  lsid?: string;
-  // powo_id?: string;
+  lsid: string;
   genus: string;
   species?: string;
-  namePublishedInYear: string;
+  namePublishedInYear?: string;
   phylum?: string;
   synonyms_concat?: string;
   distribution_concat?: string;
+}
+export interface BMessage {
+  type: BMessageType;
+  message: string;
+  additionalText?: string;
+  description?: string;
 }
 export interface BResultsFetchTaxonImages {
   action: string;
@@ -74,9 +79,7 @@ export interface FBTaxon {
   hybrid: boolean;
   hybridgenus: boolean;
   gbif_id?: string;
-  // powo_id?: string;
   custom_notes?: string;
-  // ipni_id_short: string;
   distribution?: FBDistribution;
   images?: FBTaxonImage[];
   occurrenceImages?: FBTaxonOccurrenceImage[];
@@ -90,6 +93,11 @@ export interface FBTaxonImage {
   filename: string;
   description?: string;
 }
+export interface BResultsGetTaxon {
+  action: string;
+  message: BMessage;
+  taxon: FBTaxon;
+}
 export interface BResultsSaveTaxonRequest {
   action: string;
   resource: string;
@@ -99,14 +107,13 @@ export interface BResultsSaveTaxonRequest {
 }
 export interface BResultsTaxonInfoRequest {
   action: string;
-  resource: string;
   message: BMessage;
   ResultsCollection: BKewSearchResultEntry[];
 }
 export interface FAssignTaxonRequest {
   lsid?: string;
   hasCustomName: boolean;
-  id?: number;
+  taxon_id?: number;
   nameInclAddition: string;
   plant_id: number;
   source: string;

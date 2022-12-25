@@ -11,5 +11,5 @@ export interface LTaxonMap {
 }
 
 export interface LTaxonData {
-    TaxaDict: TaxonMap;
+    TaxaDict: LTaxonMap;
 }

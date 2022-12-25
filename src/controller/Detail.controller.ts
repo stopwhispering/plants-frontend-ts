@@ -56,6 +56,7 @@ import ColumnListItem from "sap/m/ColumnListItem"
 import ResourceModel from "sap/ui/model/resource/ResourceModel"
 import ResourceBundle from "sap/base/i18n/ResourceBundle"
 import { LCancellationReasonChoice } from "../definitions/PlantsLocal"
+import { BResultsGetTaxon, FBTaxon } from "../definitions/Taxon"
 
 /**
  * @namespace plants.ui.controller
@@ -142,8 +143,7 @@ export default class Detail extends BaseController {
 		//same applies to the events model which requires the plant_id
 		var oModelPlants = this.oComponent.getModel('plants');
 		var oPromise = oModelPlants.dataLoaded();
-		oPromise.then(this._bindPlantsModelDeferred.bind(this),
-			this._bindPlantsModelDeferred.bind(this));
+		oPromise.then(this._bindPlantsModelDeferred.bind(this), this._bindPlantsModelDeferred.bind(this));
 
 		//loading and binding events requires only the plant id
 		this._loadBindEventsModel();
@@ -211,7 +211,10 @@ export default class Detail extends BaseController {
 
 		// treat properties model in the same way (it requires the taxon to be known so we have
 		// to load it here)
-		this._loadBindProperties()
+		this._loadBindProperties();
+
+		// also read the taxon details (we only have the taxon_id so far)
+		this.modelsHelper.loadTaxon(this._oCurrentPlant.taxon_id);
 
 	}
 
@@ -227,7 +230,7 @@ export default class Detail extends BaseController {
 	}
 
 	private _loadEventsForCurrentPlant(): void {
-		// request data from backend
+		// request plant's events from backend
 		// data is added to local events model and bound to current view upon receivement
 		const uri = 'events/' + this._currentPlantId;
 		$.ajax({
@@ -746,13 +749,11 @@ export default class Detail extends BaseController {
 		Util.startBusyDialog('Loading...', 'Loading plants and images data');
 
 		this.modelsHelper.reloadPlantsFromBackend();
-		// oModelsHelper.reloadImagesFromBackend();
 		this.modelsHelper.resetImagesRegistry();
-		//todo trigger reinit of this view (updateBindings/refresh of model doesn't update this view's images)
 
 		this._requestImagesForPlant(this._oCurrentPlant.id!);
 
-		this.modelsHelper.reloadTaxaFromBackend();
+		// this.modelsHelper.reloadTaxaFromBackend();
 
 		this.applyToFragment('dialogRenamePlant', (o: Dialog) => o.close());
 	}

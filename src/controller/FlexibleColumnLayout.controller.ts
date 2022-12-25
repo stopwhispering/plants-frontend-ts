@@ -183,8 +183,12 @@ export default class FlexibleColumnLayout extends BaseController {
 			oModelsHelper.reloadPlantsFromBackend();
 			// oModelsHelper.reloadImagesFromBackend();
 			oModelsHelper.resetImagesRegistry();
+
 			// todo: reload current plant's images
-			oModelsHelper.reloadTaxaFromBackend();
+			// oModelsHelper.reloadTaxaFromBackend();
+			
+			// reset the taxa registry including it's clone and trigger reload of current plant's taxon details
+			oModelsHelper.resetTaxaRegistry();
 		}
 	}
 

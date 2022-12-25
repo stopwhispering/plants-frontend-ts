@@ -8,6 +8,9 @@ import Component from "../Component";
 import { MessageType } from "sap/ui/core/library";
 import Event from "sap/ui/base/Event";
 import { FBImage } from "../definitions/Images";
+import { LTaxonData, LTaxonMap } from "../definitions/TaxonLocal";
+import { BResultsGetTaxon, FBTaxon } from "../definitions/Taxon";
+import { FBPlant } from "../definitions/Plants";
 
 /**
  * @namespace plants.ui.model
@@ -15,7 +18,7 @@ import { FBImage } from "../definitions/Images";
 export default class ModelsHelper extends ManagedObject {
 	private static _instance: ModelsHelper;
 	private formatter = new formatter();
-	private _component;
+	private _component: Component;
 	
 	public static getInstance(component?: Component) {
 		if (!ModelsHelper._instance && !!component) {
@@ -142,10 +145,75 @@ export default class ModelsHelper extends ManagedObject {
 		});
 	}
 
-	reloadTaxaFromBackend() {
-		//reload taxon data
-		var sUrl = Util.getServiceUrl('taxa/');
-		this._component.getModel('taxon').loadData(sUrl);
+	// reloadTaxaFromBackend() {
+	// 	//todo remove everywhere
+	// 	//reload taxon data
+	// 	var sUrl = Util.getServiceUrl('taxa/');
+	// 	this._component.getModel('taxon').loadData(sUrl);
+	// }
+
+	public loadTaxon(taxon_id: int|undefined): void{
+		// in case we loaded a plant from same taxon earlier, we may not overwrite it in case of changes
+		// we can just leave then as the correct taxon has already been bound to the view
+		const oTaxonModel = <JSONModel>this._component.getModel('taxon');
+		const oTaxon = oTaxonModel.getProperty('/TaxaDict/' + taxon_id);
+		if (oTaxon) {
+			return;
+		}
+
+		// in case the plant has no taxon, yet, we can skip loading, too
+		if (!taxon_id) {
+			return;
+		}
+
+		// request taxon details from backend
+		const uri = 'taxa/' + taxon_id;
+		$.ajax({
+			url: Util.getServiceUrl(uri),
+			context: this,
+			async: true
+		})
+			.done(this._onReceivingTaxonDetailsForPlant.bind(this, taxon_id!))
+			.fail(this.onReceiveErrorGeneric.bind(this, 'Event (GET)'))
+	}
+
+	private _onReceivingTaxonDetailsForPlant(taxonId: int, oData: BResultsGetTaxon): void {
+		//insert (overwrite!) events data for current plant with data received from backend
+		const oTaxonModel = <JSONModel>this._component.getModel('taxon');
+		const oTaxon = <FBTaxon>oData.taxon;
+		oTaxonModel.setProperty('/TaxaDict/' + taxonId + '/', oTaxon);
+		this._component.oTaxonDataClone.TaxaDict[taxonId] = Util.getClonedObject(oTaxon);
+		MessageUtil.getInstance().addMessageFromBackend(oData.message);
+	}
+
+	private _parse_plant_id_from_hash(): int|undefined {
+		// parse plant id from hash, e.g. '#/detail/870/TwoColumnsMidExpanded' -> 870
+		const sHash: string = window.location.hash;
+		if (sHash.startsWith('#/detail/')) {
+			const aParts = sHash.split('/');
+			return parseInt(aParts[2]);
+		}
+	}
+
+	public resetTaxaRegistry() {
+		// reset the taxa registry including it's clone and trigger reload of current plant's taxon details
+		const oTaxonModel = <JSONModel>this._component.getModel('taxon');
+		oTaxonModel.setProperty('/', {TaxaDict: <LTaxonMap>{}});
+		this._component.oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
+		oTaxonModel.updateBindings(false);
+
+		// trigger reload of taxon details for current plant
+		const iPlantId = this._parse_plant_id_from_hash();
+		if (!iPlantId)
+			return;
+		const oPlantsModel = <JSONModel>this._component.getModel('plants');
+		const aPlants = <FBPlant[]>oPlantsModel.getProperty('/PlantsCollection/');
+		const oCurrentPlant = aPlants.find(p => p.id === iPlantId);
+		if (!oCurrentPlant)
+			throw new Error('Plant with id ' + iPlantId + ' not found in plants collection');
+		if (!oCurrentPlant.taxon_id)
+			return;
+		this.loadTaxon(oCurrentPlant.taxon_id);
 	}
 
 	reloadKeywordProposalsFromBackend() {
