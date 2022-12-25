@@ -14,7 +14,7 @@ export interface BPropertyCollectionTaxon {
 export interface FBPropertiesInCategory {
   category_name: string;
   category_id: number;
-  sort?: number;
+  // sort?: number;
   properties: FBProperty[];
   property_value?: string;
 }

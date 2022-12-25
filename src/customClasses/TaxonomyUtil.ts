@@ -13,7 +13,7 @@ import Component from "../Component";
 import Table from "sap/m/Table";
 import ColumnListItem from "sap/m/ColumnListItem";
 import { FBPlant } from "../definitions/Plants";
-import { BKewSearchResultEntry, BResultsFetchTaxonImages, BResultsSaveTaxonRequest, BResultsTaxonInfoRequest, FBTaxon, FFetchTaxonOccurrenceImagesRequest, FTaxonInfoRequest } from "../definitions/Taxon";
+import { BKewSearchResultEntry, BResultsFetchTaxonImages, BResultsSaveTaxonRequest, BResultsTaxonInfoRequest, FAssignTaxonRequest, FBTaxon, FFetchTaxonOccurrenceImagesRequest, FTaxonInfoRequest } from "../definitions/Taxon";
 import { ResponseStatus } from "../definitions/SharedLocal";
 import { LTaxonData } from "../definitions/TaxonLocal";
 
@@ -79,7 +79,7 @@ export default class TaxonomyUtil extends ManagedObject {
 			nameInclAddition = sCustomName;
 		}
 
-		var dPayload = {
+		var dPayload = <FAssignTaxonRequest>{
 			'lsid': lsid,
 			'hasCustomName': (nameInclAddition.length === 0) ? false : true,
 			'nameInclAddition': nameInclAddition,
