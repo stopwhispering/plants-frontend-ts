@@ -17,7 +17,7 @@ import Event from "sap/ui/base/Event"
 import ListBinding from "sap/ui/model/ListBinding"
 import ViewSettingsDialog from "sap/m/ViewSettingsDialog"
 import StandardTreeItem from "sap/m/StandardTreeItem"
-import { PTaxonTreeNode } from "../definitions/SelectionFromBackend"
+import { BTaxonTreeNode } from "../definitions/Selection"
 import { LTaxonTreeNodeInFilterDialog } from "../definitions/SelectionLocal"
 import SegmentedButton from "sap/m/SegmentedButton"
 import Tree from "sap/m/Tree"
@@ -26,7 +26,7 @@ import Text from "sap/m/Text"
 import Dialog from "sap/m/Dialog"
 import Input from "sap/m/Input"
 import Avatar from "sap/m/Avatar"
-import { PPlant, PPlantTag } from "../definitions/PlantsFromBackend"
+import { FBPlant, FBPlantTag } from "../definitions/Plants"
 import { IdToFragmentMap } from "../definitions/SharedLocal"
 
 /**
@@ -65,7 +65,7 @@ export default class Master extends BaseController {
 
 	onListItemPress(oEvent: Event) {
 		// get selected plant
-		var oPlant = <PPlant>(<ColumnListItem>oEvent.getSource()).getBindingContext("plants")!.getObject()
+		var oPlant = <FBPlant>(<ColumnListItem>oEvent.getSource()).getBindingContext("plants")!.getObject()
 		this.navigation.navToPlantDetails(oPlant.id!);
 	}
 
@@ -111,11 +111,11 @@ export default class Master extends BaseController {
 		this.updateTableHeaderPlantsCount();
 	}
 
-	private _getDistinctTagsFromPlants(aPlants: PPlant[]) {
+	private _getDistinctTagsFromPlants(aPlants: FBPlant[]) {
 		// collect distinct tags assigned to any plant
 		var aTagsAll = <string[]>[];
 		for (var i = 0; i < aPlants.length; i++) {
-			var aTagObjects = <PPlantTag[]>aPlants[i].tags;
+			var aTagObjects = <FBPlantTag[]>aPlants[i].tags;
 			if (!!aTagObjects.length) {
 				// get tag texts from tag object list
 				var aTags = <string[]>aTagObjects.map(function (tag_obj) { return tag_obj.text; });
@@ -176,9 +176,9 @@ export default class Master extends BaseController {
 
 	}
 
-	private _addSelectedFlag(aNodes: PTaxonTreeNode[], bSelected: boolean) {
+	private _addSelectedFlag(aNodes: BTaxonTreeNode[], bSelected: boolean) {
 		const that = this;
-		aNodes.forEach(function (oNode: PTaxonTreeNode) {
+		aNodes.forEach(function (oNode: BTaxonTreeNode) {
 			let oNodeInFilterDialog: LTaxonTreeNodeInFilterDialog = <LTaxonTreeNodeInFilterDialog>oNode;
 			oNodeInFilterDialog.selected = bSelected;
 			if (!!oNodeInFilterDialog.nodes && oNodeInFilterDialog.nodes.length > 0) {
@@ -191,7 +191,7 @@ export default class Master extends BaseController {
 		var aItems = oEvent.getParameter("listItems");
 		let that = this;
 		aItems.forEach(function (oItem: StandardTreeItem) {
-			var oNode = <PTaxonTreeNode>oItem.getBindingContext('selection')!.getObject();
+			var oNode = <BTaxonTreeNode>oItem.getBindingContext('selection')!.getObject();
 			var bSelected = oItem.getSelected();
 			if (oNode.nodes) {
 				that._addSelectedFlag(oNode.nodes, bSelected);

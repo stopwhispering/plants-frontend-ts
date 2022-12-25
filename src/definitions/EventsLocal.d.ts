@@ -1,5 +1,5 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
-import { PRSoil, PRObservation, PRPot, PEvent } from "./EventsFromBackend";
+import { FBSoil, FBObservation, FBPot, FBEvent } from "./Events";
 
 /**
  * @namespace plants.ui.definitions.entities
@@ -11,14 +11,14 @@ export interface EventEditDataSegments{
 	soil: boolean;
 }
 
-export interface EventInEventsModel extends Omit<PEvent, "id">{
+export interface EventInEventsModel extends Omit<FBEvent, "id">{
     // only difference in comparison to PEvent from backend: id is optional
     // to allow for new events
     id?: number;
 }
 
 export interface PlantIdToEventsMap {
-    [key: int]: PEvent[];  //plant_it to Events array
+    [key: int]: FBEvent[];  //plant_it to Events array
 }
 
 export interface EventEditData{
@@ -29,14 +29,14 @@ export interface EventEditData{
 
     date: string;
     event_notes?: string;
-    observation?: PRObservation;
-    soil?: PRSoil;
+    observation?: FBObservation;
+    soil?: FBSoil;
     plant_id: number;
-    pot?: PRPot;
+    pot?: FBPot;
 
     segments : EventEditDataSegments;
     mode: 'new' | 'edit'
-    oldEvent: PEvent;
+    oldEvent: FBEvent;
 }
 
 
@@ -52,14 +52,14 @@ export interface SoilEditData {
 }
 
 export interface PlantsEventsDict{
-    [key: int]: PEvent[];
+    [key: int]: FBEvent[];
 }
 
 export interface EventsModelData {
     PlantsEventsDict: PlantsEventsDict;
 }
 
-export interface InitialSoil extends Omit<PRSoil, "id" | "soil_name">{
+export interface InitialSoil extends Omit<FBSoil, "id" | "soil_name">{
 // for initially opening the dialog before selecting a soil
     id?: number;
     soil_name?: string;

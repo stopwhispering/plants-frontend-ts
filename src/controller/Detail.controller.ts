@@ -17,13 +17,13 @@ import TaxonomyUtil from "plants/ui/customClasses/TaxonomyUtil"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
 import Fragment from "sap/ui/core/Fragment"
 import Dialog from "sap/m/Dialog"
-import { PConfirmation } from "../definitions/MessagesFromBackend"
+import { BConfirmation } from "../definitions/Messages"
 import {
 	NewPlant, ObjectStatusCollection,
 	ObjectStatusData
 } from "../definitions/entities"
 import { IdToFragmentMap } from "../definitions/SharedLocal"
-import {PEvent, PEvents, PResultsEventResource, PRSoil} from "../definitions/EventsFromBackend"
+import {FBEvent, BResultsEventResource, FBSoil, BEvents} from "../definitions/Events"
 import { EventEditData, SoilEditData } from "../definitions/EventsLocal"
 import DatePicker from "sap/m/DatePicker"
 import Event from "sap/ui/base/Event"
@@ -47,9 +47,9 @@ import Component from "../Component"
 import RadioButton from "sap/m/RadioButton"
 import List from "sap/m/List"
 import GridListItem from "sap/f/GridListItem"
-import { PImage, PImagePlantTag, PKeyword } from "../definitions/ImageFromBackend"
+import { FBImage, FBImagePlantTag, FBKeyword } from "../definitions/Images"
 import Token from "sap/m/Token"
-import { CancellationReason, PAssociatedPlantExtractForPlant, PPlant, PPlantTag, PResultsPlantCloned } from "../definitions/PlantsFromBackend"
+import { FBCancellationReason, FBAssociatedPlantExtractForPlant, FBPlant, FBPlantTag, BResultsPlantCloned } from "../definitions/Plants"
 import { LDescendantPlantInput, LPropagationTypeData } from "../definitions/PlantsLocal"
 import Tokenizer from "sap/m/Tokenizer"
 import ColumnListItem from "sap/m/ColumnListItem"
@@ -73,7 +73,7 @@ export default class Detail extends BaseController {
 	// TraitUtil = TraitUtil.getInstance()
 	private TaxonomyUtil = TaxonomyUtil.getInstance();
 	private _currentPlantId: int;
-	private _oCurrentPlant: PPlant;
+	private _oCurrentPlant: FBPlant;
 	private _currentPlantIndex: int;  // index of current plant in plants model
 	private oLayoutModel: JSONModel;
 
@@ -177,7 +177,7 @@ export default class Detail extends BaseController {
 		// position of plant_id in the plants model array, etc.
 
 		// get current plant's position in plants model array
-		var aPlants = <PPlant[]>this.oComponent.getModel('plants').getProperty('/PlantsCollection');
+		var aPlants = <FBPlant[]>this.oComponent.getModel('plants').getProperty('/PlantsCollection');
 		this._currentPlantIndex = aPlants.findIndex(plant => plant.id === this._currentPlantId);
 		if (this._currentPlantIndex === -1) {
 			MessageToast.show('Plant ID ' + this._currentPlantId + ' not found. Redirecting.');
@@ -239,16 +239,16 @@ export default class Detail extends BaseController {
 			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Event (GET)'))
 	}
 
-	private _onReceivingEventsForPlant(plantId: int, oData: PResultsEventResource): void {
+	private _onReceivingEventsForPlant(plantId: int, oData: BResultsEventResource): void {
 		//insert (overwrite!) events data for current plant with data received from backend
 		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
-		const aEvents = <PEvents>oData.events;
+		const aEvents = <BEvents>oData.events;
 		oEventsModel.setProperty('/PlantsEventsDict/' + plantId + '/', aEvents);
 		this.oComponent.oEventsDataClone[plantId] = Util.getClonedObject(aEvents);
 		MessageUtil.getInstance().addMessageFromBackend(oData.message);
 	}
 
-	private _bindTaxonOfCurrentPlantDeferred(oPlant: PPlant) {
+	private _bindTaxonOfCurrentPlantDeferred(oPlant: FBPlant) {
 		this.getView().bindElement({
 			path: "/TaxaDict/" + oPlant.taxon_id,
 			model: "taxon"
@@ -307,7 +307,7 @@ export default class Detail extends BaseController {
 		var sPathCurrentImage = oSource.getBindingContext("images")!.getPath();
 		var oCurrentImage = this.oComponent.getModel('images').getProperty(sPathCurrentImage);
 		var sPathCurrentPlant = oSource.getBindingContext("plants")!.getPath();
-		var oCurrentPlant = <PPlant>this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
+		var oCurrentPlant = <FBPlant>this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
 
 		// temporarily set original image as preview image
 		// upon reloading plants model, a specific preview image will be generated 
@@ -327,8 +327,8 @@ export default class Detail extends BaseController {
 		var oReasonSelected = aReasons.find(ele => ele.selected);
 
 		//set current plant's cancellation reason and date
-		var oCurrentPlant = <PPlant>this.getView().getBindingContext('plants')!.getObject();
-		oCurrentPlant.cancellation_reason = oReasonSelected!.text as CancellationReason;
+		var oCurrentPlant = <FBPlant>this.getView().getBindingContext('plants')!.getObject();
+		oCurrentPlant.cancellation_reason = oReasonSelected!.text as FBCancellationReason;
 		var oDatePicker = <DatePicker>this.byId("cancellationDate");
 		let oDate: Date = oDatePicker.getDateValue() as unknown as Date;
 		var sDateFormatted = Util.formatDate(oDate);
@@ -341,7 +341,7 @@ export default class Detail extends BaseController {
 
 	onChangeParent(oEvent: Event) {
 		// verify entered parent and set parent plant id
-		var aPlants = <PPlant[]>this.getView().getModel('plants').getProperty('/PlantsCollection');
+		var aPlants = <FBPlant[]>this.getView().getModel('plants').getProperty('/PlantsCollection');
 		var parentPlant = aPlants.find(plant => plant.plant_name === oEvent.getParameter('newValue').trim());
 
 		if (!oEvent.getParameter('newValue').trim() || !parentPlant) {
@@ -355,7 +355,7 @@ export default class Detail extends BaseController {
 
 		} else {
 			// set parent plant
-			parentalPlant = <PAssociatedPlantExtractForPlant>{
+			parentalPlant = <FBAssociatedPlantExtractForPlant>{
 				id: parentPlant.id,
 				plant_name: parentPlant.plant_name,
 				active: parentPlant.active
@@ -400,7 +400,7 @@ export default class Detail extends BaseController {
 
 		//confirm dialog
 		var oMenuItem = <MenuItem>oEvent.getSource();
-		var oPlant = <PPlant>oMenuItem.getBindingContext('plants')!.getObject();
+		var oPlant = <FBPlant>oMenuItem.getBindingContext('plants')!.getObject();
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
 
 		const mOptions = {
@@ -434,7 +434,7 @@ export default class Detail extends BaseController {
 		});
 	}
 
-	private _confirmDeletePlant(sPlant: string, plantId: int, oPlant: PPlant, sAction: string) {
+	private _confirmDeletePlant(sPlant: string, plantId: int, oPlant: FBPlant, sAction: string) {
 		if (sAction !== 'Delete') {
 			return;
 		}
@@ -451,7 +451,7 @@ export default class Detail extends BaseController {
 			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (DELETE)'));
 	}
 
-	private _onPlantDeleted(oPlantDeleted: PPlant, oMsg: any, sStatus: string, oReturnData: any) {
+	private _onPlantDeleted(oPlantDeleted: FBPlant, oMsg: any, sStatus: string, oReturnData: any) {
 		Util.stopBusyDialog();
 		this.onAjaxSimpleSuccess(oMsg, sStatus, oReturnData);
 
@@ -595,7 +595,7 @@ export default class Detail extends BaseController {
 		// check if same-text tag already exists for plant
 		var oPlant = this.oComponent.getModel('plants').getData().PlantsCollection[this._currentPlantIndex];
 		if (oPlant.tags) {
-			var bFound = oPlant.tags.find(function (oTag: PPlantTag) {
+			var bFound = oPlant.tags.find(function (oTag: FBPlantTag) {
 				return oTag.text === dDialogData.Value;
 			});
 			if (bFound) {
@@ -684,12 +684,12 @@ export default class Detail extends BaseController {
 			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Clone Plant (POST)'));
 	}
 
-	private _onReceivingPlantCloned(oBackendResultPlantCloned: PResultsPlantCloned) {
+	private _onReceivingPlantCloned(oBackendResultPlantCloned: BResultsPlantCloned) {
 		// Cloning plant was successful; add clone to model and open in details view
 		this.applyToFragment('dialogClonePlant', (oDialog: Dialog) => oDialog.close());
 		MessageUtil.getInstance().addMessageFromBackend(oBackendResultPlantCloned.message);
 
-		var oPlantSaved = <PPlant>oBackendResultPlantCloned.plant;
+		var oPlantSaved = <FBPlant>oBackendResultPlantCloned.plant;
 		var aPlants = this.oComponent.getModel('plants').getProperty('/PlantsCollection');
 		aPlants.push(oPlantSaved);  // append at end to preserve change tracking with clone 
 		this.oComponent.getModel('plants').updateBindings(false);
@@ -737,7 +737,7 @@ export default class Detail extends BaseController {
 			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (PUT)'));
 	}
 
-	private _onReceivingPlantNameRenamed(oMsg: PConfirmation) {
+	private _onReceivingPlantNameRenamed(oMsg: BConfirmation) {
 		//plant was renamed in backend
 		Util.stopBusyDialog();
 		MessageToast.show(oMsg.message.message);
@@ -871,7 +871,7 @@ export default class Detail extends BaseController {
 
 		if (!!descendantPlantData.parentPlantPollen && descendantPlantData.parentPlantPollen.length) {
 			var oParentPlantPollen = this.getPlantByName(descendantPlantData.parentPlantPollen);
-			newPlant.parent_plant_pollen = <PAssociatedPlantExtractForPlant>{
+			newPlant.parent_plant_pollen = <FBAssociatedPlantExtractForPlant>{
 				id: oParentPlantPollen.id,
 				plant_name: descendantPlantData.parentPlantPollen,
 				active: oParentPlantPollen.active
@@ -894,7 +894,7 @@ export default class Detail extends BaseController {
 		throw new Error('Could not generate plant name with romanized suffix.');
 	}
 
-	private _generateNewPlantNameSuggestion(oParentPlant: PPlant, oParentPlantPollen: PPlant | undefined): string {
+	private _generateNewPlantNameSuggestion(oParentPlant: FBPlant, oParentPlantPollen: FBPlant | undefined): string {
 		// generate new plant name suggestion
 		// ... only if parent plant names are set
 
@@ -945,7 +945,7 @@ export default class Detail extends BaseController {
 		const propagationType: LPropagationTypeData = this.getSuggestionItem('propagationTypeCollection', descendantPlantData.propagationType);
 		
 		if (descendantPlantData.parentPlant && descendantPlantData.parentPlant.trim().length) {
-			const oParentPlant: PPlant = this.getPlantByName(descendantPlantData.parentPlant);
+			const oParentPlant: FBPlant = this.getPlantByName(descendantPlantData.parentPlant);
 			const oParentPlantPollen = (descendantPlantData.parentPlantPollen && propagationType.hasParentPlantPollen) ? this.getPlantByName(descendantPlantData.parentPlantPollen) : undefined;
 			var suggestedName = this._generateNewPlantNameSuggestion(oParentPlant, oParentPlantPollen);
 		} else {
@@ -999,11 +999,11 @@ export default class Detail extends BaseController {
 	}
 
 	onButtonFindSpecies(oEvent: Event) {
-		const sSpecies = (<Input>this.byId('inputFindSpecies')).getValue();
-		const bIncludeKew = (<CheckBox>this.byId('cbFindSpeciesIncludeKew')).getSelected();
-		const bSearchForGenus = (<CheckBox>this.byId('cbGenus')).getSelected();
+		const sTaxonNamePattern = (<Input>this.byId('inputTaxonNamePattern')).getValue();
+		const bIncludeExternalApis = (<CheckBox>this.byId('cbIncludeExternalApis')).getSelected();
+		const bSearchForGenusNotSpecies = (<CheckBox>this.byId('cbGenus')).getSelected();
 		const oModelKewSearchResults = <JSONModel>this.getView().getModel('kewSearchResults');  //model attached to view, not component
-		this.TaxonomyUtil.findSpecies(sSpecies, bIncludeKew, bSearchForGenus, oModelKewSearchResults);
+		this.TaxonomyUtil.findSpecies(sTaxonNamePattern, bIncludeExternalApis, bSearchForGenusNotSpecies, oModelKewSearchResults);
 	}
 
 	onFindSpeciesChoose(oEvent: Event) {
@@ -1096,7 +1096,7 @@ export default class Detail extends BaseController {
 	}
 
 	onOpenDialogNewProperty(oEvent: Event) {
-		const oPlant = <PPlant>this.getView().getBindingContext('plants')!.getObject()
+		const oPlant = <FBPlant>this.getView().getBindingContext('plants')!.getObject()
 		var oSource = <Button>oEvent.getSource();
 		this.propertiesUtil.openDialogNewProperty(oPlant, oSource);
 	}
@@ -1135,7 +1135,7 @@ export default class Detail extends BaseController {
 			MessageToast.show('No or more than one soil selected');
 			throw new Error('No or more than one soil selected');
 		}
-		var oSelectedSoil = <PRSoil>oContexts[0].getObject();
+		var oSelectedSoil = <FBSoil>oContexts[0].getObject();
 		this.applyToFragment('dialogEvent', (oDialog: Dialog) => {
 			const oModelNewEvent = <JSONModel>oDialog.getModel("editOrNewEvent");
 			const oSelectedDataNew = Util.getClonedObject(oSelectedSoil);
@@ -1177,12 +1177,12 @@ export default class Detail extends BaseController {
 	onEditEvent(oEvent: Event) {
 		// triggered by edit button in a custom list item header in events list
 		const oSource = <Button>oEvent.getSource();
-		const oSelectedEvent = <PEvent>oSource.getBindingContext('events')!.getObject();
+		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
 		this.eventsUtil.editEvent(oSelectedEvent, this.getView(), this._oCurrentPlant.id!);
 	}
 	onOpenDialogEditSoil(oEvent: Event) {
 		const oSource = <Button>oEvent.getSource();
-		const oSoil = <PRSoil>oSource.getBindingContext('soils')!.getObject();
+		const oSoil = <FBSoil>oSource.getBindingContext('soils')!.getObject();
 		this.eventsUtil.openDialogEditSoil(this.getView(), oSoil);
 	}
 	onOpenDialogNewSoil(oEvent: Event) {
@@ -1202,7 +1202,7 @@ export default class Detail extends BaseController {
 		this.applyToFragment('dialogEditSoil', (oDialog: Dialog) => oDialog.close(),);
 	}
 	onDeleteEventsTableRow(oEvent: Event) {
-		const oSelectedEvent = <PEvent>oEvent.getParameter('listItem').getBindingContext('events').getObject();
+		const oSelectedEvent = <FBEvent>oEvent.getParameter('listItem').getBindingContext('events').getObject();
 		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
 		this.eventsUtil.deleteEventsTableRow(oSelectedEvent, oEventsModel, this._oCurrentPlant)
 
@@ -1217,8 +1217,8 @@ export default class Detail extends BaseController {
 		// triggered upon selection of event in event selection dialog for an image get selected event
 		const oSource = <GridListItem>oEvent.getSource();
 		const oEventsModel = <JSONModel>this.getView().getModel('events');
-		const oImage = <PImage>oSource.getBindingContext('images')!.getObject();
-		const oSelectedEvent = <PEvent>oSource.getBindingContext('events')!.getObject();
+		const oImage = <FBImage>oSource.getBindingContext('images')!.getObject();
+		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
 		this.imageEventHandlers.assignEventToImage(oImage, oSelectedEvent, oEventsModel);
 		(<Popover>this.byId('dialogAssignEventToImage')).close();
 	}
@@ -1234,9 +1234,9 @@ export default class Detail extends BaseController {
 		//adds selected plant in input field (via suggestions) to an image in (details view)
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Input>oEvent.getSource();
-		const oImage = <PImage>oSource.getBindingContext("images")!.getObject()
+		const oImage = <FBImage>oSource.getBindingContext("images")!.getObject()
 		const oSelectedSuggestion = oEvent.getParameter('selectedRow');
-		const oSelectedPlant = <PPlant>oSelectedSuggestion.getBindingContext('plants').getObject();
+		const oSelectedPlant = <FBPlant>oSelectedSuggestion.getBindingContext('plants').getObject();
 		const oImagesModel = this.oComponent.getModel('images');
 		this.imageEventHandlers.assignPlantToImage(oSelectedPlant, oImage, oImagesModel);
 		// this.imageEventHandlers.addPlantNameToImage();
@@ -1247,7 +1247,7 @@ export default class Detail extends BaseController {
 		//navigate to chosen plant in plant details view when clicking on plant token in untagged images view
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Token>oEvent.getSource();
-		const oPlantTag = <PImagePlantTag>oSource.getBindingContext('images')!.getObject();
+		const oPlantTag = <FBImagePlantTag>oSource.getBindingContext('images')!.getObject();
 		if (!oPlantTag.plant_id || oPlantTag.plant_id <= 0) throw new Error("Unexpected error: No Plant ID");
 
 		if (oPlantTag.plant_id === this._oCurrentPlant.id) return; //already on this plant (no need to navigate)
@@ -1259,7 +1259,7 @@ export default class Detail extends BaseController {
 	onIconPressDeleteImage(oEvent: Event){
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Icon>oEvent.getSource();
-		const oImage = <PImage>oSource.getBindingContext("images")!.getObject()
+		const oImage = <FBImage>oSource.getBindingContext("images")!.getObject()
 		
 		//confirm dialog
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
@@ -1284,15 +1284,15 @@ export default class Detail extends BaseController {
 			return;
 		}
 
-		const oImage = <PImage> oInput.getParent().getBindingContext('images')!.getObject();
-		let aKeywords: PKeyword[] = oImage.keywords;
+		const oImage = <FBImage> oInput.getParent().getBindingContext('images')!.getObject();
+		let aKeywords: FBKeyword[] = oImage.keywords;
 		if(aKeywords.find(ele=>ele.keyword === sKeyword)){
 			MessageToast.show('Keyword already in list');
 			return;
 		}
 
 		//add to current image keywords in images model
-		aKeywords.push(<PKeyword>{
+		aKeywords.push(<FBKeyword>{
 			keyword: sKeyword
 		});
 
@@ -1337,7 +1337,7 @@ export default class Detail extends BaseController {
 
 		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer> oEvent.getSource();
-		const oImage = <PImage>oTokenizer.getBindingContext('images')!.getObject();
+		const oImage = <FBImage>oTokenizer.getBindingContext('images')!.getObject();
 		
 		const oImagesModel = this.oComponent.getModel('images');
 
@@ -1357,7 +1357,7 @@ export default class Detail extends BaseController {
 
 		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer> oEvent.getSource();
-		const oImage = <PImage>oTokenizer.getBindingContext('images')!.getObject();
+		const oImage = <FBImage>oTokenizer.getBindingContext('images')!.getObject();
 		
 		const oImagesModel = this.oComponent.getModel('images');
 

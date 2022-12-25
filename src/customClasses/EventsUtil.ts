@@ -11,17 +11,17 @@ import Button from "sap/m/Button";
 import {
 	EventEditData, EventEditDataSegments, EventInEventsModel, InitialSoil, SoilEditData
 } from "../definitions/EventsLocal";
-import { PRPot,  PEvent, PRObservation, PResultsUpdateCreateSoil, PRSoil, PEvents, } from "../definitions/EventsFromBackend";
+import { FBPot,  FBEvent, FBObservation, BPResultsUpdateCreateSoil, FBSoil } from "../definitions/Events";
 import RadioButton from "sap/m/RadioButton";
 import ModelsHelper from "../model/ModelsHelper";
-import { PPlant } from "../definitions/PlantsFromBackend";
+import { FBPlant } from "../definitions/Plants";
 import { LSuggestions } from "../definitions/PlantsLocal";
 import Context from "sap/ui/model/Context";
 import Controller from "sap/ui/core/mvc/Controller";
 import VBox from "sap/m/VBox";
 import GridListItem from "sap/f/GridListItem";
 import GridList from "sap/f/GridList";
-import { PImage } from "../definitions/ImageFromBackend";
+import { FBImage } from "../definitions/Images";
 
 /**
  * @namespace plants.ui.customClasses
@@ -51,7 +51,7 @@ export default class EventsUtil extends ManagedObject {
 		let that: Controller = this as unknown as Controller
 
 		var sContextPath = oBindingContext.getPath();
-		var oEvent = <PEvent>oBindingContext.getObject();
+		var oEvent = <FBEvent>oBindingContext.getObject();
 		var oListItem = new CustomListItem({});
 		oListItem.addStyleClass('sapUiTinyMarginBottom');
 		var oGrid = new Grid({
@@ -107,7 +107,7 @@ export default class EventsUtil extends ManagedObject {
 		return oListItem;
 	}
 
-	deleteEventsTableRow(oSelectedEvent: PEvent, oEventsModel: JSONModel, oCurrentPlant: PPlant) {
+	deleteEventsTableRow(oSelectedEvent: FBEvent, oEventsModel: JSONModel, oCurrentPlant: FBPlant) {
 		// deleting row from events table
 
 		var aEvents = oEventsModel.getProperty('/PlantsEventsDict/' + oCurrentPlant.id);
@@ -122,7 +122,7 @@ export default class EventsUtil extends ManagedObject {
 		oEventsModel.refresh();
 	}
 
-	private _getObservationData(oEventEditData: EventEditData): PRObservation|null {
+	private _getObservationData(oEventEditData: EventEditData): FBObservation|null {
 		//returns the cleansed observation data from the event edit data
 		if (!oEventEditData.segments.observation)
 			return null;
@@ -143,14 +143,14 @@ export default class EventsUtil extends ManagedObject {
 		} else {
 			oObservationDataClone.observation_notes = oObservationDataClone.observation_notes.trim();
 		}
-		return <PRObservation>oObservationDataClone;
+		return <FBObservation>oObservationDataClone;
 	}
 	
-	private _getPotData(oEventEditData: EventEditData, oView: View): PRPot|null {
+	private _getPotData(oEventEditData: EventEditData, oView: View): FBPot|null {
 		//loads, parses, and cleanses the pot data from the the dialog control
 		if (!oEventEditData.segments.pot)
 			return null;
-		const oPotDataClone = <PRPot>JSON.parse(JSON.stringify(oEventEditData.pot));
+		const oPotDataClone = <FBPot>JSON.parse(JSON.stringify(oEventEditData.pot));
 
 		if ((<RadioButton>oView.byId('idPotHeight0')).getSelected()) {
 			oPotDataClone.shape_side = 'very flat';
@@ -179,7 +179,7 @@ export default class EventsUtil extends ManagedObject {
 		return oPotDataClone;
 	}
 
-	private _getSoilData(oEventEditData: EventEditData, oView: View): PRSoil|null {
+	private _getSoilData(oEventEditData: EventEditData, oView: View): FBSoil|null {
 		//loads, parses, and cleanses the soil data from the the dialog control
 		//note: we submit the whole soil object to the backend, but the backend does only care about the id
 		//      for modifying or creating a soil, there's a separate service
@@ -187,7 +187,7 @@ export default class EventsUtil extends ManagedObject {
 		if (!oEventEditData.segments.soil)
 			return null;
 		
-		const oSoilDataClone = <PRSoil>JSON.parse(JSON.stringify(oEventEditData.soil));
+		const oSoilDataClone = <FBSoil>JSON.parse(JSON.stringify(oEventEditData.soil));
 		if (!oSoilDataClone.description || oSoilDataClone.description.length == 0) {
 			oSoilDataClone.description = undefined;
 		}
@@ -230,9 +230,9 @@ export default class EventsUtil extends ManagedObject {
 		}
 
 		// get the data in the dialog's segments
-		const oNewObservation = <PRObservation | undefined>this._getObservationData(oNewEventSave);
-		const oNewPot = <PRPot | undefined>this._getPotData(oNewEventSave, oView);
-		const oNewSoil = <PRSoil | undefined>this._getSoilData(oNewEventSave, oView);
+		const oNewObservation = <FBObservation | undefined>this._getObservationData(oNewEventSave);
+		const oNewPot = <FBPot | undefined>this._getPotData(oNewEventSave, oView);
+		const oNewSoil = <FBSoil | undefined>this._getSoilData(oNewEventSave, oView);
 
 		const oNewEvent: EventInEventsModel = {
 			// id: number; no id, yet
@@ -242,7 +242,7 @@ export default class EventsUtil extends ManagedObject {
 			pot: oNewPot,
 			soil: oNewSoil,
 			plant_id: oNewEventSave.plant_id,
-			images: <PImage[]>[]
+			images: <FBImage[]>[]
 		}
 
 		// actual saving is done upon hitting save button
@@ -252,7 +252,7 @@ export default class EventsUtil extends ManagedObject {
 		oDialog.close();
 	}
 
-	private _assertNoDuplicateOnDate(aEventsCurrentPlant: EventInEventsModel[], sDate: string, oEvent?: PEvent) {
+	private _assertNoDuplicateOnDate(aEventsCurrentPlant: EventInEventsModel[], sDate: string, oEvent?: FBEvent) {
 		// make sure there's only one event per day and plant (otherwise backend problems would occur)
 		// if new event data is supplied, we're editing an event and need to make sure we're not comparing the event to itself
 		const found = aEventsCurrentPlant.find(function (element) {
@@ -264,7 +264,7 @@ export default class EventsUtil extends ManagedObject {
 		}
 	}
 
-	private _editEvent(oView: View, oEventsModel: JSONModel, aEventsCurrentPlant: PEvent[]): void {
+	private _editEvent(oView: View, oEventsModel: JSONModel, aEventsCurrentPlant: FBEvent[]): void {
 		//triggered by addOrEditEvent
 		//triggered by button in add/edit event dialog
 		//validates and filters data to be saved and triggers saving
@@ -279,7 +279,7 @@ export default class EventsUtil extends ManagedObject {
 			MessageToast.show("Can't determine old record. Aborting.");
 			return;
 		}
-		const oOldEvent: PEvent = oEventEditData.oldEvent;
+		const oOldEvent: FBEvent = oEventEditData.oldEvent;
 
 		// assert date matches pattern "YYYY-MM-DD"
 		Util.assertCorrectDate(oEventEditData.date);
@@ -296,21 +296,21 @@ export default class EventsUtil extends ManagedObject {
 		}
 
 		// get the data in the dialog's segments
-		const oEditedObservation = <PRObservation>this._getObservationData(oEventEditData);
-		const oEditedPot = <PRPot>this._getPotData(oEventEditData, oView);
-		const oEditedSoil = <PRSoil>this._getSoilData(oEventEditData, oView);
+		const oEditedObservation = <FBObservation>this._getObservationData(oEventEditData);
+		const oEditedPot = <FBPot>this._getPotData(oEventEditData, oView);
+		const oEditedSoil = <FBSoil>this._getSoilData(oEventEditData, oView);
 
 		// update each attribute from the new model into the old event
 		oOldEvent.date = <string>oEventEditData.date;
 		oOldEvent.event_notes = <string|undefined>(oEventEditData.event_notes && oEventEditData.event_notes.length > 0 ? oEventEditData.event_notes.trim() : undefined);
 		
 		const iOldObservationId = oEditedObservation ? <int|undefined>oEditedObservation.id: undefined;
-		oOldEvent.observation = <PRObservation>oEditedObservation;
+		oOldEvent.observation = <FBObservation>oEditedObservation;
 		if (oOldEvent.observation)
 			oOldEvent.observation.id = <int|undefined>iOldObservationId;
 
-		oOldEvent.pot = <PRPot|undefined>oEditedPot;
-		oOldEvent.soil = <PRSoil|undefined>oEditedSoil;
+		oOldEvent.pot = <FBPot|undefined>oEditedPot;
+		oOldEvent.soil = <FBSoil|undefined>oEditedSoil;
 
 		// have events factory function in details controller regenerate the events list
 		oEventsModel.updateBindings(false);  // we updated a proprety of that model
@@ -318,7 +318,7 @@ export default class EventsUtil extends ManagedObject {
 		oDialog.close();
 	}
 
-	addOrEditEvent(oView: View, oCurrentPlant: PPlant) {
+	addOrEditEvent(oView: View, oCurrentPlant: FBPlant) {
 		var oDialog = oView.byId('dialogEvent');
 		var oNewEventModel = <JSONModel>oDialog.getModel("editOrNewEvent");
 		var dDataNew = <EventEditData>oNewEventModel.getData();
@@ -335,11 +335,11 @@ export default class EventsUtil extends ManagedObject {
 		}
 	}
 
-	public editEvent(oSelectedEvent: PEvent, oView: View, iCurrentPlantId: int) {
+	public editEvent(oSelectedEvent: FBEvent, oView: View, iCurrentPlantId: int) {
 		this.applyToFragment('dialogEvent', this._initEditSelectedEvent.bind(this, oSelectedEvent, oView, iCurrentPlantId));
 	}
 
-	private _initEditSelectedEvent(oSelectedEvent: PEvent, oView: View, iCurrentPlantId: int, oDialog: Dialog) {
+	private _initEditSelectedEvent(oSelectedEvent: FBEvent, oView: View, iCurrentPlantId: int, oDialog: Dialog) {
 		// get soils collection from backend proposals resource
 		this._loadSoils(oView);
 
@@ -429,12 +429,12 @@ export default class EventsUtil extends ManagedObject {
 		// create initial data for the Create/Edit Event Dialog (we don't use the 
 		// actual data there in case of editing an event)
 		// called by both function to add and to edit event
-		const oPot = <PRPot>{
+		const oPot = <FBPot>{
 			'diameter_width': 4,
 			'material': this.oSuggestionsData['potMaterialCollection'][0].name
 		};
 
-		const oObservation = <PRObservation>{
+		const oObservation = <FBObservation>{
 			'height': 0,
 			'stem_max_diameter': 0,
 			'diseases': '',
@@ -468,7 +468,7 @@ export default class EventsUtil extends ManagedObject {
 		return oEventEditData;
 	}
 
-	openDialogEditSoil(oView: View, oSoil: PRSoil): void {
+	openDialogEditSoil(oView: View, oSoil: FBSoil): void {
 		var dEditedSoil = <SoilEditData>{
 			dialog_title: 'Edit Soil (ID ' + oSoil.id + ')',
 			btn_text: 'Update',
@@ -517,7 +517,7 @@ export default class EventsUtil extends ManagedObject {
 	private _saveNewSoil(oNewSoil: SoilEditData, oSoilsModel: JSONModel): void {
 
 		// check if there's already a same-named soil
-		var aSoils = <PRSoil[]>oSoilsModel.getData().SoilsCollection;
+		var aSoils = <FBSoil[]>oSoilsModel.getData().SoilsCollection;
 		var existing_soil_found = aSoils.find(function (element) {
 			return element.soil_name === oNewSoil.soil_name;
 		});
@@ -588,14 +588,14 @@ export default class EventsUtil extends ManagedObject {
 		}
 	}
 
-	private _cbUpdatedExistingSoil(oSoilsModel: JSONModel, data: PResultsUpdateCreateSoil) {
+	private _cbUpdatedExistingSoil(oSoilsModel: JSONModel, data: BPResultsUpdateCreateSoil) {
 		// callback for request updating existing soil 
 		if (!data.soil.id) {
 			MessageToast.show("Unexpected backend error - No Soil ID")
 			return;
 		}
 
-		var aSoils = <PRSoil[]>oSoilsModel.getData().SoilsCollection;
+		var aSoils = <FBSoil[]>oSoilsModel.getData().SoilsCollection;
 		var oSOil = aSoils.find(function (element) {
 			return element.id === data.soil.id;
 		});
@@ -617,7 +617,7 @@ export default class EventsUtil extends ManagedObject {
 		// todo also update in current plant events list (currently requires a reload)
 	}
 
-	private _cbSavedNewSoil(oSoilsModel: JSONModel, data: PResultsUpdateCreateSoil) {
+	private _cbSavedNewSoil(oSoilsModel: JSONModel, data: BPResultsUpdateCreateSoil) {
 		// callback for request saving new soil 
 		if (!data.soil.id) {
 			MessageToast.show("Unexpected backend error - No Soil ID")

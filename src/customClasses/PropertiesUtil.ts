@@ -6,9 +6,9 @@ import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
 import Context from "sap/ui/model/Context";
 import {
-	PPropertiesInCategory, PProperty,
-	PPropertyName, PPropertyValue, PResultsPropertiesForPlant
-} from "../definitions/PropertiesFromBackend";
+	FBPropertiesInCategory, FBProperty,
+	BPropertyName, FBPropertyValue, BResultsPropertiesForPlant
+} from "../definitions/Properties";
 import {
 	LCategoryToPropertiesInCategoryMap, LPlantPropertiesRequest, LTemporaryAvailableProperties
 } from "../definitions/PropertiesLocal";
@@ -19,7 +19,7 @@ import Component from "../Component";
 import Input from "sap/m/Input";
 import CheckBox from "sap/m/CheckBox";
 import Dialog from "sap/m/Dialog";
-import { PPlant } from "../definitions/PlantsFromBackend";
+import { FBPlant } from "../definitions/Plants";
 import { ResponseStatus } from "../definitions/SharedLocal";
 
 /**
@@ -45,10 +45,10 @@ export default class PropertiesUtil extends ManagedObject {
 		this.applyToFragment = applyToFragment;
 	}
 
-	public editPropertyValueDelete(oPropertiesModel: JSONModel, oPropertiesTaxaModel: JSONModel, oPropertiesBindingContext: Context, oCurrentPlant: PPlant) {
+	public editPropertyValueDelete(oPropertiesModel: JSONModel, oPropertiesTaxaModel: JSONModel, oPropertiesBindingContext: Context, oCurrentPlant: FBPlant) {
 		// delete a property value, either for current plant or it's taxon
 		var sPathPropertyValue = oPropertiesBindingContext.getPath();
-		var oPropertyValue = <PPropertyValue>oPropertiesBindingContext.getObject();
+		var oPropertyValue = <FBPropertyValue>oPropertiesBindingContext.getObject();
 
 		// if it's a taxon's property value, we need to remove it from the original taxon properties model as well
 		if (oPropertyValue.type === 'taxon') {
@@ -68,7 +68,7 @@ export default class PropertiesUtil extends ManagedObject {
 			// now we can find the respective node in the taxon properties model
 			// find path in taxon properties model
 			var sPath = '/propertiesTaxon/' + iTaxonId + '/' + iCategoryId + '/properties';
-			var aPropertyNames = <PProperty[]>oPropertiesTaxaModel.getProperty(sPath);
+			var aPropertyNames = <FBProperty[]>oPropertiesTaxaModel.getProperty(sPath);
 			var foundPropertyName = aPropertyNames.find(ele => ele['property_name_id'] == iPropertyNameId);
 			var foundPropertyValue = foundPropertyName!.property_values.find(ele => ele['type'] == 'taxon');
 
@@ -92,16 +92,16 @@ export default class PropertiesUtil extends ManagedObject {
 		oPropertiesModel.refresh();
 	}
 
-	private _getTemporaryAvailablePropertiesModel(oCategory: PPropertiesInCategory, oModelPropertyNames: JSONModel): JSONModel {
+	private _getTemporaryAvailablePropertiesModel(oCategory: FBPropertiesInCategory, oModelPropertyNames: JSONModel): JSONModel {
 		var sPathPropertiesAvailable = '/propertiesAvailablePerCategory/' + oCategory.category_name;
-		var aPropertiesAvailable: PPropertyName[] = oModelPropertyNames.getProperty(sPathPropertiesAvailable);
+		var aPropertiesAvailable: BPropertyName[] = oModelPropertyNames.getProperty(sPathPropertiesAvailable);
 
 		// check which properties are already used for this plant
 		var aCompared: LTemporaryAvailableProperties[] = this._comparePropertiesLists(aPropertiesAvailable, oCategory.properties);
 		return new JSONModel(aCompared);
 	}
 
-	private _comparePropertiesLists(aPropertiesAvailable: PPropertyName[], aPropertiesUsed: PProperty[]): LTemporaryAvailableProperties[] {
+	private _comparePropertiesLists(aPropertiesAvailable: BPropertyName[], aPropertiesUsed: FBProperty[]): LTemporaryAvailableProperties[] {
 
 		var aList: LTemporaryAvailableProperties[] = [];
 		if (aPropertiesAvailable === undefined) {
@@ -143,7 +143,7 @@ export default class PropertiesUtil extends ManagedObject {
 		return aList;
 	}
 
-	openDialogNewProperty(oPlant: PPlant, oSource: Button) {
+	openDialogNewProperty(oPlant: FBPlant, oSource: Button) {
 		if (!oPlant.taxon_id) {
 			MessageToast.show('Function available after setting botanical name.');
 			return;
@@ -171,18 +171,18 @@ export default class PropertiesUtil extends ManagedObject {
 			return;
 		}
 		//check if already exists in property names model
-		const oCategory = <PPropertiesInCategory>oSource.getBindingContext('properties')!.getObject();
+		const oCategory = <FBPropertiesInCategory>oSource.getBindingContext('properties')!.getObject();
 		var sCategoryName = oCategory.category_name;
 		var oModelPropertyNames = oSource.getModel('propertyNames');
-		var aPropertyNames = <PPropertyName[]>oModelPropertyNames.getProperty('/propertiesAvailablePerCategory/' + sCategoryName);
-		var foundPropertyName = <PPropertyName>aPropertyNames.find(ele => ele['property_name'] == sPropertyName);
+		var aPropertyNames = <BPropertyName[]>oModelPropertyNames.getProperty('/propertiesAvailablePerCategory/' + sCategoryName);
+		var foundPropertyName = <BPropertyName>aPropertyNames.find(ele => ele['property_name'] == sPropertyName);
 		if (foundPropertyName) {
 			MessageToast.show('Property Name already exists.');
 			return;
 		}
 
 		// add to property names model
-		aPropertyNames.push(<PPropertyName>{
+		aPropertyNames.push(<BPropertyName>{
 			// property_name_id: undefined
 			countPlants: 0,
 			property_name: sPropertyName,
@@ -194,12 +194,12 @@ export default class PropertiesUtil extends ManagedObject {
 
 		// add empty property value item for plant if selected
 		if (bAddToPlant) {
-			const oPropertyValue = <PPropertyValue>{
+			const oPropertyValue = <FBPropertyValue>{
 				type: 'plant',
 				// property_value_id: undefined,
 				property_value: ''
 			}
-			const oProperty = <PProperty>{
+			const oProperty = <FBProperty>{
 				// property_name_id: undefined,
 				property_name: sPropertyName,
 				property_values: [oPropertyValue]
@@ -212,13 +212,13 @@ export default class PropertiesUtil extends ManagedObject {
 		// add empty property value item for taxon if selected
 		if (bAddToTaxon) {
 			// will be inserted into both models to keep the same/updated!
-			const oPropertyValue = <PPropertyValue>{
+			const oPropertyValue = <FBPropertyValue>{
 				type: 'taxon',
 				// property_value_id: undefined,
 				property_value: ''
 			}
 
-			var oProperty = <PProperty>{
+			var oProperty = <FBProperty>{
 				// property_name_id: undefined,
 				property_name: sPropertyName,
 				property_values: [oPropertyValue]
@@ -232,9 +232,9 @@ export default class PropertiesUtil extends ManagedObject {
 				property_name: sPropertyName,
 				property_name_id: undefined
 			};
-			var oPlant = <PPlant>oSource.getBindingContext('plants')!.getObject();
+			var oPlant = <FBPlant>oSource.getBindingContext('plants')!.getObject();
 			const oPropertiesTaxaModel = <JSONModel>oView.getModel('propertiesTaxa');
-			const oEmptyPropertyValue = <PPropertyValue>{
+			const oEmptyPropertyValue = <FBPropertyValue>{
 				type: 'taxon',
 				property_value: '',
 			}
@@ -251,7 +251,7 @@ export default class PropertiesUtil extends ManagedObject {
 		this._btnNew.setType('Transparent');
 	}
 
-	public openDialogAddProperty(oView: View, oCurrentPlant: PPlant, oBtnAddProperty: Button): void {
+	public openDialogAddProperty(oView: View, oCurrentPlant: FBPlant, oBtnAddProperty: Button): void {
 		// if (!oView.getBindingContext('plants')!.getObject().taxon_id) {
 		if (!oCurrentPlant.taxon_id) {
 			MessageToast.show('Function available after setting botanical name.');
@@ -259,7 +259,7 @@ export default class PropertiesUtil extends ManagedObject {
 		}
 
 		// var oCategoryControl = evt.getSource();  // for closure
-		var oCategory: PPropertiesInCategory = <PPropertiesInCategory>oBtnAddProperty.getBindingContext('properties')!.getObject();
+		var oCategory: FBPropertiesInCategory = <FBPropertiesInCategory>oBtnAddProperty.getBindingContext('properties')!.getObject();
 		// var oModelProperties = evt.getSource().getModel('properties');
 		// var oModelPropertyNames = evt.getSource().getModel('propertyNames');
 		var sBindingPathProperties = oBtnAddProperty.getBindingContext('properties')!.getPath();
@@ -290,10 +290,10 @@ export default class PropertiesUtil extends ManagedObject {
 		// var aModelProperties = this.getView().getModel('properties');
 		var aPropertiesFromDialog = <LTemporaryAvailableProperties[]>(<JSONModel>oSource.getModel('propertiesCompare')).getData();
 		// var iCountBefore = evt.getSource().getBindingContext('properties').getObject().properties.length;
-		const oPropertiesInCategory = <PPropertiesInCategory>oSource.getBindingContext('properties')!.getObject();
-		var aProperties = <PProperty[]>oPropertiesInCategory.properties;
+		const oPropertiesInCategory = <FBPropertiesInCategory>oSource.getBindingContext('properties')!.getObject();
+		var aProperties = <FBProperty[]>oPropertiesInCategory.properties;
 		var iCategoryId = oPropertiesInCategory.category_id;
-		var iTaxonId = (<PPlant>oSource.getBindingContext('plants')!.getObject()).taxon_id;
+		var iTaxonId = (<FBPlant>oSource.getBindingContext('plants')!.getObject()).taxon_id;
 		// aPropertiesFromDialog.forEach(function(entry) {
 		for (var i = 0; i < aPropertiesFromDialog.length; i++) {
 			var entry = <LTemporaryAvailableProperties>aPropertiesFromDialog[i];
@@ -303,13 +303,13 @@ export default class PropertiesUtil extends ManagedObject {
 				if (found) {
 					// insert plant value for plant and/or taxon into existing propery values list of the property name node
 					if (entry.selected_plant && !entry.blocked_plant) {
-						found.property_values.push(<PPropertyValue>{
+						found.property_values.push(<FBPropertyValue>{
 							'type': 'plant',
 							'property_value': ''
 						});  // property_value_id: undefined
 					}
 					if (entry.selected_taxon && !entry.blocked_taxon) {
-						var oItem = <PPropertyValue>{
+						var oItem = <FBPropertyValue>{
 							type: 'taxon',
 							property_value: ''
 						};  // property_value_id: undefined
@@ -320,15 +320,15 @@ export default class PropertiesUtil extends ManagedObject {
 				}
 				else {
 					// creat property name node and insert property value for plant and/or taxon
-					var aPropertyValues = <PPropertyValue[]>[];
+					var aPropertyValues = <FBPropertyValue[]>[];
 					if (entry.selected_plant && !entry.blocked_plant) {
-						aPropertyValues.push(<PPropertyValue>{
+						aPropertyValues.push(<FBPropertyValue>{
 							type: 'plant',
 							property_value: ''
 						});  //, 'property_value_id': undefined 
 					}
 					if (entry.selected_taxon && !entry.blocked_taxon) {
-						var oItem_ = <PPropertyValue>{
+						var oItem_ = <FBPropertyValue>{
 							type: 'taxon',
 							property_value: ''
 						};  //, 'property_value_id': undefined 
@@ -336,7 +336,7 @@ export default class PropertiesUtil extends ManagedObject {
 						const oPropertiesTaxaModel = <JSONModel>oView.getModel('propertiesTaxa');
 						this._insertPropertyIntoPropertiesTaxaModel(oItem_, iCategoryId, iTaxonId!, entry, oPropertiesTaxaModel);
 					}
-					oPropertiesInCategory.properties.push(<PProperty>
+					oPropertiesInCategory.properties.push(<FBProperty>
 						{
 							'property_name': entry.property_name,
 							'property_name_id': entry.property_name_id,
@@ -353,9 +353,9 @@ export default class PropertiesUtil extends ManagedObject {
 		oPopover.destroy();
 	}
 
-	private _insertPropertyIntoPropertiesTaxaModel(oPropertyValue: PPropertyValue, iCategoryId: int, iTaxonId: int, entry: LTemporaryAvailableProperties, oPropertiesTaxaModel: JSONModel) {
+	private _insertPropertyIntoPropertiesTaxaModel(oPropertyValue: FBPropertyValue, iCategoryId: int, iTaxonId: int, entry: LTemporaryAvailableProperties, oPropertiesTaxaModel: JSONModel) {
 		// add a property value to taxon properties model
-		var aCurrentPropertyNames: PProperty[] = oPropertiesTaxaModel.getData().propertiesTaxon[iTaxonId][iCategoryId].properties;
+		var aCurrentPropertyNames: FBProperty[] = oPropertiesTaxaModel.getData().propertiesTaxon[iTaxonId][iCategoryId].properties;
 
 		// create property name node if not exists (if we have two new property names, we need to go by name not (undefined) id)
 		if (entry.property_name_id) {
@@ -383,7 +383,7 @@ export default class PropertiesUtil extends ManagedObject {
 			return false;
 	}
 
-	loadPropertiesForCurrentPlant(oPlant: PPlant, oOwnerComponent: Component) {
+	loadPropertiesForCurrentPlant(oPlant: FBPlant, oOwnerComponent: Component) {
 		// request data from backend
 		// data is added to local properties model and bound to current view upon receivement
 		var sPlantId = encodeURIComponent(oPlant.id!);
@@ -405,7 +405,7 @@ export default class PropertiesUtil extends ManagedObject {
 			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Property (GET)'));
 	}
 
-	private _onReceivingPropertiesForPlant(oPlant: PPlant, oOwnerComponent: Component, oData: PResultsPropertiesForPlant, sStatus: ResponseStatus, oResponse: JQueryXHR) {
+	private _onReceivingPropertiesForPlant(oPlant: FBPlant, oOwnerComponent: Component, oData: BResultsPropertiesForPlant, sStatus: ResponseStatus, oResponse: JQueryXHR) {
 		//insert (overwrite!) properties data for current plant with data received from backend
 		var oPropertiesModel = oOwnerComponent.getModel('properties');
 		oPropertiesModel.setProperty('/propertiesPlants/' + oPlant.id + '/', oData.propertyCollections);
@@ -434,7 +434,7 @@ export default class PropertiesUtil extends ManagedObject {
 		oPropertiesModel.refresh(true);
 	}
 
-	private _appendTaxonPropertiesToPlantProperties(oOwnerComponent: Component, oPlant: PPlant) {
+	private _appendTaxonPropertiesToPlantProperties(oOwnerComponent: Component, oPlant: FBPlant) {
 		// called after loading plant properties or instead of loading plant properties if these have been loaded already
 		if (!oPlant.taxon_id) {
 			return;
@@ -443,10 +443,10 @@ export default class PropertiesUtil extends ManagedObject {
 		var oModelPropertiesTaxon = oOwnerComponent.getModel('propertiesTaxa');
 		var oModelPropertiesPlant = oOwnerComponent.getModel('properties');
 		var oCategoriesTaxon: LCategoryToPropertiesInCategoryMap = oModelPropertiesTaxon.getProperty('/propertiesTaxon/' + oPlant.taxon_id + '/');
-		var aCategoriesPlant: PPropertiesInCategory[] = oModelPropertiesPlant.getProperty('/propertiesPlants/' + oPlant.id + '/categories/');
+		var aCategoriesPlant: FBPropertiesInCategory[] = oModelPropertiesPlant.getProperty('/propertiesPlants/' + oPlant.id + '/categories/');
 		const aCategoryIds: int[] = Object.keys(oCategoriesTaxon).map(sCategoryId => parseInt(sCategoryId));
 		for (var i = 0; i < Object.keys(oCategoriesTaxon).length; i++) {
-			var oCategory: PPropertiesInCategory = oCategoriesTaxon[aCategoryIds[i]];
+			var oCategory: FBPropertiesInCategory = oCategoriesTaxon[aCategoryIds[i]];
 			var category_id = oCategory.category_id;
 			var plant_category = aCategoriesPlant.find(ele => ele.category_id == category_id);
 

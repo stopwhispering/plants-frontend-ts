@@ -3,12 +3,12 @@ import * as Util from "plants/ui/customClasses/Util";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import GridListItem from "sap/f/GridListItem";
-import { PImage, PImagePlantTag, PKeyword } from "../definitions/ImageFromBackend";
-import { PEvent, PRImageAssignedToEvent } from "../definitions/EventsFromBackend";
+import { FBImage, FBImagePlantTag, FBKeyword } from "../definitions/Images";
+import { FBEvent, FBImageAssignedToEvent } from "../definitions/Events";
 import Popover from "sap/m/Popover";
 import Icon from "sap/ui/core/Icon";
 import FileUploader from "sap/ui/unified/FileUploader";
-import { PPlant } from "../definitions/PlantsFromBackend";
+import { FBPlant } from "../definitions/Plants";
 
 
 /**
@@ -24,14 +24,14 @@ export default class ImageEventHandlers extends ManagedObject{
 		}
 
 		// todo make public
-		public assignPlantToImage(oPlant: PPlant, oImage: PImage, oImagesModel: JSONModel){
+		public assignPlantToImage(oPlant: FBPlant, oImage: FBImage, oImagesModel: JSONModel){
 			//add a plant to image in images model
 			//currently triggered when ...
 				// assigning an image in untagged view to the plant in details view
 				// assigning an image in untagged view to a plant chosen via  input suggestions
 				// assigning an image in detail view to a plant chosen via input suggestions
-			var aCurrentlyAssignedPlants = <PImagePlantTag[]>oImage.plants;
-			var oNewlyAssignedPlant = <PImagePlantTag>{
+			var aCurrentlyAssignedPlants = <FBImagePlantTag[]>oImage.plants;
+			var oNewlyAssignedPlant = <FBImagePlantTag>{
 				plant_id: oPlant.id,
 				key: oPlant.plant_name, 
 				text: oPlant.plant_name,
@@ -61,9 +61,9 @@ export default class ImageEventHandlers extends ManagedObject{
 			});	
 		}
 		
-		assignEventToImage(oImage: PImage, oSelectedEvent: PEvent, oEventsModel: JSONModel){
+		assignEventToImage(oImage: FBImage, oSelectedEvent: FBEvent, oEventsModel: JSONModel){
 			// check if already assigned
-			const aSelectedEventImages = <PRImageAssignedToEvent[]>oSelectedEvent.images;
+			const aSelectedEventImages = <FBImageAssignedToEvent[]>oSelectedEvent.images;
 			if(!!aSelectedEventImages && aSelectedEventImages.length > 0){
 				var oImageAssignmentFound = aSelectedEventImages.find(function(oCurrentImageAssignment) {
 				  return oCurrentImageAssignment.id === oImage.id;
@@ -80,12 +80,12 @@ export default class ImageEventHandlers extends ManagedObject{
 			}
 			
 			// assign and add assignment to end of list
-			const oNewImageAssignedToEvent: PRImageAssignedToEvent = {
+			const oNewImageAssignedToEvent: FBImageAssignedToEvent = {
 				id: oImage.id,
 				filename: oImage.filename
 			};
 			if(!oSelectedEvent.images){
-				oSelectedEvent.images = <PRImageAssignedToEvent[]>[oNewImageAssignedToEvent];
+				oSelectedEvent.images = <FBImageAssignedToEvent[]>[oNewImageAssignedToEvent];
 			} else {
 				oSelectedEvent.images.push(oNewImageAssignedToEvent);
 			}
@@ -138,7 +138,7 @@ export default class ImageEventHandlers extends ManagedObject{
 		// 	oModel.updateBindings(false);
 		// }
 
-		public removePlantImageTokenFromModel(sPlantTokenKey: string, oImage: PImage, oModel: JSONModel){
+		public removePlantImageTokenFromModel(sPlantTokenKey: string, oImage: FBImage, oModel: JSONModel){
 			// triggered upon changes of image's plant assignments
 			// either in untagged view or in detail view
 			//   ==> oModel can be either images or untagged_images model
@@ -146,14 +146,14 @@ export default class ImageEventHandlers extends ManagedObject{
 			// 		 corresponding entry from the model
 			
 			// find plant in the image's corresponding array and delete
-			const aPlantTags = <PImagePlantTag[]>oImage.plants;
+			const aPlantTags = <FBImagePlantTag[]>oImage.plants;
 			const iIndex: int = aPlantTags.findIndex(ele=>ele.key === sPlantTokenKey);
 			if (iIndex < 0) throw new Error("Plant not found in image's plants tags array.");
 			aPlantTags.splice(iIndex, 1);
 			oModel.updateBindings(false);
 		}
 
-		public removeKeywordImageTokenFromModel(sKeywordTokenKey: string, oImage: PImage, oModel: JSONModel){
+		public removeKeywordImageTokenFromModel(sKeywordTokenKey: string, oImage: FBImage, oModel: JSONModel){
 			// triggered upon changes of image's keywords assignments
 			// either in untagged view or in detail view
 			//   ==> oModel can be either images or untagged_images model
@@ -161,7 +161,7 @@ export default class ImageEventHandlers extends ManagedObject{
 			// 		 corresponding entry from the model
 			
 			// find keyword in the image's corresponding array and delete
-			const aKeywordTags = <PKeyword[]>oImage.keywords;
+			const aKeywordTags = <FBKeyword[]>oImage.keywords;
 			const iIndex: int = aKeywordTags.findIndex(ele=>ele.keyword === sKeywordTokenKey);
 			if (iIndex < 0) throw new Error("Keyword not found in image's keywords tags array.");
 			aKeywordTags.splice(iIndex, 1);

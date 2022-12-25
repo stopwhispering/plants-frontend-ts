@@ -26,7 +26,7 @@
 						<card:Header title="{i18n>info}"/>
 					</f:header>
 					<f:content>
-						<List showSeparators="All">
+						<List>
 							<items>
 								
 								<CustomListItem>
@@ -116,7 +116,7 @@
 							title="{i18n>origin}"/>
 					</f:header>
 					<f:content>
-						<List showSeparators="All">
+						<List>
 							<items>
 								<CustomListItem>
 									<HBox  
@@ -306,7 +306,6 @@
 											
 											<m:suggestionColumns>
 												<m:Column
-													hAlign="Begin"
 													popinDisplay="Inline"
 													demandPopin="true"
 													width="12rem">
@@ -314,14 +313,12 @@
 												</m:Column>
 												<m:Column
 													width="3rem"
-													hAlign="Begin"
 													popinDisplay="Inline"
 													demandPopin="true"
 													minScreenWidth="Tablet">
 													<m:Label text="{i18n>id}"/>
 												</m:Column>
 												<m:Column
-													hAlign="Begin"
 													popinDisplay="Inline"
 													demandPopin="true"
 													width="6rem"
@@ -365,8 +362,6 @@
 											class="sapUiTinyMargin"
 											rows="3"
 											width="130px"
-											editable="true"
-											enabled="true"
 											textAlign="Begin"
 											value="{plants>generation_notes}"
 											visible="{status>/details_editable}"/>										
@@ -399,14 +394,11 @@
 								class="sapUiTinyMargin"
 								rows="4"
 								width="230px"
-								editable="true"
-								enabled="true"
 								textAlign="Begin"
 								value="{plants>plant_notes}"
 								visible="{status>/details_editable}"/>
 							<Text	
 								class="sapUiTinyMargin"
-								textAlign="Begin"
 								text="{plants>plant_notes}"
 								visible="{= !${status>/details_editable} }"/>
 						</VBox>

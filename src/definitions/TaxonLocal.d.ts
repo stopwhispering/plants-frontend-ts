@@ -1,13 +1,13 @@
 // todo remove and distribute to other files
 import ManagedObject from "sap/ui/base/ManagedObject";
-import { PPlant } from "./PlantsFromBackend";
-import { PTaxon } from "./TaxonFromBackend";
+import { FBPlant } from "./Plants";
+import { FBTaxon } from "./Taxon";
 
 /**
  * @namespace plants.ui.definitions.TaxonLocal
  */
 export interface LTaxonMap {
-    [key: int]: PTaxon;
+    [key: int]: FBTaxon;
 }
 
 export interface LTaxonData {

@@ -92,11 +92,11 @@ export default class formatter{
 		return (midColumnVisible && !endColumnVisible);
 	}
 	
-	public ipniOrCustomName(fqId: string, is_custom: boolean){
+	public ipniOrCustomName(lsid: string, is_custom: boolean){
 		if(is_custom){
 			return 'Custom Entry';
 		} else {
-			return fqId;
+			return lsid;
 		}
 	}
 	

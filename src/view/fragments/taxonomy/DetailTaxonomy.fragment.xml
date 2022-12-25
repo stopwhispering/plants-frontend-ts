@@ -27,9 +27,7 @@
 		<m:Text id="textGenus" text="{taxon>genus}" visible="{= !${taxon>hybridgenus} }"/>
 		<MessageStrip
 			text="Genus is a hybrid"
-			type="Information"
 			showIcon="true"
-			showCloseButton="false"
 			visible="{= ${taxon>hybridgenus} === true }">
 		</MessageStrip>							
 	</m:VBox>
@@ -39,9 +37,7 @@
 		<m:Text id="textSpecies" text="{taxon>species}" visible="{= !${taxon>hybrid} }"/>
 		<MessageStrip
 			text="Species is a hybrid"
-			type="Information"
 			showIcon="true"
-			showCloseButton="false"
 			visible="{= ${taxon>hybrid} === true }">
 		</MessageStrip>			
 	</m:VBox>
@@ -65,7 +61,6 @@
 			text="{taxon>synonyms_concat}"
 			type="Warning"
 			showIcon="true"
-			showCloseButton="false"
 			visible="{= ${taxon>synonym} === true }">
 		</MessageStrip>		
 	</m:VBox>	
@@ -73,7 +68,6 @@
 	<m:VBox class="sapUiTinyMarginBottom" >
 		<m:Label text="Custom Notes" labelFor="textCustomNotes"/>
 		<m:TextArea
-			rows="2"
 			cols="35"
 			value="{taxon>custom_notes}" 
 			textAlign="Left"
@@ -107,18 +101,18 @@
 		<m:Label labelFor="linkIPNI" text="International Plant Names Index (IPNI)"/>
 		<Link
 			id="linkIPNI"
-			text="{taxon>ipni_id_short}"
+			text="{taxon>lsid}"
 			target="_blank"
-			href="https://www.ipni.org/n/{taxon>ipni_id_short}"/>
+			href="https://www.ipni.org/n/{taxon>lsid}"/>
 	</m:VBox>	
 	
 	<m:VBox class="sapUiTinyMarginBottom" >
 		<m:Label labelFor="linkPOWO" text="Plants of the World (POWO)"/>
 		<Link
 			id="linkPOWO"
-			text="{taxon>powo_id}"
+			text="{taxon>lsid}"
 			target="_blank"
-			href="http://powo.science.kew.org/taxon/{taxon>powo_id}"/>
+			href="http://powo.science.kew.org/taxon/{taxon>lsid}"/>
 	</m:VBox>	
 	
 	

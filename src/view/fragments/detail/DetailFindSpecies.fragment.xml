@@ -23,7 +23,7 @@
 					    		maxLength="40"
 					    		width="12em"
 					    		submit=".onButtonFindSpecies"
-					    		id="inputFindSpecies"
+					    		id="inputTaxonNamePattern"
 					    		class="sapUiTinyMarginEnd"/>
 					    	<Button
 					    		text="Search"
@@ -41,7 +41,7 @@
 			    	
 			    	<VBox>
 				    	<CheckBox
-				    		id="cbFindSpeciesIncludeKew"
+				    		id="cbIncludeExternalApis"
 				    		selected="true"
 				    		text='Use "Plants of the World" Online Database'
 				    		/>
@@ -123,7 +123,7 @@
 											}"/>
 									<Text
 										text="{
-											parts: ['kewSearchResults>fqId',
+											parts: ['kewSearchResults>lsid',
 													'kewSearchResults>is_custom'],
 											formatter: '.formatter.ipniOrCustomName'
 											}"/>
@@ -139,7 +139,7 @@
 									<HBox>
 										<Text
 											text="{kewSearchResults>synonyms_concat}"
-											visible="{= !${kewSearchResults>synonym} }"/>
+											visible="{= ${kewSearchResults>synonym} === false }"/>
 										<MessageStrip
 											text="{kewSearchResults>synonyms_concat}"
 											type="Warning"

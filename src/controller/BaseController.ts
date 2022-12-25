@@ -12,23 +12,23 @@ import Dialog from "sap/m/Dialog";
 import Component from "../Component";
 import Router from "sap/ui/core/routing/Router";
 import { LTaxonMap } from "../definitions/TaxonLocal";
-import { PImage } from "../definitions/ImageFromBackend";
+import { FBImage } from "../definitions/Images";
 import { LImageMap } from "../definitions/ImageLocal";
 import Control from "sap/ui/core/Control";
-import { PPropertyCollectionPlant } from "../definitions/PropertiesFromBackend";
+import { FBPropertyCollectionPlant } from "../definitions/Properties";
 import { LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap, LPropertiesTaxonModelData } from "../definitions/PropertiesLocal";
-import { PPlant, PResultsPlantsUpdate } from "../definitions/PlantsFromBackend";
+import { FBPlant, BResultsPlantsUpdate } from "../definitions/Plants";
 import ListBinding from "sap/ui/model/ListBinding";
 import Label from "sap/ui/webc/main/Label";
 import { IdToFragmentMap } from "../definitions/SharedLocal";
 import { PlantIdToEventsMap } from "../definitions/EventsLocal";
-import { PConfirmation, PMessage } from "../definitions/MessagesFromBackend";
+import { BConfirmation, BMessage } from "../definitions/Messages";
 import Event from "sap/ui/base/Event";
 import Popover from "sap/m/Popover";
 import ViewSettingsDialog from "sap/m/ViewSettingsDialog";
-import { PTaxon } from "../definitions/TaxonFromBackend";
+import { FBTaxon } from "../definitions/Taxon";
 import { LPropagationTypeData } from "../definitions/PlantsLocal";
-import { RImageDelete, RImagesDelete } from "../definitions/EventsFromBackend";
+import { FImageDelete, FImagesToDelete } from "../definitions/Events";
 
 /**
  * @namespace plants.ui.controller
@@ -118,7 +118,7 @@ export default class BaseController extends Controller {
 		return aModifiedPlants;
 	}
 
-	public getModifiedTaxa(): PTaxon[] {
+	public getModifiedTaxa(): FBTaxon[] {
 		// get taxon model and identify modified items
 		// difference to plants and images: data is stored with key in a dictionary, not in an array
 		// we identify the modified sub-dictionaries and return a list of these
@@ -134,7 +134,7 @@ export default class BaseController extends Controller {
 		var keys = <int[]>keys_s.map(k => parseInt(k));
 
 		//for each key, check if it's value is different from the clone
-		var aModifiedTaxonList: PTaxon[] = [];
+		var aModifiedTaxonList: FBTaxon[] = [];
 
 		keys.forEach(function (key) {
 			if (!Util.dictsAreEqual(dDataTaxonOriginal[key],
@@ -181,7 +181,7 @@ export default class BaseController extends Controller {
 		var dProperties: LPlantIdToPropertyCollectionMap = Util.getClonedObject(dProperties_);
 		for (var i = 0; i < Object.keys(dProperties).length; i++) {
 			const iPlantId: int = parseInt(Object.keys(dProperties)[i]);
-			var oTaxonPropertiesInCategories: PPropertyCollectionPlant = dProperties[iPlantId] as unknown as PPropertyCollectionPlant;
+			var oTaxonPropertiesInCategories: FBPropertyCollectionPlant = dProperties[iPlantId] as unknown as FBPropertyCollectionPlant;
 
 			for (var j = 0; j < oTaxonPropertiesInCategories.categories.length; j++) {
 				var oCategory = oTaxonPropertiesInCategories.categories[j];
@@ -258,12 +258,12 @@ export default class BaseController extends Controller {
 		return oModifiedPropertiesDict;
 	}
 
-	getModifiedImages(): PImage[] {
+	getModifiedImages(): FBImage[] {
 		// identify modified images by comparing images with their clones (created after loading)
 		var oImages: LImageMap = this.oComponent.imagesRegistry;
 		var oImagesClone: LImageMap = this.oComponent.imagesRegistryClone;
 
-		var aModifiedImages: PImage[] = [];
+		var aModifiedImages: FBImage[] = [];
 		Object.keys(oImages).forEach(path => {
 			if (!(path in oImagesClone) || !Util.dictsAreEqual(oImages[path], oImagesClone[path])) {
 				aModifiedImages.push(oImages[path]);
@@ -333,7 +333,7 @@ export default class BaseController extends Controller {
 
 
 			// cutting occurrence images (read-only)
-			var aModifiedTaxaSave: PTaxon[] = Util.getClonedObject(aModifiedTaxa);
+			var aModifiedTaxaSave: FBTaxon[] = Util.getClonedObject(aModifiedTaxa);
 			aModifiedTaxaSave = aModifiedTaxaSave.map(m => {
 				delete m.occurrenceImages;
 				return m;
@@ -397,7 +397,7 @@ export default class BaseController extends Controller {
 		}
 	}
 
-	public saveNewPlant(oPlant: PPlant) {
+	public saveNewPlant(oPlant: FBPlant) {
 		// save a new plant (only plant_name) to backend to receive plant id
 		var dPayloadPlants = { 'PlantsCollection': [oPlant] };
 		Util.startBusyDialog('Creating...', 'new plant ' + oPlant.plant_name);
@@ -409,7 +409,7 @@ export default class BaseController extends Controller {
 			data: JSON.stringify(dPayloadPlants),
 			context: this
 		})
-			.done(function (oData: PResultsPlantsUpdate, sStatus: string, oReturnData: any) {
+			.done(function (oData: BResultsPlantsUpdate, sStatus: string, oReturnData: any) {
 				// add new plant to model
 				var oPlantSaved = oData.plants[0];
 				var aPlants = that.oComponent.getModel('plants').getProperty('/PlantsCollection');
@@ -433,13 +433,13 @@ export default class BaseController extends Controller {
 	}
 
 	public isPlantNameInPlantsModel(sPlantName: string) {
-		var aPlants = <PPlant[]>this.oComponent.getModel('plants').getProperty('/PlantsCollection');
+		var aPlants = <FBPlant[]>this.oComponent.getModel('plants').getProperty('/PlantsCollection');
 		return (aPlants.find(ele => ele.plant_name === sPlantName) !== undefined);
 	}
 
 	getPlantById(plantId: int) {
 		// todo replace other implementation of function with this here
-		var aPlants: PPlant[] = this.oComponent.getModel('plants').getProperty('/PlantsCollection');
+		var aPlants: FBPlant[] = this.oComponent.getModel('plants').getProperty('/PlantsCollection');
 		var oPlant = aPlants.find(ele => ele.id === plantId);
 		if (oPlant === undefined) {
 			throw "Plant not found";
@@ -448,9 +448,9 @@ export default class BaseController extends Controller {
 		}
 	}
 
-	getPlantByName(plantName: string): PPlant {
+	getPlantByName(plantName: string): FBPlant {
 		// todo replace other implementation of function with this here
-		var plants: PPlant[] = this.oComponent.getModel('plants').getProperty('/PlantsCollection');
+		var plants: FBPlant[] = this.oComponent.getModel('plants').getProperty('/PlantsCollection');
 		var plant = plants.find(ele => ele.plant_name === plantName);
 		if (plant === undefined) {
 			throw "Plant not found: " + plantName;
@@ -459,14 +459,14 @@ export default class BaseController extends Controller {
 		}
 	}
 
-	onAjaxSimpleSuccess(oConfirmation: PConfirmation, sStatus: string, oReturnData: object) {
+	onAjaxSimpleSuccess(oConfirmation: BConfirmation, sStatus: string, oReturnData: object) {
 		//toast and create message
 		//requires pre-defined message from backend
 		MessageToast.show(oConfirmation.message.message);
 		MessageUtil.getInstance().addMessageFromBackend(oConfirmation.message);
 	}
 
-	private _onAjaxSuccessSave(oMsg: PConfirmation, sStatus: string, oReturnData: object) {
+	private _onAjaxSuccessSave(oMsg: BConfirmation, sStatus: string, oReturnData: object) {
 		// cancel busydialog only if neither saving plants nor images or taxa is still running
 		if (oMsg.resource === 'PlantResource') {
 			this.savingPlants = false;
@@ -544,14 +544,14 @@ export default class BaseController extends Controller {
 		// this.applyToFragment(dialogId, (oDialog: Dialog) => oDialog.close());
 	}
 
-	protected confirmDeleteImage(oImage: PImage, sAction: string) {
+	protected confirmDeleteImage(oImage: FBImage, sAction: string) {
 		// triggered by onIconPressDeleteImage's confirmation dialogue from both Untagged and Detail View
 		if (sAction !== 'Delete') {
 			return;
 		}
 
-		const oPayload = <RImagesDelete>{
-			images: [<RImageDelete>{
+		const oPayload = <FImagesToDelete>{
+			images: [<FImageDelete>{
 				id: oImage.id,
 				filename: oImage.filename
 			}]
@@ -569,18 +569,18 @@ export default class BaseController extends Controller {
 	}
 
 	// use a closure to pass an element to the callback function
-	protected onAjaxDeletedImagesSuccess(aDeletedImages: PImage[], cbCallback: Function | undefined, data: PConfirmation, textStats: any, jqXHR: any) {
+	protected onAjaxDeletedImagesSuccess(aDeletedImages: FBImage[], cbCallback: Function | undefined, data: BConfirmation, textStats: any, jqXHR: any) {
 		//show default success message after successfully deleting image in backend (either from untagged or detail view)
 		this.onAjaxSimpleSuccess(data, textStats, jqXHR);
 
 		// delete image in models...
 		const oImagesModel = this.oComponent.getModel('images');
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
-		var aDataImages = <PImage[]>oImagesModel.getData().ImagesCollection;
-		var aDataUntagged = <PImage[]>oUntaggedImagesModel.getData().ImagesCollection;
+		var aDataImages = <FBImage[]>oImagesModel.getData().ImagesCollection;
+		var aDataUntagged = <FBImage[]>oUntaggedImagesModel.getData().ImagesCollection;
 
 		var context = this;  // for the closure
-		aDeletedImages.forEach(function (image: PImage) {
+		aDeletedImages.forEach(function (image: FBImage) {
 
 			var iPosImages = aDataImages.indexOf(image);
 			if (iPosImages >= 0) {
@@ -606,17 +606,17 @@ export default class BaseController extends Controller {
 		}
 	}
 
-	protected onReceiveSuccessGeneric(oMsg: PMessage) {
+	protected onReceiveSuccessGeneric(oMsg: BMessage) {
 		Util.stopBusyDialog();
 		MessageToast.show(oMsg.message);
 		MessageUtil.getInstance().addMessageFromBackend(oMsg);
 	}
 
-	addPhotosToRegistry(aPhotos: PImage[]) {
+	addPhotosToRegistry(aPhotos: FBImage[]) {
 		///////////////TODOOOOOOOOo why is there a method with same name in the component????///////////7
 		// add photos loaded for a plant to the registry if not already loaded with other plant
 		// plus add a copy of the photo to a clone registry for getting changed photos when saving 
-		aPhotos.forEach((photo: PImage) => {
+		aPhotos.forEach((photo: FBImage) => {
 			if (!(photo.filename in this.oComponent.imagesRegistry)) {
 				this.oComponent.imagesRegistry[photo.filename] = photo;
 				this.oComponent.imagesRegistryClone[photo.filename] = Util.getClonedObject(photo);
@@ -626,8 +626,8 @@ export default class BaseController extends Controller {
 
 	resetImagesCurrentPlant(plant_id: int) {
 		// @ts-ignore // typescript doesn't like Object.entries
-		const aPhotosArr = <[string, PImage][]>Object.entries(this.oComponent.imagesRegistry).filter(t => (t[1].plants.filter(p => p.plant_id === plant_id)).length == 1);
-		var aPhotos = <PImage[]>aPhotosArr.map(p => p[1]);
+		const aPhotosArr = <[string, FBImage][]>Object.entries(this.oComponent.imagesRegistry).filter(t => (t[1].plants.filter(p => p.plant_id === plant_id)).length == 1);
+		var aPhotos = <FBImage[]>aPhotosArr.map(p => p[1]);
 		this.oComponent.getModel('images').setProperty('/ImagesCollection', aPhotos);
 		Util.stopBusyDialog(); // had been started in details onPatternMatched
 	}

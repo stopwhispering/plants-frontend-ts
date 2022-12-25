@@ -8,7 +8,7 @@ import * as Util from "plants/ui/customClasses/Util";
 import {
 	LTaxonData } from "./definitions/TaxonLocal"
 import Navigation from "./customClasses/Navigation"
-import { PImage, PResultsImageResource } from "./definitions/ImageFromBackend"
+import { FBImage, BResultsImageResource } from "./definitions/Images"
 import { LImageMap } from "./definitions/ImageLocal"
 import UriParameters from "sap/base/util/UriParameters"
 import View from "sap/ui/core/mvc/View"
@@ -16,7 +16,7 @@ import { LayoutType } from "sap/f/library"
 import FlexibleColumnLayout from "sap/f/FlexibleColumnLayout"
 import { LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap } from "./definitions/PropertiesLocal"
 import { PlantIdToEventsMap } from "./definitions/EventsLocal"
-import { PPlantsUpdateRequest } from "./definitions/PlantsFromBackend"
+import { FPlantsUpdateRequest } from "./definitions/Plants"
 
 /**
  * @namespace plants.ui
@@ -28,7 +28,7 @@ export default class Component extends UIComponent {
 	public imagesPlantsLoaded = new Set();
 	public oEventsDataClone = <PlantIdToEventsMap>{};  // avoid exceptions when saving before any event has been loaded
 	public oPropertiesDataClone: LPlantIdToPropertyCollectionMap = {};
-	public oPlantsDataClone = <PPlantsUpdateRequest>{};
+	public oPlantsDataClone = <FPlantsUpdateRequest>{};
 	public oTaxonDataClone = <LTaxonData>{};
 	public oPropertiesTaxonDataClone = <LCategoryToPropertiesInCategoryMap>{};
 
@@ -121,15 +121,15 @@ export default class Component extends UIComponent {
 	}
 
 	// load untagged images to display number as badge in top row
-	private _onReceivingUntaggedImages(oData: PResultsImageResource, sStatus: any, oReturnData: any){
+	private _onReceivingUntaggedImages(oData: BResultsImageResource, sStatus: any, oReturnData: any){
 		this._addPhotosToRegistry(oData.ImagesCollection);
 		this.resetUntaggedPhotos();
 	}
 
-	private _addPhotosToRegistry(aImages: PImage[]){
+	private _addPhotosToRegistry(aImages: FBImage[]){
 		// add photos loaded for a plant to the registry if not already loaded with other plant
 		// plus add a copy of the photo to a clone registry for getting changed photos when saving 
-		aImages.forEach((image: PImage) => {
+		aImages.forEach((image: FBImage) => {
 			if (!(image.filename in this.imagesRegistry)){
 				this.imagesRegistry[image.filename] = image;
 				this.imagesRegistryClone[image.filename] = Util.getClonedObject(image);

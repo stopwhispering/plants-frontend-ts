@@ -7,7 +7,7 @@ import formatter from "plants/ui/model/formatter";
 import Component from "../Component";
 import { MessageType } from "sap/ui/core/library";
 import Event from "sap/ui/base/Event";
-import { PImage } from "../definitions/ImageFromBackend";
+import { FBImage } from "../definitions/Images";
 
 /**
  * @namespace plants.ui.model
@@ -36,11 +36,10 @@ export default class ModelsHelper extends ManagedObject {
 		this._component.getModel('taxon').attachRequestFailed(this.onReceiveErrorGeneric.bind(this, 'Taxon Model'));
 	}
 
-	onReceiveErrorGeneric(sCaller: string, error: JQueryXHR, result?: string, statusText?: string) {
-		//trying to catch all kinds of error callback returns
+	onReceiveErrorGeneric(sCaller: string, error: JQueryXHR, sTypeOfError: null|"timeout"|"error"|"abort"|"parsererror", oExceptionObject?: object) {
+		//trying to catch different kinds of error callback returns
 		//always declare similar to: .fail(this.ModelsHelper.getInstance()._onReceiveErrorGeneric.bind(thisOrOtherContext,'EventsResource'));
 		Util.stopBusyDialog();
-
 
 		//fastapi manually thrown exceptions (default)
 		if ((!!error) && (!!error.responseJSON) && (!!error.responseJSON.detail) && (!!error.responseJSON.detail.type)) {
@@ -132,7 +131,7 @@ export default class ModelsHelper extends ManagedObject {
 		this._component.getModel('untaggedImages').updateBindings(false);
 	}
 
-	addToImagesRegistry(aImages: PImage[]) {
+	addToImagesRegistry(aImages: FBImage[]) {
 		// after uploading new images, add them to the  registry
 		aImages.forEach(oImage => {
 			var sKey = oImage['filename'];

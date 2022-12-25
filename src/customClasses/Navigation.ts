@@ -1,7 +1,7 @@
 // helper class for navigation/route-specific methods used applied in multiple controllers
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Component from "../Component";
-import { PPlant } from "../definitions/PlantsFromBackend";
+import { FBPlant } from "../definitions/Plants";
 
 /**
  * @namespace plants.ui.customClasses
@@ -48,7 +48,7 @@ export default class Navigation extends ManagedObject {
 		}
 	}
 
-	public navToPlant(oPlant: PPlant, oComponent: Component) {
+	public navToPlant(oPlant: FBPlant, oComponent: Component) {
 		//similar to navToPlantDetails with two differences:
 		//  - requires the plant object instead of plant id
 		//  - requires component to be supplied as parameter (therefore we don't have to bind this to the calling function)

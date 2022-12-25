@@ -1,6 +1,6 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
 import { PMessage } from "./entities";
-import { TagState } from "./ImageFromBackend";
+import { TagState } from "./Images";
 
 /**
  * @namespace plants.ui.definitions.plant_entities

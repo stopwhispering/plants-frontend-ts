@@ -1,12 +1,12 @@
 // todo remove and distribute to other files
 import ManagedObject from "sap/ui/base/ManagedObject";
-import { PPlant } from "./PlantsFromBackend";
-import { PTaxon } from "./TaxonFromBackend";
+import { FBPlant } from "./Plants";
+import { FBTaxon } from "./Taxon";
 
 /**
  * @namespace plants.ui.definitions.entities
  */
-export interface NewPlant extends PPlant {
+export interface NewPlant extends FBPlant {
     id: undefined;
 }
 

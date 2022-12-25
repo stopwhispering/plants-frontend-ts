@@ -16,7 +16,7 @@ import ListBinding from "sap/ui/model/ListBinding"
 import Event from "sap/ui/base/Event"
 import MultiInput from "sap/m/MultiInput"
 import FileUploader from "sap/ui/unified/FileUploader"
-import { PImageUploadedMetadata } from "../definitions/ImageFromBackend"
+import { FImageUploadedMetadata } from "../definitions/Images"
 import Dialog from "sap/m/Dialog"
 import Menu from "sap/m/Menu"
 import { MessageType } from "sap/ui/core/library"
@@ -239,7 +239,7 @@ export default class FlexibleColumnLayout extends BaseController {
 			// oFileUploader.setAdditionalData(); //from earlier uploads
 		}
 
-		var oAdditionalData = <PImageUploadedMetadata>{
+		var oAdditionalData = <FImageUploadedMetadata>{
 			'plants': aSelectedPlantIds,
 			'keywords': aSelectedKeywords
 		};

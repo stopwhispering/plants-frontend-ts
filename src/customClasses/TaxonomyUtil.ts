@@ -12,8 +12,8 @@ import View from "sap/ui/core/mvc/View";
 import Component from "../Component";
 import Table from "sap/m/Table";
 import ColumnListItem from "sap/m/ColumnListItem";
-import { PPlant } from "../definitions/PlantsFromBackend";
-import { PKewSearchResultEntry, PResultsFetchTaxonImages, PResultsSaveTaxonRequest, PResultsTaxonInfoRequest, PTaxon } from "../definitions/TaxonFromBackend";
+import { FBPlant } from "../definitions/Plants";
+import { BKewSearchResultEntry, BResultsFetchTaxonImages, BResultsSaveTaxonRequest, BResultsTaxonInfoRequest, FBTaxon, FTaxonInfoRequest } from "../definitions/Taxon";
 import { ResponseStatus } from "../definitions/SharedLocal";
 import { LTaxonData } from "../definitions/TaxonLocal";
 
@@ -30,21 +30,19 @@ export default class TaxonomyUtil extends ManagedObject {
 		return TaxonomyUtil._instance;
 	}
 
-	public findSpecies(sSpecies: string, bIncludeKew: boolean, bSearchForGenus: boolean, oModelKewSearchResults: JSONModel){
-		if (sSpecies.length === 0) {
+	public findSpecies(sTaxonNamePattern: string, bIncludeExternalApis: boolean, bSearchForGenusNotSpecies: boolean, oModelKewSearchResults: JSONModel){
+		if (sTaxonNamePattern.length === 0) {
 			MessageToast.show('Enter species first.');
 			return;
 		}
 		Util.startBusyDialog('Retrieving results from species search...');
-		var dPayload = {
-			// 'args': {
-			'species': sSpecies,
-			'includeKew': bIncludeKew,
-			'searchForGenus': bSearchForGenus
-			// }
+		var dPayload = <FTaxonInfoRequest>{
+			'include_external_apis': bIncludeExternalApis,
+			'taxon_name_pattern': sTaxonNamePattern,
+			'search_for_genus_not_species': bSearchForGenusNotSpecies
 		};
 		$.ajax({
-			url: Util.getServiceUrl('search_external_biodiversity'),
+			url: Util.getServiceUrl('search_taxa_by_name'),
 			type: 'POST',
 			contentType: "application/json",
 			data: JSON.stringify(dPayload),
@@ -52,25 +50,25 @@ export default class TaxonomyUtil extends ManagedObject {
 			// async: true
 		})
 			.done(this._onReceivingSpeciesDatabase.bind(this, oModelKewSearchResults))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'search_external_biodiversity (POST)'));
+			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Search Taxa by Name (POST)'));
 	}
 
-	private _onReceivingSpeciesDatabase(oModelKewSearchResults: JSONModel, data: PResultsTaxonInfoRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) {
+	private _onReceivingSpeciesDatabase(oModelKewSearchResults: JSONModel, data: BResultsTaxonInfoRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) {
 		Util.stopBusyDialog();
 		oModelKewSearchResults.setData(data);
 		MessageUtil.getInstance().addMessageFromBackend(data.message);
 	}
 
 	public chooseSpecies(oSelectedItem: ColumnListItem, sCustomName: string,
-		oDialog: Dialog, oPlant: PPlant, oDetailController: Detail, oView: View){
+		oDialog: Dialog, oPlant: FBPlant, oDetailController: Detail, oView: View){
 		
 		if (!oSelectedItem) {
 			MessageToast.show('Select item from results list first.');
 			return;
 		}
 
-		const oSelectedRowData = <PKewSearchResultEntry>oSelectedItem.getBindingContext('kewSearchResults')!.getObject()
-		const fqId = oSelectedRowData.fqId;
+		const oSelectedRowData = <BKewSearchResultEntry>oSelectedItem.getBindingContext('kewSearchResults')!.getObject()
+		const lsid = oSelectedRowData.lsid;
 
 		// optionally, use has set a custom additional name. send full name then.
 		if (sCustomName.startsWith('Error')) {
@@ -82,30 +80,31 @@ export default class TaxonomyUtil extends ManagedObject {
 		}
 
 		var dPayload = {
-			'fqId': fqId,
+			'lsid': lsid,
 			'hasCustomName': (nameInclAddition.length === 0) ? false : true,
 			'nameInclAddition': nameInclAddition,
 			'source': oSelectedRowData.source,
 			// in py interface, null is resolved to empty str in py, undefined is resolved to None
-			'id': oSelectedRowData.id ? oSelectedRowData.id : undefined,
+			'taxon_id': oSelectedRowData.id ? oSelectedRowData.id : undefined,
 			'plant_id': oPlant.id
 		};
 
 		Util.startBusyDialog('Retrieving additional species information and saving them to Plants database...');
-		const sServiceUrl = Util.getServiceUrl('download_taxon_details');
+		const sServiceUrl = Util.getServiceUrl('retrieve_details_for_selected_taxon');
 
 		$.ajax({
 			url: sServiceUrl,
 			context: this,
 			contentType: "application/json",
+			dataType: 'json',  // expected data type for response
 			type: 'POST',
 			data: JSON.stringify(dPayload)
 		})
 			.done(this._onReceivingAdditionalSpeciesInformationSaved.bind(this, oDialog, oPlant, oDetailController, oView))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'download_taxon_details (POST)'));
+			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Retrieve Details for selected Taxon (POST)'));
 	}
 
-	private _onReceivingAdditionalSpeciesInformationSaved(oDialog: Dialog, oPlant: PPlant, oDetailController: Detail, oView: View, data: PResultsSaveTaxonRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) {
+	private _onReceivingAdditionalSpeciesInformationSaved(oDialog: Dialog, oPlant: FBPlant, oDetailController: Detail, oView: View, data: BResultsSaveTaxonRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) {
 		//taxon was saved in database and the taxon id is returned here
 		//we assign that taxon id to the plant; this is persisted only upon saving
 		//the whole new taxon dictionary is added to the taxon model and it's clone
@@ -147,7 +146,7 @@ export default class TaxonomyUtil extends ManagedObject {
 			oInputAdditionalName.setValue('');
 			return;
 		}
-		var oSelectedRowData = <PKewSearchResultEntry>oSelectedItem.getBindingContext('kewSearchResults')!.getObject()
+		var oSelectedRowData = <BKewSearchResultEntry>oSelectedItem.getBindingContext('kewSearchResults')!.getObject()
 
 		//reset additional name
 		var sNewValueAdditionalName;
@@ -179,7 +178,7 @@ export default class TaxonomyUtil extends ManagedObject {
 
 	findSpeciesAdditionalNameLiveChange(oView: View) {
 		const oSelectedItem = <ColumnListItem> (<Table> oView.byId('tableFindSpeciesResults')).getSelectedItem();
-		const oSelectedRowData = <PKewSearchResultEntry>oSelectedItem.getBindingContext('kewSearchResults')!.getObject()
+		const oSelectedRowData = <BKewSearchResultEntry>oSelectedItem.getBindingContext('kewSearchResults')!.getObject()
 		const oText = <GenericTag> oView.byId('textFindSpeciesAdditionalName');
 		const sNewValueAdditionalName = (<Input>oView.byId('inputFindSpeciesAdditionalName')).getValue();
 
@@ -196,33 +195,32 @@ export default class TaxonomyUtil extends ManagedObject {
 		if (oView.getBindingContext('taxon') === undefined || oView.getBindingContext('taxon')!.getObject() === undefined) {
 			var sCurrentBotanicalName = '';
 		} else {
-			sCurrentBotanicalName = (<PTaxon> oView.getBindingContext('taxon')!.getObject()).name;
+			sCurrentBotanicalName = (<FBTaxon> oView.getBindingContext('taxon')!.getObject()).name;
 		}
-		(<Input> oView.byId('inputFindSpecies')).setValue(sCurrentBotanicalName);
+		(<Input> oView.byId('inputTaxonNamePattern')).setValue(sCurrentBotanicalName);
 
 		// clear additional name
 		(<Input> oView.byId('inputFindSpeciesAdditionalName')).setValue('');
 	}
 
 
-	refetchGbifImages(gbif_id: int, oTaxonModel: JSONModel, oCurrentPlant: PPlant) {
-		Util.startBusyDialog('Refetching Taxon Images from GBIF for GBIF ID ...' + gbif_id);
+	refetchGbifImages(gbif_id: int, oTaxonModel: JSONModel, oCurrentPlant: FBPlant) {
+		Util.startBusyDialog('Refetching Taxon Occurrence Images from GBIF for GBIF ID ...' + gbif_id);
 		var dPayload = {
 			'gbif_id': gbif_id
 		};
 		$.ajax({
-			url: Util.getServiceUrl('fetch_taxon_images'),
+			url: Util.getServiceUrl('fetch_taxon_occurrence_images'),
 			type: 'POST',
 			contentType: "application/json",
 			data: JSON.stringify(dPayload),
 			context: this,
-			// async: true
 		})
 			.done(this._onReceivingRefetchdeGbifImages.bind(this, oTaxonModel, oCurrentPlant))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'search_external_bifetch_taxon_imagesodiversity (POST)'));
+			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'fetch_taxon_occurrence_images (POST)'));
 	}
 
-	private _onReceivingRefetchdeGbifImages(oTaxonModel: JSONModel, oCurrentPlant: PPlant, data: PResultsFetchTaxonImages, sStatus: ResponseStatus, oResponse: JQueryXHR) {
+	private _onReceivingRefetchdeGbifImages(oTaxonModel: JSONModel, oCurrentPlant: FBPlant, data: BResultsFetchTaxonImages, sStatus: ResponseStatus, oResponse: JQueryXHR) {
 		// display newly fetched taxon images from gbif occurrences
 		// (no need for caring about the serialized clone model as occurrences are read-only)
 		Util.stopBusyDialog();

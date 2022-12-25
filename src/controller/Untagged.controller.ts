@@ -7,7 +7,7 @@ import MessageToast from "sap/m/MessageToast"
 import ImageEventHandlers from "plants/ui/customClasses/ImageEventHandlers";
 import Event from "sap/ui/base/Event";
 import Button from "sap/m/Button";
-import { PImage, PImagePlantTag, PKeyword } from "../definitions/ImageFromBackend";
+import { FBImage, FBImagePlantTag, FBKeyword } from "../definitions/Images";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import Input from "sap/m/Input";
 import Token from "sap/m/Token";
@@ -16,8 +16,8 @@ import Icon from "sap/ui/core/Icon";
 import List from "sap/m/List";
 import OverflowToolbarButton from "sap/m/OverflowToolbarButton";
 import Tokenizer from "sap/m/Tokenizer";
-import { PPlant } from "../definitions/PlantsFromBackend";
-import { PImageDelete, RImageDelete, RImagesDelete } from "../definitions/EventsFromBackend";
+import { FBPlant } from "../definitions/Plants";
+import { FImageDelete, FImagesToDelete } from "../definitions/Events";
 
 /**
  * @namespace plants.ui.controller
@@ -99,7 +99,7 @@ export default class Untagged extends BaseController {
 		//delete 1..n selected images
 		const oList = <List>this.byId('listImagesUntagged');
 		const aSelectedItems = oList.getSelectedItems();
-		const aSelectedImages = <PImage[]> aSelectedItems.map(item => item.getBindingContext('untaggedImages')!.getObject())
+		const aSelectedImages = <FBImage[]> aSelectedItems.map(item => item.getBindingContext('untaggedImages')!.getObject())
 		if (aSelectedItems.length == 0) {
 			MessageToast.show("Nothing selected.");
 			return;
@@ -116,13 +116,13 @@ export default class Untagged extends BaseController {
 		);
 	}
 
-	private _confirmDeleteSelectedImages(aSelectedImages: PImage[], sAction: string) {
+	private _confirmDeleteSelectedImages(aSelectedImages: FBImage[], sAction: string) {
 		if (sAction !== 'Delete') {
 			return;
 		}
 
-		const oPayload = <RImagesDelete>{
-			images: aSelectedImages.map((image) => (<RImageDelete>{id: image.id,
+		const oPayload = <FImagesToDelete>{
+			images: aSelectedImages.map((image) => (<FImageDelete>{id: image.id,
 								                                   filename: image.filename}))
 			};
 
@@ -142,9 +142,9 @@ export default class Untagged extends BaseController {
 	// // // // // // // // // // // // // // // // // // // // // 	
 	public onAddDetailsPlantToUntaggedImage(oEvent: Event){
 		//adds current plant in details view to the image in untagged view; triggered from "<-"" Button
-		const oPlant = <PPlant>this.getPlantById(this._currentPlantId);
+		const oPlant = <FBPlant>this.getPlantById(this._currentPlantId);
 		const oBindingContextImage = (<Button> oEvent.getSource()).getParent().getBindingContext("untaggedImages");
-		const oImage = <PImage>oBindingContextImage!.getObject();
+		const oImage = <FBImage>oBindingContextImage!.getObject();
 		const oImagesModel = this.oComponent.getModel('images');
 		this.imageEventHandlers.assignPlantToImage(oPlant, oImage, oImagesModel);
 
@@ -156,9 +156,9 @@ export default class Untagged extends BaseController {
 		//adds selected plant in input field (via suggestions) to an image (untagged view)
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oSource = <Input>oEvent.getSource();
-		const oImage = <PImage>oSource.getBindingContext("untaggedImages")!.getObject();
+		const oImage = <FBImage>oSource.getBindingContext("untaggedImages")!.getObject();
 		const oSelectedSuggestion = oEvent.getParameter('selectedRow');
-		const oSelectedPlant = <PPlant>oSelectedSuggestion.getBindingContext('plants').getObject();
+		const oSelectedPlant = <FBPlant>oSelectedSuggestion.getBindingContext('plants').getObject();
 		const oImagesModel = this.oComponent.getModel('images');
 		this.imageEventHandlers.assignPlantToImage(oSelectedPlant, oImage, oImagesModel);
 
@@ -170,7 +170,7 @@ export default class Untagged extends BaseController {
 		//navigate to chosen plant in plant details view when clicking on plant token in untagged images view
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oSource = <Token>oEvent.getSource();
-		const oPlantTag = <PImagePlantTag>oSource.getBindingContext('untaggedImages')!.getObject();
+		const oPlantTag = <FBImagePlantTag>oSource.getBindingContext('untaggedImages')!.getObject();
 		if (!oPlantTag.plant_id || oPlantTag.plant_id <= 0) throw new Error("Unexpected error: No Plant ID");
 		
 		//navigate to plant in layout's current column (i.e. middle column)
@@ -180,7 +180,7 @@ export default class Untagged extends BaseController {
 	onIconPressDeleteImage(oEvent: Event){
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oSource = <Icon>oEvent.getSource();
-		const oImage = <PImage>oSource.getBindingContext("untaggedImages")!.getObject()
+		const oImage = <FBImage>oSource.getBindingContext("untaggedImages")!.getObject()
 		
 		//confirm dialog
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
@@ -205,15 +205,15 @@ export default class Untagged extends BaseController {
 			return;
 		}
 
-		const oImage = <PImage> oInput.getParent().getBindingContext('untaggedImages')!.getObject();
-		let aKeywords: PKeyword[] = oImage.keywords;
+		const oImage = <FBImage> oInput.getParent().getBindingContext('untaggedImages')!.getObject();
+		let aKeywords: FBKeyword[] = oImage.keywords;
 		if(aKeywords.find(ele=>ele.keyword === sKeyword)){
 			MessageToast.show('Keyword already in list');
 			return;
 		}
 
 		//add to current image keywords in untaggedImages model
-		aKeywords.push(<PKeyword>{
+		aKeywords.push(<FBKeyword>{
 			keyword: sKeyword
 		});
 
@@ -251,7 +251,7 @@ export default class Untagged extends BaseController {
 
 		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer> oEvent.getSource();
-		const oImage = <PImage>oTokenizer.getBindingContext('untaggedImages')!.getObject();
+		const oImage = <FBImage>oTokenizer.getBindingContext('untaggedImages')!.getObject();
 		
 		const oImagesModel = this.oComponent.getModel('untaggedImages');
 
@@ -271,7 +271,7 @@ export default class Untagged extends BaseController {
 
 		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer> oEvent.getSource();
-		const oImage = <PImage>oTokenizer.getBindingContext('untaggedImages')!.getObject();
+		const oImage = <FBImage>oTokenizer.getBindingContext('untaggedImages')!.getObject();
 		
 		const oImagesModel = this.oComponent.getModel('untaggedImages');
 
