@@ -1,0 +1,70 @@
+@startuml
+'    skinparam SequenceMessageAlignment center
+
+    actor User
+    participant Component
+    participant DetailController
+    participant Backend
+
+    == Requests requring only plantId ==
+    User -> Component: opening app in details view
+
+    note left of Component
+        Unlike taxon details, events, properties, and
+        images, the plants' details are loaded as a
+        whole. They are therefore available as soon as
+        that request is completed.
+    end note
+    Component -> Backend: GET /api/plants
+
+    note left of DetailController
+        Each time a plant is selected, _onPatternMatched()
+        is called. plantId is known from the URL's hash,
+        but when the view is loaded the first time, the
+        plant's details are not known, yet, including it's
+        taxonId.
+    end note
+
+    Component -> DetailController: initialization
+    DetailController -> DetailController: attach callback to\nplants model's promise
+
+    par
+        DetailController -> Backend: GET /api/plant_properties/{plantId}
+        DetailController -> Backend: GET /api/events/{plantsId}
+        DetailController -> Backend: GET /api/plants/{plantsId}/images
+    end
+
+    == Responses ==
+
+    DetailController <-- Backend: plant properties
+    DetailController -> DetailController: populate properties model,\nupdate view
+    DetailController <-- Backend: plant events
+    DetailController -> DetailController: populate events model,\nupdate view
+    DetailController <-- Backend: plant images
+    DetailController -> DetailController: populate images model,\nupdate view
+
+    Component <-- Backend: all active plants' data
+    Component -> Component: populate plants model
+    note left of DetailController
+        The plants model's promise is resolved when the
+        plant's details are loaded.
+    end note
+
+    Component --> DetailController : notify about loaded plants model
+    DetailController -> DetailController : update view
+    note left of DetailController
+        With the plants' details loaded, the taxonId can
+        be determined. The promise is resolved which triggers
+        the controller's request for taxon details from the
+        backend.
+    end note
+
+    DetailController -> Backend: GET /api/taxa/{taxonId}
+
+
+    == Requests requiring plant details ==
+    DetailController <-- Backend: taxon data
+
+    DetailController -> DetailController: populate taxon model for current plant
+
+@enduml

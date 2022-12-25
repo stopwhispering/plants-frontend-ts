@@ -22,3 +22,8 @@ Create & Run Docker Container
     docker compose -f ./docker-compose.base.yml -f ./docker-compose.prod.yml up --build --detach
 
 Test (dev): Open in Browser - http://plants.localhost
+
+## Implementation Details
+ 
+### Sequence of Loading Plant Details View
+![Loading Plant Details](./diagrams/plant_details_loading_sequence.png?raw=true "Loading Plant Details")

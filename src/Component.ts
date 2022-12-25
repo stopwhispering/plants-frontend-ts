@@ -144,19 +144,7 @@ export default class Component extends UIComponent {
 		var aPhotos = aPhotoValues.map(p => p[1]);
 		this.getModel('untaggedImages').setProperty('/ImagesCollection',aPhotos);
 	}
-	
-	// although root view is defined in manifest, somehow the 
-	// BeforeRouteMatched event handler is not triggered without redefining
-	// createContent (no idea, why...; probably because default is async)
-	// public createContent () {
-	// 	// return sap.ui.view({
-	// 	return sap.ui.view({
-	// 		viewName: "plants.ui.view.FlexibleColumnLayout",
-	// 		type: "XML",
-	// 		// async: true  //=> no direct entry into plant page possible
-	// 	});
-	// }
-	
+
 	/**
 	 * Returns an instance of the semantic helper
 	 * @returns {sap.f.FlexibleColumnLayoutSemanticHelper} An instance of the semantic helper

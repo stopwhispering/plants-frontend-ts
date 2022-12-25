@@ -69,33 +69,6 @@ export default class ModelsHelper extends ManagedObject {
 		}
 
 		MessageToast.show('Unknown Error. See onReceiveErrorGeneric and handle.');
-
-		// // general http error handler			
-		// //tested for ..
-		// if (error && error.hasOwnProperty('responseJSON') && typeof (error.responseJSON) === 'string') {
-		// 	var sMsg = 'Error: ' + error.status + ' ' + error.responseJSON;
-		// }
-
-		// //     - reloadImagesFromBackend (ajax; manually raised)
-		// else if (error && error.hasOwnProperty('responseJSON') && error.responseJSON && 'error' in error.responseJSON) {
-		// 	sMsg = 'Error: ' + error.status + ' ' + error.responseJSON['error'];
-
-		// 	//     - reloadPlantsFromBackend(jsonmodel; manually raised)
-		// } else if (error && error.getParameter && (!!error.getParameter('responseText')) && typeof (JSON.parse(error.getParameter('responseText'))) === 'object') {
-		// 	var oParams = error.getParameters();
-		// 	sMsg = 'Error: ' + oParams.statusCode + ' ' + JSON.parse(oParams.responseText).error;
-
-		// 	// fallback solution for ajax calls (e.g. server stopped working) 
-		// } else if (!!error.status && !!error.statusText) {
-		// 	sMsg = 'Error at: ' + sCaller + ' - Status: ' + error.status + ' ' + error.statusText;
-
-		// 	// fallback solution for jsonmodel calls (e.g. server stopped working) 
-		// } else {
-		// 	sMsg = 'Error at: ' + sCaller;
-		// }
-
-		// MessageToast.show(sMsg);
-		// MessageUtil.getInstance().addMessage(MessageType.Error, sMsg, undefined, undefined);
 	}
 
 	private _onReceivingPlantsFromBackend(oRequestInfo: Event) {

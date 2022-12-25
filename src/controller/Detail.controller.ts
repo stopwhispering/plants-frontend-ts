@@ -142,7 +142,7 @@ export default class Detail extends BaseController {
 		//we need to wait for the plants model to be loaded
 		//same applies to the events model which requires the plant_id
 		var oModelPlants = this.oComponent.getModel('plants');
-		var oPromise = oModelPlants.dataLoaded();
+		var oPromise: Promise<any> = oModelPlants.dataLoaded();
 		oPromise.then(this._bindPlantsModelDeferred.bind(this), this._bindPlantsModelDeferred.bind(this));
 
 		//loading and binding events requires only the plant id
@@ -187,20 +187,7 @@ export default class Detail extends BaseController {
 		// get current plant object in plants model array and bind plant to details view
 		var sPathCurrentPlant = "/PlantsCollection/" + this._currentPlantIndex;
 		this._oCurrentPlant = this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
-		if (!this._oCurrentPlant.parent_plant) {
-			// this._oCurrentPlant.parent_plant = {
-			// 	id: undefined,
-			// 	plant_name: undefined,
-			// 	active: undefined
-			// }
-		}
-		if (!this._oCurrentPlant.parent_plant_pollen) {
-			// this._oCurrentPlant.parent_plant_pollen = {
-			// 	id: undefined,
-			// 	plant_name: undefined,
-			// 	active: undefined
-			// }
-		}
+
 		this.getView().bindElement({
 			path: sPathCurrentPlant,
 			model: "plants"
