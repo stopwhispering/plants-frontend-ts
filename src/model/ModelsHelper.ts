@@ -36,7 +36,7 @@ export default class ModelsHelper extends ManagedObject {
 		this._component.getModel('taxon').attachRequestFailed(this.onReceiveErrorGeneric.bind(this, 'Taxon Model'));
 	}
 
-	onReceiveErrorGeneric(sCaller: string, error: JQueryXHR, sTypeOfError: null|"timeout"|"error"|"abort"|"parsererror", oExceptionObject?: object) {
+	onReceiveErrorGeneric(sCaller: string, error: JQueryXHR, sTypeOfError: null|"timeout"|"error"|"abort"|"parsererror", oExceptionObject?: any) {
 		//trying to catch different kinds of error callback returns
 		//always declare similar to: .fail(this.ModelsHelper.getInstance()._onReceiveErrorGeneric.bind(thisOrOtherContext,'EventsResource'));
 		Util.stopBusyDialog();

@@ -1,5 +1,6 @@
 import * as Util from "plants/ui/customClasses/Util";
 import BaseController from "../controller/BaseController";
+import { FBEvent, FBImageAssignedToEvent } from "../definitions/Events";
 import { LPropagationTypeData } from "../definitions/PlantsLocal";
 
 /**
@@ -53,10 +54,11 @@ export default class formatter{
 		return (sImageFilename && sPlantFilenamePreviewimage && sImageFilename === sPlantFilenamePreviewimage) ? 'blue' : '#E69A17';
 	}
 
-	public colorByAssigedToEventOrNot(sImageFilename: string, aEvents: any[]){	
+	public colorByAssigedToEventOrNot(sImageFilename: string, aEvents: FBEvent[]){	
 		// flatten array of events' images 
 		if (!sImageFilename || !aEvents || !aEvents.length) return '#000000';
-		let aImages = aEvents.flatMap(event => event.images);
+		let aEventsWithImages = aEvents.filter(event => event.images && event.images.length);
+		let aImages = <FBImageAssignedToEvent[]>aEventsWithImages.flatMap(event => event.images);
 		let oImageFound = aImages.find(image => image.filename === sImageFilename); 
 		return !oImageFound ? '#000000' : 'blue';
 	}

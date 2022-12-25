@@ -13,7 +13,7 @@ import Component from "../Component";
 import Table from "sap/m/Table";
 import ColumnListItem from "sap/m/ColumnListItem";
 import { FBPlant } from "../definitions/Plants";
-import { BKewSearchResultEntry, BResultsFetchTaxonImages, BResultsSaveTaxonRequest, BResultsTaxonInfoRequest, FBTaxon, FTaxonInfoRequest } from "../definitions/Taxon";
+import { BKewSearchResultEntry, BResultsFetchTaxonImages, BResultsSaveTaxonRequest, BResultsTaxonInfoRequest, FBTaxon, FFetchTaxonOccurrenceImagesRequest, FTaxonInfoRequest } from "../definitions/Taxon";
 import { ResponseStatus } from "../definitions/SharedLocal";
 import { LTaxonData } from "../definitions/TaxonLocal";
 
@@ -206,7 +206,7 @@ export default class TaxonomyUtil extends ManagedObject {
 
 	refetchGbifImages(gbif_id: int, oTaxonModel: JSONModel, oCurrentPlant: FBPlant) {
 		Util.startBusyDialog('Refetching Taxon Occurrence Images from GBIF for GBIF ID ...' + gbif_id);
-		var dPayload = {
+		var dPayload = <FFetchTaxonOccurrenceImagesRequest>{
 			'gbif_id': gbif_id
 		};
 		$.ajax({

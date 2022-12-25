@@ -111,7 +111,7 @@ export interface FAssignTaxonRequest {
   plant_id: number;
   source: string;
 }
-export interface FFetchTaxonImages {
+export interface FFetchTaxonOccurrenceImagesRequest {
   gbif_id: number;
 }
 export interface FModifiedTaxa {
