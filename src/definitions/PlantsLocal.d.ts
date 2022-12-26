@@ -5,6 +5,11 @@ import { TagState } from "./Images";
 /**
  * @namespace plants.ui.definitions.plant_entities
  */
+export type LFilterHiddenChoice =
+  "only_active"
+  | "both"
+  | "only_hidden";
+
 export interface LPropagationTypeData{
     //Local JSON Model, see suggestions.json
     key: string;

@@ -23,6 +23,9 @@ import { MessageType } from "sap/ui/core/library"
 import Popover from "sap/m/Popover"
 import ImageEventHandlers from "../customClasses/ImageEventHandlers"
 import { UIState } from "sap/f/FlexibleColumnLayoutSemanticHelper"
+import SuggestionService from "../customClasses/SuggestionService"
+import PlantServices from "../customClasses/PlantServices"
+import JSONModel from "sap/ui/model/json/JSONModel"
 
 /**
  * @namespace plants.ui.controller
@@ -31,6 +34,7 @@ export default class FlexibleColumnLayout extends BaseController {
 
 	formatter = new formatter();
 	private imageEventHandlers: ImageEventHandlers;
+	private plantServices: PlantServices;
 
 	private mIdToFragment = <IdToFragmentMap>{
 		MessagePopover: "plants.ui.view.fragments.menu.MessagePopover",
@@ -44,6 +48,11 @@ export default class FlexibleColumnLayout extends BaseController {
 
 	onInit() {
 		super.onInit();
+
+		const oSuggestionsModel = <JSONModel>this.oComponent.getModel('suggestions');
+		const suggestionService = new SuggestionService(oSuggestionsModel);
+		this.plantServices = new PlantServices(this.applyToFragment.bind(this), this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, suggestionService);
+
 		this._oRouter = this.oComponent.getRouter();
 		this._oRouter.attachBeforeRouteMatched(this._onBeforeRouteMatched, this);
 		this._oRouter.attachRouteMatched(this._onRouteMatched, this);
@@ -292,7 +301,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	onIconPressAssignDetailsPlant(oEvent: Event) {
 		// triggered by assign-to-current-plant button in image upload dialog
 		// add current plant to plants multicombobox
-		var plant = this.getPlantById(this._currentPlantId);
+		var plant = this.plantServices.getPlantById(this._currentPlantId);
 		if (!plant) {
 			return;
 		}

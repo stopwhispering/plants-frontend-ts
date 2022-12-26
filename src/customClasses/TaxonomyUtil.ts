@@ -12,8 +12,11 @@ import View from "sap/ui/core/mvc/View";
 import Component from "../Component";
 import Table from "sap/m/Table";
 import ColumnListItem from "sap/m/ColumnListItem";
-import { FBPlant } from "../definitions/Plants";
-import { BKewSearchResultEntry, BResultsFetchTaxonImages, BResultsSaveTaxonRequest, BResultsTaxonInfoRequest, FAssignTaxonRequest, FBTaxon, FFetchTaxonOccurrenceImagesRequest, FTaxonInfoRequest } from "../definitions/Taxon";
+import { BPlant } from "../definitions/Plants";
+import { 
+	BKewSearchResultEntry, BResultsFetchTaxonImages, BResultsRetrieveTaxonDetailsRequest, BResultsTaxonInfoRequest, BTaxon, FAssignTaxonRequest, 
+	FFetchTaxonOccurrenceImagesRequest, FTaxonInfoRequest 
+} from "../definitions/Taxon";
 import { ResponseStatus } from "../definitions/SharedLocal";
 import { LTaxonData } from "../definitions/TaxonLocal";
 
@@ -60,7 +63,7 @@ export default class TaxonomyUtil extends ManagedObject {
 	}
 
 	public chooseSpecies(oSelectedItem: ColumnListItem, sCustomName: string,
-		oDialog: Dialog, oPlant: FBPlant, oDetailController: Detail, oView: View){
+		oDialog: Dialog, oPlant: BPlant, oDetailController: Detail, oView: View){
 		
 		if (!oSelectedItem) {
 			MessageToast.show('Select item from results list first.');
@@ -104,10 +107,12 @@ export default class TaxonomyUtil extends ManagedObject {
 			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Retrieve Details for selected Taxon (POST)'));
 	}
 
-	private _onReceivingAdditionalSpeciesInformationSaved(oDialog: Dialog, oPlant: FBPlant, oDetailController: Detail, oView: View, data: BResultsSaveTaxonRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) {
+	private _onReceivingAdditionalSpeciesInformationSaved(oDialog: Dialog, oPlant: BPlant, oDetailController: Detail,
+		oView: View, data: BResultsRetrieveTaxonDetailsRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) {
 		//taxon was saved in database and the taxon id is returned here
 		//we assign that taxon id to the plant; this is persisted only upon saving
 		//the whole new taxon dictionary is added to the taxon model and it's clone
+		
 		Util.stopBusyDialog();
 		MessageToast.show(data.message.message);
 		MessageUtil.getInstance().addMessageFromBackend(data.message);
@@ -195,7 +200,7 @@ export default class TaxonomyUtil extends ManagedObject {
 		if (oView.getBindingContext('taxon') === undefined || oView.getBindingContext('taxon')!.getObject() === undefined) {
 			var sCurrentBotanicalName = '';
 		} else {
-			sCurrentBotanicalName = (<FBTaxon> oView.getBindingContext('taxon')!.getObject()).name;
+			sCurrentBotanicalName = (<BTaxon> oView.getBindingContext('taxon')!.getObject()).name;
 		}
 		(<Input> oView.byId('inputTaxonNamePattern')).setValue(sCurrentBotanicalName);
 
@@ -204,7 +209,7 @@ export default class TaxonomyUtil extends ManagedObject {
 	}
 
 
-	refetchGbifImages(gbif_id: int, oTaxonModel: JSONModel, oCurrentPlant: FBPlant) {
+	refetchGbifImages(gbif_id: int, oTaxonModel: JSONModel, oCurrentPlant: BPlant) {
 		Util.startBusyDialog('Refetching Taxon Occurrence Images from GBIF for GBIF ID ...' + gbif_id);
 		var dPayload = <FFetchTaxonOccurrenceImagesRequest>{
 			'gbif_id': gbif_id
@@ -220,7 +225,7 @@ export default class TaxonomyUtil extends ManagedObject {
 			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'fetch_taxon_occurrence_images (POST)'));
 	}
 
-	private _onReceivingRefetchdeGbifImages(oTaxonModel: JSONModel, oCurrentPlant: FBPlant, data: BResultsFetchTaxonImages, sStatus: ResponseStatus, oResponse: JQueryXHR) {
+	private _onReceivingRefetchdeGbifImages(oTaxonModel: JSONModel, oCurrentPlant: BPlant, data: BResultsFetchTaxonImages, sStatus: ResponseStatus, oResponse: JQueryXHR) {
 		// display newly fetched taxon images from gbif occurrences
 		// (no need for caring about the serialized clone model as occurrences are read-only)
 		Util.stopBusyDialog();

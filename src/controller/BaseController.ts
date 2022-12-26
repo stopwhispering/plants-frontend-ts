@@ -7,7 +7,6 @@ import * as Util from "plants/ui/customClasses/Util";
 import MessageToast from "sap/m/MessageToast"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
 import Fragment from "sap/ui/core/Fragment"
-import Navigation from "plants/ui/customClasses/Navigation"
 import Dialog from "sap/m/Dialog";
 import Component from "../Component";
 import Router from "sap/ui/core/routing/Router";
@@ -17,7 +16,7 @@ import { LImageMap } from "../definitions/ImageLocal";
 import Control from "sap/ui/core/Control";
 import { FBPropertyCollectionPlant } from "../definitions/Properties";
 import { LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap, LPropertiesTaxonModelData } from "../definitions/PropertiesLocal";
-import { FBPlant, BResultsPlantsUpdate } from "../definitions/Plants";
+import { BPlant } from "../definitions/Plants";
 import ListBinding from "sap/ui/model/ListBinding";
 import Label from "sap/ui/webc/main/Label";
 import { IdToFragmentMap } from "../definitions/SharedLocal";
@@ -397,69 +396,7 @@ export default class BaseController extends Controller {
 		}
 	}
 
-	public saveNewPlant(oPlant: FBPlant) {
-		// save a new plant (only plant_name) to backend to receive plant id
-		var dPayloadPlants = { 'PlantsCollection': [oPlant] };
-		Util.startBusyDialog('Creating...', 'new plant ' + oPlant.plant_name);
-		var that = this;
-		$.ajax({
-			url: Util.getServiceUrl('plants/'),
-			type: 'POST',
-			contentType: "application/json",
-			data: JSON.stringify(dPayloadPlants),
-			context: this
-		})
-			.done(function (oData: BResultsPlantsUpdate, sStatus: string, oReturnData: any) {
-				// add new plant to model
-				var oPlantSaved = oData.plants[0];
-				var aPlants = that.oComponent.getModel('plants').getProperty('/PlantsCollection');
-				var iPlantsCount = aPlants.push(oPlantSaved);  // append at end to preserve change tracking with clone 
-				that.oComponent.getModel('plants').updateBindings(false);
-
-				// ...and add to cloned plants to allow change tracking
-				var oPlantClone = Util.getClonedObject(oPlantSaved);
-				that.oComponent.oPlantsDataClone.PlantsCollection.push(oPlantClone);
-				MessageToast.show('Created plant ID ' + oPlantSaved.id + ' (' + oPlantSaved.plant_name + ')');
-
-				// finally navigate to the newly created plant in details view
-				// Navigation.navToPlantDetails.call(this, iPlantsCount-1);
-				Navigation.getInstance().navToPlantDetails(oPlantSaved.id!);
-
-			})
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Plant (POST)'))
-			.always(function () {
-				Util.stopBusyDialog();
-			});
-	}
-
-	public isPlantNameInPlantsModel(sPlantName: string) {
-		var aPlants = <FBPlant[]>this.oComponent.getModel('plants').getProperty('/PlantsCollection');
-		return (aPlants.find(ele => ele.plant_name === sPlantName) !== undefined);
-	}
-
-	getPlantById(plantId: int) {
-		// todo replace other implementation of function with this here
-		var aPlants: FBPlant[] = this.oComponent.getModel('plants').getProperty('/PlantsCollection');
-		var oPlant = aPlants.find(ele => ele.id === plantId);
-		if (oPlant === undefined) {
-			throw "Plant not found";
-		} else {
-			return oPlant;
-		}
-	}
-
-	getPlantByName(plantName: string): FBPlant {
-		// todo replace other implementation of function with this here
-		var plants: FBPlant[] = this.oComponent.getModel('plants').getProperty('/PlantsCollection');
-		var plant = plants.find(ele => ele.plant_name === plantName);
-		if (plant === undefined) {
-			throw "Plant not found: " + plantName;
-		} else {
-			return plant;
-		}
-	}
-
-	onAjaxSimpleSuccess(oConfirmation: BSaveConfirmation, sStatus: string, oReturnData: object) {
+	onAjaxSimpleSuccess(oConfirmation: BConfirmation, sStatus: string, oReturnData: object) {
 		//toast and create message
 		//requires pre-defined message from backend
 		MessageToast.show(oConfirmation.message.message);
@@ -633,23 +570,4 @@ export default class BaseController extends Controller {
 		Util.stopBusyDialog(); // had been started in details onPatternMatched
 	}
 
-	getSuggestionItem(rootKey: 'propagationTypeCollection', key: string | LPropagationTypeData) {
-		// retrieve an item from suggestions model via root key and key
-		// example usage: var selected = getSuggestionItem('propagationTypeCollection', 'bulbil');
-		let suggestions;
-		switch (rootKey) {
-			case 'propagationTypeCollection':
-				suggestions = <LPropagationTypeData[]>this.oComponent.getModel('suggestions').getProperty('/' + rootKey);
-				break;
-
-			default:
-				throw "Root Key not found: " + rootKey;
-		}
-
-		const suggestion = suggestions.find(s => s['key'] === key);
-		if (!suggestion) {
-			throw "Suggestion Key not found: " + key;
-		}
-		return suggestion;
-	}
 }

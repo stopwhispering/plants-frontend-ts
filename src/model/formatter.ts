@@ -1,6 +1,9 @@
 import * as Util from "plants/ui/customClasses/Util";
 import BaseController from "../controller/BaseController";
+import Detail from "../controller/Detail.controller";
+import SuggestionService from "../customClasses/SuggestionService";
 import { FBEvent, FBImageAssignedToEvent } from "../definitions/Events";
+import { FBPropagationType } from "../definitions/Plants";
 import { LPropagationTypeData } from "../definitions/PlantsLocal";
 
 /**
@@ -216,15 +219,17 @@ export default class formatter{
 		}
 	}
 	
-	public createDescendantParentPollenVisibleByPropagationType(propagationType: LPropagationTypeData){
-		if (!propagationType){
+	public createDescendantParentPollenVisibleByPropagationType(ePropagationType: FBPropagationType): boolean{
+		if (!ePropagationType){
 			// undefined or empty string
 			return false;
 		}
 
-		const that = <BaseController><unknown>this;
+		const that = <Detail><unknown>this;
+		const suggestionService: SuggestionService = that.suggestionService;
 
-		var propagationType = that.getSuggestionItem('propagationTypeCollection', propagationType);
+		const propagationType = <LPropagationTypeData>suggestionService.getSuggestionItem('propagationTypeCollection', ePropagationType);
+		// var propagationType = that.getSuggestionItem('propagationTypeCollection', propagationType);
 		return propagationType['hasParentPlantPollen'] === true;
 	}
 

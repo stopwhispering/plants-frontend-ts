@@ -9,8 +9,8 @@ import { MessageType } from "sap/ui/core/library";
 import Event from "sap/ui/base/Event";
 import { FBImage } from "../definitions/Images";
 import { LTaxonData, LTaxonMap } from "../definitions/TaxonLocal";
-import { BResultsGetTaxon, FBTaxon } from "../definitions/Taxon";
-import { FBPlant } from "../definitions/Plants";
+import { BResultsGetTaxon, BTaxon } from "../definitions/Taxon";
+import { BPlant } from "../definitions/Plants";
 
 /**
  * @namespace plants.ui.model
@@ -153,7 +153,7 @@ export default class ModelsHelper extends ManagedObject {
 	private _onReceivingTaxonDetailsForPlant(taxonId: int, oData: BResultsGetTaxon): void {
 		//insert (overwrite!) events data for current plant with data received from backend
 		const oTaxonModel = <JSONModel>this._component.getModel('taxon');
-		const oTaxon = <FBTaxon>oData.taxon;
+		const oTaxon = <BTaxon>oData.taxon;
 		oTaxonModel.setProperty('/TaxaDict/' + taxonId + '/', oTaxon);
 		this._component.oTaxonDataClone.TaxaDict[taxonId] = Util.getClonedObject(oTaxon);
 		MessageUtil.getInstance().addMessageFromBackend(oData.message);
@@ -180,7 +180,7 @@ export default class ModelsHelper extends ManagedObject {
 		if (!iPlantId)
 			return;
 		const oPlantsModel = <JSONModel>this._component.getModel('plants');
-		const aPlants = <FBPlant[]>oPlantsModel.getProperty('/PlantsCollection/');
+		const aPlants = <BPlant[]>oPlantsModel.getProperty('/PlantsCollection/');
 		const oCurrentPlant = aPlants.find(p => p.id === iPlantId);
 		if (!oCurrentPlant)
 			throw new Error('Plant with id ' + iPlantId + ' not found in plants collection');

@@ -19,7 +19,7 @@ import Component from "../Component";
 import Input from "sap/m/Input";
 import CheckBox from "sap/m/CheckBox";
 import Dialog from "sap/m/Dialog";
-import { FBPlant } from "../definitions/Plants";
+import { BPlant } from "../definitions/Plants";
 import { ResponseStatus } from "../definitions/SharedLocal";
 import { LPropertiesTaxonModelData } from "../definitions/PropertiesLocal";
 
@@ -46,7 +46,7 @@ export default class PropertiesUtil extends ManagedObject {
 		this.applyToFragment = applyToFragment;
 	}
 
-	public editPropertyValueDelete(oPropertiesModel: JSONModel, oPropertiesTaxaModel: JSONModel, oPropertiesBindingContext: Context, oCurrentPlant: FBPlant) {
+	public editPropertyValueDelete(oPropertiesModel: JSONModel, oPropertiesTaxaModel: JSONModel, oPropertiesBindingContext: Context, oCurrentPlant: BPlant) {
 		// delete a property value, either for current plant or it's taxon
 		var sPathPropertyValue = oPropertiesBindingContext.getPath();
 		var oPropertyValue = <FBPropertyValue>oPropertiesBindingContext.getObject();
@@ -144,7 +144,7 @@ export default class PropertiesUtil extends ManagedObject {
 		return aList;
 	}
 
-	openDialogNewProperty(oPlant: FBPlant, oSource: Button) {
+	openDialogNewProperty(oPlant: BPlant, oSource: Button) {
 		if (!oPlant.taxon_id) {
 			MessageToast.show('Function available after setting botanical name.');
 			return;
@@ -233,7 +233,7 @@ export default class PropertiesUtil extends ManagedObject {
 				property_name: sPropertyName,
 				property_name_id: undefined
 			};
-			var oPlant = <FBPlant>oSource.getBindingContext('plants')!.getObject();
+			var oPlant = <BPlant>oSource.getBindingContext('plants')!.getObject();
 			const oPropertiesTaxaModel = <JSONModel>oView.getModel('propertiesTaxa');
 			const oEmptyPropertyValue = <FBPropertyValue>{
 				type: 'taxon',
@@ -252,7 +252,7 @@ export default class PropertiesUtil extends ManagedObject {
 		this._btnNew.setType('Transparent');
 	}
 
-	public openDialogAddProperty(oView: View, oCurrentPlant: FBPlant, oBtnAddProperty: Button): void {
+	public openDialogAddProperty(oView: View, oCurrentPlant: BPlant, oBtnAddProperty: Button): void {
 		// if (!oView.getBindingContext('plants')!.getObject().taxon_id) {
 		if (!oCurrentPlant.taxon_id) {
 			MessageToast.show('Function available after setting botanical name.');
@@ -294,7 +294,7 @@ export default class PropertiesUtil extends ManagedObject {
 		const oPropertiesInCategory = <FBPropertiesInCategory>oSource.getBindingContext('properties')!.getObject();
 		var aProperties = <FBProperty[]>oPropertiesInCategory.properties;
 		var iCategoryId = oPropertiesInCategory.category_id;
-		var iTaxonId = (<FBPlant>oSource.getBindingContext('plants')!.getObject()).taxon_id;
+		var iTaxonId = (<BPlant>oSource.getBindingContext('plants')!.getObject()).taxon_id;
 		// aPropertiesFromDialog.forEach(function(entry) {
 		for (var i = 0; i < aPropertiesFromDialog.length; i++) {
 			var entry = <LTemporaryAvailableProperties>aPropertiesFromDialog[i];
@@ -391,7 +391,7 @@ export default class PropertiesUtil extends ManagedObject {
 			return false;
 	}
 
-	loadPropertiesForCurrentPlant(oPlant: FBPlant, oOwnerComponent: Component) {
+	loadPropertiesForCurrentPlant(oPlant: BPlant, oOwnerComponent: Component) {
 		// request data from backend
 		// data is added to local properties model and bound to current view upon receivement
 		var sPlantId = encodeURIComponent(oPlant.id!);
@@ -413,7 +413,7 @@ export default class PropertiesUtil extends ManagedObject {
 			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Property (GET)'));
 	}
 
-	private _onReceivingPropertiesForPlant(oPlant: FBPlant, oOwnerComponent: Component, oData: BResultsPropertiesForPlant, sStatus: ResponseStatus, oResponse: JQueryXHR) {
+	private _onReceivingPropertiesForPlant(oPlant: BPlant, oOwnerComponent: Component, oData: BResultsPropertiesForPlant, sStatus: ResponseStatus, oResponse: JQueryXHR) {
 		//insert (overwrite!) properties data for current plant with data received from backend
 		var oPropertiesModel = oOwnerComponent.getModel('properties');
 		oPropertiesModel.setProperty('/propertiesPlants/' + oPlant.id + '/', oData.propertyCollections);
@@ -442,7 +442,7 @@ export default class PropertiesUtil extends ManagedObject {
 		oPropertiesModel.refresh(true);
 	}
 
-	private _appendTaxonPropertiesToPlantProperties(oOwnerComponent: Component, oPlant: FBPlant) {
+	private _appendTaxonPropertiesToPlantProperties(oOwnerComponent: Component, oPlant: BPlant) {
 		// called after loading plant properties or instead of loading plant properties if these have been loaded already
 		if (!oPlant.taxon_id) {
 			return;

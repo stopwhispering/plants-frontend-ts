@@ -16,8 +16,10 @@ import Icon from "sap/ui/core/Icon";
 import List from "sap/m/List";
 import OverflowToolbarButton from "sap/m/OverflowToolbarButton";
 import Tokenizer from "sap/m/Tokenizer";
-import { FBPlant } from "../definitions/Plants";
 import { FImageDelete, FImagesToDelete } from "../definitions/Events";
+import PlantServices from "../customClasses/PlantServices";
+import SuggestionService from "../customClasses/SuggestionService";
+import { BPlant } from "../definitions/Plants";
 
 /**
  * @namespace plants.ui.controller
@@ -27,14 +29,21 @@ export default class Untagged extends BaseController {
 	formatter = new formatter();
 
 	private imageEventHandlers: ImageEventHandlers;
+	private plantServices: PlantServices;
 	private _currentPlantId: int;
 
 	ModelsHelper: ModelsHelper;
 
 	onInit() {
 		super.onInit();
+
 		this.oRouter.getRoute("untagged").attachPatternMatched(this._onPatternMatched, this);
 		this.imageEventHandlers = new ImageEventHandlers(this.applyToFragment.bind(this));
+		
+		const oSuggestionsModel = <JSONModel>this.oComponent.getModel('suggestions');
+		const suggestionService = new SuggestionService(oSuggestionsModel);
+		this.plantServices = new PlantServices(this.applyToFragment.bind(this), this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, suggestionService);
+		
 		(this.oComponent.getModel('status')).setProperty('/untagged_selectable', false);
 	}
 
@@ -142,7 +151,7 @@ export default class Untagged extends BaseController {
 	// // // // // // // // // // // // // // // // // // // // // 	
 	public onAddDetailsPlantToUntaggedImage(oEvent: Event){
 		//adds current plant in details view to the image in untagged view; triggered from "<-"" Button
-		const oPlant = <FBPlant>this.getPlantById(this._currentPlantId);
+		const oPlant = <BPlant>this.plantServices.getPlantById(this._currentPlantId);
 		const oBindingContextImage = (<Button> oEvent.getSource()).getParent().getBindingContext("untaggedImages");
 		const oImage = <FBImage>oBindingContextImage!.getObject();
 		const oImagesModel = this.oComponent.getModel('images');
@@ -158,7 +167,7 @@ export default class Untagged extends BaseController {
 		const oSource = <Input>oEvent.getSource();
 		const oImage = <FBImage>oSource.getBindingContext("untaggedImages")!.getObject();
 		const oSelectedSuggestion = oEvent.getParameter('selectedRow');
-		const oSelectedPlant = <FBPlant>oSelectedSuggestion.getBindingContext('plants').getObject();
+		const oSelectedPlant = <BPlant>oSelectedSuggestion.getBindingContext('plants').getObject();
 		const oImagesModel = this.oComponent.getModel('images');
 		this.imageEventHandlers.assignPlantToImage(oSelectedPlant, oImage, oImagesModel);
 
@@ -174,7 +183,7 @@ export default class Untagged extends BaseController {
 		if (!oPlantTag.plant_id || oPlantTag.plant_id <= 0) throw new Error("Unexpected error: No Plant ID");
 		
 		//navigate to plant in layout's current column (i.e. middle column)
-		Navigation.getInstance().navToPlant(this.getPlantById(oPlantTag.plant_id), this.oComponent);
+		Navigation.getInstance().navToPlant(this.plantServices.getPlantById(oPlantTag.plant_id), this.oComponent);
 	}
 	
 	onIconPressDeleteImage(oEvent: Event){

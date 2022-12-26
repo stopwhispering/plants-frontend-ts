@@ -61,7 +61,7 @@
 							text="New Plant"
 							tooltip="{i18n>new_plant}"
 							type="Ghost"
-							press="onAdd"
+							press="onAddNewPlant"
 						/>
 						<OverflowToolbarButton
 							icon="sap-icon://sort"

@@ -4,7 +4,7 @@
 	
 	<ViewSettingsDialog
 		id="settingsDialogFilter"
-		confirm="onConfirmFilters"
+		confirm=".onConfirmFilters"
 		resetFilters="onResetFilters">
 		
 		<filterItems>
@@ -82,15 +82,15 @@
 							text="Hidden Plants" 
 							design="Bold" />
 						<SegmentedButton
-							selectedKey="show"
+							selectedKey="only_active"
 							id="sbtnHiddenPlants"
 							width="100%">
 							<items>
 								<SegmentedButtonItem 
-									text="Hide (default)" 
+									text="Only Active" 
 									key="only_active"/>
 								<SegmentedButtonItem 
-									text="Show" 
+									text="All" 
 									key="both"/>
 								<SegmentedButtonItem
 									text="Only Hidden"
