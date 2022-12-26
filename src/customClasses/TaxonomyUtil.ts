@@ -226,7 +226,7 @@ export default class TaxonomyUtil extends ManagedObject {
 		Util.stopBusyDialog();
 
 		var current_taxon = oTaxonModel.getProperty("/TaxaDict/" + oCurrentPlant.taxon_id)
-		current_taxon.occurrenceImages = data.occurrenceImages;
+		current_taxon.occurrence_images = data.occurrence_images;
 		oTaxonModel.updateBindings(false);
 		MessageUtil.getInstance().addMessageFromBackend(data.message);
 	}

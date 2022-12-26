@@ -311,7 +311,7 @@
 						</blocks>
 					</ObjectPageSubSection>
 					<ObjectPageSubSection
-						visible="{= !!${taxon>occurrenceImages} &amp;&amp; ${taxon>occurrenceImages}.length > 0 }"
+						visible="{= !!${taxon>occurrence_images} &amp;&amp; ${taxon>occurrence_images}.length > 0 }"
 						title="Images (GBIF Occurrences)"
 						showTitle="false"
 					>

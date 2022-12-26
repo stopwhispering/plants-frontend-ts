@@ -23,7 +23,7 @@ import {
 	ObjectStatusData
 } from "../definitions/entities"
 import { IdToFragmentMap } from "../definitions/SharedLocal"
-import {FBEvent, BResultsEventResource, FBSoil, BEvents} from "../definitions/Events"
+import { FBEvent, BResultsEventResource, FBSoil, BEvents } from "../definitions/Events"
 import { EventEditData, SoilEditData } from "../definitions/EventsLocal"
 import DatePicker from "sap/m/DatePicker"
 import Event from "sap/ui/base/Event"
@@ -43,7 +43,6 @@ import Menu from "sap/m/Menu"
 import Table from "sap/m/Table"
 import GenericTag from "sap/m/GenericTag"
 import Context from "sap/ui/model/Context"
-import Component from "../Component"
 import RadioButton from "sap/m/RadioButton"
 import List from "sap/m/List"
 import GridListItem from "sap/f/GridListItem"
@@ -56,7 +55,6 @@ import ColumnListItem from "sap/m/ColumnListItem"
 import ResourceModel from "sap/ui/model/resource/ResourceModel"
 import ResourceBundle from "sap/base/i18n/ResourceBundle"
 import { LCancellationReasonChoice } from "../definitions/PlantsLocal"
-import { BResultsGetTaxon, FBTaxon } from "../definitions/Taxon"
 
 /**
  * @namespace plants.ui.controller
@@ -127,27 +125,26 @@ export default class Detail extends BaseController {
 
 	private _onPatternMatched(oEvent: Event) {
 		// if accessed directly, we might not have loaded the plants model, yet
-		// in that case, we have the plant_id, but not the position of that plant
-		// in the plants model index. so we must defer binding that plant to the view
+		// in that case, we have only the plant_id (from the url's hash), but not the position of that plant
+		// in the plants model index. so we must defer binding the plant to the view
 
 		Util.startBusyDialog();
 
-		//bind taxon of current plant and events to view (deferred as we may not know the plant name here, yet)
+		// bind taxon of current plant and events to view (deferred as we may not know the plant name here, yet)
 		this._currentPlantId = parseInt(oEvent.getParameter("arguments").plant_id || this._currentPlantId || "0");
-		this._bindModelsForCurrentPlant();				
-	}
 
-	private _bindModelsForCurrentPlant() {
-		//we need to set the taxon deferred as well as we might not have the taxon_id, yet
-		//we need to wait for the plants model to be loaded
-		//same applies to the events model which requires the plant_id
+		// we can't request the plant's taxon details as we might not have the taxon id, yet
+		// (plants have not been loaded, yet, if site was opened with detail or untagged view)
+		// we need to wait for the plants model to be loaded, to be sure to have the taxon id
+		// the same applies to the properties - requesting requires the taxon id, too
 		var oModelPlants = this.oComponent.getModel('plants');
 		var oPromise: Promise<any> = oModelPlants.dataLoaded();
-		oPromise.then(this._bindPlantsModelDeferred.bind(this), this._bindPlantsModelDeferred.bind(this));
+		oPromise.then(this._cbPlantsLoaded.bind(this), this._cbPlantsLoaded.bind(this));
 
-		//loading and binding events requires only the plant id
-		this._loadBindEventsModel();
+		// requesting events requires only the plant id...
+		this._bindAndRequestEventsForPlant();
 
+		// ... so does requesting images
 		// if we haven't loaded images for this plant, yet, we do so before generating the images model
 		if (!this.oComponent.imagesPlantsLoaded.has(this._currentPlantId)) {
 			this._requestImagesForPlant(this._currentPlantId);
@@ -156,9 +153,8 @@ export default class Detail extends BaseController {
 		}
 	}
 
-	private _loadBindEventsModel() {
-		//load and bind events
-		//bind current view to that property in events model
+	private _bindAndRequestEventsForPlant() {
+		// bind the plant's events to the current view
 		this.getView().bindElement({
 			path: "/PlantsEventsDict/" + this._currentPlantId,
 			model: "events"
@@ -172,9 +168,10 @@ export default class Detail extends BaseController {
 		}
 	}
 
-	private _bindPlantsModelDeferred() {
-		//triggered upon data loading finished of plants model, i.e. we now have the taxon_id, plant_name,
-		// position of plant_id in the plants model array, etc.
+	private _cbPlantsLoaded() {
+		// triggered upon data loading finished of plants model, i.e. we now have all the
+		// plants' details which enables to find the current plant's details including
+		// the taxon id 
 
 		// get current plant's position in plants model array
 		var aPlants = <FBPlant[]>this.oComponent.getModel('plants').getProperty('/PlantsCollection');
@@ -186,26 +183,21 @@ export default class Detail extends BaseController {
 
 		// get current plant object in plants model array and bind plant to details view
 		var sPathCurrentPlant = "/PlantsCollection/" + this._currentPlantIndex;
-		this._oCurrentPlant = this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
+		this._oCurrentPlant = <FBPlant>this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
 
 		this.getView().bindElement({
 			path: sPathCurrentPlant,
 			model: "plants"
 		});
 
-		//bind taxon
-		this._bindTaxonOfCurrentPlantDeferred(this._oCurrentPlant);
-
-		// treat properties model in the same way (it requires the taxon to be known so we have
-		// to load it here)
-		this._loadBindProperties();
-
-		// also read the taxon details (we only have the taxon_id so far)
+		// bind properties to view and have properties data loaded  
+		this.getView().bindElement({
+			path: "/TaxaDict/" + this._oCurrentPlant.taxon_id,
+			model: "taxon"
+		});
 		this.modelsHelper.loadTaxon(this._oCurrentPlant.taxon_id);
 
-	}
-
-	private _loadBindProperties() {
+		// bind taxon to view and have taxon data loaded
 		this.getView().bindElement({
 			path: "/propertiesPlants/" + this._oCurrentPlant.id,
 			model: "properties"
@@ -225,24 +217,17 @@ export default class Detail extends BaseController {
 			context: this,
 			async: true
 		})
-			.done(this._onReceivingEventsForPlant.bind(this, this._currentPlantId))
+			.done(this._cbReceivingEventsForPlant.bind(this, this._currentPlantId))
 			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Event (GET)'))
 	}
 
-	private _onReceivingEventsForPlant(plantId: int, oData: BResultsEventResource): void {
+	private _cbReceivingEventsForPlant(plantId: int, oData: BResultsEventResource): void {
 		//insert (overwrite!) events data for current plant with data received from backend
 		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
 		const aEvents = <BEvents>oData.events;
 		oEventsModel.setProperty('/PlantsEventsDict/' + plantId + '/', aEvents);
 		this.oComponent.oEventsDataClone[plantId] = Util.getClonedObject(aEvents);
 		MessageUtil.getInstance().addMessageFromBackend(oData.message);
-	}
-
-	private _bindTaxonOfCurrentPlantDeferred(oPlant: FBPlant) {
-		this.getView().bindElement({
-			path: "/TaxaDict/" + oPlant.taxon_id,
-			model: "taxon"
-		});
 	}
 
 	protected applyToFragment(sId: string, fn: Function, fnInit?: Function) {
@@ -335,13 +320,7 @@ export default class Detail extends BaseController {
 		var parentPlant = aPlants.find(plant => plant.plant_name === oEvent.getParameter('newValue').trim());
 
 		if (!oEvent.getParameter('newValue').trim() || !parentPlant) {
-			// delete parent plant
 			var parentalPlant = undefined;
-			// var parentalPlant = <LParentalPlantInitial>{
-			// 	id: undefined,
-			// 	plant_name: undefined,
-			// 	active: undefined
-			// }
 
 		} else {
 			// set parent plant
@@ -511,35 +490,6 @@ export default class Detail extends BaseController {
 	onOpenAddTagDialog(oEvent: Event) {
 		// create add tag dialog
 		var oButton = oEvent.getSource();
-		// var oView = this.getView();
-		// if (!this.byId('dialogAddTag')) {
-		// 	Fragment.load({
-		// 		name: "plants.ui.view.fragments.detail.DetailTagAdd",
-		// 		id: oView.getId(),
-		// 		controller: this
-		// 	}).then((oControl: Control | Control[]) => {
-		// 		const oPopover: Popover = oControl as Popover;
-		// 		var mObjectStatusSelection = <ObjectStatusCollection>{
-		// 			ObjectStatusCollection: [
-		// 				{ 'selected': false, 'text': 'None', 'state': 'None' },
-		// 				{ 'selected': false, 'text': 'Indication01', 'state': 'Indication01' },
-		// 				{ 'selected': false, 'text': 'Success', 'state': 'Success' },
-		// 				{ 'selected': true, 'text': 'Information', 'state': 'Information' },
-		// 				{ 'selected': false, 'text': 'Error', 'state': 'Error' },
-		// 				{ 'selected': false, 'text': 'Warning', 'state': 'Warning' }
-		// 			],
-		// 			Value: '',
-		// 		};
-		// 		var oTagTypesModel = new JSONModel(mObjectStatusSelection);
-		// 		oPopover.setModel(oTagTypesModel, 'tagTypes');
-
-		// 		(<DatePicker>oView.byId("dialogAddTag")).setDateValue(new Date());
-		// 		oView.addDependent(oPopover);
-		// 		oPopover.openBy(oButton, true);
-		// 	})
-		// } else {
-		// 	(<Popover>this.byId('dialogAddTag')).openBy(oButton, true);
-		// }
 
 		this.applyToFragment(
 			'dialogAddTag',
@@ -748,6 +698,8 @@ export default class Detail extends BaseController {
 
 	private _requestImagesForPlant(plant_id: int) {
 		// request data from backend
+		// note: unlike plants, properties, events, and taxon, we don't need to bind a path
+		// to the view for images as the image model contains only the current plant's images
 		var sId = encodeURIComponent(plant_id);
 		var uri = 'plants/' + sId + '/images/';
 
@@ -926,12 +878,12 @@ export default class Detail extends BaseController {
 		}
 		const oDescendantModel = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
 		let descendantPlantData = <LDescendantPlantInput>oDescendantModel.getData();
-		
+
 		if (!descendantPlantData.propagationType || !descendantPlantData.propagationType.length) {
 			return;
 		}
 		const propagationType: LPropagationTypeData = this.getSuggestionItem('propagationTypeCollection', descendantPlantData.propagationType);
-		
+
 		if (descendantPlantData.parentPlant && descendantPlantData.parentPlant.trim().length) {
 			const oParentPlant: FBPlant = this.getPlantByName(descendantPlantData.parentPlant);
 			const oParentPlantPollen = (descendantPlantData.parentPlantPollen && propagationType.hasParentPlantPollen) ? this.getPlantByName(descendantPlantData.parentPlantPollen) : undefined;
@@ -1243,38 +1195,38 @@ export default class Detail extends BaseController {
 		//navigate to plant in layout's current column (i.e. middle column)
 		Navigation.getInstance().navToPlant(this.getPlantById(oPlantTag.plant_id), this.oComponent);
 	}
-	
-	onIconPressDeleteImage(oEvent: Event){
+
+	onIconPressDeleteImage(oEvent: Event) {
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Icon>oEvent.getSource();
 		const oImage = <FBImage>oSource.getBindingContext("images")!.getObject()
-		
+
 		//confirm dialog
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
 		MessageBox.confirm(
 			"Delete this image?", {
-				title: "Delete",
-				onClose: this.confirmDeleteImage.bind(this, oImage),
-				actions: ['Delete', 'Cancel'],
-				styleClass: bCompact ? "sapUiSizeCompact" : ""
-			}
+			title: "Delete",
+			onClose: this.confirmDeleteImage.bind(this, oImage),
+			actions: ['Delete', 'Cancel'],
+			styleClass: bCompact ? "sapUiSizeCompact" : ""
+		}
 		);
 	}
 
-	onInputImageNewKeywordSubmit(oEvent: Event){
+	onInputImageNewKeywordSubmit(oEvent: Event) {
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oInput = <Input>oEvent.getSource();
 		oInput.setValue('');
 
 		// check not empty and new
 		const sKeyword = oEvent.getParameter('value').trim();
-		if (!sKeyword){
+		if (!sKeyword) {
 			return;
 		}
 
-		const oImage = <FBImage> oInput.getParent().getBindingContext('images')!.getObject();
+		const oImage = <FBImage>oInput.getParent().getBindingContext('images')!.getObject();
 		let aKeywords: FBKeyword[] = oImage.keywords;
-		if(aKeywords.find(ele=>ele.keyword === sKeyword)){
+		if (aKeywords.find(ele => ele.keyword === sKeyword)) {
 			MessageToast.show('Keyword already in list');
 			return;
 		}
@@ -1288,35 +1240,11 @@ export default class Detail extends BaseController {
 		oImagesModel.updateBindings(false);
 	}
 
-	// onTokenizerTokenDelete(oEvent: Event){
-	// 	// triggered upon changes of image's plant assignments and image's keywords
-	// 	// note: the token itself has already been deleted; here, we only delete the 
-	// 	// 		 corresponding entry from the model
-	// 	//note: there's a same-named function in untagged controller doing the same thing for untagged images
-	// 	// if (oEvent.getParameter('type') !== 'removed')
-	// 	// 	return;
-
-	// 	// const sKey = oEvent.getParameter('token').getProperty('key');  //either plant name or keyword
-	// 	const aTokens = <Token[]>oEvent.getParameter('tokens');
-	// 	if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
-	// 	const oToken = <Token>aTokens[0];
-	// 	const sKey = oToken.getKey();
-	// 	const oImage = <PImage>oToken.getBindingContext('images')!.getObject();
-		
-	// 	// const oImage = <PImage>oTokenizer.getParent()!.getBindingContext('images')!.getObject();
-	// 	const oModel = this.oComponent.getModel('images');
-
-	// 	const oTokenizer = <Tokenizer> oEvent.getSource();
-	// 	const sType = oTokenizer.data('type'); // plant|keyword
-
-	// 	this.imageEventHandlers.removeTokenFromModel(sKey, oImage, oModel, sType);
-	// }
-
-	onTokenizerKeywordImageTokenDelete(oEvent: Event){
+	onTokenizerKeywordImageTokenDelete(oEvent: Event) {
 		// note: the token itself has already been deleted; here, we only delete the 
 		// 		 corresponding plant-to-image entry from the model
-		//note: there's a same-named function in untagged controller doing the same thing for untagged images
-		
+		// note: there's a same-named function in untagged controller doing the same thing for untagged images
+
 		// we get the token from the event parameters
 		const aTokens = <Token[]>oEvent.getParameter('tokens');
 		if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
@@ -1324,19 +1252,19 @@ export default class Detail extends BaseController {
 		const sKeywordTokenKey = oToken.getKey();
 
 		// the event's source is the tokenizer
-		const oTokenizer = <Tokenizer> oEvent.getSource();
+		const oTokenizer = <Tokenizer>oEvent.getSource();
 		const oImage = <FBImage>oTokenizer.getBindingContext('images')!.getObject();
-		
+
 		const oImagesModel = this.oComponent.getModel('images');
 
 		this.imageEventHandlers.removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oImagesModel);
 	}
 
-	onTokenizerPlantImageTokenDelete(oEvent: Event){
+	onTokenizerPlantImageTokenDelete(oEvent: Event) {
 		// note: the token itself has already been deleted; here, we only delete the 
 		// 		 corresponding keyword-to-image entry from the model
-		//note: there's a same-named function in untagged controller doing the same thing for untagged images
-		
+		// note: there's a same-named function in untagged controller doing the same thing for untagged images
+
 		// we get the token from the event parameters
 		const aTokens = <Token[]>oEvent.getParameter('tokens');
 		if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
@@ -1344,9 +1272,9 @@ export default class Detail extends BaseController {
 		const sPlantTokenKey = oToken.getKey();
 
 		// the event's source is the tokenizer
-		const oTokenizer = <Tokenizer> oEvent.getSource();
+		const oTokenizer = <Tokenizer>oEvent.getSource();
 		const oImage = <FBImage>oTokenizer.getBindingContext('images')!.getObject();
-		
+
 		const oImagesModel = this.oComponent.getModel('images');
 
 		this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);

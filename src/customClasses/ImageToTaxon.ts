@@ -3,7 +3,7 @@ import ManagedObject from "sap/ui/base/ManagedObject";
 import Icon from "sap/ui/core/Icon";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { FBImage } from "../definitions/Images";
-import { FBTaxon, FBTaxonImage } from "../definitions/Taxon";
+import { FBTaxon, FBTaxonImage, FTaxonImage } from "../definitions/Taxon";
 
 /**
  * @namespace plants.ui.customClasses
@@ -15,7 +15,8 @@ export default class ImageToTaxon extends ManagedObject {
 
 		// get image
 		const oImage = <FBImage>oSource.getBindingContext('images')!.getObject();
-		var oImageAssignment = <FBTaxonImage>{
+		var oImageAssignment = <FTaxonImage>{
+			id: oImage.id,
 			filename: oImage.filename,
 			description: oImage.description  // default description is image description, but may be altered later
 		};
@@ -26,7 +27,7 @@ export default class ImageToTaxon extends ManagedObject {
 		// check if already assigned
 		if (!!oTaxon.images && oTaxon.images.length > 0) {
 			var found = oTaxon.images.find(function (image) {
-				return image.filename === oImageAssignment.filename;
+				return image.id === oImageAssignment.id;
 			});
 			if (found) {
 				MessageToast.show('Taxon already assigned to image.');

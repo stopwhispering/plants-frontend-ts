@@ -3,7 +3,7 @@
 	xmlns:core="sap.ui.core">
 
 	<Carousel
-		pages="{taxon>occurrenceImages}"
+		pages="{taxon>occurrence_images}"
 		class="sapUiNoContentPadding"
 		showPageIndicator="false">
 

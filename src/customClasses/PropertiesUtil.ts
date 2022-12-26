@@ -10,7 +10,7 @@ import {
 	BPropertyName, FBPropertyValue, BResultsPropertiesForPlant
 } from "../definitions/Properties";
 import {
-	LCategoryToPropertiesInCategoryMap, LPlantPropertiesRequest, LTemporaryAvailableProperties
+	LCategoryToPropertiesInCategoryMap, LPlantPropertiesRequest, LTaxonToPropertyCategoryMap, LTemporaryAvailableProperties
 } from "../definitions/PropertiesLocal";
 import View from "sap/ui/core/mvc/View";
 import Button from "sap/m/Button";
@@ -21,6 +21,7 @@ import CheckBox from "sap/m/CheckBox";
 import Dialog from "sap/m/Dialog";
 import { FBPlant } from "../definitions/Plants";
 import { ResponseStatus } from "../definitions/SharedLocal";
+import { LPropertiesTaxonModelData } from "../definitions/PropertiesLocal";
 
 /**
  * @namespace plants.ui.customClasses
@@ -353,21 +354,28 @@ export default class PropertiesUtil extends ManagedObject {
 		oPopover.destroy();
 	}
 
-	private _insertPropertyIntoPropertiesTaxaModel(oPropertyValue: FBPropertyValue, iCategoryId: int, iTaxonId: int, entry: LTemporaryAvailableProperties, oPropertiesTaxaModel: JSONModel) {
+	private _insertPropertyIntoPropertiesTaxaModel(oPropertyValue: FBPropertyValue, iCategoryId: int, iTaxonId: int, oEntry: LTemporaryAvailableProperties, oPropertiesTaxaModel: JSONModel) {
 		// add a property value to taxon properties model
-		var aCurrentPropertyNames: FBProperty[] = oPropertiesTaxaModel.getData().propertiesTaxon[iTaxonId][iCategoryId].properties;
+		const oPropertiesTaxaData = <LPropertiesTaxonModelData>oPropertiesTaxaModel.getData();
+		const oTaxonToPropertyCategoryMap = <LTaxonToPropertyCategoryMap>oPropertiesTaxaData.propertiesTaxon;  // // maps from taxon_id to it's property categories
+		const oCategoriesForCurrentTaxon = <LCategoryToPropertiesInCategoryMap>oTaxonToPropertyCategoryMap[iTaxonId];  //current taxon's property categories
+		const oPropertiesInSelectedCategory = <FBPropertiesInCategory>oCategoriesForCurrentTaxon[iCategoryId];
+		console.log("Inserting into category: " + oPropertiesInSelectedCategory.category_name);
+		
+		const aCurrentPropertyNames = <FBProperty[]>oPropertiesInSelectedCategory.properties;
+		console.log("Current property names: " + aCurrentPropertyNames);
 
 		// create property name node if not exists (if we have two new property names, we need to go by name not (undefined) id)
-		if (entry.property_name_id) {
-			var found = aCurrentPropertyNames.find(ele => ele.property_name_id == entry.property_name_id);
+		if (oEntry.property_name_id) {
+			var found = <FBProperty|undefined>aCurrentPropertyNames.find(ele => ele.property_name_id == oEntry.property_name_id);
 		} else {
-			found = aCurrentPropertyNames.find(ele => ele.property_name == entry.property_name);
+			found = aCurrentPropertyNames.find(ele => ele.property_name == oEntry.property_name);
 		}
 		if (!found) {
-			aCurrentPropertyNames.push(
+			aCurrentPropertyNames.push(<FBProperty>
 				{
-					'property_name': entry.property_name,
-					'property_name_id': entry.property_name_id,
+					'property_name': oEntry.property_name,
+					'property_name_id': oEntry.property_name_id,
 					'property_values': [oPropertyValue]
 				});
 		} else {

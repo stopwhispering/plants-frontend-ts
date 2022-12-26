@@ -32,7 +32,7 @@ export interface BResultsFetchTaxonImages {
   action: string;
   resource: string;
   message: BMessage;
-  occurrenceImages?: FBTaxonOccurrenceImage[];
+  occurrence_images?: FBTaxonOccurrenceImage[];
 }
 export interface FBTaxonOccurrenceImage {
   occurrence_id: number;
@@ -82,13 +82,13 @@ export interface FBTaxon {
   custom_notes?: string;
   distribution?: FBDistribution;
   images?: FBTaxonImage[];
-  occurrenceImages?: FBTaxonOccurrenceImage[];
+  occurrence_images?: FBTaxonOccurrenceImage[];
 }
 export interface FBDistribution {
   native: string[];
   introduced: string[];
 }
-export interface FBTaxonImage {
+export interface FTaxonImage {
   id?: number;
   filename: string;
   description?: string;

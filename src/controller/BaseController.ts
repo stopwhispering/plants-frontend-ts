@@ -22,7 +22,7 @@ import ListBinding from "sap/ui/model/ListBinding";
 import Label from "sap/ui/webc/main/Label";
 import { IdToFragmentMap } from "../definitions/SharedLocal";
 import { PlantIdToEventsMap } from "../definitions/EventsLocal";
-import { BConfirmation, BMessage } from "../definitions/Messages";
+import { BConfirmation, BMessage, BSaveConfirmation, FBMajorResource } from "../definitions/Messages";
 import Event from "sap/ui/base/Event";
 import Popover from "sap/m/Popover";
 import ViewSettingsDialog from "sap/m/ViewSettingsDialog";
@@ -335,7 +335,7 @@ export default class BaseController extends Controller {
 			// cutting occurrence images (read-only)
 			var aModifiedTaxaSave: FBTaxon[] = Util.getClonedObject(aModifiedTaxa);
 			aModifiedTaxaSave = aModifiedTaxaSave.map(m => {
-				delete m.occurrenceImages;
+				delete m.occurrence_images;
 				return m;
 			});
 
@@ -459,46 +459,47 @@ export default class BaseController extends Controller {
 		}
 	}
 
-	onAjaxSimpleSuccess(oConfirmation: BConfirmation, sStatus: string, oReturnData: object) {
+	onAjaxSimpleSuccess(oConfirmation: BSaveConfirmation, sStatus: string, oReturnData: object) {
 		//toast and create message
 		//requires pre-defined message from backend
 		MessageToast.show(oConfirmation.message.message);
 		MessageUtil.getInstance().addMessageFromBackend(oConfirmation.message);
 	}
 
-	private _onAjaxSuccessSave(oMsg: BConfirmation, sStatus: string, oReturnData: object) {
+	private _onAjaxSuccessSave(oMsg: BSaveConfirmation, sStatus: string, oReturnData: object) {
 		// cancel busydialog only if neither saving plants nor images or taxa is still running
-		if (oMsg.resource === 'PlantResource') {
+		const sResource: FBMajorResource = oMsg.resource;
+		if (sResource === 'PlantResource') {
 			this.savingPlants = false;
 			var oModelPlants = this.oComponent.getModel('plants');
 			var dDataPlants = oModelPlants.getData();
 			this.oComponent.oPlantsDataClone = Util.getClonedObject(dDataPlants);
-		} else if (oMsg.resource === 'ImageResource') {
+		} else if (sResource === 'ImageResource') {
 			this.savingImages = false;
 			var oImages = this.oComponent.imagesRegistry;
 			this.oComponent.imagesRegistryClone = Util.getClonedObject(oImages);
 			// var oModelImages = this.oComponent.getModel('images');
 			// var dDataImages = oModelImages.getData();
 			// this.oComponent.oImagesDataClone = Util.getClonedObject(dDataImages);
-		} else if (oMsg.resource === 'TaxonResource') {
+		} else if (sResource === 'TaxonResource') {
 			this.savingTaxa = false;
 			var oModelTaxon = this.oComponent.getModel('taxon');
 			var dDataTaxon = oModelTaxon.getData();
 			this.oComponent.oTaxonDataClone = Util.getClonedObject(dDataTaxon);
-		} else if (oMsg.resource === 'EventResource') {
+		} else if (sResource === 'EventResource') {
 			this.savingEvents = false;
 			var oModelEvents = this.oComponent.getModel('events');
 			var dDataEvents = oModelEvents.getData();
 			this.oComponent.oEventsDataClone = Util.getClonedObject(dDataEvents.PlantsEventsDict);
 			MessageUtil.getInstance().addMessageFromBackend(oMsg.message);
-		} else if (oMsg.resource === 'PropertyResource') {
+		} else if (sResource === 'PlantPropertyResource') {
 			this.savingProperties = false;
 			var oModelProperties = this.oComponent.getModel('properties');
 			var dDataProperties = oModelProperties.getData();
 			var propertiesPlantsWithoutTaxa = this._getPropertiesSansTaxa(dDataProperties.propertiesPlants);
 			this.oComponent.oPropertiesDataClone = Util.getClonedObject(propertiesPlantsWithoutTaxa);
 			MessageUtil.getInstance().addMessageFromBackend(oMsg.message);
-		} else if (oMsg.resource === 'PropertyTaxaResource') {
+		} else if (sResource === 'TaxonPropertyResource') {
 			this.savingPropertiesTaxa = false;
 			var oModelPropertiesTaxa = this.oComponent.getModel('propertiesTaxa');
 			var dDataPropertiesTaxa = oModelPropertiesTaxa.getData();

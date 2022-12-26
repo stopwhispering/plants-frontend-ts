@@ -1,10 +1,11 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
+import { FBPropertiesInCategory } from "./Properties";
 
 /**
  * @namespace plants.ui.definitions
  */
 export interface LCategoryToPropertiesInCategoryMap {
-    [category_id: number]: PPropertiesInCategory;
+    [category_id: number]: FBPropertiesInCategory;
 }
 
 export interface LTemporaryAvailableProperties {
@@ -16,8 +17,15 @@ export interface LTemporaryAvailableProperties {
     selected_taxon: boolean;
 }
 
+export interface LTaxonToPropertyCategoryMap {
+    // maps from taxon_id to property categories
+    [taxon_id: number]: LCategoryToPropertiesInCategoryMap;
+}
+
 export interface LPropertiesTaxonModelData {
-    propertiesTaxon: CategoryToPropertiesInCategoryMap;
+    // base type of the taxon model, containing all the taxa' properties
+    // propertiesTaxon: LCategoryToPropertiesInCategoryMap;
+    propertiesTaxon: LTaxonToPropertyCategoryMap;
 }
 
 export interface LPlantPropertiesRequest {
