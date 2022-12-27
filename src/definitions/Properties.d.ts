@@ -6,10 +6,18 @@ import ManagedObject from "sap/ui/base/ManagedObject";
 
 export type BMessageType = "Information" | "None" | "Success" | "Warning" | "Error" | "Debug";
 
+export type LTaxonToPropertiesInCategoryMap = {
+  [k: string]: FBPropertiesInCategory;
+}
+
+// export interface BPropertyCollectionTaxon {
+//   categories: {
+//     [k: string]: FBPropertiesInCategory;
+//   };
+// }
+
 export interface BPropertyCollectionTaxon {
-  categories: {
-    [k: string]: FBPropertiesInCategory;
-  };
+  categories: LTaxonToPropertiesInCategoryMap;
 }
 export interface FBPropertiesInCategory {
   category_name: string;

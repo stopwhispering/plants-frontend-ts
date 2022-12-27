@@ -10,7 +10,8 @@ import Event from "sap/ui/base/Event";
 import { FBImage } from "../definitions/Images";
 import { LTaxonData, LTaxonMap } from "../definitions/TaxonLocal";
 import { BResultsGetTaxon, BTaxon } from "../definitions/Taxon";
-import { BPlant } from "../definitions/Plants";
+import { BPlant, FPlantsUpdateRequest } from "../definitions/Plants";
+import ChangeTracker from "../customClasses/ChangeTracker";
 
 /**
  * @namespace plants.ui.model
@@ -32,6 +33,8 @@ export default class ModelsHelper extends ManagedObject {
 		this._component = component;
 		//we need to add the event handlers to the jsonmodel here as this is executed only
 		//once; if we attach them before calling, they're adding up to one more each time
+
+		// todoooooooooo remove following four lines? ever used?
 		this._component.getModel('plants').attachRequestCompleted(this._onReceivingPlantsFromBackend.bind(this));
 		this._component.getModel('plants').attachRequestFailed(this.onReceiveErrorGeneric.bind(this, 'Plants Model'));
 
@@ -74,7 +77,8 @@ export default class ModelsHelper extends ManagedObject {
 	private _onReceivingPlantsFromBackend(oRequestInfo: Event) {
 		// create new clone objects to track changes
 		const oPlantsModel = <JSONModel>oRequestInfo.getSource();
-		this._component.oPlantsDataClone = Util.getClonedObject(oPlantsModel.getData());
+		// this._component.oPlantsDataClone = Util.getClonedObject(oPlantsModel.getData());
+		ChangeTracker.getInstance().setOriginalPlants(<FPlantsUpdateRequest>oPlantsModel.getData());
 
 		//create message
 		var sresource = Util.parse_resource_from_url(oRequestInfo.getParameter('url'));
@@ -84,8 +88,10 @@ export default class ModelsHelper extends ManagedObject {
 
 	private _onReceivingTaxaFromBackend(oRequestInfo: Event) {
 		// create new clone objects to track changes
+		// todo remove this method???!
 		const oTaxonModel = <JSONModel>oRequestInfo.getSource();
-		this._component.oTaxonDataClone = Util.getClonedObject(oTaxonModel.getData());
+		// this._component.oTaxonDataClone = Util.getClonedObject(oTaxonModel.getData());
+		ChangeTracker.getInstance().setOriginalTaxa(oTaxonModel.getData());
 
 		//create message
 		var sresource = Util.parse_resource_from_url(oRequestInfo.getParameter('url'));
@@ -100,21 +106,28 @@ export default class ModelsHelper extends ManagedObject {
 	}
 
 	resetImagesRegistry() {
-		this._component.imagesRegistry = {};
-		this._component.imagesRegistryClone = {};
-		this._component.imagesPlantsLoaded = new Set();
+		// this._component.imagesRegistry = {};
+		// todo move to registry class
+		Object.keys(this._component.imagesRegistry).forEach(key => delete this._component.imagesRegistry[key]);
+		// this._component.imagesRegistryClone = {};
+		// Object.keys(this._component.imagesRegistryClone).forEach(key => delete this._component.imagesRegistryClone[key]);
+		ChangeTracker.getInstance().resetOriginalImages();
+		// this._component.imagesPlantsLoaded = new Set(); 
+		this._component.imagesPlantsLoaded.clear()
 		this._component.getModel('images').updateBindings(false);
 		this._component.getModel('untaggedImages').updateBindings(false);
 	}
 
 	addToImagesRegistry(aImages: FBImage[]) {
 		// after uploading new images, add them to the  registry
+		const oChangeTracker = ChangeTracker.getInstance();
 		aImages.forEach(oImage => {
 			var sKey = oImage['filename'];
 			if (!(sKey in this._component.imagesRegistry)) {
 				this._component.imagesRegistry[sKey] = oImage;
 			}
-			this._component.imagesRegistryClone[sKey] = Util.getClonedObject(oImage);
+			// this._component.imagesRegistryClone[sKey] = Util.getClonedObject(oImage);
+			oChangeTracker.addOriginalImage(oImage);
 		});
 	}
 
@@ -155,7 +168,9 @@ export default class ModelsHelper extends ManagedObject {
 		const oTaxonModel = <JSONModel>this._component.getModel('taxon');
 		const oTaxon = <BTaxon>oData.taxon;
 		oTaxonModel.setProperty('/TaxaDict/' + taxonId + '/', oTaxon);
-		this._component.oTaxonDataClone.TaxaDict[taxonId] = Util.getClonedObject(oTaxon);
+		// this._component.oTaxonDataClone.TaxaDict[taxonId] = Util.getClonedObject(oTaxon);
+		ChangeTracker.getInstance().addOriginalTaxon(oTaxon);
+
 		MessageHandler.getInstance().addMessageFromBackend(oData.message);
 	}
 
@@ -172,7 +187,8 @@ export default class ModelsHelper extends ManagedObject {
 		// reset the taxa registry including it's clone and trigger reload of current plant's taxon details
 		const oTaxonModel = <JSONModel>this._component.getModel('taxon');
 		oTaxonModel.setProperty('/', {TaxaDict: <LTaxonMap>{}});
-		this._component.oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
+		// this._component.oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
+		ChangeTracker.getInstance().resetOriginalTaxa();
 		oTaxonModel.updateBindings(false);
 
 		// trigger reload of taxon details for current plant

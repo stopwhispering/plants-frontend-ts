@@ -9,6 +9,7 @@ import Navigation from "./Navigation";
 import ModelsHelper from "../model/ModelsHelper";
 import Dialog from "sap/m/Dialog";
 import MessageHandler from "./MessageHandler";
+import ChangeTracker from "./ChangeTracker";
 
 /**
  * @namespace plants.ui.customClasses
@@ -16,13 +17,11 @@ import MessageHandler from "./MessageHandler";
 export default class PlantCloner extends ManagedObject {
 
 	private _oPlantsModel: JSONModel;
-	private _oPlantsDataClone: FPlantsUpdateRequest;
     private _oPlantLookup: PlantLookup;
 
-	public constructor(oPlantsModel: JSONModel, oPlantsDataClone: FPlantsUpdateRequest, oPlantLookup: PlantLookup) {
+	public constructor(oPlantsModel: JSONModel, oPlantLookup: PlantLookup) {
 		super();
 		this._oPlantsModel = oPlantsModel;
-		this._oPlantsDataClone = oPlantsDataClone;
         this._oPlantLookup = oPlantLookup;
 	}	
 
@@ -65,8 +64,9 @@ export default class PlantCloner extends ManagedObject {
 		this._oPlantsModel.updateBindings(false);
 
 		// ...and add to cloned plants to allow change tracking
-		var oPlantClone = Util.getClonedObject(oPlantSaved);
-		this._oPlantsDataClone.PlantsCollection.push(oPlantClone);
+		// var oPlantClone = Util.getClonedObject(oPlantSaved);
+		// this._oPlantsDataClone.PlantsCollection.push(oPlantClone);
+		ChangeTracker.getInstance().addOriginalPlant(oPlantSaved);
 		MessageToast.show(oBackendResultPlantCloned.message.message);
 
 		// finally navigate to the newly created plant in details view

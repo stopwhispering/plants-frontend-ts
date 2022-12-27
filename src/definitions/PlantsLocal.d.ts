@@ -65,3 +65,10 @@ export interface LParentalPlantInitial extends Omit(PAssociatedPlantExtractForPl
   plant_name: string | undefined;
   active: bool | undefined;
 }
+
+export interface LCurrentPlant{
+  plant_id: int | undefined;  // id of current plant, available immediately from url hash
+  plant_index: int| undefined;  // index of current plant in plants model
+  plant: BPlant| undefined;
+}
+		

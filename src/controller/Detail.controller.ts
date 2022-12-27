@@ -2,7 +2,6 @@ import BaseController from "plants/ui/controller/BaseController"
 import JSONModel from "sap/ui/model/json/JSONModel"
 import Filter from "sap/ui/model/Filter"
 import formatter from "plants/ui/model/formatter"
-import MessageBox from "sap/m/MessageBox"
 import MessageToast from "sap/m/MessageToast"
 import * as Util from "plants/ui/customClasses/Util";
 import Navigation from "plants/ui/customClasses/Navigation"
@@ -21,7 +20,7 @@ import {
 	ObjectStatusCollection,
 } from "../definitions/entities"
 import { IdToFragmentMap } from "../definitions/SharedLocal"
-import { FBEvent, BResultsEventResource, FBSoil, BEvents } from "../definitions/Events"
+import { FBEvent, FBSoil } from "../definitions/Events"
 import { EventEditData, SoilEditData } from "../definitions/EventsLocal"
 import DatePicker from "sap/m/DatePicker"
 import Event from "sap/ui/base/Event"
@@ -47,7 +46,7 @@ import GridListItem from "sap/f/GridListItem"
 import { FBImage, FBImagePlantTag, FBKeyword } from "../definitions/Images"
 import Token from "sap/m/Token"
 import { FBCancellationReason, FBAssociatedPlantExtractForPlant, BPlant, FBPropagationType } from "../definitions/Plants"
-import { LDescendantPlantInput, LPropagationTypeData } from "../definitions/PlantsLocal"
+import { LCurrentPlant, LDescendantPlantInput } from "../definitions/PlantsLocal"
 import Tokenizer from "sap/m/Tokenizer"
 import ColumnListItem from "sap/m/ColumnListItem"
 import ResourceModel from "sap/ui/model/resource/ResourceModel"
@@ -59,6 +58,16 @@ import SuggestionService from "../customClasses/SuggestionService"
 import PlantCloner from "../customClasses/PlantCloner"
 import PlantRenamer from "../customClasses/PlantRenamer"
 import PlantTagger from "../customClasses/PlantTagger"
+import PlantNameGenerator from "../customClasses/PlantNameGenerator"
+import PlantDeleter from "../customClasses/PlantDeleter"
+import ImageRegistryHandler from "../customClasses/ImageRegistryHandler"
+import PlantDetailsBootstrap from "../customClasses/PlantDetailsBootstrap"
+import Component from "../Component"
+import PlantImagesLoader from "../customClasses/PlantImagesLoader"
+import ImageDeleter from "../customClasses/ImageDeleter"
+import MessageBox from "sap/m/MessageBox"
+import ChangeTracker from "../customClasses/ChangeTracker"
+import { BTaxon } from "../definitions/Taxon"
 
 /**
  * @namespace plants.ui.controller
@@ -77,9 +86,7 @@ export default class Detail extends BaseController {
 	private imageEventHandlers: ImageEventHandlers;
 	// TraitUtil = TraitUtil.getInstance()
 	private TaxonomyUtil = TaxonomyUtil.getInstance();
-	private _currentPlantId: int;
-	private _oCurrentPlant: BPlant;
-	private _currentPlantIndex: int;  // index of current plant in plants model
+	private mCurrentPlant: LCurrentPlant;  // container currentPlantId, currentPlantIndex, currentPlant
 	private oLayoutModel: JSONModel;
 
 	private mIdToFragment = <IdToFragmentMap>{
@@ -105,6 +112,12 @@ export default class Detail extends BaseController {
 		const oSuggestionsModel = <JSONModel>this.oComponent.getModel('suggestions');
 		SuggestionService.createInstance(oSuggestionsModel);
 		this.suggestionService = SuggestionService.getInstance();
+
+		this.mCurrentPlant = <LCurrentPlant>{
+			plant_id: undefined,
+			plant_index: undefined,
+			plant: undefined,
+		}
 
 		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 
@@ -142,103 +155,21 @@ export default class Detail extends BaseController {
 		Util.startBusyDialog();
 
 		// bind taxon of current plant and events to view (deferred as we may not know the plant name here, yet)
-		this._currentPlantId = parseInt(oEvent.getParameter("arguments").plant_id || this._currentPlantId || "0");
+		// this.mCurrentPlant.plant_id = parseInt(oEvent.getParameter("arguments").plant_id || this.mCurrentPlant.plant_id || "0");
+		this.mCurrentPlant.plant_id = parseInt(oEvent.getParameter("arguments").plant_id || this.mCurrentPlant.plant_id || "0");
 
-		// we can't request the plant's taxon details as we might not have the taxon id, yet
-		// (plants have not been loaded, yet, if site was opened with detail or untagged view)
-		// we need to wait for the plants model to be loaded, to be sure to have the taxon id
-		// the same applies to the properties - requesting requires the taxon id, too
-		var oModelPlants = this.oComponent.getModel('plants');
-		var oPromise: Promise<any> = oModelPlants.dataLoaded();
-		oPromise.then(this._cbPlantsLoaded.bind(this), this._cbPlantsLoaded.bind(this));
 
-		// requesting events requires only the plant id...
-		this._bindAndRequestEventsForPlant();
-
-		// ... so does requesting images
-		// if we haven't loaded images for this plant, yet, we do so before generating the images model
-		if (!this.oComponent.imagesPlantsLoaded.has(this._currentPlantId)) {
-			this._requestImagesForPlant(this._currentPlantId);
-		} else {
-			this.resetImagesCurrentPlant(this._currentPlantId);
-		}
-	}
-
-	private _bindAndRequestEventsForPlant() {
-		// bind the plant's events to the current view
-		this.getView().bindElement({
-			path: "/PlantsEventsDict/" + this._currentPlantId,
-			model: "events"
-		});
-
-		//load only on first load of that plant, otherwise we would overwrite modifications
-		//to the plant's events
-		var oEventsModel = this.oComponent.getModel('events');
-		if (!oEventsModel.getProperty('/PlantsEventsDict/' + this._currentPlantId + '/')) {
-			this._loadEventsForCurrentPlant();
-		}
-	}
-
-	private _cbPlantsLoaded() {
-		// triggered upon data loading finished of plants model, i.e. we now have all the
-		// plants' details which enables to find the current plant's details including
-		// the taxon id 
-
-		// get current plant's position in plants model array
-		var aPlants = <BPlant[]>this.oComponent.getModel('plants').getProperty('/PlantsCollection');
-		this._currentPlantIndex = aPlants.findIndex(plant => plant.id === this._currentPlantId);
-		if (this._currentPlantIndex === -1) {
-			MessageToast.show('Plant ID ' + this._currentPlantId + ' not found. Redirecting.');
-			this._currentPlantIndex = 0;
-		}
-
-		// get current plant object in plants model array and bind plant to details view
-		var sPathCurrentPlant = "/PlantsCollection/" + this._currentPlantIndex;
-		this._oCurrentPlant = <BPlant>this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
-
-		this.getView().bindElement({
-			path: sPathCurrentPlant,
-			model: "plants"
-		});
-
-		// bind properties to view and have properties data loaded  
-		this.getView().bindElement({
-			path: "/TaxaDict/" + this._oCurrentPlant.taxon_id,
-			model: "taxon"
-		});
-		this.modelsHelper.loadTaxon(this._oCurrentPlant.taxon_id);
-
-		// bind taxon to view and have taxon data loaded
-		this.getView().bindElement({
-			path: "/propertiesPlants/" + this._oCurrentPlant.id,
-			model: "properties"
-		});
-		var oModelProperties = this.oComponent.getModel('properties');
-		if (!oModelProperties.getProperty('/propertiesPlants/' + this._oCurrentPlant.id + '/')) {
-			this.propertiesUtil.loadPropertiesForCurrentPlant(this._oCurrentPlant, this.oComponent);
-		}
-	}
-
-	private _loadEventsForCurrentPlant(): void {
-		// request plant's events from backend
-		// data is added to local events model and bound to current view upon receivement
-		const uri = 'events/' + this._currentPlantId;
-		$.ajax({
-			url: Util.getServiceUrl(uri),
-			context: this,
-			async: true
-		})
-			.done(this._cbReceivingEventsForPlant.bind(this, this._currentPlantId))
-			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Event (GET)'))
-	}
-
-	private _cbReceivingEventsForPlant(plantId: int, oData: BResultsEventResource): void {
-		//insert (overwrite!) events data for current plant with data received from backend
-		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
-		const aEvents = <BEvents>oData.events;
-		oEventsModel.setProperty('/PlantsEventsDict/' + plantId + '/', aEvents);
-		this.oComponent.oEventsDataClone[plantId] = Util.getClonedObject(aEvents);
-		MessageHandler.getInstance().addMessageFromBackend(oData.message);
+		const oPlantDetailsBootstrap = new PlantDetailsBootstrap(
+			this.getView(), 
+			this.oComponent.getModel('plants'), 
+			this.oComponent.getModel('properties'),
+			this.oComponent.getModel('events'), 
+			this.oComponent.getModel('images'),
+			this.oComponent.imagesPlantsLoaded,
+			<Component>this.getOwnerComponent(),
+			this.mCurrentPlant
+		);
+		oPlantDetailsBootstrap.load(this.mCurrentPlant.plant_id)
 	}
 
 	protected applyToFragment(sId: string, fn: Function, fnInit?: Function) {
@@ -248,132 +179,17 @@ export default class Detail extends BaseController {
 		super.applyToFragment(sId, fn, fnInit, this.mIdToFragment);
 	}
 
-	private _confirmDeletePlant(sPlant: string, plantId: int, oPlant: BPlant, sAction: string) {
-		if (sAction !== 'Delete') {
-			return;
-		}
-
-		Util.startBusyDialog('Deleting', 'Deleting ' + sPlant);
-		$.ajax({
-			url: Util.getServiceUrl('plants/'),
-			type: 'DELETE',
-			contentType: "application/json",
-			data: JSON.stringify({ 'plant_id': plantId }),
-			context: this
-		})
-			.done(this._onPlantDeleted.bind(this, oPlant))
-			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (DELETE)'));
-	}
-
-	private _onPlantDeleted(oPlantDeleted: BPlant, oMsg: any, sStatus: string, oReturnData: any) {
-		Util.stopBusyDialog();
-		this.onAjaxSimpleSuccess(oMsg, sStatus, oReturnData);
-
-		//remove from plants model and plants model clone
-		//find deleted image in model and remove there
-		var aPlantsData = (<JSONModel>this.getView().getModel('plants')).getData().PlantsCollection;
-		var iPosition = aPlantsData.indexOf(oPlantDeleted);
-		aPlantsData.splice(iPosition, 1);
-		this.getView().getModel('plants').refresh();
-
-		//delete from model clone (used for tracking changes) as well
-		var aPlantsDataClone = this.oComponent.oPlantsDataClone.PlantsCollection;
-
-		//can't find position with object from above
-		var oPlantClone = aPlantsDataClone.find(function (element) {
-			return element.plant_name === oPlantDeleted.plant_name;
-		});
-		if (oPlantClone !== undefined) {
-			aPlantsDataClone.splice(aPlantsDataClone.indexOf(oPlantClone), 1);
-		}
-
-		//return to one-column-layout (plant in details view was deleted)
-		this.onHandleClose();
-	}
-
-	private _requestImagesForPlant(plant_id: int) {
-		// request data from backend
-		// note: unlike plants, properties, events, and taxon, we don't need to bind a path
-		// to the view for images as the image model contains only the current plant's images
-		var sId = encodeURIComponent(plant_id);
-		var uri = 'plants/' + sId + '/images/';
-
-		$.ajax({
-			url: Util.getServiceUrl(uri),
-			// data: ,
-			context: this,
-			async: true
-		})
-			.done(this._onReceivingImagesForPlant.bind(this, plant_id))
-			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Plant Images (GET)'));
-	}
-
-	private _onReceivingImagesForPlant(plant_id: int, oData: any) {
-		this.addPhotosToRegistry(oData);
-		this.oComponent.imagesPlantsLoaded.add(plant_id);
-		this.resetImagesCurrentPlant(plant_id);
-		this.oComponent.getModel('images').updateBindings(false);
-	}
-
-	private _generatePlantNameWithRomanizedSuffix(baseName: string, beginWith: int): string {
-		// e.g. Aeonium spec. II -> Aeonium spec. III if the former already exists
-		for (var i = beginWith; i < 100; i++) {
-			var latinNumber = Util.romanize(i);
-			var suggestedName = baseName + ' ' + latinNumber;
-			if (!this.oPlantLookup.plantNameExists(suggestedName)) {
-				return suggestedName;
-			}
-		}
-		throw new Error('Could not generate plant name with romanized suffix.');
-	}
-
-	private _generateNewPlantNameSuggestion(oParentPlant: BPlant, oParentPlantPollen: BPlant | undefined): string {
-		// generate new plant name suggestion
-		// ... only if parent plant names are set
-
-		// hybrid of two parents
-		if (!!oParentPlantPollen) {
-			var suggestedName = (oParentPlant.botanical_name || oParentPlant.plant_name) + ' × ' +
-				(oParentPlantPollen.botanical_name || oParentPlantPollen.plant_name);
-			if (this.oPlantLookup.plantNameExists(suggestedName)) {
-				// we need to find a variant using latin numbers, starting with II
-				// Consider existing latin number at ending
-				suggestedName = this._generatePlantNameWithRomanizedSuffix(suggestedName, 2);
-			}
-
-			// Just one parent: add latin number to parent plant name
-			// Consider existing latin number at ending
-		} else {
-			var baseName = oParentPlant.plant_name;
-			var reRomanNumber = /\sM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/;
-			var romanNumberMatch = baseName.match(reRomanNumber);
-			if (!!romanNumberMatch) {
-				var romanNumber = romanNumberMatch.pop();
-				var beginWith = Util.arabize(romanNumber!) + 1;
-				// remove the roman number at the end
-				baseName = baseName.substr(0, oParentPlant.plant_name.lastIndexOf(' '));
-			} else {
-				var beginWith = 2;
-			}
-
-			// find suitable roman number suffix
-			var suggestedName = this._generatePlantNameWithRomanizedSuffix(baseName, beginWith);
-		}
-
-		return suggestedName;
-	}
-
 	//////////////////////////////////////////////////////////
 	// GUI Handlers
 	//////////////////////////////////////////////////////////
 	onHandleFullScreen() {
 		var sNextLayout = this.oLayoutModel.getProperty("/actionButtonsInfo/midColumn/fullScreen");
-		this.oRouter.navTo("detail", { layout: sNextLayout, plant_id: this._oCurrentPlant.id });
+		this.oRouter.navTo("detail", { layout: sNextLayout, plant_id: this.mCurrentPlant.plant.id });
 	}
 
 	onHandleExitFullScreen() {
 		var sNextLayout = this.oLayoutModel.getProperty("/actionButtonsInfo/midColumn/exitFullScreen");
-		this.oRouter.navTo("detail", { layout: sNextLayout, plant_id: this._oCurrentPlant.id });
+		this.oRouter.navTo("detail", { layout: sNextLayout, plant_id: this.mCurrentPlant.plant.id });
 	}
 
 	onHandleClose() {
@@ -418,9 +234,9 @@ export default class Detail extends BaseController {
 	onPressButtonSubmitClonePlant(oEvent: Event) {
 		// use ajax to clone plant in backend
 		const sClonedPlantName = (<Input>this.byId('inputClonedPlantName')).getValue().trim();
-		const oPlantCloner = new PlantCloner(this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, this.oPlantLookup)
+		const oPlantCloner = new PlantCloner(this.oComponent.getModel('plants'), this.oPlantLookup)
 		const oDialogClonePlant = <Dialog>this.byId('dialogClonePlant');
-		oPlantCloner.clonePlant(this._oCurrentPlant, sClonedPlantName, oDialogClonePlant);
+		oPlantCloner.clonePlant(this.mCurrentPlant.plant, sClonedPlantName, oDialogClonePlant);
 	}	
 
 	//////////////////////////////////////////////////////////
@@ -431,9 +247,14 @@ export default class Detail extends BaseController {
 		// opens dialog to rename current plant
 
 		// check if there are any unsaved changes
-		var aModifiedPlants = this.getModifiedPlants();
-		var aModifiedImages = this.getModifiedImages();
-		var aModifiedTaxa = this.getModifiedTaxa();
+		const oChangeTracker = ChangeTracker.getInstance();
+		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
+		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
+
+		// var aModifiedPlants = this.getModifiedPlants();
+		// var aModifiedImages = this.getModifiedImages();
+		// var aModifiedTaxa = this.getModifiedTaxa();
 		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
 			MessageToast.show('There are unsaved changes. Save modified data or reload data first.');
 			return;
@@ -441,7 +262,7 @@ export default class Detail extends BaseController {
 
 		this.applyToFragment('dialogRenamePlant', (oDialog: Dialog) => {
 			var oInput = <Input>this.byId('inputNewPlantName');
-			oInput.setValue(this._oCurrentPlant.plant_name);
+			oInput.setValue(this.mCurrentPlant.plant.plant_name);
 			oDialog.open();
 		});
 	}
@@ -450,9 +271,11 @@ export default class Detail extends BaseController {
 		// use ajax to rename plant in backend
 		const sNewPlantName = (<Input>this.byId('inputNewPlantName')).getValue().trim();
 
-		const oPlantRenamer = new PlantRenamer(this.oPlantLookup);
 		const oDialogRenamePlant = <Dialog>this.byId('dialogRenamePlant');
-		oPlantRenamer.renamePlant(this._oCurrentPlant, sNewPlantName, this._requestImagesForPlant.bind(this), oDialogRenamePlant);
+		const oPlantImagesLoader =  new PlantImagesLoader(this.oComponent.getModel('images'), this.oComponent.imagesPlantsLoaded);
+		const oPlantRenamer = new PlantRenamer(this.oPlantLookup, oPlantImagesLoader);
+		// oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName, this._requestImagesForPlant.bind(this), oDialogRenamePlant);
+		oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName,oDialogRenamePlant);
 	}	
 
 	//////////////////////////////////////////////////////////
@@ -479,7 +302,7 @@ export default class Detail extends BaseController {
 		var sPathItem = oContext!.getPath();
 		var iIndex = sPathItem.substr(sPathItem.lastIndexOf('/') + 1);
 		// remove item from array
-		this.oComponent.getModel('plants').getData().PlantsCollection[this._currentPlantIndex].tags.splice(iIndex, 1);
+		this.oComponent.getModel('plants').getData().PlantsCollection[this.mCurrentPlant.plant_index!].tags.splice(iIndex, 1);
 		this.oComponent.getModel('plants').refresh();
 	}
 
@@ -513,7 +336,7 @@ export default class Detail extends BaseController {
 		// it will be saved in backend when saving the plant
 		// new/deleted tags are within scope of the plants model modification tracking
 		const oPopover = <Popover>this.byId('dialogAddTag');
-		const oPlant = <BPlant>this.oComponent.getModel('plants').getData().PlantsCollection[this._currentPlantIndex];
+		const oPlant = <BPlant>this.oComponent.getModel('plants').getData().PlantsCollection[this.mCurrentPlant.plant_index!];
 		const oPlantTagger = new PlantTagger(this.oComponent.getModel('plants'));
 		const oModelTagTypes = <JSONModel>oPopover.getModel('tagTypes');
 		oPlantTagger.addTagToPlant(oPlant, oModelTagTypes);
@@ -547,7 +370,10 @@ export default class Detail extends BaseController {
 		if (!!parentPlantId) {
 			Navigation.getInstance().navToPlantDetails(parentPlantId);
 		} else {
-			this.handleErrorMessageBox("Can't determine Plant Index");
+			var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
+			MessageBox.error("Can't determine Plant Index", {
+				styleClass: bCompact ? "sapUiSizeCompact" : ""
+			});			
 		}
 	}
 
@@ -608,33 +434,23 @@ export default class Detail extends BaseController {
 
 		// fn is fired by changes for parent and parent_ollen
 		if ((<Input>oEvent.getSource()).data('parentType') === "parent_pollen") {
-			this._oCurrentPlant.parent_plant_pollen = parentalPlant;
+			this.mCurrentPlant.plant.parent_plant_pollen = parentalPlant;
 		} else {
-			this._oCurrentPlant.parent_plant = parentalPlant;
+			this.mCurrentPlant.plant.parent_plant = parentalPlant;
 		}
 	}
 
 	//////////////////////////////////////////////////////////
 	// Delete Plant Handlers
 	//////////////////////////////////////////////////////////	
-	onPressButtonDeletePlant(oEvent: Event, sPlant: string, plantId: int) {
-		if (sPlant.length < 1) {
-			return;
-		}
-
+	onPressButtonDeletePlant(oEvent: Event) {
 		//confirm dialog
 		var oMenuItem = <MenuItem>oEvent.getSource();
 		var oPlant = <BPlant>oMenuItem.getBindingContext('plants')!.getObject();
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
 
-		const mOptions = {
-			title: "Delete",
-			stretch: false,
-			onClose: this._confirmDeletePlant.bind(this, sPlant, plantId, oPlant),
-			actions: ['Delete', 'Cancel'],
-			styleClass: bCompact ? "sapUiSizeCompact" : ""
-		}
-		MessageBox.confirm("Delete plant " + sPlant + "?", mOptions);
+		const oPlantDeleter = new PlantDeleter(this.oComponent.getModel('plants'), this.onAjaxSimpleSuccess, this.onHandleClose.bind(this));
+		oPlantDeleter.askToDeletePlant(oPlant, bCompact);
 	}
 
 	//////////////////////////////////////////////////////////
@@ -645,16 +461,23 @@ export default class Detail extends BaseController {
 		// opens dialog to clone current plant
 
 		// check if there are any unsaved changes
-		var aModifiedPlants = this.getModifiedPlants();
-		var aModifiedImages = this.getModifiedImages();
-		var aModifiedTaxa = this.getModifiedTaxa();
+
+		const oChangeTracker = ChangeTracker.getInstance();
+		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
+		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
+		// var aModifiedPlants = this.getModifiedPlants();
+		// var aModifiedImages = this.getModifiedImages();
+		// var aModifiedTaxa = this.getModifiedTaxa();
 		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
 			MessageToast.show('There are unsaved changes. Save modified data or reload data first.');
 			return;
 		}
 
 		this.applyToFragment('dialogClonePlant', (o: Dialog) => {
-			const clonePlantName = this._generatePlantNameWithRomanizedSuffix(this._oCurrentPlant.plant_name, 2);
+			const oPlantNameGenerator = new PlantNameGenerator(this.oPlantLookup);
+			const clonePlantName = oPlantNameGenerator.generatePlantNameWithRomanizedSuffix(this.mCurrentPlant.plant.plant_name, 2);
+			// const clonePlantName = this._generatePlantNameWithRomanizedSuffix(this.mCurrentPlant.plant.plant_name, 2);
 			const oInput = <Input>this.byId('inputClonedPlantName');
 			oInput.setValue(clonePlantName);
 			o.open();
@@ -669,7 +492,7 @@ export default class Detail extends BaseController {
 		const descendantPlantInput = <LDescendantPlantInput>(<JSONModel>this.byId('dialogCreateDescendant').getModel('descendant')).getData();
 		// this.oPlantLookup.createDescendantPlant(descendantPlantInput);
 
-		const oPlantCreator = new PlantCreator(this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, this.oPlantLookup);
+		const oPlantCreator = new PlantCreator(this.oComponent.getModel('plants'), this.oPlantLookup);
 		oPlantCreator.createDescendantPlant(descendantPlantInput);
 		
 		this.applyToFragment('dialogCreateDescendant', (oDialog: Dialog) => oDialog.close());
@@ -702,9 +525,13 @@ export default class Detail extends BaseController {
 		// opens dialog to create descendant plant with current plant as mother plant
 
 		// check if there are any unsaved changes
-		var aModifiedPlants = this.getModifiedPlants();
-		var aModifiedImages = this.getModifiedImages();
-		var aModifiedTaxa = this.getModifiedTaxa();
+		const oChangeTracker = ChangeTracker.getInstance();
+		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
+		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();		
+		// var aModifiedPlants = this.getModifiedPlants();
+		// var aModifiedImages = this.getModifiedImages();
+		// var aModifiedTaxa = this.getModifiedTaxa();
 		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
 			MessageToast.show('There are unsaved changes. Save modified data or reload data first.');
 			return;
@@ -715,7 +542,7 @@ export default class Detail extends BaseController {
 			var defaultPropagationType: FBPropagationType = 'seed (collected)';
 			var descendantPlantDataInit: LDescendantPlantInput = {
 				propagationType: defaultPropagationType,
-				parentPlant: this.oPlantLookup.getPlantById(this._currentPlantId).plant_name,
+				parentPlant: this.oPlantLookup.getPlantById(this.mCurrentPlant.plant_id!).plant_name,
 				parentPlantPollen: undefined,
 				descendantPlantName: undefined
 			};
@@ -733,23 +560,14 @@ export default class Detail extends BaseController {
 		if (!oCheckbox.getSelected()) {
 			return;
 		}
+
 		const oDescendantModel = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
-		let descendantPlantData = <LDescendantPlantInput>oDescendantModel.getData();
+		const oDescendantPlantInput = <LDescendantPlantInput>oDescendantModel.getData();
+		const oPlantNameGenerator = new PlantNameGenerator(this.oPlantLookup);
+		const sSuggestedName = oPlantNameGenerator.generateDescendantPlantName(oDescendantPlantInput);
 
-		if (!descendantPlantData.propagationType || !descendantPlantData.propagationType.length) {
-			return;
-		}
-		const propagationType = <LPropagationTypeData>this.suggestionService.getSuggestionItem('propagationTypeCollection', descendantPlantData.propagationType);
-
-		if (descendantPlantData.parentPlant && descendantPlantData.parentPlant.trim().length) {
-			const oParentPlant: BPlant = this.oPlantLookup.getPlantByName(descendantPlantData.parentPlant);
-			const oParentPlantPollen = (descendantPlantData.parentPlantPollen && propagationType.hasParentPlantPollen) ? this.oPlantLookup.getPlantByName(descendantPlantData.parentPlantPollen) : undefined;
-			var suggestedName = this._generateNewPlantNameSuggestion(oParentPlant, oParentPlantPollen);
-		} else {
-			suggestedName = '';
-		}
 		const oModelDescendant = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
-		oModelDescendant.setProperty('/descendantPlantName', suggestedName);
+		oModelDescendant.setProperty('/descendantPlantName', sSuggestedName);
 	}	
 
 	//////////////////////////////////////////////////////////
@@ -775,8 +593,8 @@ export default class Detail extends BaseController {
 	onFindSpeciesChoose(oEvent: Event) {
 		const oSelectedItem = <ColumnListItem>(<Table>this.byId('tableFindSpeciesResults')).getSelectedItem();
 		const sCustomName = (<GenericTag>this.byId('textFindSpeciesAdditionalName')).getText().trim();
-		const oDialog = <Dialog>this._getFragment('dialogFindSpecies');
-		this.TaxonomyUtil.chooseSpecies(oSelectedItem, sCustomName, oDialog, this._oCurrentPlant, this, this.getView());
+		const oDialog = <Dialog>this.getView().byId("dialogFindSpecies");
+		this.TaxonomyUtil.chooseSpecies(oSelectedItem, sCustomName, oDialog, this.mCurrentPlant.plant, this, this.getView());
 	}
 
 	onFindSpeciesTableSelectedOrDataUpdated(oEvent: Event) {
@@ -801,7 +619,7 @@ export default class Detail extends BaseController {
 	}
 	onRefetchGbifImages(gbif_id: int, controller: Detail) {
 		const oTaxonModel = <JSONModel>this.getView().getModel('taxon');
-		this.TaxonomyUtil.refetchGbifImages(gbif_id, oTaxonModel, this._oCurrentPlant);
+		this.TaxonomyUtil.refetchGbifImages(gbif_id, oTaxonModel, this.mCurrentPlant.plant);
 	}
 
 	onCloseLeafletMap(oEvent: Event) {
@@ -832,7 +650,7 @@ export default class Detail extends BaseController {
 		var oPropertiesModel = <JSONModel>this.oComponent.getModel('properties');
 		const oPropertiesTaxaModel = <JSONModel>this.oComponent.getModel('propertiesTaxa');
 		const oPropertiesBindingContext = <Context>(<Button>oEvent.getSource()).getBindingContext('properties');
-		this.propertiesUtil.editPropertyValueDelete(oPropertiesModel, oPropertiesTaxaModel, oPropertiesBindingContext, this._oCurrentPlant)
+		this.propertiesUtil.editPropertyValueDelete(oPropertiesModel, oPropertiesTaxaModel, oPropertiesBindingContext, this.mCurrentPlant.plant)
 	}
 
 	onCloseDialogEditPropertyValue(evt: Event) {
@@ -846,7 +664,7 @@ export default class Detail extends BaseController {
 	onOpenDialogAddProperty(oEvent: Event) {
 		const oBtnAddProperty = <Button>oEvent.getSource();
 		const oModelPropertyNames = oBtnAddProperty.getModel('propertyNames');
-		this.propertiesUtil.openDialogAddProperty(this.getView(), this._oCurrentPlant, oBtnAddProperty);
+		this.propertiesUtil.openDialogAddProperty(this.getView(), this.mCurrentPlant.plant, oBtnAddProperty);
 	}
 
 	onCloseNewPropertyNameDialog(evt: Event) {
@@ -929,7 +747,7 @@ export default class Detail extends BaseController {
 
 			// set defaults for new event
 			if (!oDialog.getModel("editOrNewEvent")) {
-				let mEventEditData: EventEditData = this.eventsUtil._getInitialEvent(this._oCurrentPlant.id!);
+				let mEventEditData: EventEditData = this.eventsUtil._getInitialEvent(this.mCurrentPlant.plant.id!);
 				mEventEditData.mode = 'new';
 				const oEventEditModel = new JSONModel(mEventEditData);
 				oDialog.setModel(oEventEditModel, "editOrNewEvent");
@@ -944,7 +762,7 @@ export default class Detail extends BaseController {
 		// triggered by edit button in a custom list item header in events list
 		const oSource = <Button>oEvent.getSource();
 		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
-		this.eventsUtil.editEvent(oSelectedEvent, this.getView(), this._oCurrentPlant.id!);
+		this.eventsUtil.editEvent(oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id!);
 	}
 	onOpenDialogEditSoil(oEvent: Event) {
 		const oSource = <Button>oEvent.getSource();
@@ -957,7 +775,7 @@ export default class Detail extends BaseController {
 	}
 	onAddOrEditEvent(oEvent: Event) {
 		//Triggered by 'Add' / 'Update' Button in Create/Edit Event Dialog
-		this.eventsUtil.addOrEditEvent(this.getView(), this._oCurrentPlant);
+		this.eventsUtil.addOrEditEvent(this.getView(), this.mCurrentPlant.plant);
 	}
 	onUpdateOrCreateSoil(oEvent: Event) {
 		const oEditedSoil = <SoilEditData>(<Button>oEvent.getSource()).getBindingContext('editedSoil')!.getObject();
@@ -970,7 +788,7 @@ export default class Detail extends BaseController {
 	onDeleteEventsTableRow(oEvent: Event) {
 		const oSelectedEvent = <FBEvent>oEvent.getParameter('listItem').getBindingContext('events').getObject();
 		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
-		this.eventsUtil.deleteEventsTableRow(oSelectedEvent, oEventsModel, this._oCurrentPlant)
+		this.eventsUtil.deleteEventsTableRow(oSelectedEvent, oEventsModel, this.mCurrentPlant.plant)
 
 	}
 	onIconPressUnassignImageFromEvent(oEvent: Event) {
@@ -1035,7 +853,7 @@ export default class Detail extends BaseController {
 		const oPlantTag = <FBImagePlantTag>oSource.getBindingContext('images')!.getObject();
 		if (!oPlantTag.plant_id || oPlantTag.plant_id <= 0) throw new Error("Unexpected error: No Plant ID");
 
-		if (oPlantTag.plant_id === this._oCurrentPlant.id) return; //already on this plant (no need to navigate)
+		if (oPlantTag.plant_id === this.mCurrentPlant.plant.id) return; //already on this plant (no need to navigate)
 
 		//navigate to plant in layout's current column (i.e. middle column)
 		Navigation.getInstance().navToPlant(this.oPlantLookup.getPlantById(oPlantTag.plant_id), this.oComponent);
@@ -1045,17 +863,13 @@ export default class Detail extends BaseController {
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Icon>oEvent.getSource();
 		const oImage = <FBImage>oSource.getBindingContext("images")!.getObject()
-
-		//confirm dialog
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
-		MessageBox.confirm(
-			"Delete this image?", {
-			title: "Delete",
-			onClose: this.confirmDeleteImage.bind(this, oImage),
-			actions: ['Delete', 'Cancel'],
-			styleClass: bCompact ? "sapUiSizeCompact" : ""
-		}
-		);
+
+		const oImagesModel = this.oComponent.getModel('images');;
+		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
+		//todo use imageregistryhandler instaed in imagedeleter
+		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.oComponent.imagesRegistry, this.onAjaxSimpleSuccess);
+		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
 
 	onInputImageNewKeywordSubmit(oEvent: Event) {
@@ -1146,7 +960,7 @@ export default class Detail extends BaseController {
 			return;
 		}
 
-		var sPath = 'plants/' + this._oCurrentPlant.id + '/images/'
+		var sPath = 'plants/' + this.mCurrentPlant.plant.id + '/images/'
 		Util.startBusyDialog('Uploading...', 'Image File(s)');
 		var sUrl = Util.getServiceUrl(sPath);
 		oFileUploader.setUploadUrl(sUrl);
@@ -1169,7 +983,8 @@ export default class Detail extends BaseController {
 		// add to images registry and refresh current plant's images
 		if (oResponse.images.length > 0) {
 			this.modelsHelper.addToImagesRegistry(oResponse.images);
-			this.resetImagesCurrentPlant(this._oCurrentPlant.id!);
+			// this.resetImagesCurrentPlant(this.mCurrentPlant.plant.id!);
+			ImageRegistryHandler.getInstance().resetImagesCurrentPlant(this.mCurrentPlant.plant.id);
 			this.oComponent.getModel('images').updateBindings(false);
 		}
 

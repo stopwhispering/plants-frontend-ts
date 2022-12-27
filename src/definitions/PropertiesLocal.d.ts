@@ -35,3 +35,7 @@ export interface LPlantPropertiesRequest {
 export interface LPlantIdToPropertyCollectionMap {
     [plant_id: number]: PPropertyCollectionPlant[];
 }
+
+export type LTaxonToPropertiesInCategoryMap = {
+    [k: string]: FBPropertiesInCategory;
+  }

@@ -2,13 +2,12 @@ import MessageToast from "sap/m/MessageToast"
 import * as Util from "plants/ui/customClasses/Util";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import GridListItem from "sap/f/GridListItem";
 import { FBImage, FBImagePlantTag, FBKeyword } from "../definitions/Images";
 import { FBEvent, FBImageAssignedToEvent } from "../definitions/Events";
 import Popover from "sap/m/Popover";
 import Icon from "sap/ui/core/Icon";
 import FileUploader from "sap/ui/unified/FileUploader";
-import { FBPlant } from "../definitions/Plants";
+import { BPlant } from "../definitions/Plants";
 
 
 /**
@@ -23,8 +22,7 @@ export default class ImageEventHandlers extends ManagedObject{
 			this.applyToFragment = applyToFragment;
 		}
 
-		// todo make public
-		public assignPlantToImage(oPlant: FBPlant, oImage: FBImage, oImagesModel: JSONModel){
+		public assignPlantToImage(oPlant: BPlant, oImage: FBImage, oImagesModel: JSONModel){
 			//add a plant to image in images model
 			//currently triggered when ...
 				// assigning an image in untagged view to the plant in details view

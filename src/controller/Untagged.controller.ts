@@ -1,8 +1,6 @@
 import BaseController from "plants/ui/controller/BaseController"
-import MessageBox from "sap/m/MessageBox"
 import formatter from "plants/ui/model/formatter"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
-import * as Util from "plants/ui/customClasses/Util";
 import MessageToast from "sap/m/MessageToast"
 import ImageEventHandlers from "plants/ui/customClasses/ImageEventHandlers";
 import Event from "sap/ui/base/Event";
@@ -16,10 +14,10 @@ import Icon from "sap/ui/core/Icon";
 import List from "sap/m/List";
 import OverflowToolbarButton from "sap/m/OverflowToolbarButton";
 import Tokenizer from "sap/m/Tokenizer";
-import { FImageDelete, FImagesToDelete } from "../definitions/Events";
 import PlantLookup from "../customClasses/PlantLookup";
-import SuggestionService from "../customClasses/SuggestionService";
 import { BPlant } from "../definitions/Plants";
+import ImageRegistryHandler from "../customClasses/ImageRegistryHandler";
+import ImageDeleter from "../customClasses/ImageDeleter";
 
 /**
  * @namespace plants.ui.controller
@@ -55,15 +53,33 @@ export default class Untagged extends BaseController {
 		}
 	}
 
-	onHandleClose() {
-		var sNextLayout =  this.oComponent.getModel().getProperty("/actionButtonsInfo/endColumn/closeColumn");
-		this.oRouter.navTo("detail", { layout: sNextLayout, plant_id: this._currentPlantId });
-	}
 
+	//////////////////////////////////////////////////////////
+	// Other Handlers
+	//////////////////////////////////////////////////////////
 	onPressReApplyUntaggedFilter() {
 		//triggered by text button to manually filter for untagged images
 		// this.resetUntaggedPhotos();
 		this.oComponent.resetUntaggedPhotos();
+	}
+
+	//////////////////////////////////////////////////////////
+	// Selection Handlers
+	//////////////////////////////////////////////////////////
+	public onSelectAll(oEvent: Event) {
+		(<List>this.byId('listImagesUntagged')).getItems().forEach(function (item) {
+			item.setSelected(true);
+		});
+	}
+
+	onSelectNone(oEvent: Event) {
+		this._resetSelection(<List>this.byId('listImagesUntagged'));
+	}
+
+	private _resetSelection(oList: List) {
+		oList.getItems().forEach(function (item) {
+			item.setSelected(false);
+		});
 	}
 
 	onToggleSelectManyListMode(oEvent: Event) {
@@ -86,22 +102,6 @@ export default class Untagged extends BaseController {
 		}
 	}
 
-	onSelectNone(oEvent: Event) {
-		this._resetSelection(<List>this.byId('listImagesUntagged'));
-	}
-
-	private _resetSelection(oList: List) {
-		oList.getItems().forEach(function (item) {
-			item.setSelected(false);
-		});
-	}
-
-	public onSelectAll(oEvent: Event) {
-		(<List>this.byId('listImagesUntagged')).getItems().forEach(function (item) {
-			item.setSelected(true);
-		});
-	}
-
 	public onDeleteSelected(oEvent: Event) {
 		//delete 1..n selected images
 		const oList = <List>this.byId('listImagesUntagged');
@@ -112,41 +112,26 @@ export default class Untagged extends BaseController {
 			return;
 		}
 
+		const oImagesModel = this.oComponent.getModel('images');;
+		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
+		//todo use imageregistryhandler instaed in imagedeleter
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
-		MessageBox.confirm(
-			"Delete " + aSelectedItems.length + " images?", {
-			title: "Delete",
-			onClose: this._confirmDeleteSelectedImages.bind(this, aSelectedImages),
-			actions: ['Delete', 'Cancel'],
-			styleClass: bCompact ? "sapUiSizeCompact" : ""
-		}
-		);
+		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.oComponent.imagesRegistry, 
+			this.onAjaxSimpleSuccess);
+		oImageDeleter.askToDeleteMultipleImages(aSelectedImages, bCompact, this.onSelectNone.bind(this));
 	}
 
-	private _confirmDeleteSelectedImages(aSelectedImages: FBImage[], sAction: string) {
-		if (sAction !== 'Delete') {
-			return;
-		}
-
-		const oPayload = <FImagesToDelete>{
-			images: aSelectedImages.map((image) => (<FImageDelete>{id: image.id,
-								                                   filename: image.filename}))
-			};
-
-		$.ajax({
-			url: Util.getServiceUrl('images/'),
-			type: 'DELETE',
-			contentType: "application/json",
-			data: JSON.stringify(oPayload),
-			context: this
-		})
-			.done(this.onAjaxDeletedImagesSuccess.bind(this, aSelectedImages, this.onSelectNone.bind(this)))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Images (DELETE)'));
+	//////////////////////////////////////////////////////////
+	// GUI Handlers
+	//////////////////////////////////////////////////////////
+	onHandleClose() {
+		var sNextLayout =  this.oComponent.getModel().getProperty("/actionButtonsInfo/endColumn/closeColumn");
+		this.oRouter.navTo("detail", { layout: sNextLayout, plant_id: this._currentPlantId });
 	}
 
-	// // // // // // // // // // // // // // // // // // // // // 
+	//////////////////////////////////////////////////////////
 	// Image Event Handlers
-	// // // // // // // // // // // // // // // // // // // // // 	
+	//////////////////////////////////////////////////////////
 	public onAddDetailsPlantToUntaggedImage(oEvent: Event){
 		//adds current plant in details view to the image in untagged view; triggered from "<-"" Button
 		const oPlant = <BPlant>this.oPlantLookup.getPlantById(this._currentPlantId);
@@ -156,7 +141,8 @@ export default class Untagged extends BaseController {
 		this.imageEventHandlers.assignPlantToImage(oPlant, oImage, oImagesModel);
 
 		(<JSONModel>this.getView().getModel('untaggedImages')).updateBindings(true);
-		this.resetImagesCurrentPlant(this._currentPlantId);
+		// this.resetImagesCurrentPlant(this._currentPlantId);
+		ImageRegistryHandler.getInstance().resetImagesCurrentPlant(this._currentPlantId);
 	}
 
 	onAddPlantNameToUntaggedImage(oEvent: Event) {
@@ -188,17 +174,13 @@ export default class Untagged extends BaseController {
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oSource = <Icon>oEvent.getSource();
 		const oImage = <FBImage>oSource.getBindingContext("untaggedImages")!.getObject()
-		
-		//confirm dialog
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
-		MessageBox.confirm(
-			"Delete this image?", {
-				title: "Delete",
-				onClose: this.confirmDeleteImage.bind(this, oImage),
-				actions: ['Delete', 'Cancel'],
-				styleClass: bCompact ? "sapUiSizeCompact" : ""
-			}
-		);
+
+		const oImagesModel = this.oComponent.getModel('images');;
+		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
+		//todo use imageregistryhandler instaed in imagedeleter
+		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.oComponent.imagesRegistry, this.onAjaxSimpleSuccess);
+		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
 	
 	onInputImageNewKeywordSubmit(oEvent: Event){
@@ -227,23 +209,6 @@ export default class Untagged extends BaseController {
 		const oImagesModel = this.oComponent.getModel('untaggedImages');
 		oImagesModel.updateBindings(false);
 	}
-
-	// public onTokenizerTokenDelete(oEvent: Event){
-	// 	// triggered upon changes of image's plant assignments and image's keywords
-	// 	// note: the token itself has already been deleted; here, we only delete the 
-	// 	// 		 corresponding entry from the model
-	// 	//note: there's a same-named function in detail controller doing the same thing for non-untagged images
-	// 	// if (oEvent.getParameter('type') !== 'removed')
-	// 	// 	return;
-
-	// 	const sKey = oEvent.getParameter('token').getProperty('key');  //either plant name or keyword
-	// 	const oTokenizer = <Tokenizer> oEvent.getSource();
-	// 	const oImage = <PImage>oTokenizer.getParent()!.getBindingContext('untaggedImages')!.getObject();
-	// 	const oModel = this.oComponent.getModel('untaggedImages');
-	// 	const sType = oTokenizer.data('type'); // plant|keyword
-
-	// 	this.imageEventHandlers.removeTokenFromModel(sKey, oImage, oModel, sType);
-	// }
 
 	onTokenizerKeywordImageTokenDelete(oEvent: Event){
 		// note: the token itself has already been deleted; here, we only delete the 

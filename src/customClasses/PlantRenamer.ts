@@ -8,6 +8,7 @@ import MessageHandler from "./MessageHandler";
 import Dialog from "sap/m/Dialog";
 import { BConfirmation } from "../definitions/Messages";
 import PlantLookup from "./PlantLookup";
+import PlantImagesLoader from "./PlantImagesLoader";
 
 /**
  * @namespace plants.ui.customClasses
@@ -15,13 +16,15 @@ import PlantLookup from "./PlantLookup";
 export default class PlantRenamer extends ManagedObject {
 	private modelsHelper = ModelsHelper.getInstance();
 	private _oPlantLookup: PlantLookup
+	private _oPlantImagesLoader: PlantImagesLoader;
 
-	public constructor(oPlantLookup: PlantLookup) {
+	public constructor(oPlantLookup: PlantLookup, oPlantImagesLoader: PlantImagesLoader) {
 		super();
-		this._oPlantLookup = oPlantLookup
+		this._oPlantLookup = oPlantLookup;
+		this._oPlantImagesLoader = oPlantImagesLoader;
 	}
 
-	public renamePlant(oPlant: BPlant, sNewPlantName: string, _fnRequestImagesForPlant: Function, oDialogRenamePlant: Dialog): void {
+	public renamePlant(oPlant: BPlant, sNewPlantName: string, oDialogRenamePlant: Dialog): void {
 		// use ajax to rename plant in backend
 
 		// check if duplicate
@@ -49,11 +52,11 @@ export default class PlantRenamer extends ManagedObject {
 			data: JSON.stringify(dPayload),
 			context: this
 		})
-			.done(this._onReceivingPlantNameRenamed.bind(this, oPlant, _fnRequestImagesForPlant, oDialogRenamePlant))
+			.done(this._onReceivingPlantNameRenamed.bind(this, oPlant, oDialogRenamePlant))
 			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (PUT)'));
 	}
 
-	private _onReceivingPlantNameRenamed(oPlant: BPlant, _fnRequestImagesForPlant: Function, oDialogRenamePlant: Dialog, oMsg: BConfirmation): void {
+	private _onReceivingPlantNameRenamed(oPlant: BPlant, oDialogRenamePlant: Dialog, oMsg: BConfirmation): void {
 		//plant was renamed in backend
 		Util.stopBusyDialog();
 		MessageToast.show(oMsg.message.message);
@@ -64,7 +67,8 @@ export default class PlantRenamer extends ManagedObject {
 		this.modelsHelper.reloadPlantsFromBackend();
 		this.modelsHelper.resetImagesRegistry();
 
-		_fnRequestImagesForPlant(oPlant.id!);  // todo do this in a better way
+		// _fnRequestImagesForPlant(oPlant.id!);  // todo do this in a better way
+		this._oPlantImagesLoader.requestImagesForPlant(oPlant.id);
 		oDialogRenamePlant.close();
 	}
 

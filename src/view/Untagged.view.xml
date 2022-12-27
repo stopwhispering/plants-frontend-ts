@@ -29,28 +29,28 @@
 						icon="sap-icon://delete"
 						text="{i18n>delete_button}"
 						tooltip="{i18n>delete_button}"
-						press="onDeleteSelected"
+						press=".onDeleteSelected"
 						visible="{status>/untagged_selectable}"/>
 					<m:OverflowToolbarButton
 						type="Transparent"
 						icon="sap-icon://multiselect-none"
 						text="{i18n>multiselect_none_untagged_button}"
 						tooltip="{i18n>multiselect_none_untagged_button}"
-						press="onSelectNone"
+						.press="onSelectNone"
 						visible="{status>/untagged_selectable}"/>
 					<m:OverflowToolbarButton
 						type="Transparent"
 						icon="sap-icon://multiselect-all"
 						text="{i18n>multiselect_all_untagged_button}"
 						tooltip="{i18n>multiselect_all_untagged_button}"
-						press="onSelectAll"
+						press=".onSelectAll"
 						visible="{status>/untagged_selectable}"/>
 					<m:OverflowToolbarButton
 						type="Transparent"
 						icon="sap-icon://multi-select"
 						text="{i18n>toggle_select_button}"
 						tooltip="{i18n>toggle_select_button}"
-						press="onToggleSelectManyListMode"/>
+						press=".onToggleSelectManyListMode"/>
 					<m:OverflowToolbarButton 
 						type="Transparent"
 						icon="sap-icon://blank-tag"
@@ -60,7 +60,7 @@
 					<m:OverflowToolbarButton 
 						type="Transparent"
 						icon="sap-icon://decline" 
-						press="onHandleClose"  
+						press=".onHandleClose"  
 						tooltip="{i18n>close_column}" 
 						visible="{= ${/actionButtonsInfo/endColumn/closeColumn} !== null }"/>
 				</navigationActions>
@@ -142,7 +142,7 @@
 												    	color="#000000" 
 												    	hoverColor="red"
 												    	activeColor="red"
-												    	press="onIconPressDeleteImage"
+												    	press=".onIconPressDeleteImage"
 														app:sModel= "untaggedImages">
 														<core:layoutData>
 															<m:FlexItemData growFactor="1" />

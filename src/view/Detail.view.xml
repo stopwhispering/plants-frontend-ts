@@ -113,7 +113,7 @@
 								<m:MenuItem
 									text="{i18n>delete_button}"
 									tooltip="{i18n>delete_button_tooltip}"
-									press=".onPressButtonDeletePlant($event, ${plants>plant_name}, ${plants>id})"
+									press=".onPressButtonDeletePlant"
 								/>
 							</m:Menu>
 						</m:menu>

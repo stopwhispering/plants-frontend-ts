@@ -7,7 +7,7 @@ import ManagedObject from "sap/ui/base/ManagedObject"
 import Context from "sap/ui/model/Context";
 import {
 	FBPropertiesInCategory, FBProperty,
-	BPropertyName, FBPropertyValue, BResultsPropertiesForPlant
+	BPropertyName, FBPropertyValue, BResultsPropertiesForPlant, FBPropertyCollectionPlant, LTaxonToPropertiesInCategoryMap
 } from "../definitions/Properties";
 import {
 	LCategoryToPropertiesInCategoryMap, LPlantPropertiesRequest, LTaxonToPropertyCategoryMap, LTemporaryAvailableProperties
@@ -22,6 +22,7 @@ import Dialog from "sap/m/Dialog";
 import { BPlant } from "../definitions/Plants";
 import { ResponseStatus } from "../definitions/SharedLocal";
 import { LPropertiesTaxonModelData } from "../definitions/PropertiesLocal";
+import ChangeTracker from "./ChangeTracker";
 
 /**
  * @namespace plants.ui.customClasses
@@ -418,19 +419,23 @@ export default class PropertiesUtil extends ManagedObject {
 		var oPropertiesModel = oOwnerComponent.getModel('properties');
 		oPropertiesModel.setProperty('/propertiesPlants/' + oPlant.id + '/', oData.propertyCollections);
 
-		//for tracking changes, save a clone
-		if (!oOwnerComponent.oPropertiesDataClone) {
-			oOwnerComponent.oPropertiesDataClone = {};
-		}
-		oOwnerComponent.oPropertiesDataClone[oPlant.id!] = Util.getClonedObject(oData.propertyCollections);
+		// //for tracking changes, save a clone
+		// if (!oOwnerComponent.oPropertiesDataClone) {
+		// 	oOwnerComponent.oPropertiesDataClone = {};
+		// }
+		// oOwnerComponent.oPropertiesDataClone[oPlant.id!] = Util.getClonedObject(oData.propertyCollections);
+		const oPropertyCollectionForPlant: FBPropertyCollectionPlant = oData.propertyCollections;
+		ChangeTracker.getInstance().addPlantPropertyCollection(oPropertyCollectionForPlant, oPlant);
 
 		// update taxon properties model
 		if (Object.keys(oData.propertyCollectionsTaxon.categories).length > 0) {
 			oOwnerComponent.getModel('propertiesTaxa').setProperty('/propertiesTaxon/' + oPlant.taxon_id + '/', oData.propertyCollectionsTaxon.categories);
-			if (!oOwnerComponent.oPropertiesTaxonDataClone) {
-				oOwnerComponent.oPropertiesTaxonDataClone = {};
-			}
-			oOwnerComponent.oPropertiesTaxonDataClone[oPlant.taxon_id!] = Util.getClonedObject(oData.propertyCollectionsTaxon.categories);
+			// if (!oOwnerComponent.oPropertiesTaxonDataClone) {
+			// 	oOwnerComponent.oPropertiesTaxonDataClone = {};
+			// }
+			// oOwnerComponent.oPropertiesTaxonDataClone[oPlant.taxon_id!] = Util.getClonedObject(oData.propertyCollectionsTaxon.categories);
+			const oPropertiesInCategory: LTaxonToPropertiesInCategoryMap = oData.propertyCollectionsTaxon.categories;
+			ChangeTracker.getInstance().addTaxonPropertiesInCategory(oPropertiesInCategory, oPlant.taxon_id);
 		}
 
 		// ... and redundantly insert the taxon data into the plant's properties array (only for display)

@@ -9,7 +9,6 @@ import Input from "sap/m/Input";
 import GenericTag from "sap/m/GenericTag";
 import Detail from "../controller/Detail.controller";
 import View from "sap/ui/core/mvc/View";
-import Component from "../Component";
 import Table from "sap/m/Table";
 import ColumnListItem from "sap/m/ColumnListItem";
 import { BPlant } from "../definitions/Plants";
@@ -18,7 +17,7 @@ import {
 	FFetchTaxonOccurrenceImagesRequest, FTaxonInfoRequest 
 } from "../definitions/Taxon";
 import { ResponseStatus } from "../definitions/SharedLocal";
-import { LTaxonData } from "../definitions/TaxonLocal";
+import ChangeTracker from "./ChangeTracker";
 
 /**
  * @namespace plants.ui.customClasses
@@ -132,10 +131,15 @@ export default class TaxonomyUtil extends ManagedObject {
 		}
 
 		//add taxon to model's clone if new
-		var oTaxonDataClone = <LTaxonData> (<Component> oDetailController.getOwnerComponent()).oTaxonDataClone;
-		if (oTaxonDataClone.TaxaDict[data.taxon_data.id] === undefined) {
-			oTaxonDataClone.TaxaDict[data.taxon_data.id] = Util.getClonedObject(data.taxon_data);
-		}
+		const oTaxon: BTaxon = data.taxon_data;
+		// var oTaxonDataClone = <LTaxonData> (<Component> oDetailController.getOwnerComponent()).oTaxonDataClone;
+		// if (oTaxonDataClone.TaxaDict[data.taxon_data.id] === undefined) 
+		// 	oTaxonDataClone.TaxaDict[data.taxon_data.id] = Util.getClonedObject(data.taxon_data);
+		const oChangeTracker = ChangeTracker.getInstance();
+		if (!oChangeTracker.hasOriginalTaxon(oTaxon.id))
+			oChangeTracker.addOriginalTaxon(oTaxon);
+
+
 
 		// bind received taxon to view (otherwise applied upon switching plant in detail view)
 		oView.bindElement({

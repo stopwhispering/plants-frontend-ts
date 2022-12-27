@@ -14,23 +14,16 @@ import UriParameters from "sap/base/util/UriParameters"
 import View from "sap/ui/core/mvc/View"
 import { LayoutType } from "sap/f/library"
 import FlexibleColumnLayout from "sap/f/FlexibleColumnLayout"
-import { LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap } from "./definitions/PropertiesLocal"
-import { PlantIdToEventsMap } from "./definitions/EventsLocal"
-import { FPlantsUpdateRequest } from "./definitions/Plants"
+import ImageRegistryHandler from "./customClasses/ImageRegistryHandler"
+import ChangeTracker from "./customClasses/ChangeTracker"
 
 /**
  * @namespace plants.ui
  */
 export default class Component extends UIComponent {
 
-	public imagesRegistry: LImageMap = {};
-	public imagesRegistryClone: LImageMap = {};
-	public imagesPlantsLoaded = new Set();
-	public oEventsDataClone = <PlantIdToEventsMap>{};  // avoid exceptions when saving before any event has been loaded
-	public oPropertiesDataClone: LPlantIdToPropertyCollectionMap = {};
-	public oPlantsDataClone = <FPlantsUpdateRequest>{};
-	public oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
-	public oPropertiesTaxonDataClone = <LCategoryToPropertiesInCategoryMap>{};
+	public imagesRegistry: LImageMap;
+	public imagesPlantsLoaded: Set<int>;
 
 	public static metadata = {
 		manifest: "json"
@@ -39,6 +32,10 @@ export default class Component extends UIComponent {
 	public init() : void {
 		// call the base component's init function
 		super.init();
+
+		this.imagesRegistry = <LImageMap>{};
+		this.imagesPlantsLoaded = <Set<int>>new Set();
+
 		// set the device model
 		this.setModel(models.createDeviceModel(), "device");
 		
@@ -57,6 +54,9 @@ export default class Component extends UIComponent {
 		var oImagesModel = new JSONModel();
 		oImagesModel.setSizeLimit(50000);
 		this.setModel(oImagesModel, 'images');
+
+		// create plant images resetter instance class and supply image model
+		ImageRegistryHandler.createInstance(oImagesModel, this.imagesRegistry);
 		
 		var oUntaggedImagesModel = new JSONModel();
 		oUntaggedImagesModel.setSizeLimit(250);
@@ -79,13 +79,13 @@ export default class Component extends UIComponent {
 		oEventsModel.setProperty('/PlantsEventsDict', {}); // plant ids will be keys of that dict
 		this.setModel(oEventsModel, 'events');
 		
-		var oPropertiesModel = new JSONModel();
-		oPropertiesModel.setProperty('/propertiesPlants', {}); // plant ids will be keys of that dict
-		this.setModel(oPropertiesModel, 'properties');
+		const oPlantPropertiesModel = new JSONModel();
+		oPlantPropertiesModel.setProperty('/propertiesPlants', {}); // plant ids will be keys of that dict
+		this.setModel(oPlantPropertiesModel, 'properties');
 		
-		const oPropertiesTaxonModel = new JSONModel();
-		oPropertiesTaxonModel.setProperty('/propertiesTaxon', {}); // taxon_id will be keys of that dict
-		this.setModel(oPropertiesTaxonModel, 'propertiesTaxa');
+		const oTaxonPropertiesModel = new JSONModel();
+		oTaxonPropertiesModel.setProperty('/propertiesTaxon', {}); // taxon_id will be keys of that dict
+		this.setModel(oTaxonPropertiesModel, 'propertiesTaxa');
 
 		//use helper class to load data into json models
 		//(helper class is used to reload data via button as well)
@@ -105,6 +105,17 @@ export default class Component extends UIComponent {
 		this.getRouter().initialize();
 
 		this._requestUntaggedImages();		
+
+		// create instance of change handler class
+		// todo move all change tracking code there
+		ChangeTracker.createInstance(
+			oPlantsModel, 
+			oEventsModel, 
+			oPlantPropertiesModel, 
+			oTaxonPropertiesModel, 
+			oTaxonModel, 
+			this.imagesRegistry, 
+			);
 	}
 
 	private _requestUntaggedImages(){
@@ -132,7 +143,8 @@ export default class Component extends UIComponent {
 		aImages.forEach((image: FBImage) => {
 			if (!(image.filename in this.imagesRegistry)){
 				this.imagesRegistry[image.filename] = image;
-				this.imagesRegistryClone[image.filename] = Util.getClonedObject(image);
+				// this.imagesRegistryClone[image.filename] = Util.getClonedObject(image);
+				ChangeTracker.getInstance().addOriginalImage(image);
 			}
 		});
 	}

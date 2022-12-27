@@ -32,6 +32,7 @@ import SuggestionService from "../customClasses/SuggestionService"
 import FilterService from "../customClasses/FilterPlantsService"
 import { LFilterHiddenChoice } from "../definitions/PlantsLocal"
 import PlantCreator from "../customClasses/PlantCreator"
+import Label from "sap/m/Label"
 
 /**
  * @namespace plants.ui.controller
@@ -232,6 +233,13 @@ export default class Master extends BaseController {
 		(<Text>this.byId("tableFilterLabel")).setText(sFilterString);
 	}
 
+	updateTableHeaderPlantsCount() {
+		// update count in table header
+		var iPlants = (<ListBinding>this.getView().byId("plantsTable").getBinding("items")).getLength();
+		var sTitle = "Plants (" + iPlants + ")";
+		(<Label>this.getView().byId("pageHeadingTitle")).setText(sTitle);
+	}
+
 	onAddNewPlant(oEvent: Event) {
 		//open dialog to create new plant
 		var oView = this.getView();
@@ -251,7 +259,7 @@ export default class Master extends BaseController {
 
 	public onAddSaveButton(oEvent: Event): void {
 		const sPlantName = (<Input>this.byId("inputCreateNewPlantName")).getValue();
-		const oPlantCreator = new PlantCreator(this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, this.oPlantLookup);
+		const oPlantCreator = new PlantCreator(this.oComponent.getModel('plants'), this.oPlantLookup);
 		oPlantCreator.addNewPlantAndSave(sPlantName);
 		this.applyToFragment('dialogNewPlant', (oDialog: Dialog) => oDialog.close());
 	}

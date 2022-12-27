@@ -48,7 +48,7 @@
 				id="btnSetInactive"
 				text="Set Inactive"
 				type="Accept"
-				press="onSetInactive" />
+				press=".onSetInactive" />
 				<ToolbarSpacer/>
 			<Button
 				press=".onCancelDialog"

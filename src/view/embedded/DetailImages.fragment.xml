@@ -124,7 +124,7 @@
                                             }"
                                     hoverColor="blue"
                                     activeColor="blue"
-                                    tooltip="{i18n>DetailImagesFragment.AssignToEvent}"
+                                    tooltip="Assign to Event"
                                     press=".onIconPressAssignImageToEvent">
                                     <core:layoutData>
                                         <FlexItemData growFactor="1" />
@@ -137,7 +137,7 @@
                                     color="#000000"
                                     hoverColor="blue"
                                     activeColor="blue"
-                                    tooltip="{i18n>DetailImagesFragment.AssignToTaxon}"
+                                    tooltip="Assign to Taxon"
                                     press=".onIconPressAssignImageToTaxon">
                                     <core:layoutData>
                                         <FlexItemData growFactor="1" />

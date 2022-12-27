@@ -16,7 +16,7 @@ import ListBinding from "sap/ui/model/ListBinding"
 import Event from "sap/ui/base/Event"
 import MultiInput from "sap/m/MultiInput"
 import FileUploader from "sap/ui/unified/FileUploader"
-import { FImageUploadedMetadata } from "../definitions/Images"
+import { FBImage, FImageUploadedMetadata } from "../definitions/Images"
 import Dialog from "sap/m/Dialog"
 import Menu from "sap/m/Menu"
 import { MessageType } from "sap/ui/core/library"
@@ -26,6 +26,10 @@ import { UIState } from "sap/f/FlexibleColumnLayoutSemanticHelper"
 import SuggestionService from "../customClasses/SuggestionService"
 import PlantLookup from "../customClasses/PlantLookup"
 import JSONModel from "sap/ui/model/json/JSONModel"
+import ImageRegistryHandler from "../customClasses/ImageRegistryHandler"
+import { BPlant } from "../definitions/Plants"
+import { BTaxon } from "../definitions/Taxon"
+import ChangeTracker from "../customClasses/ChangeTracker"
 
 /**
  * @namespace plants.ui.controller
@@ -161,9 +165,13 @@ export default class FlexibleColumnLayout extends BaseController {
 		//refresh data from backend
 
 		// check if there are any unsaved changes
-		var aModifiedPlants = this.getModifiedPlants();
-		var aModifiedImages = this.getModifiedImages();
-		var aModifiedTaxa = this.getModifiedTaxa();
+		const oChangeTracker = ChangeTracker.getInstance();
+		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
+		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();		
+		// var aModifiedPlants = this.getModifiedPlants();
+		// var aModifiedImages = this.getModifiedImages();
+		// var aModifiedTaxa = this.getModifiedTaxa();
 
 		// if modified data exists, ask for confirmation if all changes should be undone
 		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
@@ -283,7 +291,8 @@ export default class FlexibleColumnLayout extends BaseController {
 			ModelsHelper.getInstance().addToImagesRegistry(oResponse.images);
 
 			// plant's images model and untagged images model might need to be refreshed
-			this.resetImagesCurrentPlant(this._currentPlantId);
+			// this.resetImagesCurrentPlant(this._currentPlantId);
+			ImageRegistryHandler.getInstance().resetImagesCurrentPlant(this._currentPlantId);
 			this.oComponent.getModel('images').updateBindings(false);
 
 			// this.resetUntaggedPhotos();

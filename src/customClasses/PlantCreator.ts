@@ -9,6 +9,7 @@ import { LDescendantPlantInput, LPropagationTypeData } from "../definitions/Plan
 import SuggestionService from "./SuggestionService";
 import Navigation from "./Navigation";
 import ModelsHelper from "../model/ModelsHelper";
+import ChangeTracker from "./ChangeTracker";
 
 /**
  * @namespace plants.ui.customClasses
@@ -16,13 +17,11 @@ import ModelsHelper from "../model/ModelsHelper";
 export default class PlantCreator extends ManagedObject {
 
 	private _oPlantsModel: JSONModel;
-	private _oPlantsDataClone: FPlantsUpdateRequest;
     private _oPlantLookup: PlantLookup;
 
-	public constructor(oPlantsModel: JSONModel, oPlantsDataClone: FPlantsUpdateRequest, oPlantLookup: PlantLookup) {
+	public constructor(oPlantsModel: JSONModel, oPlantLookup: PlantLookup) {
 		super();
 		this._oPlantsModel = oPlantsModel;
-		this._oPlantsDataClone = oPlantsDataClone;
         this._oPlantLookup = oPlantLookup;
 	}	
 
@@ -157,8 +156,9 @@ export default class PlantCreator extends ManagedObject {
 				that._oPlantsModel.updateBindings(false);
 
 				// ...and add to cloned plants to allow change tracking
-				var oPlantClone = Util.getClonedObject(oPlantSaved);
-				that._oPlantsDataClone.PlantsCollection.push(oPlantClone);
+				// var oPlantClone = Util.getClonedObject(oPlantSaved);
+				// that._oPlantsDataClone.PlantsCollection.push(oPlantClone);
+				ChangeTracker.getInstance().addOriginalPlant(oPlantSaved);
 				MessageToast.show('Created plant ID ' + oPlantSaved.id + ' (' + oPlantSaved.plant_name + ')');
 
 				// finally navigate to the newly created plant in details view
