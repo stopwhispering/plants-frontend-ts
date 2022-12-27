@@ -7,19 +7,19 @@ import { BMessage } from "../definitions/Messages";
 /**
  * @namespace plants.ui.customClasses
  */
-export default class MessageUtil extends ManagedObject {
-	private static _instance: MessageUtil;
+export default class MessageHandler extends ManagedObject {
+	private static _instance: MessageHandler;
 	private _oMessageManager;
 
-	public static getInstance(oContext?: Component): MessageUtil {
-		if (!MessageUtil._instance && !oContext) {
-			throw new Error("MessageUtil not initialized and no context supplied");
-		} else if (MessageUtil._instance && oContext) {
-			throw new Error("MessageUtil already initialized");
-		} else if (!MessageUtil._instance && oContext) {
-			MessageUtil._instance = new MessageUtil(oContext);
+	public static getInstance(oContext?: Component): MessageHandler {
+		if (!MessageHandler._instance && !oContext) {
+			throw new Error("MessageHandler not initialized and no context supplied");
+		} else if (MessageHandler._instance && oContext) {
+			throw new Error("MessageHandler already initialized");
+		} else if (!MessageHandler._instance && oContext) {
+			MessageHandler._instance = new MessageHandler(oContext);
 		}
-		return MessageUtil._instance;
+		return MessageHandler._instance;
 	}
 
 	private constructor(oContext: Component) {

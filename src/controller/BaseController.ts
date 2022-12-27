@@ -2,7 +2,7 @@
 //abstract controller -> no ".controller." in the filename --> prevents usage in views, too
 import Controller from "sap/ui/core/mvc/Controller"
 import MessageBox from "sap/m/MessageBox"
-import MessageUtil from "plants/ui/customClasses/MessageUtil"
+import MessageHandler from "plants/ui/customClasses/MessageHandler"
 import * as Util from "plants/ui/customClasses/Util";
 import MessageToast from "sap/m/MessageToast"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
@@ -16,7 +16,6 @@ import { LImageMap } from "../definitions/ImageLocal";
 import Control from "sap/ui/core/Control";
 import { FBPropertyCollectionPlant } from "../definitions/Properties";
 import { LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap, LPropertiesTaxonModelData } from "../definitions/PropertiesLocal";
-import { BPlant } from "../definitions/Plants";
 import ListBinding from "sap/ui/model/ListBinding";
 import Label from "sap/ui/webc/main/Label";
 import { IdToFragmentMap } from "../definitions/SharedLocal";
@@ -25,9 +24,8 @@ import { BConfirmation, BMessage, BSaveConfirmation, FBMajorResource } from "../
 import Event from "sap/ui/base/Event";
 import Popover from "sap/m/Popover";
 import ViewSettingsDialog from "sap/m/ViewSettingsDialog";
-import { FBTaxon } from "../definitions/Taxon";
-import { LPropagationTypeData } from "../definitions/PlantsLocal";
 import { FImageDelete, FImagesToDelete } from "../definitions/Events";
+import { BTaxon, FTaxon } from "../definitions/Taxon";
 
 /**
  * @namespace plants.ui.controller
@@ -117,7 +115,7 @@ export default class BaseController extends Controller {
 		return aModifiedPlants;
 	}
 
-	public getModifiedTaxa(): FBTaxon[] {
+	public getModifiedTaxa(): BTaxon[] {
 		// get taxon model and identify modified items
 		// difference to plants and images: data is stored with key in a dictionary, not in an array
 		// we identify the modified sub-dictionaries and return a list of these
@@ -133,7 +131,7 @@ export default class BaseController extends Controller {
 		var keys = <int[]>keys_s.map(k => parseInt(k));
 
 		//for each key, check if it's value is different from the clone
-		var aModifiedTaxonList: FBTaxon[] = [];
+		var aModifiedTaxonList: BTaxon[] = [];
 
 		keys.forEach(function (key) {
 			if (!Util.dictsAreEqual(dDataTaxonOriginal[key],
@@ -283,7 +281,7 @@ export default class BaseController extends Controller {
 
 		var aModifiedPlants = this.getModifiedPlants();
 		var aModifiedImages = this.getModifiedImages();
-		var aModifiedTaxa = this.getModifiedTaxa();
+		var aModifiedTaxa: BTaxon[] = this.getModifiedTaxa();
 		var dModifiedEvents = this._getModifiedEvents();
 		var dModifiedPropertiesPlants = this._getModifiedPropertiesPlants();
 		var dModifiedPropertiesTaxa = this._getModifiedPropertiesTaxa();
@@ -332,8 +330,9 @@ export default class BaseController extends Controller {
 
 
 			// cutting occurrence images (read-only)
-			var aModifiedTaxaSave: FBTaxon[] = Util.getClonedObject(aModifiedTaxa);
-			aModifiedTaxaSave = aModifiedTaxaSave.map(m => {
+			const aModifiedTaxaUnattached: BTaxon[] = Util.getClonedObject(aModifiedTaxa);
+			const aModifiedTaxaSave = <FTaxon[]>aModifiedTaxaUnattached.map(m => {
+				// @ts-ignore
 				delete m.occurrence_images;
 				return m;
 			});
@@ -400,7 +399,7 @@ export default class BaseController extends Controller {
 		//toast and create message
 		//requires pre-defined message from backend
 		MessageToast.show(oConfirmation.message.message);
-		MessageUtil.getInstance().addMessageFromBackend(oConfirmation.message);
+		MessageHandler.getInstance().addMessageFromBackend(oConfirmation.message);
 	}
 
 	private _onAjaxSuccessSave(oMsg: BSaveConfirmation, sStatus: string, oReturnData: object) {
@@ -428,20 +427,20 @@ export default class BaseController extends Controller {
 			var oModelEvents = this.oComponent.getModel('events');
 			var dDataEvents = oModelEvents.getData();
 			this.oComponent.oEventsDataClone = Util.getClonedObject(dDataEvents.PlantsEventsDict);
-			MessageUtil.getInstance().addMessageFromBackend(oMsg.message);
+			MessageHandler.getInstance().addMessageFromBackend(oMsg.message);
 		} else if (sResource === 'PlantPropertyResource') {
 			this.savingProperties = false;
 			var oModelProperties = this.oComponent.getModel('properties');
 			var dDataProperties = oModelProperties.getData();
 			var propertiesPlantsWithoutTaxa = this._getPropertiesSansTaxa(dDataProperties.propertiesPlants);
 			this.oComponent.oPropertiesDataClone = Util.getClonedObject(propertiesPlantsWithoutTaxa);
-			MessageUtil.getInstance().addMessageFromBackend(oMsg.message);
+			MessageHandler.getInstance().addMessageFromBackend(oMsg.message);
 		} else if (sResource === 'TaxonPropertyResource') {
 			this.savingPropertiesTaxa = false;
 			var oModelPropertiesTaxa = this.oComponent.getModel('propertiesTaxa');
 			var dDataPropertiesTaxa = oModelPropertiesTaxa.getData();
 			this.oComponent.oPropertiesTaxonDataClone = Util.getClonedObject(dDataPropertiesTaxa.propertiesTaxon);
-			MessageUtil.getInstance().addMessageFromBackend(oMsg.message);
+			MessageHandler.getInstance().addMessageFromBackend(oMsg.message);
 		}
 
 		if (!this.savingPlants && !this.savingImages && !this.savingTaxa && !this.savingEvents && !this.savingProperties && !this.savingPropertiesTaxa) {
@@ -547,7 +546,7 @@ export default class BaseController extends Controller {
 	protected onReceiveSuccessGeneric(oMsg: BMessage) {
 		Util.stopBusyDialog();
 		MessageToast.show(oMsg.message);
-		MessageUtil.getInstance().addMessageFromBackend(oMsg);
+		MessageHandler.getInstance().addMessageFromBackend(oMsg);
 	}
 
 	addPhotosToRegistry(aPhotos: FBImage[]) {

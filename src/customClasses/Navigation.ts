@@ -12,9 +12,9 @@ export default class Navigation extends ManagedObject {
 
 	public static getInstance(oComponent?: Component): Navigation {
 		if (!Navigation._instance && !oComponent) {
-			throw new Error("MessageUtil not initialized and no context supplied");
+			throw new Error("MessageHandler not initialized and no context supplied");
 		} else if (Navigation._instance && oComponent) {
-			throw new Error("MessageUtil already initialized");
+			throw new Error("MessageHandler already initialized");
 		} else if (!Navigation._instance && oComponent) {
 			Navigation._instance = new Navigation(oComponent);
 		}

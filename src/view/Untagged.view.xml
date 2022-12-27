@@ -60,7 +60,7 @@
 					<m:OverflowToolbarButton 
 						type="Transparent"
 						icon="sap-icon://decline" 
-						press="handleClose"  
+						press="onHandleClose"  
 						tooltip="{i18n>close_column}" 
 						visible="{= ${/actionButtonsInfo/endColumn/closeColumn} !== null }"/>
 				</navigationActions>

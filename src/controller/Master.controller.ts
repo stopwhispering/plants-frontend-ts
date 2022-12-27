@@ -5,7 +5,6 @@ import FilterOperator from "sap/ui/model/FilterOperator"
 import FilterType from "sap/ui/model/FilterType"
 import Sorter from "sap/ui/model/Sorter"
 import Formatter from "plants/ui/model/formatter"
-import MessageToast from "sap/m/MessageToast"
 import * as Util from "plants/ui/customClasses/Util";
 import Navigation from "plants/ui/customClasses/Navigation"
 import Fragment from "sap/ui/core/Fragment"
@@ -28,10 +27,11 @@ import Input from "sap/m/Input"
 import Avatar from "sap/m/Avatar"
 import { BPlant, FBPlantTag, FPlant } from "../definitions/Plants"
 import { IdToFragmentMap } from "../definitions/SharedLocal"
-import PlantServices from "../customClasses/PlantServices"
+import PlantLookup from "../customClasses/PlantLookup"
 import SuggestionService from "../customClasses/SuggestionService"
 import FilterService from "../customClasses/FilterPlantsService"
 import { LFilterHiddenChoice } from "../definitions/PlantsLocal"
+import PlantCreator from "../customClasses/PlantCreator"
 
 /**
  * @namespace plants.ui.controller
@@ -40,9 +40,8 @@ export default class Master extends BaseController {
 
 	public formatter: Formatter = new Formatter();
 	private navigation = Navigation.getInstance();
-	private plantServices: PlantServices;
+	private oPlantLookup: PlantLookup;
 	private oModelTaxonTree: JSONModel;
-	private suggestionService: SuggestionService;
 
 	private mIdToFragment = <IdToFragmentMap>{
 		popoverPopupImage: "plants.ui.view.fragments.master.MasterImagePopover",
@@ -54,8 +53,7 @@ export default class Master extends BaseController {
 	onInit() {
 		super.onInit();
 
-		this.suggestionService = new SuggestionService(this.oComponent.getModel('suggestions'));
-		this.plantServices = new PlantServices(this.applyToFragment.bind(this), this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, this.suggestionService);
+		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 	}
 
 	onAfterRendering() {
@@ -251,34 +249,10 @@ export default class Master extends BaseController {
 		}
 	}
 
-	public onAddSaveButton(oEvent: Event) {
-		var sPlantName = (<Input>this.byId("inputCreateNewPlantName")).getValue();
-		//check and not empty
-		if (sPlantName === '') {
-			MessageToast.show('Empty not allowed.');
-			return;
-		}
-
-		if (sPlantName.includes('/')) {
-			MessageToast.show('Forward slash not allowed.');
-			return;
-		}
-
-		//check if new
-		if (this.plantServices.plantNameExists(sPlantName)) {
-			MessageToast.show('Plant Name already exists.');
-			return;
-		}
-
-		// this.saveNewPsaveNewPlantlant({
-		this.plantServices.saveNewPlant(<FPlant>{
-			plant_name: sPlantName,
-			active: true,
-			descendant_plants_all: [],  //auto-derived in backend
-			sibling_plants: [],  //auto-derived in backend
-			same_taxon_plants: [],  //auto-derived in backend
-			tags: [],
-		});
+	public onAddSaveButton(oEvent: Event): void {
+		const sPlantName = (<Input>this.byId("inputCreateNewPlantName")).getValue();
+		const oPlantCreator = new PlantCreator(this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, this.oPlantLookup);
+		oPlantCreator.addNewPlantAndSave(sPlantName);
 		this.applyToFragment('dialogNewPlant', (oDialog: Dialog) => oDialog.close());
 	}
 

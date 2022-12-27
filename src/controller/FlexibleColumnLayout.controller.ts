@@ -1,6 +1,6 @@
 import BaseController from "plants/ui/controller/BaseController"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
-import MessageUtil from "plants/ui/customClasses/MessageUtil"
+import MessageHandler from "plants/ui/customClasses/MessageHandler"
 import formatter from "plants/ui/model/formatter"
 import MessageToast from "sap/m/MessageToast"
 import MessageBox, { Action } from "sap/m/MessageBox"
@@ -24,7 +24,7 @@ import Popover from "sap/m/Popover"
 import ImageEventHandlers from "../customClasses/ImageEventHandlers"
 import { UIState } from "sap/f/FlexibleColumnLayoutSemanticHelper"
 import SuggestionService from "../customClasses/SuggestionService"
-import PlantServices from "../customClasses/PlantServices"
+import PlantLookup from "../customClasses/PlantLookup"
 import JSONModel from "sap/ui/model/json/JSONModel"
 
 /**
@@ -34,7 +34,7 @@ export default class FlexibleColumnLayout extends BaseController {
 
 	formatter = new formatter();
 	private imageEventHandlers: ImageEventHandlers;
-	private plantServices: PlantServices;
+	private oPlantLookup: PlantLookup;
 
 	private mIdToFragment = <IdToFragmentMap>{
 		MessagePopover: "plants.ui.view.fragments.menu.MessagePopover",
@@ -49,9 +49,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	onInit() {
 		super.onInit();
 
-		const oSuggestionsModel = <JSONModel>this.oComponent.getModel('suggestions');
-		const suggestionService = new SuggestionService(oSuggestionsModel);
-		this.plantServices = new PlantServices(this.applyToFragment.bind(this), this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, suggestionService);
+		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 
 		this._oRouter = this.oComponent.getRouter();
 		this._oRouter.attachBeforeRouteMatched(this._onBeforeRouteMatched, this);
@@ -267,19 +265,19 @@ export default class FlexibleColumnLayout extends BaseController {
 		var sResponse = oEvent.getParameter('responseRaw');
 		if (!sResponse) {
 			var sMsg = "Upload complete, but can't determine status. No response received.";
-			MessageUtil.getInstance().addMessage(MessageType.Warning, sMsg, undefined, undefined);
+			MessageHandler.getInstance().addMessage(MessageType.Warning, sMsg, undefined, undefined);
 			Util.stopBusyDialog();
 			return;
 		}
 		var oResponse = JSON.parse(sResponse);
 		if (!oResponse) {
 			sMsg = "Upload complete, but can't determine status. Can't parse Response.";
-			MessageUtil.getInstance().addMessage(MessageType.Warning, sMsg, undefined, undefined);
+			MessageHandler.getInstance().addMessage(MessageType.Warning, sMsg, undefined, undefined);
 			Util.stopBusyDialog();
 			return;
 		}
 
-		MessageUtil.getInstance().addMessageFromBackend(oResponse.message);
+		MessageHandler.getInstance().addMessageFromBackend(oResponse.message);
 		// add to images registry and refresh current plant's images
 		if (oResponse.images.length > 0) {
 			ModelsHelper.getInstance().addToImagesRegistry(oResponse.images);
@@ -301,7 +299,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	onIconPressAssignDetailsPlant(oEvent: Event) {
 		// triggered by assign-to-current-plant button in image upload dialog
 		// add current plant to plants multicombobox
-		var plant = this.plantServices.getPlantById(this._currentPlantId);
+		var plant = this.oPlantLookup.getPlantById(this._currentPlantId);
 		if (!plant) {
 			return;
 		}
@@ -394,7 +392,7 @@ export default class FlexibleColumnLayout extends BaseController {
 
 	onClearMessages(oEvent: Event) {
 		//clear messages in message popover fragment
-		MessageUtil.getInstance().removeAllMessages();
+		MessageHandler.getInstance().removeAllMessages();
 	}
 
 	onHomeIconPressed(oEvent: Event) {

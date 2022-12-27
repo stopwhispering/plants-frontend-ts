@@ -145,7 +145,6 @@ export interface FTaxon {
   custom_notes?: string;
   distribution?: FBDistribution;
   images?: FTaxonImage[];
-  occurrence_images?: FTaxonOccurrenceImage[];
 }
 export interface FTaxonImage {
   id: number;

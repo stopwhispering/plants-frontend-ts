@@ -3,7 +3,7 @@ import * as models from "plants/ui/model/models"
 import JSONModel from "sap/ui/model/json/JSONModel"
 import FlexibleColumnLayoutSemanticHelper from "sap/f/FlexibleColumnLayoutSemanticHelper"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
-import MessageUtil from "plants/ui/customClasses/MessageUtil"
+import MessageHandler from "plants/ui/customClasses/MessageHandler"
 import * as Util from "plants/ui/customClasses/Util";
 import {
 	LTaxonData, LTaxonMap } from "./definitions/TaxonLocal"
@@ -43,7 +43,7 @@ export default class Component extends UIComponent {
 		this.setModel(models.createDeviceModel(), "device");
 		
 		// instantiate message utility class and supply this component as context
-		MessageUtil.getInstance(this);
+		MessageHandler.getInstance(this);
 		
 		// instantiate navigation class and supply this component as context
 		Navigation.getInstance(this);

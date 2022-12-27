@@ -1,7 +1,7 @@
 import * as Util from "plants/ui/customClasses/Util";
 import MessageToast from "sap/m/MessageToast"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
-import MessageUtil from "plants/ui/customClasses/MessageUtil"
+import MessageHandler from "plants/ui/customClasses/MessageHandler"
 import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
 import Context from "sap/ui/model/Context";
@@ -436,7 +436,7 @@ export default class PropertiesUtil extends ManagedObject {
 		// ... and redundantly insert the taxon data into the plant's properties array (only for display)
 		this._appendTaxonPropertiesToPlantProperties(oOwnerComponent, oPlant);
 
-		MessageUtil.getInstance().addMessageFromBackend(oData.message);
+		MessageHandler.getInstance().addMessageFromBackend(oData.message);
 
 		// somehow UI5 requires a forced refresh here in case of no plant properties data but appended taxon properties to the plant properties; maybe a bug
 		oPropertiesModel.refresh(true);

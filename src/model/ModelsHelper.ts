@@ -1,5 +1,5 @@
 import JSONModel from "sap/ui/model/json/JSONModel";
-import MessageUtil from "plants/ui/customClasses/MessageUtil";
+import MessageHandler from "plants/ui/customClasses/MessageHandler";
 import * as Util from "plants/ui/customClasses/Util";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
@@ -46,7 +46,7 @@ export default class ModelsHelper extends ManagedObject {
 
 		//fastapi manually thrown exceptions (default)
 		if ((!!error) && (!!error.responseJSON) && (!!error.responseJSON.detail) && (!!error.responseJSON.detail.type)) {
-			MessageUtil.getInstance().addMessageFromBackend(error.responseJSON.detail);
+			MessageHandler.getInstance().addMessageFromBackend(error.responseJSON.detail);
 			MessageToast.show(error.responseJSON.detail.type + ': ' + error.responseJSON.detail.message);
 			return;
 		};
@@ -55,7 +55,7 @@ export default class ModelsHelper extends ManagedObject {
 		const oErrorEvent: Event = <unknown>error as Event;
 		if (!!oErrorEvent.getParameter && oErrorEvent.getParameter('message')){
 			const sMsg = 'Error at ' + sCaller + ' - Could not reach Server (Error: ' + error.status + ' ' + error.statusText + ')'
-			MessageUtil.getInstance().addMessage(MessageType.Error, sMsg);
+			MessageHandler.getInstance().addMessage(MessageType.Error, sMsg);
 			MessageToast.show(sMsg);
 			return;
 		};
@@ -63,7 +63,7 @@ export default class ModelsHelper extends ManagedObject {
 		//fastapi unexpected error (e.g. pydantic validation error)
 		if (!!error && !error.responseJSON){
 			const sMsg = 'Error at ' + sCaller + ' - Unexpected Backend Error (Error: ' + error.status + ' ' + error.statusText + ')'
-			MessageUtil.getInstance().addMessage(MessageType.Error, sMsg);
+			MessageHandler.getInstance().addMessage(MessageType.Error, sMsg);
 			MessageToast.show(sMsg);
 			return;
 		}
@@ -78,7 +78,7 @@ export default class ModelsHelper extends ManagedObject {
 
 		//create message
 		var sresource = Util.parse_resource_from_url(oRequestInfo.getParameter('url'));
-		MessageUtil.getInstance().addMessage(MessageType.Information, 'Loaded Plants from backend', undefined,
+		MessageHandler.getInstance().addMessage(MessageType.Information, 'Loaded Plants from backend', undefined,
 			'Resource: ' + sresource);
 	}
 
@@ -89,7 +89,7 @@ export default class ModelsHelper extends ManagedObject {
 
 		//create message
 		var sresource = Util.parse_resource_from_url(oRequestInfo.getParameter('url'));
-		MessageUtil.getInstance().addMessage(MessageType.Information, 'Loaded Taxa from backend', undefined,
+		MessageHandler.getInstance().addMessage(MessageType.Information, 'Loaded Taxa from backend', undefined,
 			'Resource: ' + sresource);
 	}
 
@@ -156,7 +156,7 @@ export default class ModelsHelper extends ManagedObject {
 		const oTaxon = <BTaxon>oData.taxon;
 		oTaxonModel.setProperty('/TaxaDict/' + taxonId + '/', oTaxon);
 		this._component.oTaxonDataClone.TaxaDict[taxonId] = Util.getClonedObject(oTaxon);
-		MessageUtil.getInstance().addMessageFromBackend(oData.message);
+		MessageHandler.getInstance().addMessageFromBackend(oData.message);
 	}
 
 	private _parse_plant_id_from_hash(): int|undefined {

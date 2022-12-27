@@ -1,7 +1,7 @@
 import JSONModel from "sap/ui/model/json/JSONModel"
 import MessageToast from "sap/m/MessageToast"
 import * as Util from "plants/ui/customClasses/Util";
-import MessageUtil from "plants/ui/customClasses/MessageUtil"
+import MessageHandler from "plants/ui/customClasses/MessageHandler"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
 import ManagedObject from "sap/ui/base/ManagedObject"
 import Dialog from "sap/m/Dialog";
@@ -59,7 +59,7 @@ export default class TaxonomyUtil extends ManagedObject {
 	private _onReceivingSpeciesDatabase(oModelKewSearchResults: JSONModel, data: BResultsTaxonInfoRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) {
 		Util.stopBusyDialog();
 		oModelKewSearchResults.setData(data);
-		MessageUtil.getInstance().addMessageFromBackend(data.message);
+		MessageHandler.getInstance().addMessageFromBackend(data.message);
 	}
 
 	public chooseSpecies(oSelectedItem: ColumnListItem, sCustomName: string,
@@ -115,7 +115,7 @@ export default class TaxonomyUtil extends ManagedObject {
 		
 		Util.stopBusyDialog();
 		MessageToast.show(data.message.message);
-		MessageUtil.getInstance().addMessageFromBackend(data.message);
+		MessageHandler.getInstance().addMessageFromBackend(data.message);
 		oDialog.close();
 
 		const oPlantsModel = <JSONModel> oView.getModel('plants');
@@ -233,6 +233,6 @@ export default class TaxonomyUtil extends ManagedObject {
 		var current_taxon = oTaxonModel.getProperty("/TaxaDict/" + oCurrentPlant.taxon_id)
 		current_taxon.occurrence_images = data.occurrence_images;
 		oTaxonModel.updateBindings(false);
-		MessageUtil.getInstance().addMessageFromBackend(data.message);
+		MessageHandler.getInstance().addMessageFromBackend(data.message);
 	}
 }

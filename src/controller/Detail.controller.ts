@@ -6,7 +6,7 @@ import MessageBox from "sap/m/MessageBox"
 import MessageToast from "sap/m/MessageToast"
 import * as Util from "plants/ui/customClasses/Util";
 import Navigation from "plants/ui/customClasses/Navigation"
-import MessageUtil from "plants/ui/customClasses/MessageUtil"
+import MessageHandler from "plants/ui/customClasses/MessageHandler"
 import EventsUtil from "plants/ui/customClasses/EventsUtil"
 import Sorter from "sap/ui/model/Sorter"
 import FilterOperator from "sap/ui/model/FilterOperator"
@@ -53,8 +53,12 @@ import ColumnListItem from "sap/m/ColumnListItem"
 import ResourceModel from "sap/ui/model/resource/ResourceModel"
 import ResourceBundle from "sap/base/i18n/ResourceBundle"
 import { LCancellationReasonChoice } from "../definitions/PlantsLocal"
-import PlantServices from "../customClasses/PlantServices"
+import PlantLookup from "../customClasses/PlantLookup"
+import PlantCreator from "../customClasses/PlantCreator"
 import SuggestionService from "../customClasses/SuggestionService"
+import PlantCloner from "../customClasses/PlantCloner"
+import PlantRenamer from "../customClasses/PlantRenamer"
+import PlantTagger from "../customClasses/PlantTagger"
 
 /**
  * @namespace plants.ui.controller
@@ -63,7 +67,7 @@ export default class Detail extends BaseController {
 	// container for xml view control event handlers
 	public formatter = new formatter();
 	private eventsUtil: EventsUtil;
-	private plantServices: PlantServices;
+	private oPlantLookup: PlantLookup;
 	public suggestionService: SuggestionService; // public because used in formatter
 	private propertiesUtil: PropertiesUtil;
 	private ImageToTaxon: ImageToTaxon = new ImageToTaxon();
@@ -99,8 +103,10 @@ export default class Detail extends BaseController {
 		super.onInit();
 
 		const oSuggestionsModel = <JSONModel>this.oComponent.getModel('suggestions');
-		this.suggestionService = new SuggestionService(oSuggestionsModel);
-		this.plantServices = new PlantServices(this.applyToFragment.bind(this), this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, this.suggestionService);
+		SuggestionService.createInstance(oSuggestionsModel);
+		this.suggestionService = SuggestionService.getInstance();
+
+		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 
 		this.eventsUtil = EventsUtil.getInstance(this.applyToFragment.bind(this), oSuggestionsModel.getData());
 		this.propertiesUtil = PropertiesUtil.getInstance(this.applyToFragment.bind(this));
@@ -232,7 +238,7 @@ export default class Detail extends BaseController {
 		const aEvents = <BEvents>oData.events;
 		oEventsModel.setProperty('/PlantsEventsDict/' + plantId + '/', aEvents);
 		this.oComponent.oEventsDataClone[plantId] = Util.getClonedObject(aEvents);
-		MessageUtil.getInstance().addMessageFromBackend(oData.message);
+		MessageHandler.getInstance().addMessageFromBackend(oData.message);
 	}
 
 	protected applyToFragment(sId: string, fn: Function, fnInit?: Function) {
@@ -240,172 +246,6 @@ export default class Detail extends BaseController {
 		// the Dialog/Popover ID in the base controller; therefore we have these names
 		// hardcoded in each controller 
 		super.applyToFragment(sId, fn, fnInit, this.mIdToFragment);
-	}
-
-	handleFullScreen() {
-		var sNextLayout = this.oLayoutModel.getProperty("/actionButtonsInfo/midColumn/fullScreen");
-		this.oRouter.navTo("detail", { layout: sNextLayout, plant_id: this._oCurrentPlant.id });
-	}
-
-	handleExitFullScreen() {
-		var sNextLayout = this.oLayoutModel.getProperty("/actionButtonsInfo/midColumn/exitFullScreen");
-		this.oRouter.navTo("detail", { layout: sNextLayout, plant_id: this._oCurrentPlant.id });
-	}
-
-	handleClose() {
-		var sNextLayout = this.oLayoutModel.getProperty("/actionButtonsInfo/midColumn/closeColumn");
-		this.oRouter.navTo("master", { layout: sNextLayout });
-	}
-
-	onChangeActiveSwitch(oEvent: Event) {
-		// open dialog to choose reason for plant deactivation
-		var oSwitch = oEvent.getSource();
-		if (oEvent.getParameter('state')) {
-			return;
-		}
-
-		var oView = this.getView();
-		if (!this.byId('dialogCancellation')) {
-			Fragment.load({
-				name: "plants.ui.view.fragments.detail.DetailCancellation",
-				id: oView.getId(),
-				controller: this
-			}).then((oControl: Control | Control[]) => {
-				const oPopover: Popover = oControl as Popover;
-				(<DatePicker>oView.byId("cancellationDate")).setDateValue(new Date());
-				oView.addDependent(oPopover);
-				oPopover.openBy(oSwitch, true);
-			});
-		} else {
-			(<Popover>this.byId('dialogCancellation')).openBy(oSwitch, true);
-		}
-	}
-
-	onIconPressSetPreview(oEvent: Event) {
-		// get selected image and current plant in model
-		var oSource = <Icon>oEvent.getSource();
-		var sPathCurrentImage = oSource.getBindingContext("images")!.getPath();
-		var oCurrentImage = this.oComponent.getModel('images').getProperty(sPathCurrentImage);
-		var sPathCurrentPlant = oSource.getBindingContext("plants")!.getPath();
-		var oCurrentPlant = <BPlant>this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
-
-		// temporarily set original image as preview image
-		// upon reloading plants model, a specific preview image will be generated 
-		var sUrlOriginal = oCurrentImage['filename'];
-		var s = JSON.stringify(sUrlOriginal); // model stores backslash unescaped, so we need a workaround
-		// var s2 = s.substring(1, s.length - 1);
-		// oCurrentPlant['url_preview'] = s2;
-		oCurrentPlant['filename_previewimage'] = oCurrentImage['filename'];
-
-		this.oComponent.getModel('plants').updateBindings(false);
-	}
-
-	onSetInactive(oEvent: Event) {
-		//set plant inactive after choosing a reason (e.g. freezing, drought, etc.)
-		//we don't use radiobuttongroup helper, so we must get selected element manually
-		var aReasons = <LCancellationReasonChoice[]>this.oComponent.getModel('suggestions').getProperty('/cancellationReasonCollection');
-		var oReasonSelected = aReasons.find(ele => ele.selected);
-
-		//set current plant's cancellation reason and date
-		var oCurrentPlant = <BPlant>this.getView().getBindingContext('plants')!.getObject();
-		oCurrentPlant.cancellation_reason = oReasonSelected!.text as FBCancellationReason;
-		var oDatePicker = <DatePicker>this.byId("cancellationDate");
-		let oDate: Date = oDatePicker.getDateValue() as unknown as Date;
-		var sDateFormatted = Util.formatDate(oDate);
-		// this.getView().getBindingContext('plants').getObject().cancellation_date = sDateFormatted;
-		oCurrentPlant.cancellation_date = sDateFormatted;
-		(<JSONModel>this.oComponent.getModel('plants')).updateBindings(false);
-
-		(<Dialog>this.byId('dialogCancellation')).close();
-	}
-
-	onChangeParent(oEvent: Event) {
-		// verify entered parent and set parent plant id
-		var aPlants = <BPlant[]>this.getView().getModel('plants').getProperty('/PlantsCollection');
-		var parentPlant = aPlants.find(plant => plant.plant_name === oEvent.getParameter('newValue').trim());
-
-		if (!oEvent.getParameter('newValue').trim() || !parentPlant) {
-			var parentalPlant = undefined;
-
-		} else {
-			// set parent plant
-			parentalPlant = <FBAssociatedPlantExtractForPlant>{
-				id: parentPlant.id,
-				plant_name: parentPlant.plant_name,
-				active: parentPlant.active
-			}
-		}
-
-		// fn is fired by changes for parent and parent_ollen
-		if ((<Input>oEvent.getSource()).data('parentType') === "parent_pollen") {
-			this._oCurrentPlant.parent_plant_pollen = parentalPlant;
-		} else {
-			this._oCurrentPlant.parent_plant = parentalPlant;
-		}
-	}
-
-	onPressGoToPlant(parentPlantId: int) {
-		//navigate to supplied plant
-		if (!!parentPlantId) {
-			Navigation.getInstance().navToPlantDetails(parentPlantId);
-		} else {
-			this.handleErrorMessageBox("Can't determine Plant Index");
-		}
-	}
-
-	onSuggestNursery(oEvent: Event) {
-		// overwrite default suggestions (only beginsWith term) with custom one (contains term))
-		var aFilters = [];
-		var sTerm = oEvent.getParameter("suggestValue");
-		if (sTerm) {
-			aFilters.push(new Filter("name", FilterOperator.Contains, sTerm));
-		}
-		var oInput = <Input>oEvent.getSource();
-		var oListBinding = <ListBinding>oInput.getBinding("suggestionItems");
-		oListBinding.filter(aFilters);
-		//do <<not>> filter the provided suggestions with default logic before showing them to the user
-		oInput.setFilterSuggests(false);
-	}
-
-	onPressButtonDeletePlant(oEvent: Event, sPlant: string, plantId: int) {
-		if (sPlant.length < 1) {
-			return;
-		}
-
-		//confirm dialog
-		var oMenuItem = <MenuItem>oEvent.getSource();
-		var oPlant = <BPlant>oMenuItem.getBindingContext('plants')!.getObject();
-		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
-
-		const mOptions = {
-			title: "Delete",
-			stretch: false,
-			onClose: this._confirmDeletePlant.bind(this, sPlant, plantId, oPlant),
-			actions: ['Delete', 'Cancel'],
-			styleClass: bCompact ? "sapUiSizeCompact" : ""
-		}
-		MessageBox.confirm("Delete plant " + sPlant + "?", mOptions);
-	}
-
-	onPressButtonClonePlant(oEvent: Event) {
-		// triggered by button in details upper menu
-		// opens dialog to clone current plant
-
-		// check if there are any unsaved changes
-		var aModifiedPlants = this.getModifiedPlants();
-		var aModifiedImages = this.getModifiedImages();
-		var aModifiedTaxa = this.getModifiedTaxa();
-		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
-			MessageToast.show('There are unsaved changes. Save modified data or reload data first.');
-			return;
-		}
-
-		this.applyToFragment('dialogClonePlant', (o: Dialog) => {
-			const clonePlantName = this._generatePlantNameWithRomanizedSuffix(this._oCurrentPlant.plant_name, 2);
-			const oInput = <Input>this.byId('inputClonedPlantName');
-			oInput.setValue(clonePlantName);
-			o.open();
-		});
 	}
 
 	private _confirmDeletePlant(sPlant: string, plantId: int, oPlant: BPlant, sAction: string) {
@@ -448,7 +288,97 @@ export default class Detail extends BaseController {
 		}
 
 		//return to one-column-layout (plant in details view was deleted)
-		this.handleClose();
+		this.onHandleClose();
+	}
+
+	private _requestImagesForPlant(plant_id: int) {
+		// request data from backend
+		// note: unlike plants, properties, events, and taxon, we don't need to bind a path
+		// to the view for images as the image model contains only the current plant's images
+		var sId = encodeURIComponent(plant_id);
+		var uri = 'plants/' + sId + '/images/';
+
+		$.ajax({
+			url: Util.getServiceUrl(uri),
+			// data: ,
+			context: this,
+			async: true
+		})
+			.done(this._onReceivingImagesForPlant.bind(this, plant_id))
+			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Plant Images (GET)'));
+	}
+
+	private _onReceivingImagesForPlant(plant_id: int, oData: any) {
+		this.addPhotosToRegistry(oData);
+		this.oComponent.imagesPlantsLoaded.add(plant_id);
+		this.resetImagesCurrentPlant(plant_id);
+		this.oComponent.getModel('images').updateBindings(false);
+	}
+
+	private _generatePlantNameWithRomanizedSuffix(baseName: string, beginWith: int): string {
+		// e.g. Aeonium spec. II -> Aeonium spec. III if the former already exists
+		for (var i = beginWith; i < 100; i++) {
+			var latinNumber = Util.romanize(i);
+			var suggestedName = baseName + ' ' + latinNumber;
+			if (!this.oPlantLookup.plantNameExists(suggestedName)) {
+				return suggestedName;
+			}
+		}
+		throw new Error('Could not generate plant name with romanized suffix.');
+	}
+
+	private _generateNewPlantNameSuggestion(oParentPlant: BPlant, oParentPlantPollen: BPlant | undefined): string {
+		// generate new plant name suggestion
+		// ... only if parent plant names are set
+
+		// hybrid of two parents
+		if (!!oParentPlantPollen) {
+			var suggestedName = (oParentPlant.botanical_name || oParentPlant.plant_name) + ' × ' +
+				(oParentPlantPollen.botanical_name || oParentPlantPollen.plant_name);
+			if (this.oPlantLookup.plantNameExists(suggestedName)) {
+				// we need to find a variant using latin numbers, starting with II
+				// Consider existing latin number at ending
+				suggestedName = this._generatePlantNameWithRomanizedSuffix(suggestedName, 2);
+			}
+
+			// Just one parent: add latin number to parent plant name
+			// Consider existing latin number at ending
+		} else {
+			var baseName = oParentPlant.plant_name;
+			var reRomanNumber = /\sM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/;
+			var romanNumberMatch = baseName.match(reRomanNumber);
+			if (!!romanNumberMatch) {
+				var romanNumber = romanNumberMatch.pop();
+				var beginWith = Util.arabize(romanNumber!) + 1;
+				// remove the roman number at the end
+				baseName = baseName.substr(0, oParentPlant.plant_name.lastIndexOf(' '));
+			} else {
+				var beginWith = 2;
+			}
+
+			// find suitable roman number suffix
+			var suggestedName = this._generatePlantNameWithRomanizedSuffix(baseName, beginWith);
+		}
+
+		return suggestedName;
+	}
+
+	//////////////////////////////////////////////////////////
+	// GUI Handlers
+	//////////////////////////////////////////////////////////
+	onHandleFullScreen() {
+		var sNextLayout = this.oLayoutModel.getProperty("/actionButtonsInfo/midColumn/fullScreen");
+		this.oRouter.navTo("detail", { layout: sNextLayout, plant_id: this._oCurrentPlant.id });
+	}
+
+	onHandleExitFullScreen() {
+		var sNextLayout = this.oLayoutModel.getProperty("/actionButtonsInfo/midColumn/exitFullScreen");
+		this.oRouter.navTo("detail", { layout: sNextLayout, plant_id: this._oCurrentPlant.id });
+	}
+
+	onHandleClose() {
+		var sNextLayout = this.oLayoutModel.getProperty("/actionButtonsInfo/midColumn/closeColumn");
+		this.oRouter.navTo("master", { layout: sNextLayout });
 	}
 
 	public onToggleEditMode(oEvent: Event) {
@@ -467,6 +397,67 @@ export default class Detail extends BaseController {
 		}
 	}
 
+	//////////////////////////////////////////////////////////
+	// Shared Handlers
+	//////////////////////////////////////////////////////////
+	onLiveChangeNewPlantName(oEvent: Event, type: 'clone' | 'rename' | 'descendant') {
+		// called from either rename or clone fragment
+		var sText = oEvent.getParameter('value');
+		if (type === 'clone') {
+			(<Button>this.byId('btnClonePlantSubmit')).setEnabled(sText.length > 0);
+		} else if (type === 'rename') {
+			(<Button>this.byId('btnRenamePlantSubmit')).setEnabled(sText.length > 0);
+		} else if (type === 'descendant') {
+			(<Button>this.byId('btnDescendantDialogCreate')).setEnabled(sText.length > 0);
+		}
+	}
+
+	//////////////////////////////////////////////////////////
+	// Clone Plant Handlers
+	//////////////////////////////////////////////////////////	
+	onPressButtonSubmitClonePlant(oEvent: Event) {
+		// use ajax to clone plant in backend
+		const sClonedPlantName = (<Input>this.byId('inputClonedPlantName')).getValue().trim();
+		const oPlantCloner = new PlantCloner(this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, this.oPlantLookup)
+		const oDialogClonePlant = <Dialog>this.byId('dialogClonePlant');
+		oPlantCloner.clonePlant(this._oCurrentPlant, sClonedPlantName, oDialogClonePlant);
+	}	
+
+	//////////////////////////////////////////////////////////
+	// Rename Plant Handlers
+	//////////////////////////////////////////////////////////
+	onPressButtonRenamePlant(oEvent: Event) {
+		// triggered by button in details upper menu
+		// opens dialog to rename current plant
+
+		// check if there are any unsaved changes
+		var aModifiedPlants = this.getModifiedPlants();
+		var aModifiedImages = this.getModifiedImages();
+		var aModifiedTaxa = this.getModifiedTaxa();
+		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
+			MessageToast.show('There are unsaved changes. Save modified data or reload data first.');
+			return;
+		}
+
+		this.applyToFragment('dialogRenamePlant', (oDialog: Dialog) => {
+			var oInput = <Input>this.byId('inputNewPlantName');
+			oInput.setValue(this._oCurrentPlant.plant_name);
+			oDialog.open();
+		});
+	}
+
+	onPressButtonSubmitRenamePlant(oEvent: Event) {
+		// use ajax to rename plant in backend
+		const sNewPlantName = (<Input>this.byId('inputNewPlantName')).getValue().trim();
+
+		const oPlantRenamer = new PlantRenamer(this.oPlantLookup);
+		const oDialogRenamePlant = <Dialog>this.byId('dialogRenamePlant');
+		oPlantRenamer.renamePlant(this._oCurrentPlant, sNewPlantName, this._requestImagesForPlant.bind(this), oDialogRenamePlant);
+	}	
+
+	//////////////////////////////////////////////////////////
+	// Plant Tag Handlers
+	//////////////////////////////////////////////////////////
 	public onPressTag(oEvent: Event) {
 		var oSource = <ObjectStatus>oEvent.getSource();
 		// create delete dialog for tags
@@ -521,17 +512,137 @@ export default class Detail extends BaseController {
 		// create a new tag inside the plant's object in the plants model
 		// it will be saved in backend when saving the plant
 		// new/deleted tags are within scope of the plants model modification tracking
-
 		const oPopover = <Popover>this.byId('dialogAddTag');
 		const oPlant = <BPlant>this.oComponent.getModel('plants').getData().PlantsCollection[this._currentPlantIndex];
-
-		this.plantServices.addTagToPlant(oPopover, oPlant);
+		const oPlantTagger = new PlantTagger(this.oComponent.getModel('plants'));
+		const oModelTagTypes = <JSONModel>oPopover.getModel('tagTypes');
+		oPlantTagger.addTagToPlant(oPlant, oModelTagTypes);
 		(<Popover>this.byId('dialogAddTag')).close();
 	}
 
-	onPressButtonRenamePlant(oEvent: Event) {
+	//////////////////////////////////////////////////////////
+	// Plant Details Handlers
+	//////////////////////////////////////////////////////////		
+	onSetInactive(oEvent: Event) {
+		//set plant inactive after choosing a reason (e.g. freezing, drought, etc.)
+		//we don't use radiobuttongroup helper, so we must get selected element manually
+		var aReasons = <LCancellationReasonChoice[]>this.oComponent.getModel('suggestions').getProperty('/cancellationReasonCollection');
+		var oReasonSelected = aReasons.find(ele => ele.selected);
+
+		//set current plant's cancellation reason and date
+		var oCurrentPlant = <BPlant>this.getView().getBindingContext('plants')!.getObject();
+		oCurrentPlant.cancellation_reason = oReasonSelected!.text as FBCancellationReason;
+		var oDatePicker = <DatePicker>this.byId("cancellationDate");
+		let oDate: Date = oDatePicker.getDateValue() as unknown as Date;
+		var sDateFormatted = Util.formatDate(oDate);
+		// this.getView().getBindingContext('plants').getObject().cancellation_date = sDateFormatted;
+		oCurrentPlant.cancellation_date = sDateFormatted;
+		(<JSONModel>this.oComponent.getModel('plants')).updateBindings(false);
+
+		(<Dialog>this.byId('dialogCancellation')).close();
+	}
+
+	onPressGoToPlant(parentPlantId: int) {
+		//navigate to supplied plant
+		if (!!parentPlantId) {
+			Navigation.getInstance().navToPlantDetails(parentPlantId);
+		} else {
+			this.handleErrorMessageBox("Can't determine Plant Index");
+		}
+	}
+
+	onSuggestNursery(oEvent: Event) {
+		// overwrite default suggestions (only beginsWith term) with custom one (contains term))
+		var aFilters = [];
+		var sTerm = oEvent.getParameter("suggestValue");
+		if (sTerm) {
+			aFilters.push(new Filter("name", FilterOperator.Contains, sTerm));
+		}
+		var oInput = <Input>oEvent.getSource();
+		var oListBinding = <ListBinding>oInput.getBinding("suggestionItems");
+		oListBinding.filter(aFilters);
+		//do <<not>> filter the provided suggestions with default logic before showing them to the user
+		oInput.setFilterSuggests(false);
+	}
+	
+	onChangeActiveSwitch(oEvent: Event) {
+		// open dialog to choose reason for plant deactivation
+		var oSwitch = oEvent.getSource();
+		if (oEvent.getParameter('state')) {
+			return;
+		}
+
+		var oView = this.getView();
+		if (!this.byId('dialogCancellation')) {
+			Fragment.load({
+				name: "plants.ui.view.fragments.detail.DetailCancellation",
+				id: oView.getId(),
+				controller: this
+			}).then((oControl: Control | Control[]) => {
+				const oPopover: Popover = oControl as Popover;
+				(<DatePicker>oView.byId("cancellationDate")).setDateValue(new Date());
+				oView.addDependent(oPopover);
+				oPopover.openBy(oSwitch, true);
+			});
+		} else {
+			(<Popover>this.byId('dialogCancellation')).openBy(oSwitch, true);
+		}
+	}
+
+	onChangeParent(oEvent: Event) {
+		// verify entered parent and set parent plant id
+		var aPlants = <BPlant[]>this.getView().getModel('plants').getProperty('/PlantsCollection');
+		var parentPlant = aPlants.find(plant => plant.plant_name === oEvent.getParameter('newValue').trim());
+
+		if (!oEvent.getParameter('newValue').trim() || !parentPlant) {
+			var parentalPlant = undefined;
+
+		} else {
+			// set parent plant
+			parentalPlant = <FBAssociatedPlantExtractForPlant>{
+				id: parentPlant.id,
+				plant_name: parentPlant.plant_name,
+				active: parentPlant.active
+			}
+		}
+
+		// fn is fired by changes for parent and parent_ollen
+		if ((<Input>oEvent.getSource()).data('parentType') === "parent_pollen") {
+			this._oCurrentPlant.parent_plant_pollen = parentalPlant;
+		} else {
+			this._oCurrentPlant.parent_plant = parentalPlant;
+		}
+	}
+
+	//////////////////////////////////////////////////////////
+	// Delete Plant Handlers
+	//////////////////////////////////////////////////////////	
+	onPressButtonDeletePlant(oEvent: Event, sPlant: string, plantId: int) {
+		if (sPlant.length < 1) {
+			return;
+		}
+
+		//confirm dialog
+		var oMenuItem = <MenuItem>oEvent.getSource();
+		var oPlant = <BPlant>oMenuItem.getBindingContext('plants')!.getObject();
+		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
+
+		const mOptions = {
+			title: "Delete",
+			stretch: false,
+			onClose: this._confirmDeletePlant.bind(this, sPlant, plantId, oPlant),
+			actions: ['Delete', 'Cancel'],
+			styleClass: bCompact ? "sapUiSizeCompact" : ""
+		}
+		MessageBox.confirm("Delete plant " + sPlant + "?", mOptions);
+	}
+
+	//////////////////////////////////////////////////////////
+	// Clone Plant Handlers
+	//////////////////////////////////////////////////////////
+	onPressButtonClonePlant(oEvent: Event) {
 		// triggered by button in details upper menu
-		// opens dialog to rename current plant
+		// opens dialog to clone current plant
 
 		// check if there are any unsaved changes
 		var aModifiedPlants = this.getModifiedPlants();
@@ -542,60 +653,48 @@ export default class Detail extends BaseController {
 			return;
 		}
 
-		this.applyToFragment('dialogRenamePlant', (oDialog: Dialog) => {
-			var oInput = <Input>this.byId('inputNewPlantName');
-			oInput.setValue(this._oCurrentPlant.plant_name);
-			oDialog.open();
+		this.applyToFragment('dialogClonePlant', (o: Dialog) => {
+			const clonePlantName = this._generatePlantNameWithRomanizedSuffix(this._oCurrentPlant.plant_name, 2);
+			const oInput = <Input>this.byId('inputClonedPlantName');
+			oInput.setValue(clonePlantName);
+			o.open();
 		});
 	}
 
-	onLiveChangeNewPlantName(oEvent: Event, type: 'clone' | 'rename' | 'descendant') {
-		// called from either rename or clone fragment
-		var sText = oEvent.getParameter('value');
-		if (type === 'clone') {
-			(<Button>this.byId('btnClonePlantSubmit')).setEnabled(sText.length > 0);
-		} else if (type === 'rename') {
-			(<Button>this.byId('btnRenamePlantSubmit')).setEnabled(sText.length > 0);
-		} else if (type === 'descendant') {
-			(<Button>this.byId('btnDescendantDialogCreate')).setEnabled(sText.length > 0);
+	//////////////////////////////////////////////////////////
+	// Create Descendant Plant Handlers
+	//////////////////////////////////////////////////////////
+	onDescendantDialogCreate(oEvent: Event) {
+		// triggered from create-descendant-dialog to create the descendant plant
+		const descendantPlantInput = <LDescendantPlantInput>(<JSONModel>this.byId('dialogCreateDescendant').getModel('descendant')).getData();
+		// this.oPlantLookup.createDescendantPlant(descendantPlantInput);
+
+		const oPlantCreator = new PlantCreator(this.oComponent.getModel('plants'), this.oComponent.oPlantsDataClone, this.oPlantLookup);
+		oPlantCreator.createDescendantPlant(descendantPlantInput);
+		
+		this.applyToFragment('dialogCreateDescendant', (oDialog: Dialog) => oDialog.close());
+	}
+
+	onDescendantDialogChangeParent(oEvent: Event, parentType: 'parent' | 'parent_pollen') {
+		// reset parent plant (/pollen) input if entered plant name is invalid
+		var parentPlantName = oEvent.getParameter('newValue').trim();
+
+		if (!parentPlantName || !this.oPlantLookup.plantNameExists(parentPlantName)) {
+			(<Input>oEvent.getSource()).setValue('');
+			return;
 		}
+
+		this.onUpdatePlantNameSuggestion();
 	}
 
-	onPressButtonSubmitClonePlant(oEvent: Event) {
-		// use ajax to clone plant in backend
-		const sClonedPlantName = (<Input>this.byId('inputClonedPlantName')).getValue().trim();
-		this.plantServices.clonePlant(this._oCurrentPlant, sClonedPlantName);
-	}
+	onDescendantDialogSwitchParents() {
+		// triggered by switch button; switch parent plant and parent plant pollen
+		var model = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
+		var parentPlantName = model.getProperty('/parentPlant');
+		model.setProperty('/parentPlant', model.getProperty('/parentPlantPollen'));
+		model.setProperty('/parentPlantPollen', parentPlantName);
 
-	onPressButtonSubmitRenamePlant(oEvent: Event) {
-		// use ajax to rename plant in backend
-		const sNewPlantName = (<Input>this.byId('inputNewPlantName')).getValue().trim();
-
-		this.plantServices.renamePlant(this._oCurrentPlant, sNewPlantName, this._requestImagesForPlant.bind(this));
-	}
-
-	private _requestImagesForPlant(plant_id: int) {
-		// request data from backend
-		// note: unlike plants, properties, events, and taxon, we don't need to bind a path
-		// to the view for images as the image model contains only the current plant's images
-		var sId = encodeURIComponent(plant_id);
-		var uri = 'plants/' + sId + '/images/';
-
-		$.ajax({
-			url: Util.getServiceUrl(uri),
-			// data: ,
-			context: this,
-			async: true
-		})
-			.done(this._onReceivingImagesForPlant.bind(this, plant_id))
-			.fail(this.modelsHelper.onReceiveErrorGeneric.bind(this, 'Plant Images (GET)'));
-	}
-
-	private _onReceivingImagesForPlant(plant_id: int, oData: any) {
-		this.addPhotosToRegistry(oData);
-		this.oComponent.imagesPlantsLoaded.add(plant_id);
-		this.resetImagesCurrentPlant(plant_id);
-		this.oComponent.getModel('images').updateBindings(false);
+		this.onUpdatePlantNameSuggestion();
 	}
 
 	onPressButtonCreateDescendantPlant(oEvent: Event) {
@@ -616,74 +715,19 @@ export default class Detail extends BaseController {
 			var defaultPropagationType: FBPropagationType = 'seed (collected)';
 			var descendantPlantDataInit: LDescendantPlantInput = {
 				propagationType: defaultPropagationType,
-				parentPlant: this.plantServices.getPlantById(this._currentPlantId).plant_name,
+				parentPlant: this.oPlantLookup.getPlantById(this._currentPlantId).plant_name,
 				parentPlantPollen: undefined,
 				descendantPlantName: undefined
 			};
 			var oModelDescendant = new JSONModel(descendantPlantDataInit);
 			oDialog.setModel(oModelDescendant, "descendant");
-			this.updatePlantNameSuggestion();
+			this.onUpdatePlantNameSuggestion();
 			oDialog.open();
 		}
 		);
 	}
 
-	onDescendantDialogCreate(oEvent: Event) {
-		// triggered from create-descendant-dialog to create the descendant plant
-		const descendantPlantInput = <LDescendantPlantInput>(<JSONModel>this.byId('dialogCreateDescendant').getModel('descendant')).getData();
-		this.plantServices.createDescendantPlant(descendantPlantInput);
-		this.applyToFragment('dialogCreateDescendant', (oDialog: Dialog) => oDialog.close());
-	}
-
-	private _generatePlantNameWithRomanizedSuffix(baseName: string, beginWith: int): string {
-		// e.g. Aeonium spec. II -> Aeonium spec. III if the former already exists
-		for (var i = beginWith; i < 100; i++) {
-			var latinNumber = Util.romanize(i);
-			var suggestedName = baseName + ' ' + latinNumber;
-			if (!this.plantServices.plantNameExists(suggestedName)) {
-				return suggestedName;
-			}
-		}
-		throw new Error('Could not generate plant name with romanized suffix.');
-	}
-
-	private _generateNewPlantNameSuggestion(oParentPlant: BPlant, oParentPlantPollen: BPlant | undefined): string {
-		// generate new plant name suggestion
-		// ... only if parent plant names are set
-
-		// hybrid of two parents
-		if (!!oParentPlantPollen) {
-			var suggestedName = (oParentPlant.botanical_name || oParentPlant.plant_name) + ' × ' +
-				(oParentPlantPollen.botanical_name || oParentPlantPollen.plant_name);
-			if (this.plantServices.plantNameExists(suggestedName)) {
-				// we need to find a variant using latin numbers, starting with II
-				// Consider existing latin number at ending
-				suggestedName = this._generatePlantNameWithRomanizedSuffix(suggestedName, 2);
-			}
-
-			// Just one parent: add latin number to parent plant name
-			// Consider existing latin number at ending
-		} else {
-			var baseName = oParentPlant.plant_name;
-			var reRomanNumber = /\sM{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$/;
-			var romanNumberMatch = baseName.match(reRomanNumber);
-			if (!!romanNumberMatch) {
-				var romanNumber = romanNumberMatch.pop();
-				var beginWith = Util.arabize(romanNumber!) + 1;
-				// remove the roman number at the end
-				baseName = baseName.substr(0, oParentPlant.plant_name.lastIndexOf(' '));
-			} else {
-				var beginWith = 2;
-			}
-
-			// find suitable roman number suffix
-			var suggestedName = this._generatePlantNameWithRomanizedSuffix(baseName, beginWith);
-		}
-
-		return suggestedName;
-	}
-
-	updatePlantNameSuggestion() {
+	onUpdatePlantNameSuggestion() {
 		// generate new plant name suggestion
 		const oCheckbox = <CheckBox>this.byId('autoNameDescendantPlantName');
 		if (!oCheckbox.getSelected()) {
@@ -698,46 +742,15 @@ export default class Detail extends BaseController {
 		const propagationType = <LPropagationTypeData>this.suggestionService.getSuggestionItem('propagationTypeCollection', descendantPlantData.propagationType);
 
 		if (descendantPlantData.parentPlant && descendantPlantData.parentPlant.trim().length) {
-			const oParentPlant: BPlant = this.plantServices.getPlantByName(descendantPlantData.parentPlant);
-			const oParentPlantPollen = (descendantPlantData.parentPlantPollen && propagationType.hasParentPlantPollen) ? this.plantServices.getPlantByName(descendantPlantData.parentPlantPollen) : undefined;
+			const oParentPlant: BPlant = this.oPlantLookup.getPlantByName(descendantPlantData.parentPlant);
+			const oParentPlantPollen = (descendantPlantData.parentPlantPollen && propagationType.hasParentPlantPollen) ? this.oPlantLookup.getPlantByName(descendantPlantData.parentPlantPollen) : undefined;
 			var suggestedName = this._generateNewPlantNameSuggestion(oParentPlant, oParentPlantPollen);
 		} else {
 			suggestedName = '';
 		}
 		const oModelDescendant = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
 		oModelDescendant.setProperty('/descendantPlantName', suggestedName);
-	}
-
-	onDescendantDialogChangeParent(oEvent: Event, parentType: 'parent' | 'parent_pollen') {
-		// reset parent plant (/pollen) input if entered plant name is invalid
-		var parentPlantName = oEvent.getParameter('newValue').trim();
-
-		if (!parentPlantName || !this.plantServices.plantNameExists(parentPlantName)) {
-			(<Input>oEvent.getSource()).setValue('');
-			return;
-		}
-
-		this.updatePlantNameSuggestion();
-	}
-
-	onDescendantDialogSwitchParents() {
-		// triggered by switch button; switch parent plant and parent plant pollen
-		var model = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
-		var parentPlantName = model.getProperty('/parentPlant');
-		model.setProperty('/parentPlant', model.getProperty('/parentPlantPollen'));
-		model.setProperty('/parentPlantPollen', parentPlantName);
-
-		this.updatePlantNameSuggestion();
-	}
-
-	onSwitchImageEditDescription(oEvent: Event) {
-		const oModelStatus = <JSONModel>this.getView().getModel('status');
-		if (oModelStatus.getProperty('/images_editable')) {
-			oModelStatus.setProperty('/images_editable', false);
-		} else {
-			oModelStatus.setProperty('/images_editable', true);
-		}
-	}
+	}	
 
 	//////////////////////////////////////////////////////////
 	// Taxonomy Handlers
@@ -983,6 +996,25 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Image Handlers
 	//////////////////////////////////////////////////////////
+	onIconPressSetPreview(oEvent: Event) {
+		// get selected image and current plant in model
+		var oSource = <Icon>oEvent.getSource();
+		var sPathCurrentImage = oSource.getBindingContext("images")!.getPath();
+		var oCurrentImage = this.oComponent.getModel('images').getProperty(sPathCurrentImage);
+		var sPathCurrentPlant = oSource.getBindingContext("plants")!.getPath();
+		var oCurrentPlant = <BPlant>this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
+
+		// temporarily set original image as preview image
+		// upon reloading plants model, a specific preview image will be generated 
+		var sUrlOriginal = oCurrentImage['filename'];
+		var s = JSON.stringify(sUrlOriginal); // model stores backslash unescaped, so we need a workaround
+		// var s2 = s.substring(1, s.length - 1);
+		// oCurrentPlant['url_preview'] = s2;
+		oCurrentPlant['filename_previewimage'] = oCurrentImage['filename'];
+
+		this.oComponent.getModel('plants').updateBindings(false);
+	}
+
 	onAddPlantNameToUntaggedImage(oEvent: Event) {
 		//adds selected plant in input field (via suggestions) to an image in (details view)
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
@@ -1006,7 +1038,7 @@ export default class Detail extends BaseController {
 		if (oPlantTag.plant_id === this._oCurrentPlant.id) return; //already on this plant (no need to navigate)
 
 		//navigate to plant in layout's current column (i.e. middle column)
-		Navigation.getInstance().navToPlant(this.plantServices.getPlantById(oPlantTag.plant_id), this.oComponent);
+		Navigation.getInstance().navToPlant(this.oPlantLookup.getPlantById(oPlantTag.plant_id), this.oComponent);
 	}
 
 	onIconPressDeleteImage(oEvent: Event) {
@@ -1051,6 +1083,16 @@ export default class Detail extends BaseController {
 
 		const oImagesModel = this.oComponent.getModel('images');
 		oImagesModel.updateBindings(false);
+	}
+
+	onSwitchImageEditDescription(oEvent: Event) {
+		// switch "editable" for plant image description fields
+		const oModelStatus = <JSONModel>this.getView().getModel('status');
+		if (oModelStatus.getProperty('/images_editable')) {
+			oModelStatus.setProperty('/images_editable', false);
+		} else {
+			oModelStatus.setProperty('/images_editable', true);
+		}
 	}
 
 	onTokenizerKeywordImageTokenDelete(oEvent: Event) {
@@ -1120,9 +1162,9 @@ export default class Detail extends BaseController {
 		var oResponse = JSON.parse(oEvent.getParameter('responseRaw'));
 		if (!oResponse) {
 			const sMsg = "Upload complete, but can't determine status.";
-			MessageUtil.getInstance().addMessage(MessageType.Warning, sMsg);
+			MessageHandler.getInstance().addMessage(MessageType.Warning, sMsg);
 		}
-		MessageUtil.getInstance().addMessageFromBackend(oResponse.message);
+		MessageHandler.getInstance().addMessageFromBackend(oResponse.message);
 
 		// add to images registry and refresh current plant's images
 		if (oResponse.images.length > 0) {

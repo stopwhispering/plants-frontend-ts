@@ -1,4 +1,3 @@
-
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { LPropagationTypeData } from "../definitions/PlantsLocal";
@@ -7,8 +6,20 @@ import { LPropagationTypeData } from "../definitions/PlantsLocal";
  * @namespace plants.ui.customClasses
  */
 export default class SuggestionService extends ManagedObject {
+	private static _instance: SuggestionService;
 	private _oSuggesionsModel: JSONModel;
 
+	public static createInstance(oSuggesionsModel: JSONModel): void {
+		this._instance = new SuggestionService(oSuggesionsModel);
+	}
+
+	public static getInstance(): SuggestionService {
+		if (!this._instance) {
+			throw "SuggestionService instance not created";
+		}
+		return this._instance;
+	}
+	
 	public constructor(oSuggesionsModel: JSONModel) {
 		super();
 		this._oSuggesionsModel = oSuggesionsModel;

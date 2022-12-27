@@ -121,21 +121,21 @@
 					<m:OverflowToolbarButton
 						type="Transparent"
 						icon="sap-icon://full-screen"
-						press="handleFullScreen"
+						press="onHandleFullScreen"
 						tooltip="{i18n>fullscreen_button_tooltip}"
 						visible="{= ${/actionButtonsInfo/midColumn/fullScreen} !== null }"
 					/>
 					<m:OverflowToolbarButton
 						type="Transparent"
 						icon="sap-icon://exit-full-screen"
-						press="handleExitFullScreen"
+						press="onHandleExitFullScreen"
 						tooltip="{i18n>exit_fullscreen_button_tooltip}"
 						visible="{= ${/actionButtonsInfo/midColumn/exitFullScreen} !== null }"
 					/>
 					<m:OverflowToolbarButton
 						type="Transparent"
 						icon="sap-icon://decline"
-						press="handleClose"
+						press="onHandleClose"
 						tooltip="{i18n>close_column}"
 						visible="{= ${/actionButtonsInfo/midColumn/closeColumn} !== null }"
 					/>
