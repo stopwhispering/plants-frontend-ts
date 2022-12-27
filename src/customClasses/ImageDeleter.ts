@@ -8,6 +8,7 @@ import { FBImage } from "../definitions/Images";
 import { BConfirmation } from "../definitions/Messages";
 import ModelsHelper from "../model/ModelsHelper";
 import ChangeTracker from "./ChangeTracker";
+import ImageRegistryHandler from "./ImageRegistryHandler";
 
 /**
  * @namespace plants.ui.customClasses
@@ -17,18 +18,15 @@ export default class ImageDeleter extends ManagedObject {
 	private _oImagesModel: JSONModel;
 	private _oUntaggedImagesModel: JSONModel;
 	private fnOnAjaxSimpleSuccess: Function;
-	private	_oImageRegistry: LImageMap;
 
 	public constructor(
 		oImagesModel: JSONModel, 
 		oUntaggedImagesModel: JSONModel, 
-		oImageRegistry: LImageMap,
 		fnOnAjaxSimpleSuccess: Function) {
 
 		super();
 		this._oImagesModel = oImagesModel;
 		this._oUntaggedImagesModel = oUntaggedImagesModel;
-		this._oImageRegistry = oImageRegistry;
 		this.fnOnAjaxSimpleSuccess = fnOnAjaxSimpleSuccess;  // todo find a better way to do this
 	}	
 
@@ -100,7 +98,8 @@ export default class ImageDeleter extends ManagedObject {
 			}
 
 			//... and deleted image in images registry
-			delete that._oImageRegistry[image.filename];  // todo create imageregistry class to handle this
+			// delete that._oImageRegistry[image.filename];  // todo create imageregistry class to handle this
+			ImageRegistryHandler.getInstance().removeImageFromRegistry(image.filename);
 			// delete that._oImageRegistryClone[image.filename]
 			ChangeTracker.getInstance().removeOriginalImage(image.filename);
 

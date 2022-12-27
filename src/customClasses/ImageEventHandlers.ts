@@ -116,26 +116,6 @@ export default class ImageEventHandlers extends ManagedObject{
 									sSupportedFileTypes);
 		}
 
-		// public removeTokenFromModel(sTokenKey: string, oImage: PImage, oModel: JSONModel, sType: 'plant'|'keyword'){
-		// 	// triggered upon changes of image's plant assignments and image's keywords
-		// 	// either in untagged view or in detail view
-		// 	// sKey is either a keyword or a plant name
-		// 	// note: the token itself has already been deleted; here, we only delete the 
-		// 	// 		 corresponding entry from the model
-			
-		// 	// find plant/keyword in the image's corresponding array and delete
-		// 	if (sType === 'plant'){
-		// 		const aPlantTags = <PImagePlantTag[]>oImage.plants;
-		// 		const iIndex: int = aPlantTags.findIndex(ele=>ele.key === sKey);
-		// 		aPlantTags.splice(iIndex, 1);
-		// 	} else { //'keyword'
-		// 		const aKeywordTags = <PKeyword[]>oImage.keywords;
-		// 		const iIndex: int = aKeywordTags.findIndex(ele=>ele.keyword === sKey);
-		// 		aKeywordTags.splice(iIndex, 1);
-		// 	}
-		// 	oModel.updateBindings(false);
-		// }
-
 		public removePlantImageTokenFromModel(sPlantTokenKey: string, oImage: FBImage, oModel: JSONModel){
 			// triggered upon changes of image's plant assignments
 			// either in untagged view or in detail view

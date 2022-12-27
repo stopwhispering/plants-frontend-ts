@@ -1,7 +1,9 @@
 import * as Util from "plants/ui/customClasses/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
+import { FBImage } from "../definitions/Images";
 import ModelsHelper from "../model/ModelsHelper";
+import ChangeTracker from "./ChangeTracker";
 import ImageRegistryHandler from "./ImageRegistryHandler";
 
 /**
@@ -10,17 +12,11 @@ import ImageRegistryHandler from "./ImageRegistryHandler";
 export default class PlantImagesLoader extends ManagedObject {
 
 	private _oImagesModel: JSONModel;
-	private _setImagesPlantsLoaded: Set<int>;
 		
 
-	public constructor(
-		oImagesModel: JSONModel, 
-		setImagesPlantsLoaded: Set<int>,
-		) {
-
+	public constructor(oImagesModel: JSONModel) {
 		super();
 		this._oImagesModel = oImagesModel;
-		this._setImagesPlantsLoaded = setImagesPlantsLoaded
 	}
 	
 	public requestImagesForPlant(iPlantId: int): void {
@@ -40,10 +36,13 @@ export default class PlantImagesLoader extends ManagedObject {
 			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Plant Images (GET)'));
 	}
 
-	private _onReceivingImagesForPlant(iPlantId: int, oData: any): void {
-		ImageRegistryHandler.getInstance().addPhotosToRegistry(oData);
-		this._setImagesPlantsLoaded.add(iPlantId);
-		ImageRegistryHandler.getInstance().resetImagesCurrentPlant(iPlantId);
+	private _onReceivingImagesForPlant(iPlantId: int, aImages: FBImage[]): void {
+		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
+		oImageRegistryHandler.addImageToImagesRegistry(aImages);
+		ChangeTracker.getInstance().addOriginalImages(aImages);
+		// this._setImagesPlantsLoaded.add(iPlantId);
+		oImageRegistryHandler.addPlantToPlantsWithImagesLoaded(iPlantId);
+		oImageRegistryHandler.resetImagesForPlant(iPlantId);
 		this._oImagesModel.updateBindings(false);
 	}
 

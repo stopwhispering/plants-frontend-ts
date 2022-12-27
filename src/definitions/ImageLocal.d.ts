@@ -6,5 +6,5 @@ import { PMessage } from "./entities";
 export type LTagState = "None" | "Indication01" | "Success" | "Information" | "Error" | "Warning" | "Indication06" | "Indication07";
 
 export interface LImageMap{
-    [key: string]: PImage;  // filenae to PImage
+    [key: string]: PImage;  // filename to PImage
 }

@@ -24,7 +24,6 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 	private _oPropertiesModel: JSONModel;
 	private _oEventsModel: JSONModel;
 	private _oDetailView: View;
-	private _setImagesPlantsLoaded: Set<int>;
 	private _oComponent: Component;
 	private _mCurrentPlant: LCurrentPlant;
 	private _oPlantImagesLoader: PlantImagesLoader;
@@ -36,7 +35,6 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		oPropertiesModel: JSONModel, 
 		oEventsModel: JSONModel, 
 		oImagesModel: JSONModel, 
-		setImagesPlantsLoaded: Set<int>,
 		oComponent: Component,
 		mCurrentPlant: LCurrentPlant,
 		) {
@@ -46,11 +44,10 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		this._oPlantsModel = oPlantsModel;
 		this._oEventsModel = oEventsModel;
 		this._oDetailView = oDetailView;
-		this._setImagesPlantsLoaded = setImagesPlantsLoaded
 		this._oComponent = oComponent;
 		this._mCurrentPlant = mCurrentPlant;
 
-		this._oPlantImagesLoader = new PlantImagesLoader(oImagesModel, setImagesPlantsLoaded);
+		this._oPlantImagesLoader = new PlantImagesLoader(oImagesModel);
 	}
 
 	
@@ -69,11 +66,13 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 
 		// ... so does requesting images
 		// if we haven't loaded images for this plant, yet, we do so before generating the images model
-		if (!this._setImagesPlantsLoaded.has(iPlantId)) {
+		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
+		// if (!this._setImagesPlantsLoaded.has(iPlantId)) {
+		if (!oImageRegistryHandler.isPlantInPlantsWithImagesLoaded(iPlantId)){
 			this._oPlantImagesLoader.requestImagesForPlant(iPlantId);
 			// this._requestImagesForPlant(iPlantId);
 		} else {
-			ImageRegistryHandler.getInstance().resetImagesCurrentPlant(iPlantId);
+			oImageRegistryHandler.resetImagesForPlant(iPlantId);
 		}
 	}
 

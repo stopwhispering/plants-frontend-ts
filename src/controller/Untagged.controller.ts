@@ -18,6 +18,7 @@ import PlantLookup from "../customClasses/PlantLookup";
 import { BPlant } from "../definitions/Plants";
 import ImageRegistryHandler from "../customClasses/ImageRegistryHandler";
 import ImageDeleter from "../customClasses/ImageDeleter";
+import UntaggedImagesHandler from "../customClasses/UntaggedImagesHandler";
 
 /**
  * @namespace plants.ui.controller
@@ -60,7 +61,10 @@ export default class Untagged extends BaseController {
 	onPressReApplyUntaggedFilter() {
 		//triggered by text button to manually filter for untagged images
 		// this.resetUntaggedPhotos();
-		this.oComponent.resetUntaggedPhotos();
+		// this.oComponent.resetUntaggedPhotos();
+		new UntaggedImagesHandler(this.oComponent.getModel('untaggedImages')).resetUntaggedPhotos();
+
+
 	}
 
 	//////////////////////////////////////////////////////////
@@ -116,8 +120,7 @@ export default class Untagged extends BaseController {
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
 		//todo use imageregistryhandler instaed in imagedeleter
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
-		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.oComponent.imagesRegistry, 
-			this.onAjaxSimpleSuccess);
+		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.onAjaxSimpleSuccess);
 		oImageDeleter.askToDeleteMultipleImages(aSelectedImages, bCompact, this.onSelectNone.bind(this));
 	}
 
@@ -142,7 +145,7 @@ export default class Untagged extends BaseController {
 
 		(<JSONModel>this.getView().getModel('untaggedImages')).updateBindings(true);
 		// this.resetImagesCurrentPlant(this._currentPlantId);
-		ImageRegistryHandler.getInstance().resetImagesCurrentPlant(this._currentPlantId);
+		ImageRegistryHandler.getInstance().resetImagesForPlant(this._currentPlantId);
 	}
 
 	onAddPlantNameToUntaggedImage(oEvent: Event) {
@@ -179,7 +182,7 @@ export default class Untagged extends BaseController {
 		const oImagesModel = this.oComponent.getModel('images');;
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
 		//todo use imageregistryhandler instaed in imagedeleter
-		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.oComponent.imagesRegistry, this.onAjaxSimpleSuccess);
+		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.onAjaxSimpleSuccess);
 		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
 	

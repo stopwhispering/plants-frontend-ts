@@ -11,18 +11,18 @@ import Component from "../Component";
 import Router from "sap/ui/core/routing/Router";
 import { FBImage } from "../definitions/Images";
 import Control from "sap/ui/core/Control";
-import { LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap, LTaxonToPropertyCategoryMap} from "../definitions/PropertiesLocal";
+import { LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap, LPropertiesTaxonModelData, LTaxonToPropertyCategoryMap} from "../definitions/PropertiesLocal";
 import { IdToFragmentMap } from "../definitions/SharedLocal";
-import { PlantIdToEventsMap } from "../definitions/EventsLocal";
+import { PlantIdToEventsMap, EventsModelData } from "../definitions/EventsLocal";
 import { BConfirmation, BMessage, BSaveConfirmation, FBMajorResource } from "../definitions/Messages";
 import Event from "sap/ui/base/Event";
 import Popover from "sap/m/Popover";
 import ViewSettingsDialog from "sap/m/ViewSettingsDialog";
 import { BTaxon, FTaxon } from "../definitions/Taxon";
 import ChangeTracker from "../customClasses/ChangeTracker";
-import { BPlant } from "../definitions/Plants";
+import { BPlant, FPlantsUpdateRequest } from "../definitions/Plants";
 import { LTaxonData } from "../definitions/TaxonLocal";
-
+import { LImageMap } from "../definitions/ImageLocal";
 /**
  * @namespace plants.ui.controller
  */
@@ -78,6 +78,7 @@ export default class BaseController extends Controller {
 	}
 
 	savePlantsAndImages() {
+		//todo Save Class
 		// saving images, plants, taxa, and events model
 		Util.startBusyDialog('Saving...', 'Plants and Images');
 		this.savingPlants = false;
@@ -217,12 +218,13 @@ export default class BaseController extends Controller {
 		if (sResource === 'PlantResource') {
 			this.savingPlants = false;
 			var oModelPlants = this.oComponent.getModel('plants');
-			var dDataPlants = oModelPlants.getData();
+			var dDataPlants: FPlantsUpdateRequest = oModelPlants.getData();
 			ChangeTracker.getInstance().setOriginalPlants(dDataPlants);
 		} else if (sResource === 'ImageResource') {
 			this.savingImages = false;
-			var oImages = this.oComponent.imagesRegistry;
-			ChangeTracker.getInstance().setOriginalImages(oImages);
+			// var oImageMap: LImageMap = this.oComponent.imagesRegistry;
+			// ChangeTracker.getInstance().setOriginalImages(oImageMap);
+			ChangeTracker.getInstance().setOriginalImagesFromImageRegistry();
 		} else if (sResource === 'TaxonResource') {
 			this.savingTaxa = false;
 			var oModelTaxon = this.oComponent.getModel('taxon');
@@ -231,7 +233,7 @@ export default class BaseController extends Controller {
 		} else if (sResource === 'EventResource') {
 			this.savingEvents = false;
 			var oModelEvents = this.oComponent.getModel('events');
-			var dDataEvents = oModelEvents.getData();
+			var dDataEvents: EventsModelData = oModelEvents.getData();
 			ChangeTracker.getInstance().setOriginalEvents(dDataEvents.PlantsEventsDict);
 			MessageHandler.getInstance().addMessageFromBackend(oMsg.message);
 		} else if (sResource === 'PlantPropertyResource') {
@@ -244,7 +246,7 @@ export default class BaseController extends Controller {
 		} else if (sResource === 'TaxonPropertyResource') {
 			this.savingPropertiesTaxa = false;
 			var oModelPropertiesTaxa = this.oComponent.getModel('propertiesTaxa');
-			var dDataPropertiesTaxa = oModelPropertiesTaxa.getData();
+			var dDataPropertiesTaxa: LPropertiesTaxonModelData = oModelPropertiesTaxa.getData();
 			const oTaxonToPropertyCategoryMap: LTaxonToPropertyCategoryMap = dDataPropertiesTaxa.propertiesTaxon;
 			ChangeTracker.getInstance().setTaxonProperties(oTaxonToPropertyCategoryMap);
 			MessageHandler.getInstance().addMessageFromBackend(oMsg.message);

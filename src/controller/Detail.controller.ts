@@ -165,7 +165,6 @@ export default class Detail extends BaseController {
 			this.oComponent.getModel('properties'),
 			this.oComponent.getModel('events'), 
 			this.oComponent.getModel('images'),
-			this.oComponent.imagesPlantsLoaded,
 			<Component>this.getOwnerComponent(),
 			this.mCurrentPlant
 		);
@@ -272,7 +271,7 @@ export default class Detail extends BaseController {
 		const sNewPlantName = (<Input>this.byId('inputNewPlantName')).getValue().trim();
 
 		const oDialogRenamePlant = <Dialog>this.byId('dialogRenamePlant');
-		const oPlantImagesLoader =  new PlantImagesLoader(this.oComponent.getModel('images'), this.oComponent.imagesPlantsLoaded);
+		const oPlantImagesLoader =  new PlantImagesLoader(this.oComponent.getModel('images'));
 		const oPlantRenamer = new PlantRenamer(this.oPlantLookup, oPlantImagesLoader);
 		// oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName, this._requestImagesForPlant.bind(this), oDialogRenamePlant);
 		oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName,oDialogRenamePlant);
@@ -868,7 +867,7 @@ export default class Detail extends BaseController {
 		const oImagesModel = this.oComponent.getModel('images');;
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
 		//todo use imageregistryhandler instaed in imagedeleter
-		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.oComponent.imagesRegistry, this.onAjaxSimpleSuccess);
+		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.onAjaxSimpleSuccess);
 		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
 
@@ -981,10 +980,14 @@ export default class Detail extends BaseController {
 		MessageHandler.getInstance().addMessageFromBackend(oResponse.message);
 
 		// add to images registry and refresh current plant's images
-		if (oResponse.images.length > 0) {
-			this.modelsHelper.addToImagesRegistry(oResponse.images);
+		const aImages: FBImage[] = oResponse.images;
+		if (aImages.length > 0) {
+			// this.modelsHelper.addToImagesRegistry(oResponse.images);
+			const oImageRegistryHandler = ImageRegistryHandler.getInstance();
+			oImageRegistryHandler.addImageToImagesRegistry(aImages);
+			ChangeTracker.getInstance().addOriginalImages(aImages);
 			// this.resetImagesCurrentPlant(this.mCurrentPlant.plant.id!);
-			ImageRegistryHandler.getInstance().resetImagesCurrentPlant(this.mCurrentPlant.plant.id);
+			oImageRegistryHandler.resetImagesForPlant(this.mCurrentPlant.plant.id);
 			this.oComponent.getModel('images').updateBindings(false);
 		}
 

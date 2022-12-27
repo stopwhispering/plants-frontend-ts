@@ -7,11 +7,11 @@ import formatter from "plants/ui/model/formatter";
 import Component from "../Component";
 import { MessageType } from "sap/ui/core/library";
 import Event from "sap/ui/base/Event";
-import { FBImage } from "../definitions/Images";
-import { LTaxonData, LTaxonMap } from "../definitions/TaxonLocal";
+import { LTaxonMap } from "../definitions/TaxonLocal";
 import { BResultsGetTaxon, BTaxon } from "../definitions/Taxon";
 import { BPlant, FPlantsUpdateRequest } from "../definitions/Plants";
 import ChangeTracker from "../customClasses/ChangeTracker";
+import ImageRegistryHandler from "../customClasses/ImageRegistryHandler";
 
 /**
  * @namespace plants.ui.model
@@ -105,38 +105,18 @@ export default class ModelsHelper extends ManagedObject {
 		Util.stopBusyDialog();  // todo: should be stopped only when everything has been reloaded, not only plants
 	}
 
-	resetImagesRegistry() {
-		// this._component.imagesRegistry = {};
-		// todo move to registry class
-		Object.keys(this._component.imagesRegistry).forEach(key => delete this._component.imagesRegistry[key]);
-		// this._component.imagesRegistryClone = {};
-		// Object.keys(this._component.imagesRegistryClone).forEach(key => delete this._component.imagesRegistryClone[key]);
+	resetImages() {
+		// completely reset images, i.e. images registry, list of plants with images loaded, 
+		// and original image data in change tracker
+		// update image-related models
+		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
+		// Object.keys(this._component.imagesRegistry).forEach(key => delete this._component.imagesRegistry[key]);
+		oImageRegistryHandler.resetImageRegistry();
 		ChangeTracker.getInstance().resetOriginalImages();
-		// this._component.imagesPlantsLoaded = new Set(); 
-		this._component.imagesPlantsLoaded.clear()
+		oImageRegistryHandler.resetPlantsWithImagesLoaded();
 		this._component.getModel('images').updateBindings(false);
 		this._component.getModel('untaggedImages').updateBindings(false);
 	}
-
-	addToImagesRegistry(aImages: FBImage[]) {
-		// after uploading new images, add them to the  registry
-		const oChangeTracker = ChangeTracker.getInstance();
-		aImages.forEach(oImage => {
-			var sKey = oImage['filename'];
-			if (!(sKey in this._component.imagesRegistry)) {
-				this._component.imagesRegistry[sKey] = oImage;
-			}
-			// this._component.imagesRegistryClone[sKey] = Util.getClonedObject(oImage);
-			oChangeTracker.addOriginalImage(oImage);
-		});
-	}
-
-	// reloadTaxaFromBackend() {
-	// 	//todo remove everywhere
-	// 	//reload taxon data
-	// 	var sUrl = Util.getServiceUrl('taxa/');
-	// 	this._component.getModel('taxon').loadData(sUrl);
-	// }
 
 	public loadTaxon(taxon_id: int|undefined): void{
 		// in case we loaded a plant from same taxon earlier, we may not overwrite it in case of changes

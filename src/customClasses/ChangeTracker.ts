@@ -10,6 +10,7 @@ import { PlantIdToEventsMap } from "../definitions/EventsLocal";
 import { BTaxon } from "../definitions/Taxon";
 import { BPlant, FPlant, FPlantsUpdateRequest } from "../definitions/Plants"
 import { BEvents } from "../definitions/Events";
+import ImageRegistryHandler from "./ImageRegistryHandler";
 
 /**
  * @namespace plants.ui.customClasses
@@ -27,7 +28,6 @@ export default class ChangeTracker extends ManagedObject {
 	private _oTaxonPropertiesDataClone: LCategoryToPropertiesInCategoryMap;
 	private _oTaxonModel: JSONModel;
 	private _oTaxonDataClone: LTaxonData;  // todo create clone handler
-	private _oImageRegistry: LImageMap;  // todo use registry handler instead
 	private _oImageRegistryClone: LImageMap;  // todo use registry handler instead
 
 
@@ -37,7 +37,6 @@ export default class ChangeTracker extends ManagedObject {
 		oPlantPropertiesModel: JSONModel, 
 		oTaxonPropertiesModel: JSONModel, 
 		oTaxonModel: JSONModel, 
-		oImageRegistry: LImageMap, 
 		): void {
 		if (ChangeTracker._instance)
 			throw new Error('ChangeTracker instance already created');
@@ -47,7 +46,6 @@ export default class ChangeTracker extends ManagedObject {
 			oPlantPropertiesModel, 
 			oTaxonPropertiesModel, 
 			oTaxonModel, 
-			oImageRegistry, 
 			);
 	}
 
@@ -64,11 +62,9 @@ export default class ChangeTracker extends ManagedObject {
 		oPlantPropertiesModel: JSONModel, 
 		oTaxonPropertiesModel: JSONModel, 
 		oTaxonModel: JSONModel, 
-		oImageRegistry: LImageMap, 
 		) {
 
 		super();
-		this._oImageRegistry = oImageRegistry;
 		this._oPlantsModel = oPlantsModel;
 		this._oEventsModel = oEventsModel;;
 		this._oPlantPropertiesModel = oPlantPropertiesModel;
@@ -224,9 +220,14 @@ export default class ChangeTracker extends ManagedObject {
 		// var oImagesClone: LImageMap = this.oComponent.imagesRegistryClone;
 
 		var aModifiedImages: FBImage[] = [];
-		Object.keys(this._oImageRegistry).forEach(path => {
-			if (!(path in this._oImageRegistryClone) || !Util.dictsAreEqual(this._oImageRegistry[path], this._oImageRegistryClone[path])) {
-				aModifiedImages.push(this._oImageRegistry[path]);
+		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
+		const aImageFilenames = oImageRegistryHandler.getFilenamesInImageRegistry();
+		aImageFilenames.forEach(sFilename => {
+			// if (!(path in this._oImageRegistryClone) || !Util.dictsAreEqual(this._oImageRegistry[path], this._oImageRegistryClone[path])) {
+			const oImage: FBImage = oImageRegistryHandler.getImageInRegistry(sFilename);
+			const oImageOriginal: FBImage = this._oImageRegistryClone[sFilename];
+			if (!oImageOriginal || !Util.dictsAreEqual(oImage, oImageOriginal)) {
+				aModifiedImages.push(oImage);
 			}
 		});
 
@@ -307,8 +308,19 @@ export default class ChangeTracker extends ManagedObject {
 		this._oImageRegistryClone = Util.getClonedObject(oImageMap);
 	}
 
+	public setOriginalImagesFromImageRegistry(): void {
+		const oImageMap: LImageMap = ImageRegistryHandler.getInstance().getImageRegistry()
+		this._oImageRegistryClone = Util.getClonedObject(oImageMap);
+	}
+
 	public addOriginalImage(oImage: FBImage): void {
 		this._oImageRegistryClone[oImage.filename] = Util.getClonedObject(oImage);
+	}
+
+	public addOriginalImages(aImages: FBImage[]): void {
+		aImages.forEach((oImage: FBImage) => {
+			this._oImageRegistryClone[oImage.filename] = Util.getClonedObject(oImage);
+		});
 	}
 
 	public resetOriginalImages(): void {

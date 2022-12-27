@@ -16,14 +16,14 @@ import { LayoutType } from "sap/f/library"
 import FlexibleColumnLayout from "sap/f/FlexibleColumnLayout"
 import ImageRegistryHandler from "./customClasses/ImageRegistryHandler"
 import ChangeTracker from "./customClasses/ChangeTracker"
+import UntaggedImagesHandler from "./customClasses/UntaggedImagesHandler"
 
 /**
  * @namespace plants.ui
  */
 export default class Component extends UIComponent {
 
-	public imagesRegistry: LImageMap;
-	public imagesPlantsLoaded: Set<int>;
+	// public imagesRegistry: LImageMap;
 
 	public static metadata = {
 		manifest: "json"
@@ -33,8 +33,7 @@ export default class Component extends UIComponent {
 		// call the base component's init function
 		super.init();
 
-		this.imagesRegistry = <LImageMap>{};
-		this.imagesPlantsLoaded = <Set<int>>new Set();
+		// this.imagesRegistry = <LImageMap>{};  // todo move to ImageRegistryHandler
 
 		// set the device model
 		this.setModel(models.createDeviceModel(), "device");
@@ -56,7 +55,7 @@ export default class Component extends UIComponent {
 		this.setModel(oImagesModel, 'images');
 
 		// create plant images resetter instance class and supply image model
-		ImageRegistryHandler.createInstance(oImagesModel, this.imagesRegistry);
+		ImageRegistryHandler.createInstance(oImagesModel);
 		
 		var oUntaggedImagesModel = new JSONModel();
 		oUntaggedImagesModel.setSizeLimit(250);
@@ -104,7 +103,8 @@ export default class Component extends UIComponent {
 		this.setModel(new JSONModel());	 //contains the layout	
 		this.getRouter().initialize();
 
-		this._requestUntaggedImages();		
+		// this._requestUntaggedImages();
+		new UntaggedImagesHandler(oUntaggedImagesModel).requestUntaggedImages();
 
 		// create instance of change handler class
 		// todo move all change tracking code there
@@ -114,48 +114,9 @@ export default class Component extends UIComponent {
 			oPlantPropertiesModel, 
 			oTaxonPropertiesModel, 
 			oTaxonModel, 
-			this.imagesRegistry, 
 			);
 	}
 
-	private _requestUntaggedImages(){
-		// request data from backend
-		$.ajax({
-			url: Util.getServiceUrl('images/untagged/'),
-			// data: {untagged: true},
-			context: this,
-			async: true
-		})
-		// .done(this._onReceivingUntaggedImages.bind(this))
-		.done(this._onReceivingUntaggedImages)
-		.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this,'Plant Untagged Images (GET)'));	
-	}
-
-	// load untagged images to display number as badge in top row
-	private _onReceivingUntaggedImages(oData: BResultsImageResource, sStatus: any, oReturnData: any){
-		this._addPhotosToRegistry(oData.ImagesCollection);
-		this.resetUntaggedPhotos();
-	}
-
-	private _addPhotosToRegistry(aImages: FBImage[]){
-		// add photos loaded for a plant to the registry if not already loaded with other plant
-		// plus add a copy of the photo to a clone registry for getting changed photos when saving 
-		aImages.forEach((image: FBImage) => {
-			if (!(image.filename in this.imagesRegistry)){
-				this.imagesRegistry[image.filename] = image;
-				// this.imagesRegistryClone[image.filename] = Util.getClonedObject(image);
-				ChangeTracker.getInstance().addOriginalImage(image);
-			}
-		});
-	}
-
-	public resetUntaggedPhotos(){
-		//(re-)set untagged photos in untagged model
-		// @ts-ignore // works, but typescript doesn't like it
-		const aPhotoValues = <any[][]> Object.entries(this.imagesRegistry).filter(t => (!t[1].plants.length));
-		var aPhotos = aPhotoValues.map(p => p[1]);
-		this.getModel('untaggedImages').setProperty('/ImagesCollection',aPhotos);
-	}
 
 	/**
 	 * Returns an instance of the semantic helper

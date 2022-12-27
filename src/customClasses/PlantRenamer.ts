@@ -65,7 +65,7 @@ export default class PlantRenamer extends ManagedObject {
 		Util.startBusyDialog('Loading...', 'Loading plants and images data');
 
 		this.modelsHelper.reloadPlantsFromBackend();
-		this.modelsHelper.resetImagesRegistry();
+		this.modelsHelper.resetImages();
 
 		// _fnRequestImagesForPlant(oPlant.id!);  // todo do this in a better way
 		this._oPlantImagesLoader.requestImagesForPlant(oPlant.id);

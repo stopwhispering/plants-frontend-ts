@@ -23,13 +23,12 @@ import { MessageType } from "sap/ui/core/library"
 import Popover from "sap/m/Popover"
 import ImageEventHandlers from "../customClasses/ImageEventHandlers"
 import { UIState } from "sap/f/FlexibleColumnLayoutSemanticHelper"
-import SuggestionService from "../customClasses/SuggestionService"
 import PlantLookup from "../customClasses/PlantLookup"
-import JSONModel from "sap/ui/model/json/JSONModel"
 import ImageRegistryHandler from "../customClasses/ImageRegistryHandler"
 import { BPlant } from "../definitions/Plants"
 import { BTaxon } from "../definitions/Taxon"
 import ChangeTracker from "../customClasses/ChangeTracker"
+import UntaggedImagesHandler from "../customClasses/UntaggedImagesHandler"
 
 /**
  * @namespace plants.ui.controller
@@ -158,7 +157,8 @@ export default class FlexibleColumnLayout extends BaseController {
 	}
 
 	onPressButtonSave() {
-		this.savePlantsAndImages();  // implemented in BaseController
+		//todo Save Class
+		this.savePlantsAndImages();
 	}
 
 	onPressButtonRefreshData() {
@@ -169,9 +169,6 @@ export default class FlexibleColumnLayout extends BaseController {
 		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
 		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
 		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();		
-		// var aModifiedPlants = this.getModifiedPlants();
-		// var aModifiedImages = this.getModifiedImages();
-		// var aModifiedTaxa = this.getModifiedTaxa();
 
 		// if modified data exists, ask for confirmation if all changes should be undone
 		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
@@ -196,11 +193,7 @@ export default class FlexibleColumnLayout extends BaseController {
 
 			var oModelsHelper = ModelsHelper.getInstance();
 			oModelsHelper.reloadPlantsFromBackend();
-			// oModelsHelper.reloadImagesFromBackend();
-			oModelsHelper.resetImagesRegistry();
-
-			// todo: reload current plant's images
-			// oModelsHelper.reloadTaxaFromBackend();
+			oModelsHelper.resetImages();
 			
 			// reset the taxa registry including it's clone and trigger reload of current plant's taxon details
 			oModelsHelper.resetTaxaRegistry();
@@ -214,10 +207,6 @@ export default class FlexibleColumnLayout extends BaseController {
 				// executed only once
 				var oMultiInputKeywords = <MultiInput>this.byId('multiInputUploadImageKeywords');
 				oMultiInputKeywords.addValidator(this._keywordValidator);
-				// oMultiInputKeywords.addValidator(function (args) {
-				// 	var text = args.text;
-				// 	return new Token({ key: text, text: text });
-				// });
 			});
 	}
 
@@ -254,9 +243,7 @@ export default class FlexibleColumnLayout extends BaseController {
 			for (i = 0; i < aSelectedKeywordTokens.length; i++) {
 				aSelectedKeywords.push(aSelectedKeywordTokens[i].getProperty('key'));
 			}
-		} else {
-			// oFileUploader.setAdditionalData(); //from earlier uploads
-		}
+		} 
 
 		var oAdditionalData = <FImageUploadedMetadata>{
 			'plants': aSelectedPlantIds,
@@ -288,16 +275,22 @@ export default class FlexibleColumnLayout extends BaseController {
 		MessageHandler.getInstance().addMessageFromBackend(oResponse.message);
 		// add to images registry and refresh current plant's images
 		if (oResponse.images.length > 0) {
-			ModelsHelper.getInstance().addToImagesRegistry(oResponse.images);
+			const aImages: FBImage[] = oResponse.images;
+			// ModelsHelper.getInstance().addToImagesRegistry(oResponse.images);
+			const oImageRegistryHandler = ImageRegistryHandler.getInstance();
+			oImageRegistryHandler.addImageToImagesRegistry(aImages);
+			ChangeTracker.getInstance().addOriginalImages(aImages);
 
 			// plant's images model and untagged images model might need to be refreshed
 			// this.resetImagesCurrentPlant(this._currentPlantId);
-			ImageRegistryHandler.getInstance().resetImagesCurrentPlant(this._currentPlantId);
+			oImageRegistryHandler.resetImagesForPlant(this._currentPlantId);
 			this.oComponent.getModel('images').updateBindings(false);
 
+			const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
 			// this.resetUntaggedPhotos();
-			this.oComponent.resetUntaggedPhotos();
-			this.oComponent.getModel('untaggedImages').updateBindings(false);
+			// this.oComponent.resetUntaggedPhotos();
+			new UntaggedImagesHandler(oUntaggedImagesModel).resetUntaggedPhotos();
+			oUntaggedImagesModel.updateBindings(false);
 		}
 
 		Util.stopBusyDialog();
