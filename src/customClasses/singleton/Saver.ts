@@ -69,8 +69,6 @@ export default class Saver extends ManagedObject {
 	}
 
 	saveMajorResources() {
-		//todo Save Class
-		// saving images, plants, taxa, and events model
 		Util.startBusyDialog('Saving...', 'Plants and Images');
 		this._bSavingPlants = false;
 		this._bSavingImages = false;

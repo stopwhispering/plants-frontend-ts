@@ -93,7 +93,7 @@
 				type="Emphasized"
 				tooltip="Refetch GBIF Images"
 				text="Refetch GBIF Images"
-				press=".onRefetchGbifImages(${taxon>gbif_id}, $controller)"/>
+				press=".onRefetchGbifImages"/>
 		<!-- </m:HBox> -->
 	</m:VBox>
 	

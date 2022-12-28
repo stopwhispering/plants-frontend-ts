@@ -17,7 +17,7 @@ import Dialog from "sap/m/Dialog"
 import {
 	ObjectStatusCollection,
 } from "plants/ui/definitions/entities"
-import { IdToFragmentMap } from "plants/ui/definitions/SharedLocal"
+import { IdToFragmentMap, ResponseStatus } from "plants/ui/definitions/SharedLocal"
 import { FBEvent, FBSoil } from "plants/ui/definitions/Events"
 import { EventEditData, SoilEditData } from "plants/ui/definitions/EventsLocal"
 import DatePicker from "sap/m/DatePicker"
@@ -64,7 +64,7 @@ import PlantImagesLoader from "plants/ui/customClasses/plants/PlantImagesLoader"
 import ImageDeleter from "plants/ui/customClasses/images/ImageDeleter"
 import MessageBox from "sap/m/MessageBox"
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker"
-import { BTaxon } from "plants/ui/definitions/Taxon"
+import { BResultsRetrieveTaxonDetailsRequest, BTaxon } from "plants/ui/definitions/Taxon"
 import ImageKeywordTagger from "plants/ui/customClasses/images/ImageKeywordTagger"
 import ImagePlantTagger from "plants/ui/customClasses/images/ImagePlantTagger"
 import SoilCRUD from "plants/ui/customClasses/events/SoilCRUD"
@@ -76,6 +76,10 @@ import PropertyNameCRUD from "plants/ui/customClasses/properties/PropertyNameCRU
 import { LPopoverWithPropertiesCategory, LTemporaryAvailableProperties } from "plants/ui/definitions/PropertiesLocal"
 import PropertyValueCRUD from "plants/ui/customClasses/properties/PropertyValueCRUD"
 import ModelsHelper from "../model/ModelsHelper"
+import OccurrenceImagesFetcher from "../customClasses/taxonomy/OccurrenceImagesFetcher"
+import SpeciesFinder from "../customClasses/taxonomy/SpeciesFinder"
+import TaxonToPlantAssigner from "../customClasses/taxonomy/TaxonToPlantAssigner"
+import { LAjaxLoadDetailsForSpeciesDoneCallback } from "../definitions/TaxonLocal"
 
 /**
  * @namespace plants.ui.controller
@@ -139,7 +143,7 @@ export default class Detail extends BaseController {
 
 		// we want to pass the view to the factory function without changing this-context, 
 		// so instead of using .bind(...) we curry the factory function
-		const fnCurryFactory = (sId: string, oBindingContext: Context)=>EventListItemFactory(this.getView(), sId, oBindingContext);
+		const fnCurryFactory = (sId: string, oBindingContext: Context) => EventListItemFactory(this.getView(), sId, oBindingContext);
 		oEventsList.bindAggregation("items",
 			{
 				path: "events>",
@@ -164,9 +168,9 @@ export default class Detail extends BaseController {
 
 
 		const oPlantDetailsBootstrap = new PlantDetailsBootstrap(
-			this.getView(), 
-			this.oComponent.getModel('plants'), 
-			this.oComponent.getModel('events'), 
+			this.getView(),
+			this.oComponent.getModel('plants'),
+			this.oComponent.getModel('events'),
 			this.oComponent.getModel('images'),
 			this.oComponent.getModel('properties'),
 			this.oComponent.getModel('propertiesTaxa'),
@@ -241,7 +245,7 @@ export default class Detail extends BaseController {
 		const oPlantCloner = new PlantCloner(this.oComponent.getModel('plants'), this.oPlantLookup)
 		const oDialogClonePlant = <Dialog>this.byId('dialogClonePlant');
 		oPlantCloner.clonePlant(this.mCurrentPlant.plant, sClonedPlantName, oDialogClonePlant);
-	}	
+	}
 
 	//////////////////////////////////////////////////////////
 	// Rename Plant Handlers
@@ -276,11 +280,11 @@ export default class Detail extends BaseController {
 		const sNewPlantName = (<Input>this.byId('inputNewPlantName')).getValue().trim();
 
 		const oDialogRenamePlant = <Dialog>this.byId('dialogRenamePlant');
-		const oPlantImagesLoader =  new PlantImagesLoader(this.oComponent.getModel('images'));
+		const oPlantImagesLoader = new PlantImagesLoader(this.oComponent.getModel('images'));
 		const oPlantRenamer = new PlantRenamer(this.oPlantLookup, oPlantImagesLoader, this.oComponent.getModel('plants'), this.oComponent.getModel('images'), this.oComponent.getModel('untaggedImages'));
 		// oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName, this._requestImagesForPlant.bind(this), oDialogRenamePlant);
-		oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName,oDialogRenamePlant);
-	}	
+		oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName, oDialogRenamePlant);
+	}
 
 	//////////////////////////////////////////////////////////
 	// Plant Tag Handlers
@@ -377,7 +381,7 @@ export default class Detail extends BaseController {
 			var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
 			MessageBox.error("Can't determine Plant Index", {
 				styleClass: bCompact ? "sapUiSizeCompact" : ""
-			});			
+			});
 		}
 	}
 
@@ -394,7 +398,7 @@ export default class Detail extends BaseController {
 		//do <<not>> filter the provided suggestions with default logic before showing them to the user
 		oInput.setFilterSuggests(false);
 	}
-	
+
 	onChangeActiveSwitch(oEvent: Event) {
 		// open dialog to choose reason for plant deactivation
 		var oSwitch = oEvent.getSource();
@@ -498,7 +502,7 @@ export default class Detail extends BaseController {
 
 		const oPlantCreator = new PlantCreator(this.oComponent.getModel('plants'), this.oPlantLookup);
 		oPlantCreator.createDescendantPlant(descendantPlantInput);
-		
+
 		this.applyToFragment('dialogCreateDescendant', (oDialog: Dialog) => oDialog.close());
 	}
 
@@ -532,7 +536,7 @@ export default class Detail extends BaseController {
 		const oChangeTracker = ChangeTracker.getInstance();
 		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
 		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
-		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();		
+		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
 		// var aModifiedPlants = this.getModifiedPlants();
 		// var aModifiedImages = this.getModifiedImages();
 		// var aModifiedTaxa = this.getModifiedTaxa();
@@ -572,7 +576,7 @@ export default class Detail extends BaseController {
 
 		const oModelDescendant = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
 		oModelDescendant.setProperty('/descendantPlantName', sSuggestedName);
-	}	
+	}
 
 	//////////////////////////////////////////////////////////
 	// Taxonomy Handlers
@@ -591,14 +595,34 @@ export default class Detail extends BaseController {
 		const bIncludeExternalApis = (<CheckBox>this.byId('cbIncludeExternalApis')).getSelected();
 		const bSearchForGenusNotSpecies = (<CheckBox>this.byId('cbGenus')).getSelected();
 		const oModelKewSearchResults = <JSONModel>this.getView().getModel('kewSearchResults');  //model attached to view, not component
-		this.TaxonomyUtil.findSpecies(sTaxonNamePattern, bIncludeExternalApis, bSearchForGenusNotSpecies, oModelKewSearchResults);
+		// this.TaxonomyUtil.findSpecies(sTaxonNamePattern, bIncludeExternalApis, bSearchForGenusNotSpecies, oModelKewSearchResults);
+		new SpeciesFinder(oModelKewSearchResults).searchSpecies(sTaxonNamePattern, bIncludeExternalApis, bSearchForGenusNotSpecies);
 	}
 
 	onFindSpeciesChoose(oEvent: Event) {
 		const oSelectedItem = <ColumnListItem>(<Table>this.byId('tableFindSpeciesResults')).getSelectedItem();
 		const sCustomName = (<GenericTag>this.byId('textFindSpeciesAdditionalName')).getText().trim();
 		const oDialog = <Dialog>this.getView().byId("dialogFindSpecies");
-		this.TaxonomyUtil.chooseSpecies(oSelectedItem, sCustomName, oDialog, this.mCurrentPlant.plant, this, this.getView());
+		const oModelKewSearchResults = <JSONModel>this.getView().getModel('kewSearchResults');  //model attached to view, not component
+		const oView = this.getView();
+		const oTaxonToPlantAssigner = new TaxonToPlantAssigner(this.oComponent.getModel('plants'), this.oComponent.getModel('taxon'))
+
+		const cbReceivingAdditionalSpeciesInformation: LAjaxLoadDetailsForSpeciesDoneCallback = (
+			data: BResultsRetrieveTaxonDetailsRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) => {
+			Util.stopBusyDialog();
+			MessageToast.show(data.message.message);
+			MessageHandler.getInstance().addMessageFromBackend(data.message);
+			oDialog.close();
+			oTaxonToPlantAssigner.assignTaxonToPlant(this.mCurrentPlant.plant, data.taxon_data, data.botanical_name);
+
+			// bind received taxon to view (otherwise applied upon switching plant in detail view)
+			oView.bindElement({
+				path: "/TaxaDict/" + data.taxon_data.id,
+				model: "taxon"
+			});
+		}
+
+		new SpeciesFinder(oModelKewSearchResults).loadDetailsForSpecies(oSelectedItem, sCustomName, this.mCurrentPlant.plant, cbReceivingAdditionalSpeciesInformation);
 	}
 
 	onFindSpeciesTableSelectedOrDataUpdated(oEvent: Event) {
@@ -621,9 +645,11 @@ export default class Detail extends BaseController {
 		this.applyToFragment('dialogLeafletMap',
 			(oDialog: Dialog) => oDialog.open());
 	}
-	onRefetchGbifImages(gbif_id: int, controller: Detail) {
-		const oTaxonModel = <JSONModel>this.getView().getModel('taxon');
-		this.TaxonomyUtil.refetchGbifImages(gbif_id, oTaxonModel, this.mCurrentPlant.plant);
+	onRefetchGbifImages(oEvent: Event) {
+		const oTaxon = <BTaxon>(<Control>oEvent.getSource()).getBindingContext('taxon')!.getObject()
+		if (!oTaxon.gbif_id)
+			throw new Error('No gbif_id found for taxon ' + oTaxon.name);
+		new OccurrenceImagesFetcher(this.oComponent.getModel('taxon')).fetchOccurrenceImages(oTaxon.gbif_id, this.mCurrentPlant.plant);
 	}
 
 	onCloseLeafletMap(oEvent: Event) {
@@ -701,7 +727,7 @@ export default class Detail extends BaseController {
 		const oPlantPropertiesModel = <JSONModel>this.getView().getModel('properties');
 		const oTaxonPropertiesModel = <JSONModel>this.getView().getModel('propertiesTaxa');
 		const oPropertyNameCRUD = new PropertyNameCRUD(oPropertyNamesModel, oPlantPropertiesModel, oTaxonPropertiesModel)
-		
+
 		const aAvailablePropertiesFromDialog = <LTemporaryAvailableProperties[]>(<JSONModel>oBtn.getModel('propertiesCompare')).getData();
 
 		// const oPropertiesInCategory = <FBPropertiesInCategory>oBtn.getBindingContext('properties')!.getObject()
@@ -709,14 +735,14 @@ export default class Detail extends BaseController {
 		// const iTaxonId = (<BPlant>oBtn.getBindingContext('plants')!.getObject()).taxon_id!;  // dialog wouldn't open at all if we had no taxon_id
 
 		oPropertyNameCRUD.assignPropertyNameToPlantAndOrTaxon(this.mCurrentPlant.plant.taxon_id, aAvailablePropertiesFromDialog, oPropertiesInCategory);
-		
+
 		(<Popover>this.byId('dialogAddProperties')).close();
 		(<Popover>this.byId('dialogAddProperties')).destroy();
 	}
 
 	onNewPropertyNameCreate(oEvent: Event) {
 		// this.propertiesUtil.createNewPropertyName(oSourceControl, this.getView());
-		
+
 		var oSourceControl = <Input | Button>oEvent.getSource();
 		// const oCategory = <FBPropertiesInCategory>oSourceControl.getBindingContext('properties')!.getObject();
 		const oCategory = (<LPopoverWithPropertiesCategory>this.byId('dialogNewPropertyName')).property_category;
@@ -726,7 +752,7 @@ export default class Detail extends BaseController {
 		const sPropertyName = (<Input>this.byId('inpPropertyName')).getValue();
 		const bAddToPlant = (<CheckBox>this.byId("chkNewPropertyNameAddToPlant")).getSelected();
 		const bAddToTaxon = (<CheckBox>this.byId("chkNewPropertyNameAddToTaxon")).getSelected();
-		
+
 		const oPropertyNameCRUD = new PropertyNameCRUD(oPropertyNamesModel, oPlantPropertiesModel, oTaxonPropertiesModel)
 		oPropertyNameCRUD.createNewPropertyName(sPropertyName, oCategory, this.mCurrentPlant.plant, bAddToPlant, bAddToTaxon);
 
@@ -744,7 +770,7 @@ export default class Detail extends BaseController {
 			controller: this
 		});
 		new NewPropertyNamePopoverOpener().openPopupNewPropertyWhenPromiseResolved(oPromiseFragmentLoaded, this.mCurrentPlant.plant, oBtnNewProperty);
-		
+
 	}
 	onEditPropertyValueTag(oEvent: Event) {
 		// show fragment to edit or delete property value
@@ -858,7 +884,7 @@ export default class Detail extends BaseController {
 		const oEditedSoil = <SoilEditData>(<Button>oEvent.getSource()).getBindingContext('editedSoil')!.getObject();
 		const oSoilsModel = <JSONModel>this.byId('dialogEvent').getModel('soils');
 		// this.eventCRUD.updateOrCreateSoil(oEditedSoil, oSoilsModel);
-		
+
 		const oDialogEditSoil = <Dialog>this.byId('dialogEditSoil');
 		const oSoilCRUD = new SoilCRUD(oSoilsModel);
 		oSoilCRUD.updateOrCreateSoil(oEditedSoil, oDialogEditSoil);
@@ -885,12 +911,14 @@ export default class Detail extends BaseController {
 		const oSource = <Icon>oEvent.getSource();
 		var sPathCurrentImage = oSource.getBindingContext("images")!.getPath();
 		// generate dialog from fragment if not already instantiated		
-		this.applyToFragment('dialogAssignEventToImage',(oPopover: Popover)=>{
+		this.applyToFragment('dialogAssignEventToImage', (oPopover: Popover) => {
 			// bind the selected image's path in images model to the popover dialog
-			oPopover.bindElement({ path: sPathCurrentImage,
-									model: "images" });	
-			oPopover.openBy(oSource, true);	
-		});			
+			oPopover.bindElement({
+				path: sPathCurrentImage,
+				model: "images"
+			});
+			oPopover.openBy(oSource, true);
+		});
 	}
 
 	onSelectEventForImage(oEvent: Event) {
@@ -998,7 +1026,7 @@ export default class Detail extends BaseController {
 		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer>oEvent.getSource();
 		const oImage = <FBImage>oTokenizer.getBindingContext('images')!.getObject();
-		
+
 		// const oImagesModel = this.oComponent.getModel('images');
 		// this.imageEventHandlers.removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oImagesModel);
 		new ImageKeywordTagger(this.oComponent.getModel('images')).removeKeywordFromImage(sKeywordTokenKey, oImage);
@@ -1022,7 +1050,7 @@ export default class Detail extends BaseController {
 		// const oImagesModel = this.oComponent.getModel('images');
 		// this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);
 		new ImagePlantTagger(this.oComponent.getModel('images')).removePlantFromImage(sPlantTokenKey, oImage);
-		
+
 	}
 
 	//////////////////////////////////////////////////////////
@@ -1082,8 +1110,8 @@ export default class Detail extends BaseController {
 		var aFileTypes = oFileUpload.getFileType().map(ele => "*." + ele)
 		var sSupportedFileTypes = aFileTypes.join(", ");
 		MessageToast.show("The file type *." + sFiletype +
-								" is not supported. Choose one of the following types: " +
-								sSupportedFileTypes);		
+			" is not supported. Choose one of the following types: " +
+			sSupportedFileTypes);
 	}
 
 }
