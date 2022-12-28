@@ -1,3 +1,4 @@
+import Popover from "sap/m/Popover";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import { FBPropertiesInCategory } from "./Properties";
 
@@ -39,3 +40,7 @@ export interface LPlantIdToPropertyCollectionMap {
 export type LTaxonToPropertiesInCategoryMap = {
     [k: string]: FBPropertiesInCategory;
   }
+
+export interface LPopoverWithPropertiesCategory extends Popover{
+    property_category: FBPropertiesInCategory
+}

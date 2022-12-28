@@ -3,25 +3,23 @@ import JSONModel from "sap/ui/model/json/JSONModel"
 import Filter from "sap/ui/model/Filter"
 import formatter from "plants/ui/model/formatter"
 import MessageToast from "sap/m/MessageToast"
-import * as Util from "plants/ui/customClasses/Util";
-import Navigation from "plants/ui/customClasses/Navigation"
-import MessageHandler from "plants/ui/customClasses/MessageHandler"
-import EventsUtil from "plants/ui/customClasses/EventsUtil"
+import * as Util from "plants/ui/customClasses/shared/Util";
+import Navigation from "plants/ui/customClasses/singleton/Navigation"
+import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler"
+import EventCRUD from "plants/ui/customClasses/events/EventCRUD"
 import Sorter from "sap/ui/model/Sorter"
 import FilterOperator from "sap/ui/model/FilterOperator"
-import ImageToTaxon from "plants/ui/customClasses/ImageToTaxon"
-import PropertiesUtil from "plants/ui/customClasses/PropertiesUtil"
-import ImageEventHandlers from "plants/ui/customClasses/ImageEventHandlers"
-import TaxonomyUtil from "plants/ui/customClasses/TaxonomyUtil"
-import ModelsHelper from "plants/ui/model/ModelsHelper"
+import ImageToTaxonAssigner from "plants/ui/customClasses/images/ImageToTaxonAssigner"
+import ImageToEventAssigner from "plants/ui/customClasses/images/ImageToEventAssigner"
+import TaxonomyUtil from "plants/ui/customClasses/taxonomy/TaxonomyUtil"
 import Fragment from "sap/ui/core/Fragment"
 import Dialog from "sap/m/Dialog"
 import {
 	ObjectStatusCollection,
-} from "../definitions/entities"
-import { IdToFragmentMap } from "../definitions/SharedLocal"
-import { FBEvent, FBSoil } from "../definitions/Events"
-import { EventEditData, SoilEditData } from "../definitions/EventsLocal"
+} from "plants/ui/definitions/entities"
+import { IdToFragmentMap } from "plants/ui/definitions/SharedLocal"
+import { FBEvent, FBSoil } from "plants/ui/definitions/Events"
+import { EventEditData, SoilEditData } from "plants/ui/definitions/EventsLocal"
 import DatePicker from "sap/m/DatePicker"
 import Event from "sap/ui/base/Event"
 import Control from "sap/ui/core/Control"
@@ -43,31 +41,40 @@ import Context from "sap/ui/model/Context"
 import RadioButton from "sap/m/RadioButton"
 import List from "sap/m/List"
 import GridListItem from "sap/f/GridListItem"
-import { FBImage, FBImagePlantTag, FBKeyword } from "../definitions/Images"
+import { FBImage, FBImagePlantTag } from "plants/ui/definitions/Images"
 import Token from "sap/m/Token"
-import { FBCancellationReason, FBAssociatedPlantExtractForPlant, BPlant, FBPropagationType } from "../definitions/Plants"
-import { LCurrentPlant, LDescendantPlantInput } from "../definitions/PlantsLocal"
+import { FBCancellationReason, FBAssociatedPlantExtractForPlant, BPlant, FBPropagationType } from "plants/ui/definitions/Plants"
+import { LCurrentPlant, LDescendantPlantInput } from "plants/ui/definitions/PlantsLocal"
 import Tokenizer from "sap/m/Tokenizer"
 import ColumnListItem from "sap/m/ColumnListItem"
 import ResourceModel from "sap/ui/model/resource/ResourceModel"
 import ResourceBundle from "sap/base/i18n/ResourceBundle"
-import { LCancellationReasonChoice } from "../definitions/PlantsLocal"
-import PlantLookup from "../customClasses/PlantLookup"
-import PlantCreator from "../customClasses/PlantCreator"
-import SuggestionService from "../customClasses/SuggestionService"
-import PlantCloner from "../customClasses/PlantCloner"
-import PlantRenamer from "../customClasses/PlantRenamer"
-import PlantTagger from "../customClasses/PlantTagger"
-import PlantNameGenerator from "../customClasses/PlantNameGenerator"
-import PlantDeleter from "../customClasses/PlantDeleter"
-import ImageRegistryHandler from "../customClasses/ImageRegistryHandler"
-import PlantDetailsBootstrap from "../customClasses/PlantDetailsBootstrap"
-import Component from "../Component"
-import PlantImagesLoader from "../customClasses/PlantImagesLoader"
-import ImageDeleter from "../customClasses/ImageDeleter"
+import { LCancellationReasonChoice } from "plants/ui/definitions/PlantsLocal"
+import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
+import PlantCreator from "plants/ui/customClasses/plants/PlantCreator"
+import SuggestionService from "plants/ui/customClasses/shared/SuggestionService"
+import PlantCloner from "plants/ui/customClasses/plants/PlantCloner"
+import PlantRenamer from "plants/ui/customClasses/plants/PlantRenamer"
+import PlantTagger from "plants/ui/customClasses/plants/PlantTagger"
+import PlantNameGenerator from "plants/ui/customClasses/plants/PlantNameGenerator"
+import PlantDeleter from "plants/ui/customClasses/plants/PlantDeleter"
+import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler"
+import PlantDetailsBootstrap from "plants/ui/customClasses/plants/PlantDetailsBootstrap"
+import PlantImagesLoader from "plants/ui/customClasses/plants/PlantImagesLoader"
+import ImageDeleter from "plants/ui/customClasses/images/ImageDeleter"
 import MessageBox from "sap/m/MessageBox"
-import ChangeTracker from "../customClasses/ChangeTracker"
-import { BTaxon } from "../definitions/Taxon"
+import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker"
+import { BTaxon } from "plants/ui/definitions/Taxon"
+import ImageKeywordTagger from "plants/ui/customClasses/images/ImageKeywordTagger"
+import ImagePlantTagger from "plants/ui/customClasses/images/ImagePlantTagger"
+import SoilCRUD from "plants/ui/customClasses/events/SoilCRUD"
+import SoilDialogHandler from "plants/ui/customClasses/events/SoilDialogHandler"
+import EventListItemFactory from "plants/ui/customClasses/events/EventListItemFactory"
+import AssignPropertyNamePopoverOpener from "plants/ui/customClasses/properties/AssignPropertyNamePopoverOpener"
+import NewPropertyNamePopoverOpener from "plants/ui/customClasses/properties/NewPropertyNamePopoverOpener"
+import PropertyNameCRUD from "plants/ui/customClasses/properties/PropertyNameCRUD"
+import { LPopoverWithPropertiesCategory, LTemporaryAvailableProperties } from "plants/ui/definitions/PropertiesLocal"
+import PropertyValueCRUD from "plants/ui/customClasses/properties/PropertyValueCRUD"
 
 /**
  * @namespace plants.ui.controller
@@ -75,15 +82,10 @@ import { BTaxon } from "../definitions/Taxon"
 export default class Detail extends BaseController {
 	// container for xml view control event handlers
 	public formatter = new formatter();
-	private eventsUtil: EventsUtil;
+	private eventCRUD: EventCRUD;
 	private oPlantLookup: PlantLookup;
 	public suggestionService: SuggestionService; // public because used in formatter
-	private propertiesUtil: PropertiesUtil;
-	private ImageToTaxon: ImageToTaxon = new ImageToTaxon();
-
 	// helper classes for controllers
-	private modelsHelper = ModelsHelper.getInstance();
-	private imageEventHandlers: ImageEventHandlers;
 	// TraitUtil = TraitUtil.getInstance()
 	private TaxonomyUtil = TaxonomyUtil.getInstance();
 	private mCurrentPlant: LCurrentPlant;  // container currentPlantId, currentPlantIndex, currentPlant
@@ -121,9 +123,7 @@ export default class Detail extends BaseController {
 
 		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 
-		this.eventsUtil = EventsUtil.getInstance(this.applyToFragment.bind(this), oSuggestionsModel.getData());
-		this.propertiesUtil = PropertiesUtil.getInstance(this.applyToFragment.bind(this));
-		this.imageEventHandlers = new ImageEventHandlers(this.applyToFragment.bind(this));
+		this.eventCRUD = EventCRUD.getInstance(this.applyToFragment.bind(this), oSuggestionsModel.getData());
 
 		this.oLayoutModel = this.oComponent.getModel();
 
@@ -135,12 +135,15 @@ export default class Detail extends BaseController {
 
 		// bind factory function to events list aggregation binding
 		var oEventsList = this.byId("eventsList");
+
+		// we want to pass the view to the factory function without changing this-context, 
+		// so instead of using .bind(...) we curry the factory function
+		const fnCurryFactory = (sId: string, oBindingContext: Context)=>EventListItemFactory(this.getView(), sId, oBindingContext);
 		oEventsList.bindAggregation("items",
 			{
 				path: "events>",
 				templateShareable: false,
-				// factory: this.EventsUtil.eventsListFactory.bind(this),
-				factory: this.eventsUtil.eventsListFactory.bind(this),
+				factory: fnCurryFactory,
 				sorter: new Sorter('date', true)  // descending by date
 			});
 
@@ -162,10 +165,10 @@ export default class Detail extends BaseController {
 		const oPlantDetailsBootstrap = new PlantDetailsBootstrap(
 			this.getView(), 
 			this.oComponent.getModel('plants'), 
-			this.oComponent.getModel('properties'),
 			this.oComponent.getModel('events'), 
 			this.oComponent.getModel('images'),
-			<Component>this.getOwnerComponent(),
+			this.oComponent.getModel('properties'),
+			this.oComponent.getModel('propertiesTaxa'),
 			this.mCurrentPlant
 		);
 		oPlantDetailsBootstrap.load(this.mCurrentPlant.plant_id)
@@ -632,15 +635,14 @@ export default class Detail extends BaseController {
 	onIconPressUnassignImageFromTaxon(oEvent: Event) {
 		const oSource = <Icon>oEvent.getSource();
 		const oTaxonModel = <JSONModel>this.oComponent.getModel('taxon')
-		this.ImageToTaxon.unassignImageFromTaxon(oSource, oTaxonModel);
+		new ImageToTaxonAssigner().unassignImageFromTaxon(oSource, oTaxonModel);
 	}
 
 	onIconPressAssignImageToTaxon(oEvent: Event) {
 		const oSource = <Icon>oEvent.getSource();
 		const oTaxonModel = <JSONModel>this.oComponent.getModel('taxon')
-		this.ImageToTaxon.assignImageToTaxon(oSource, oTaxonModel);
+		new ImageToTaxonAssigner().assignImageToTaxon(oSource, oTaxonModel);
 	}
-
 
 	//////////////////////////////////////////////////////////
 	// Properties Handlers
@@ -649,41 +651,101 @@ export default class Detail extends BaseController {
 		var oPropertiesModel = <JSONModel>this.oComponent.getModel('properties');
 		const oPropertiesTaxaModel = <JSONModel>this.oComponent.getModel('propertiesTaxa');
 		const oPropertiesBindingContext = <Context>(<Button>oEvent.getSource()).getBindingContext('properties');
-		this.propertiesUtil.editPropertyValueDelete(oPropertiesModel, oPropertiesTaxaModel, oPropertiesBindingContext, this.mCurrentPlant.plant)
+		// this.propertiesUtil.editPropertyValueDelete(oPropertiesModel, oPropertiesTaxaModel, oPropertiesBindingContext, this.mCurrentPlant.plant)
+
+		const oPropertyValueCRUD = new PropertyValueCRUD();
+		oPropertyValueCRUD.editPropertyValueDelete(oPropertiesModel, oPropertiesTaxaModel, oPropertiesBindingContext, this.mCurrentPlant.plant);
 	}
 
 	onCloseDialogEditPropertyValue(evt: Event) {
 		this.applyToFragment('dialogEditPropertyValue', (oPopover: Popover) => oPopover.close());
 	}
 
-	onCloseAddPropertiesDialog(evt: Event) {
+	onAfterCloseAddPropertyNamePopover(evt: Event) {
+		// when closing Add Properties Popover, make sure it is destroyed and reset the Add-Property Button from Emphasized to Default
 		evt.getParameter('openBy').setType('Transparent');
 		evt.getSource().destroy();
 	}
-	onOpenDialogAddProperty(oEvent: Event) {
-		const oBtnAddProperty = <Button>oEvent.getSource();
-		const oModelPropertyNames = oBtnAddProperty.getModel('propertyNames');
-		this.propertiesUtil.openDialogAddProperty(this.getView(), this.mCurrentPlant.plant, oBtnAddProperty);
+
+	onAfterCloseNewPropertyNamePopover(evt: Event) {
+		// when closing New Property Name Popover, make sure it is destroyed and reset the New-Property Button from Emphasized to Default
+		evt.getParameter('openBy').setType('Transparent');
+		evt.getSource().destroy();
+
+		// this.propertiesUtil.closeNewPropertyNameDialog();
+		// const oBtnNewPropertyName = <Button>this.byId("btnNewPropertyName");
+		// oBtnNewPropertyName.setType('Transparent');
 	}
 
-	onCloseNewPropertyNameDialog(evt: Event) {
-		this.propertiesUtil.closeNewPropertyNameDialog();
+	onOpenDialogAddProperty(oEvent: Event) {
+		const oBtnAddProperty = <Button>oEvent.getSource();
+		// const oModelPropertyNames = oBtnAddProperty.getModel('propertyNames');
+		// this.propertiesUtil.openDialogAddProperty(this.getView(), this.mCurrentPlant.plant, oBtnAddProperty);
+
+		if (this.byId('dialogAddProperties')) {  // todo do this in corresponding events instead
+			this.byId('dialogAddProperties').destroy();
+		}
+		const oPromiseFragmentLoaded = <Promise<Popover>>Fragment.load({
+			name: 'plants.ui.view.fragments.properties.AvailableProperties',
+			id: this.getView().getId(),
+			controller: this
+		});
+		new AssignPropertyNamePopoverOpener().openPopupAddPropertyWhenPromiseResolved(oPromiseFragmentLoaded, this.mCurrentPlant.plant, oBtnAddProperty);
 	}
-	onAddProperty(oEvent: Event) {
-		this.propertiesUtil.addProperty(this.getView(), <Button>oEvent.getSource());
+
+	onAssignPropertyNameToPlantAndOrTaxon(oEvent: Event) {
+		// this.propertiesUtil.assignPropertyNameToPlantAndOrTaxon(this.getView(), <Button>oEvent.getSource());
+
+		const oBtn = <Button>oEvent.getSource();
+		const oPropertyNamesModel = <JSONModel>this.getView().getModel('propertyNames');
+		const oPlantPropertiesModel = <JSONModel>this.getView().getModel('properties');
+		const oTaxonPropertiesModel = <JSONModel>this.getView().getModel('propertiesTaxa');
+		const oPropertyNameCRUD = new PropertyNameCRUD(oPropertyNamesModel, oPlantPropertiesModel, oTaxonPropertiesModel)
+		
+		const aAvailablePropertiesFromDialog = <LTemporaryAvailableProperties[]>(<JSONModel>oBtn.getModel('propertiesCompare')).getData();
+
+		// const oPropertiesInCategory = <FBPropertiesInCategory>oBtn.getBindingContext('properties')!.getObject()
+		const oPropertiesInCategory = (<LPopoverWithPropertiesCategory>this.byId('dialogAddProperties')).property_category;
+		// const iTaxonId = (<BPlant>oBtn.getBindingContext('plants')!.getObject()).taxon_id!;  // dialog wouldn't open at all if we had no taxon_id
+
+		oPropertyNameCRUD.assignPropertyNameToPlantAndOrTaxon(this.mCurrentPlant.plant.taxon_id, aAvailablePropertiesFromDialog, oPropertiesInCategory);
+		
+		(<Popover>this.byId('dialogAddProperties')).close();
+		(<Popover>this.byId('dialogAddProperties')).destroy();
 	}
 
 	onNewPropertyNameCreate(oEvent: Event) {
-		var oSource = <Input | Button>oEvent.getSource();
-		this.propertiesUtil.createNewPropertyName(oSource, this.getView());
+		// this.propertiesUtil.createNewPropertyName(oSourceControl, this.getView());
+		
+		var oSourceControl = <Input | Button>oEvent.getSource();
+		// const oCategory = <FBPropertiesInCategory>oSourceControl.getBindingContext('properties')!.getObject();
+		const oCategory = (<LPopoverWithPropertiesCategory>this.byId('dialogNewPropertyName')).property_category;
+		const oPropertyNamesModel = <JSONModel>this.getView().getModel('propertyNames');
+		const oPlantPropertiesModel = <JSONModel>this.getView().getModel('properties');
+		const oTaxonPropertiesModel = <JSONModel>this.getView().getModel('propertiesTaxa');
+		const sPropertyName = (<Input>this.byId('inpPropertyName')).getValue();
+		const bAddToPlant = (<CheckBox>this.byId("chkNewPropertyNameAddToPlant")).getSelected();
+		const bAddToTaxon = (<CheckBox>this.byId("chkNewPropertyNameAddToTaxon")).getSelected();
+		
+		const oPropertyNameCRUD = new PropertyNameCRUD(oPropertyNamesModel, oPlantPropertiesModel, oTaxonPropertiesModel)
+		oPropertyNameCRUD.createNewPropertyName(sPropertyName, oCategory, this.mCurrentPlant.plant, bAddToPlant, bAddToTaxon);
+
+		(<Popover>this.byId('dialogNewPropertyName')).close();
 	}
 
 	onOpenDialogNewProperty(oEvent: Event) {
-		const oPlant = <BPlant>this.getView().getBindingContext('plants')!.getObject()
-		var oSource = <Button>oEvent.getSource();
-		this.propertiesUtil.openDialogNewProperty(oPlant, oSource);
-	}
+		// const oPlant = <BPlant>this.getView().getBindingContext('plants')!.getObject()
+		var oBtnNewProperty = <Button>oEvent.getSource();
+		// this.propertiesUtil.openDialogNewProperty(oPlant, oSource);
 
+		const oPromiseFragmentLoaded = <Promise<Popover>>Fragment.load({
+			name: 'plants.ui.view.fragments.properties.NewPropertyName',
+			id: this.getView().getId(),
+			controller: this
+		});
+		new NewPropertyNamePopoverOpener().openPopupNewPropertyWhenPromiseResolved(oPromiseFragmentLoaded, this.mCurrentPlant.plant, oBtnNewProperty);
+		
+	}
 	onEditPropertyValueTag(oEvent: Event) {
 		// show fragment to edit or delete property value
 		var oSource = <ObjectStatus>oEvent.getSource();
@@ -729,7 +791,7 @@ export default class Detail extends BaseController {
 	onOpenDialogAddEvent(oEvent: Event) {
 		this.applyToFragment('dialogEvent', (oDialog: Dialog) => {
 			// get soils collection from backend proposals resource
-			this.eventsUtil._loadSoils(this.getView());
+			this.eventCRUD._loadSoils(this.getView());
 
 			// if dialog was used for editing an event before, then destroy it first
 			if (!!oDialog.getModel("editOrNewEvent") && oDialog.getModel("editOrNewEvent").getProperty('/mode') !== 'new') {
@@ -746,7 +808,7 @@ export default class Detail extends BaseController {
 
 			// set defaults for new event
 			if (!oDialog.getModel("editOrNewEvent")) {
-				let mEventEditData: EventEditData = this.eventsUtil._getInitialEvent(this.mCurrentPlant.plant.id!);
+				let mEventEditData: EventEditData = this.eventCRUD._getInitialEvent(this.mCurrentPlant.plant.id!);
 				mEventEditData.mode = 'new';
 				const oEventEditModel = new JSONModel(mEventEditData);
 				oDialog.setModel(oEventEditModel, "editOrNewEvent");
@@ -761,25 +823,46 @@ export default class Detail extends BaseController {
 		// triggered by edit button in a custom list item header in events list
 		const oSource = <Button>oEvent.getSource();
 		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
-		this.eventsUtil.editEvent(oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id!);
+		this.eventCRUD.editEvent(oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id!);
 	}
 	onOpenDialogEditSoil(oEvent: Event) {
 		const oSource = <Button>oEvent.getSource();
 		const oSoil = <FBSoil>oSource.getBindingContext('soils')!.getObject();
-		this.eventsUtil.openDialogEditSoil(this.getView(), oSoil);
+		// this.eventCRUD.openDialogEditSoil(this.getView(), oSoil);
+
+		const oPromiseFragmentLoaded = <Promise<Dialog>>Fragment.load({
+			name: 'plants.ui.view.fragments.events.EditSoil',
+			id: this.getView().getId(),
+			controller: this
+		});
+		new SoilDialogHandler().openDialogEditSoilWhenPromiseResolved(oSoil, oPromiseFragmentLoaded, this.getView());
 	}
 	onOpenDialogNewSoil(oEvent: Event) {
-		this.eventsUtil.openDialogNewSoil(this.getView());
+		// we need to load the fragment in the controller to connect the fragment's events to the controller
+		// the dialog is always destroyed upon closing, so we don't need to check for existence
+		const oPromiseFragmentLoaded = <Promise<Dialog>>Fragment.load({
+			name: 'plants.ui.view.fragments.events.EditSoil',
+			id: this.getView().getId(),
+			controller: this
+		});
+		new SoilDialogHandler().openDialogNewSoilWhenPromiseResolved(oPromiseFragmentLoaded, this.getView());
 
 	}
+
 	onAddOrEditEvent(oEvent: Event) {
 		//Triggered by 'Add' / 'Update' Button in Create/Edit Event Dialog
-		this.eventsUtil.addOrEditEvent(this.getView(), this.mCurrentPlant.plant);
+		this.eventCRUD.addOrEditEvent(this.getView(), this.mCurrentPlant.plant);
 	}
 	onUpdateOrCreateSoil(oEvent: Event) {
 		const oEditedSoil = <SoilEditData>(<Button>oEvent.getSource()).getBindingContext('editedSoil')!.getObject();
 		const oSoilsModel = <JSONModel>this.byId('dialogEvent').getModel('soils');
-		this.eventsUtil.updateOrCreateSoil(oEditedSoil, oSoilsModel);
+		// this.eventCRUD.updateOrCreateSoil(oEditedSoil, oSoilsModel);
+		
+		const oDialogEditSoil = <Dialog>this.byId('dialogEditSoil');
+		const oSoilCRUD = new SoilCRUD(oSoilsModel);
+		oSoilCRUD.updateOrCreateSoil(oEditedSoil, oDialogEditSoil);
+
+
 	}
 	onCancelEditSoil(oEvent: Event) {
 		this.applyToFragment('dialogEditSoil', (oDialog: Dialog) => oDialog.close(),);
@@ -787,27 +870,36 @@ export default class Detail extends BaseController {
 	onDeleteEventsTableRow(oEvent: Event) {
 		const oSelectedEvent = <FBEvent>oEvent.getParameter('listItem').getBindingContext('events').getObject();
 		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
-		this.eventsUtil.deleteEventsTableRow(oSelectedEvent, oEventsModel, this.mCurrentPlant.plant)
+		this.eventCRUD.deleteEventsTableRow(oSelectedEvent, oEventsModel, this.mCurrentPlant.plant)
 
 	}
 	onIconPressUnassignImageFromEvent(oEvent: Event) {
 		const sEventsBindingPath = oEvent.getParameter('listItem').getBindingContextPath('events');
 		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
-		this.imageEventHandlers.unassignImageFromEvent(sEventsBindingPath, oEventsModel);
+		new ImageToEventAssigner().unassignImageFromEvent(sEventsBindingPath, oEventsModel);
 	}
 
-	onAssignEventToImage(oEvent: Event) {
+	onIconPressAssignImageToEvent(oEvent: Event) {
+		// triggered by icon beside image; assign that image to one of the plant's events
+		const oSource = <Icon>oEvent.getSource();
+		var sPathCurrentImage = oSource.getBindingContext("images")!.getPath();
+		// generate dialog from fragment if not already instantiated		
+		this.applyToFragment('dialogAssignEventToImage',(oPopover: Popover)=>{
+			// bind the selected image's path in images model to the popover dialog
+			oPopover.bindElement({ path: sPathCurrentImage,
+									model: "images" });	
+			oPopover.openBy(oSource, true);	
+		});			
+	}
+
+	onSelectEventForImage(oEvent: Event) {
 		// triggered upon selection of event in event selection dialog for an image get selected event
 		const oSource = <GridListItem>oEvent.getSource();
 		const oEventsModel = <JSONModel>this.getView().getModel('events');
 		const oImage = <FBImage>oSource.getBindingContext('images')!.getObject();
 		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
-		this.imageEventHandlers.assignEventToImage(oImage, oSelectedEvent, oEventsModel);
+		new ImageToEventAssigner().assignImageToEvent(oImage, oSelectedEvent, oEventsModel);
 		(<Popover>this.byId('dialogAssignEventToImage')).close();
-	}
-	onIconPressAssignImageToEvent(oEvent: Event) {
-		const oSource = <Icon>oEvent.getSource();
-		this.imageEventHandlers.assignImageToEvent(oSource);
 	}
 
 	//////////////////////////////////////////////////////////
@@ -840,7 +932,8 @@ export default class Detail extends BaseController {
 		const oSelectedSuggestion = oEvent.getParameter('selectedRow');
 		const oSelectedPlant = <BPlant>oSelectedSuggestion.getBindingContext('plants').getObject();
 		const oImagesModel = this.oComponent.getModel('images');
-		this.imageEventHandlers.assignPlantToImage(oSelectedPlant, oImage, oImagesModel);
+		// this.imageEventHandlers.assignPlantToImage(oSelectedPlant, oImage, oImagesModel);
+		new ImagePlantTagger(oImagesModel).addPlantToImage(oSelectedPlant, oImage);
 		// this.imageEventHandlers.addPlantNameToImage();
 		oImagesModel.updateBindings(true);
 		oSource.setValue('');
@@ -855,7 +948,7 @@ export default class Detail extends BaseController {
 		if (oPlantTag.plant_id === this.mCurrentPlant.plant.id) return; //already on this plant (no need to navigate)
 
 		//navigate to plant in layout's current column (i.e. middle column)
-		Navigation.getInstance().navToPlant(this.oPlantLookup.getPlantById(oPlantTag.plant_id), this.oComponent);
+		Navigation.getInstance().navToPlant(this.oPlantLookup.getPlantById(oPlantTag.plant_id));
 	}
 
 	onIconPressDeleteImage(oEvent: Event) {
@@ -875,27 +968,9 @@ export default class Detail extends BaseController {
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oInput = <Input>oEvent.getSource();
 		oInput.setValue('');
-
-		// check not empty and new
 		const sKeyword = oEvent.getParameter('value').trim();
-		if (!sKeyword) {
-			return;
-		}
-
 		const oImage = <FBImage>oInput.getParent().getBindingContext('images')!.getObject();
-		let aKeywords: FBKeyword[] = oImage.keywords;
-		if (aKeywords.find(ele => ele.keyword === sKeyword)) {
-			MessageToast.show('Keyword already in list');
-			return;
-		}
-
-		//add to current image keywords in images model
-		aKeywords.push(<FBKeyword>{
-			keyword: sKeyword
-		});
-
-		const oImagesModel = this.oComponent.getModel('images');
-		oImagesModel.updateBindings(false);
+		new ImageKeywordTagger(this.oComponent.getModel('images')).addKeywordToImage(sKeyword, oImage);
 	}
 
 	onSwitchImageEditDescription(oEvent: Event) {
@@ -922,10 +997,10 @@ export default class Detail extends BaseController {
 		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer>oEvent.getSource();
 		const oImage = <FBImage>oTokenizer.getBindingContext('images')!.getObject();
-
-		const oImagesModel = this.oComponent.getModel('images');
-
-		this.imageEventHandlers.removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oImagesModel);
+		
+		// const oImagesModel = this.oComponent.getModel('images');
+		// this.imageEventHandlers.removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oImagesModel);
+		new ImageKeywordTagger(this.oComponent.getModel('images')).removeKeywordFromImage(sKeywordTokenKey, oImage);
 	}
 
 	onTokenizerPlantImageTokenDelete(oEvent: Event) {
@@ -943,9 +1018,10 @@ export default class Detail extends BaseController {
 		const oTokenizer = <Tokenizer>oEvent.getSource();
 		const oImage = <FBImage>oTokenizer.getBindingContext('images')!.getObject();
 
-		const oImagesModel = this.oComponent.getModel('images');
-
-		this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);
+		// const oImagesModel = this.oComponent.getModel('images');
+		// this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);
+		new ImagePlantTagger(this.oComponent.getModel('images')).removePlantFromImage(sPlantTokenKey, oImage);
+		
 	}
 
 	//////////////////////////////////////////////////////////
@@ -1000,7 +1076,13 @@ export default class Detail extends BaseController {
 		// note: there's a same-nemed method in flexible column layout controller handling uploads there
 		const oFileUpload = <FileUploader>oEvent.getSource();
 		const sFiletype = oEvent.getParameter("fileType")
-		this.imageEventHandlers.handleTypeMissmatch(oFileUpload, sFiletype);
+
+		// todo move to separate image upload class, used by both detail and fcl views
+		var aFileTypes = oFileUpload.getFileType().map(ele => "*." + ele)
+		var sSupportedFileTypes = aFileTypes.join(", ");
+		MessageToast.show("The file type *." + sFiletype +
+								" is not supported. Choose one of the following types: " +
+								sSupportedFileTypes);		
 	}
 
 }

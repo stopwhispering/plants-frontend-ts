@@ -1,45 +1,74 @@
 import JSONModel from "sap/ui/model/json/JSONModel";
-import MessageHandler from "plants/ui/customClasses/MessageHandler";
-import * as Util from "plants/ui/customClasses/Util";
+import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler";
+import * as Util from "plants/ui/customClasses/shared/Util";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
-import formatter from "plants/ui/model/formatter";
-import Component from "../Component";
 import { MessageType } from "sap/ui/core/library";
 import Event from "sap/ui/base/Event";
 import { LTaxonMap } from "../definitions/TaxonLocal";
 import { BResultsGetTaxon, BTaxon } from "../definitions/Taxon";
 import { BPlant, FPlantsUpdateRequest } from "../definitions/Plants";
-import ChangeTracker from "../customClasses/ChangeTracker";
-import ImageRegistryHandler from "../customClasses/ImageRegistryHandler";
+import ChangeTracker from "../customClasses/singleton/ChangeTracker";
+import ImageRegistryHandler from "../customClasses/singleton/ImageRegistryHandler";
 
 /**
  * @namespace plants.ui.model
  */
 export default class ModelsHelper extends ManagedObject {
 	private static _instance: ModelsHelper;
-	private formatter = new formatter();
-	private _component: Component;
+	private _oPlantsModel: JSONModel;
+	private _oTaxonModel: JSONModel;
+	private _oImagesModel: JSONModel;
+	private _oUntaggedImagesModel: JSONModel;
+	private _oProposalKeywordsModel: JSONModel;
+	private _oNurserySourcesModel: JSONModel;
+	private _oPropertyNamesModel: JSONModel;
+
 	
-	public static getInstance(component?: Component) {
-		if (!ModelsHelper._instance && !!component) {
-			ModelsHelper._instance = new ModelsHelper(component);
+	public static createInstance(
+		oPlantsModel: JSONModel, 
+		oTaxonModel: JSONModel,
+		oImagesModel: JSONModel,
+		oUntaggedImagesModel: JSONModel,
+		oProposalKeywordsModel: JSONModel,
+		oNurserySourcesModel: JSONModel,
+		oPropertyNamesModel: JSONModel,
+		): void {
+		if (ModelsHelper._instance)
+			throw new Error('ModelsHelper already instantiated');
+		ModelsHelper._instance = new ModelsHelper(oPlantsModel, oTaxonModel, oImagesModel, oUntaggedImagesModel, oProposalKeywordsModel, oNurserySourcesModel, oPropertyNamesModel);
+	}
+	
+	public static getInstance(): ModelsHelper {
+		if (!ModelsHelper._instance) {
+			throw new Error('ModelsHelper not yet instantiated');
 		}
 		return ModelsHelper._instance;
 	}
 
-	constructor(component: Component) {
+	constructor(
+		oPlantsModel: JSONModel, 
+		oTaxonModel: JSONModel,
+		oImagesModel: JSONModel,
+		oUntaggedImagesModel: JSONModel,
+		oProposalKeywordsModel: JSONModel,
+		oNurserySourcesModel: JSONModel,
+		oPropertyNamesModel: JSONModel,
+		
+		) {
 		super();
-		this._component = component;
+		this._oPlantsModel = oPlantsModel;
+		this._oTaxonModel = oTaxonModel;
+		this._oImagesModel = oImagesModel;
+		this._oUntaggedImagesModel = oUntaggedImagesModel;
+		this._oProposalKeywordsModel = oProposalKeywordsModel;
+		this._oNurserySourcesModel = oNurserySourcesModel;
+		this._oPropertyNamesModel = oPropertyNamesModel;
+
 		//we need to add the event handlers to the jsonmodel here as this is executed only
 		//once; if we attach them before calling, they're adding up to one more each time
-
-		// todoooooooooo remove following four lines? ever used?
-		this._component.getModel('plants').attachRequestCompleted(this._onReceivingPlantsFromBackend.bind(this));
-		this._component.getModel('plants').attachRequestFailed(this.onReceiveErrorGeneric.bind(this, 'Plants Model'));
-
-		this._component.getModel('taxon').attachRequestCompleted(this._onReceivingTaxaFromBackend.bind(this));
-		this._component.getModel('taxon').attachRequestFailed(this.onReceiveErrorGeneric.bind(this, 'Taxon Model'));
+		this._oPlantsModel.attachRequestCompleted(this._onReceivingPlantsFromBackend.bind(this));
+		this._oPlantsModel.attachRequestFailed(this.onReceiveErrorGeneric.bind(this, 'Plants Model'));
 	}
 
 	onReceiveErrorGeneric(sCaller: string, error: JQueryXHR, sTypeOfError: null|"timeout"|"error"|"abort"|"parsererror", oExceptionObject?: any) {
@@ -77,7 +106,6 @@ export default class ModelsHelper extends ManagedObject {
 	private _onReceivingPlantsFromBackend(oRequestInfo: Event) {
 		// create new clone objects to track changes
 		const oPlantsModel = <JSONModel>oRequestInfo.getSource();
-		// this._component.oPlantsDataClone = Util.getClonedObject(oPlantsModel.getData());
 		ChangeTracker.getInstance().setOriginalPlants(<FPlantsUpdateRequest>oPlantsModel.getData());
 
 		//create message
@@ -86,22 +114,9 @@ export default class ModelsHelper extends ManagedObject {
 			'Resource: ' + sresource);
 	}
 
-	private _onReceivingTaxaFromBackend(oRequestInfo: Event) {
-		// create new clone objects to track changes
-		// todo remove this method???!
-		const oTaxonModel = <JSONModel>oRequestInfo.getSource();
-		// this._component.oTaxonDataClone = Util.getClonedObject(oTaxonModel.getData());
-		ChangeTracker.getInstance().setOriginalTaxa(oTaxonModel.getData());
-
-		//create message
-		var sresource = Util.parse_resource_from_url(oRequestInfo.getParameter('url'));
-		MessageHandler.getInstance().addMessage(MessageType.Information, 'Loaded Taxa from backend', undefined,
-			'Resource: ' + sresource);
-	}
-
 	reloadPlantsFromBackend() {
 		var sUrl = Util.getServiceUrl('plants/');
-		this._component.getModel('plants').loadData(sUrl);
+		this._oPlantsModel.loadData(sUrl);
 		Util.stopBusyDialog();  // todo: should be stopped only when everything has been reloaded, not only plants
 	}
 
@@ -110,19 +125,17 @@ export default class ModelsHelper extends ManagedObject {
 		// and original image data in change tracker
 		// update image-related models
 		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
-		// Object.keys(this._component.imagesRegistry).forEach(key => delete this._component.imagesRegistry[key]);
 		oImageRegistryHandler.resetImageRegistry();
 		ChangeTracker.getInstance().resetOriginalImages();
 		oImageRegistryHandler.resetPlantsWithImagesLoaded();
-		this._component.getModel('images').updateBindings(false);
-		this._component.getModel('untaggedImages').updateBindings(false);
+		this._oImagesModel.updateBindings(false);
+		this._oUntaggedImagesModel.updateBindings(false);
 	}
 
 	public loadTaxon(taxon_id: int|undefined): void{
 		// in case we loaded a plant from same taxon earlier, we may not overwrite it in case of changes
 		// we can just leave then as the correct taxon has already been bound to the view
-		const oTaxonModel = <JSONModel>this._component.getModel('taxon');
-		const oTaxon = oTaxonModel.getProperty('/TaxaDict/' + taxon_id);
+		const oTaxon = this._oTaxonModel.getProperty('/TaxaDict/' + taxon_id);
 		if (oTaxon) {
 			return;
 		}
@@ -145,12 +158,9 @@ export default class ModelsHelper extends ManagedObject {
 
 	private _onReceivingTaxonDetailsForPlant(taxonId: int, oData: BResultsGetTaxon): void {
 		//insert (overwrite!) events data for current plant with data received from backend
-		const oTaxonModel = <JSONModel>this._component.getModel('taxon');
 		const oTaxon = <BTaxon>oData.taxon;
-		oTaxonModel.setProperty('/TaxaDict/' + taxonId + '/', oTaxon);
-		// this._component.oTaxonDataClone.TaxaDict[taxonId] = Util.getClonedObject(oTaxon);
+		this._oTaxonModel.setProperty('/TaxaDict/' + taxonId + '/', oTaxon);
 		ChangeTracker.getInstance().addOriginalTaxon(oTaxon);
-
 		MessageHandler.getInstance().addMessageFromBackend(oData.message);
 	}
 
@@ -165,18 +175,15 @@ export default class ModelsHelper extends ManagedObject {
 
 	public resetTaxaRegistry() {
 		// reset the taxa registry including it's clone and trigger reload of current plant's taxon details
-		const oTaxonModel = <JSONModel>this._component.getModel('taxon');
-		oTaxonModel.setProperty('/', {TaxaDict: <LTaxonMap>{}});
-		// this._component.oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
+		this._oTaxonModel.setProperty('/', {TaxaDict: <LTaxonMap>{}});
 		ChangeTracker.getInstance().resetOriginalTaxa();
-		oTaxonModel.updateBindings(false);
+		this._oTaxonModel.updateBindings(false);
 
 		// trigger reload of taxon details for current plant
 		const iPlantId = this._parse_plant_id_from_hash();
 		if (!iPlantId)
 			return;
-		const oPlantsModel = <JSONModel>this._component.getModel('plants');
-		const aPlants = <BPlant[]>oPlantsModel.getProperty('/PlantsCollection/');
+		const aPlants = <BPlant[]>this._oPlantsModel.getProperty('/PlantsCollection/');
 		const oCurrentPlant = aPlants.find(p => p.id === iPlantId);
 		if (!oCurrentPlant)
 			throw new Error('Plant with id ' + iPlantId + ' not found in plants collection');
@@ -188,34 +195,18 @@ export default class ModelsHelper extends ManagedObject {
 	reloadKeywordProposalsFromBackend() {
 		// get keywords collection from backend proposals resource
 		var sUrl = Util.getServiceUrl('proposals/KeywordProposals');
-		if (!this._component.getModel('keywords')) {
-			this._component.setModel(new JSONModel(sUrl), 'keywords');
-		} else {
-			this._component.getModel('keywords').loadData(sUrl);
-		}
+		this._oProposalKeywordsModel.loadData(sUrl);
 	}
 
 	reloadNurserySourceProposalsFromBackend() {
 		var sUrl = Util.getServiceUrl('proposals/NurserySourceProposals');
-		if (!this._component.getModel('nurseries_sources')) {
-			var oModel = new JSONModel(sUrl);
-			oModel.setSizeLimit(50);
-			this._component.setModel(oModel, 'nurseries_sources');
-		} else {
-			this._component.getModel('nurseries_sources').loadData(sUrl);
-		}
+		this._oNurserySourcesModel.loadData(sUrl);
 	}
 
 	reloadPropertyNamesFromBackend() {
 		// get property names with their categories from backend
 		var sUrl = Util.getServiceUrl('property_names/');
-		if (!this._component.getModel('propertyNames')) {
-			var oModel = new JSONModel(sUrl);
-			oModel.setSizeLimit(300);
-			this._component.setModel(oModel, 'propertyNames');
-		} else {
-			this._component.getModel('propertyNames').loadData(sUrl);
-		}
+		this._oPropertyNamesModel.loadData(sUrl);
 	}
 
 }

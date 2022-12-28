@@ -23,7 +23,7 @@
 					}">
 				
 				<CustomListItem
-					press=".onAssignEventToImage"
+					press=".onSelectEventForImage"
 					type="Active">
 					<VBox>
 						<Label 

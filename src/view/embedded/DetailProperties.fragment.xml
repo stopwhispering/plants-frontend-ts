@@ -43,7 +43,6 @@
 					showNoData="false"
 					items="{ path: 'properties>properties', templateShareable: false }"
 					>
-					<!--delete=".PropertiesUtil.onDeleteProperty"-->
 					<CustomListItem>
 						<HBox class="sapUiTinyMargin" justifyContent="SpaceBetween">
 								<Label text="{properties>property_name}"/>

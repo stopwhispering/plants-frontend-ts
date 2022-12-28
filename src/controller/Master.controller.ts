@@ -3,8 +3,8 @@ import JSONModel from "sap/ui/model/json/JSONModel"
 import Filter from "sap/ui/model/Filter"
 import Sorter from "sap/ui/model/Sorter"
 import Formatter from "plants/ui/model/formatter"
-import * as Util from "plants/ui/customClasses/Util";
-import Navigation from "plants/ui/customClasses/Navigation"
+import * as Util from "plants/ui/customClasses/shared/Util";
+import Navigation from "plants/ui/customClasses/singleton/Navigation"
 import Fragment from "sap/ui/core/Fragment"
 import Popover from "sap/m/Popover"
 import Control from "sap/ui/core/Control"
@@ -23,22 +23,22 @@ import Input from "sap/m/Input"
 import Avatar from "sap/m/Avatar"
 import { BPlant} from "../definitions/Plants"
 import { IdToFragmentMap } from "../definitions/SharedLocal"
-import PlantLookup from "../customClasses/PlantLookup"
-import FilterService from "../customClasses/FilterPlantsService"
+import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
+import FilterService from "../customClasses/plants/FilterPlantsService"
 import { LFilterHiddenChoice } from "../definitions/PlantsLocal"
-import PlantCreator from "../customClasses/PlantCreator"
+import PlantCreator from "plants/ui/customClasses/plants/PlantCreator"
 import Label from "sap/m/Label"
-import PlantSearch from "../customClasses/PlantSearch"
-import PlantFilterOpener from "../customClasses/PlantFilterOpener"
-import PlantFilterTaxonTree from "../customClasses/PlantFilterTaxonTree"
+import PlantSearch from "plants/ui/customClasses/plants/PlantSearch"
+import PlantFilterOpener from "plants/ui/customClasses/plants/PlantFilterOpener"
+import PlantFilterTaxonTree from "plants/ui/customClasses/plants/PlantFilterTaxonTree"
 
 /**
  * @namespace plants.ui.controller
  */
 export default class Master extends BaseController {
 
-	public formatter: Formatter = new Formatter();
-	private navigation = Navigation.getInstance();
+	public formatter: Formatter = new Formatter();  // requires instant instantiation, otherwise formatter is not available in view
+	private navigation: Navigation;
 	private oPlantLookup: PlantLookup;
 	private oTaxonTreeModel: JSONModel;
 
@@ -52,6 +52,7 @@ export default class Master extends BaseController {
 	onInit() {
 		super.onInit();
 
+		this.navigation = Navigation.getInstance();
 		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 	}
 
@@ -184,7 +185,6 @@ export default class Master extends BaseController {
 	}
 
 	public onSelectionChangeTaxonTree(oEvent: Event) {
-
 		const aSelectedItems = <StandardTreeItem[]>oEvent.getParameter("listItems");
 		const oPlantFilterTaxonTree = new PlantFilterTaxonTree(this.oTaxonTreeModel);
 		oPlantFilterTaxonTree.selectSubItemsInTaxonTree(aSelectedItems);

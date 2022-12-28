@@ -2,23 +2,24 @@ import BaseController from "plants/ui/controller/BaseController"
 import formatter from "plants/ui/model/formatter"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
 import MessageToast from "sap/m/MessageToast"
-import ImageEventHandlers from "plants/ui/customClasses/ImageEventHandlers";
 import Event from "sap/ui/base/Event";
 import Button from "sap/m/Button";
-import { FBImage, FBImagePlantTag, FBKeyword } from "../definitions/Images";
+import { FBImage, FBImagePlantTag } from "../definitions/Images";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import Input from "sap/m/Input";
 import Token from "sap/m/Token";
-import Navigation from "../customClasses/Navigation";
+import Navigation from "../customClasses/singleton/Navigation";
 import Icon from "sap/ui/core/Icon";
 import List from "sap/m/List";
 import OverflowToolbarButton from "sap/m/OverflowToolbarButton";
 import Tokenizer from "sap/m/Tokenizer";
-import PlantLookup from "../customClasses/PlantLookup";
+import PlantLookup from "plants/ui/customClasses/plants/PlantLookup";
 import { BPlant } from "../definitions/Plants";
-import ImageRegistryHandler from "../customClasses/ImageRegistryHandler";
-import ImageDeleter from "../customClasses/ImageDeleter";
-import UntaggedImagesHandler from "../customClasses/UntaggedImagesHandler";
+import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler";
+import ImageDeleter from "../customClasses/images/ImageDeleter";
+import UntaggedImagesHandler from "plants/ui/customClasses/images/UntaggedImagesHandler";
+import ImageKeywordTagger from "plants/ui/customClasses/images/ImageKeywordTagger";
+import ImagePlantTagger from "plants/ui/customClasses/images/ImagePlantTagger";
 
 /**
  * @namespace plants.ui.controller
@@ -27,7 +28,6 @@ export default class Untagged extends BaseController {
 
 	formatter = new formatter();
 
-	private imageEventHandlers: ImageEventHandlers;
 	private oPlantLookup: PlantLookup;
 	private _currentPlantId: int;
 
@@ -37,7 +37,6 @@ export default class Untagged extends BaseController {
 		super.onInit();
 
 		this.oRouter.getRoute("untagged").attachPatternMatched(this._onPatternMatched, this);
-		this.imageEventHandlers = new ImageEventHandlers(this.applyToFragment.bind(this));
 		
 		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 		
@@ -60,9 +59,9 @@ export default class Untagged extends BaseController {
 	//////////////////////////////////////////////////////////
 	onPressReApplyUntaggedFilter() {
 		//triggered by text button to manually filter for untagged images
-		// this.resetUntaggedPhotos();
-		// this.oComponent.resetUntaggedPhotos();
-		new UntaggedImagesHandler(this.oComponent.getModel('untaggedImages')).resetUntaggedPhotos();
+		// this.resetUntaggedImages();
+		// this.oComponent.resetUntaggedImages();
+		new UntaggedImagesHandler(this.oComponent.getModel('untaggedImages')).resetUntaggedImages();
 
 
 	}
@@ -140,8 +139,9 @@ export default class Untagged extends BaseController {
 		const oPlant = <BPlant>this.oPlantLookup.getPlantById(this._currentPlantId);
 		const oBindingContextImage = (<Button> oEvent.getSource()).getParent().getBindingContext("untaggedImages");
 		const oImage = <FBImage>oBindingContextImage!.getObject();
-		const oImagesModel = this.oComponent.getModel('images');
-		this.imageEventHandlers.assignPlantToImage(oPlant, oImage, oImagesModel);
+		const oImagesModel = this.oComponent.getModel('images');  // "images", not "untaggedImages"
+		// this.imageEventHandlers.assignPlantToImage(oPlant, oImage, oImagesModel);
+		new ImagePlantTagger(oImagesModel).addPlantToImage(oPlant, oImage);
 
 		(<JSONModel>this.getView().getModel('untaggedImages')).updateBindings(true);
 		// this.resetImagesCurrentPlant(this._currentPlantId);
@@ -155,8 +155,9 @@ export default class Untagged extends BaseController {
 		const oImage = <FBImage>oSource.getBindingContext("untaggedImages")!.getObject();
 		const oSelectedSuggestion = oEvent.getParameter('selectedRow');
 		const oSelectedPlant = <BPlant>oSelectedSuggestion.getBindingContext('plants').getObject();
-		const oImagesModel = this.oComponent.getModel('images');
-		this.imageEventHandlers.assignPlantToImage(oSelectedPlant, oImage, oImagesModel);
+		const oImagesModel = this.oComponent.getModel('images');  // "images", not "untaggedImages"
+		// this.imageEventHandlers.assignPlantToImage(oSelectedPlant, oImage, oImagesModel);
+		new ImagePlantTagger(oImagesModel).addPlantToImage(oSelectedPlant, oImage);
 
 		(<JSONModel>this.getView().getModel('untaggedImages')).updateBindings(true);
 		oSource.setValue('');
@@ -170,7 +171,7 @@ export default class Untagged extends BaseController {
 		if (!oPlantTag.plant_id || oPlantTag.plant_id <= 0) throw new Error("Unexpected error: No Plant ID");
 		
 		//navigate to plant in layout's current column (i.e. middle column)
-		Navigation.getInstance().navToPlant(this.oPlantLookup.getPlantById(oPlantTag.plant_id), this.oComponent);
+		Navigation.getInstance().navToPlant(this.oPlantLookup.getPlantById(oPlantTag.plant_id));
 	}
 	
 	onIconPressDeleteImage(oEvent: Event){
@@ -190,27 +191,9 @@ export default class Untagged extends BaseController {
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oInput = <Input>oEvent.getSource();
 		oInput.setValue('');
-
-		// check not empty and new
 		const sKeyword = oEvent.getParameter('value').trim();
-		if (!sKeyword){
-			return;
-		}
-
 		const oImage = <FBImage> oInput.getParent().getBindingContext('untaggedImages')!.getObject();
-		let aKeywords: FBKeyword[] = oImage.keywords;
-		if(aKeywords.find(ele=>ele.keyword === sKeyword)){
-			MessageToast.show('Keyword already in list');
-			return;
-		}
-
-		//add to current image keywords in untaggedImages model
-		aKeywords.push(<FBKeyword>{
-			keyword: sKeyword
-		});
-
-		const oImagesModel = this.oComponent.getModel('untaggedImages');
-		oImagesModel.updateBindings(false);
+		new ImageKeywordTagger(this.oComponent.getModel('untaggedImages')).addKeywordToImage(sKeyword, oImage);
 	}
 
 	onTokenizerKeywordImageTokenDelete(oEvent: Event){
@@ -228,9 +211,9 @@ export default class Untagged extends BaseController {
 		const oTokenizer = <Tokenizer> oEvent.getSource();
 		const oImage = <FBImage>oTokenizer.getBindingContext('untaggedImages')!.getObject();
 		
-		const oImagesModel = this.oComponent.getModel('untaggedImages');
-
-		this.imageEventHandlers.removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oImagesModel);
+		// const oImagesModel = this.oComponent.getModel('untaggedImages');
+		// this.imageEventHandlers.removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oImagesModel);
+		new ImageKeywordTagger(this.oComponent.getModel('untaggedImages')).removeKeywordFromImage(sKeywordTokenKey, oImage);
 	}
 
 	onTokenizerPlantImageTokenDelete(oEvent: Event){
@@ -248,8 +231,8 @@ export default class Untagged extends BaseController {
 		const oTokenizer = <Tokenizer> oEvent.getSource();
 		const oImage = <FBImage>oTokenizer.getBindingContext('untaggedImages')!.getObject();
 		
-		const oImagesModel = this.oComponent.getModel('untaggedImages');
-
-		this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);
+		// const oImagesModel = this.oComponent.getModel('untaggedImages');
+		// this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);
+		new ImagePlantTagger(this.oComponent.getModel('untaggedImages')).removePlantFromImage(sPlantTokenKey, oImage);
 	}	
 }

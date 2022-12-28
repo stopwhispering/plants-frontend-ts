@@ -1,14 +1,14 @@
 import BaseController from "plants/ui/controller/BaseController"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
-import MessageHandler from "plants/ui/customClasses/MessageHandler"
+import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler"
 import formatter from "plants/ui/model/formatter"
 import MessageToast from "sap/m/MessageToast"
 import MessageBox, { Action } from "sap/m/MessageBox"
-import * as Util from "plants/ui/customClasses/Util";
+import * as Util from "plants/ui/customClasses/shared/Util";
 import Token from "sap/m/Token"
 import Filter from "sap/ui/model/Filter"
 import FilterOperator from "sap/ui/model/FilterOperator"
-import Navigation from "plants/ui/customClasses/Navigation"
+import Navigation from "plants/ui/customClasses/singleton/Navigation"
 import { IdToFragmentMap } from "../definitions/SharedLocal"
 import Router from "sap/ui/core/routing/Router"
 import SearchManager from "sap/f/SearchManager"
@@ -16,19 +16,19 @@ import ListBinding from "sap/ui/model/ListBinding"
 import Event from "sap/ui/base/Event"
 import MultiInput from "sap/m/MultiInput"
 import FileUploader from "sap/ui/unified/FileUploader"
-import { FBImage, FImageUploadedMetadata } from "../definitions/Images"
+import { FBImage, FImageUploadedMetadata } from "plants/ui/definitions/Images"
 import Dialog from "sap/m/Dialog"
 import Menu from "sap/m/Menu"
 import { MessageType } from "sap/ui/core/library"
 import Popover from "sap/m/Popover"
-import ImageEventHandlers from "../customClasses/ImageEventHandlers"
 import { UIState } from "sap/f/FlexibleColumnLayoutSemanticHelper"
-import PlantLookup from "../customClasses/PlantLookup"
-import ImageRegistryHandler from "../customClasses/ImageRegistryHandler"
-import { BPlant } from "../definitions/Plants"
-import { BTaxon } from "../definitions/Taxon"
-import ChangeTracker from "../customClasses/ChangeTracker"
-import UntaggedImagesHandler from "../customClasses/UntaggedImagesHandler"
+import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
+import ImageRegistryHandler from "../customClasses/singleton/ImageRegistryHandler"
+import { BPlant } from "plants/ui/definitions/Plants"
+import { BTaxon } from "plants/ui/definitions/Taxon"
+import ChangeTracker from "../customClasses/singleton/ChangeTracker"
+import UntaggedImagesHandler from "../customClasses/images/UntaggedImagesHandler"
+import Saver from "../customClasses/singleton/Saver"
 
 /**
  * @namespace plants.ui.controller
@@ -36,7 +36,6 @@ import UntaggedImagesHandler from "../customClasses/UntaggedImagesHandler"
 export default class FlexibleColumnLayout extends BaseController {
 
 	formatter = new formatter();
-	private imageEventHandlers: ImageEventHandlers;
 	private oPlantLookup: PlantLookup;
 
 	private mIdToFragment = <IdToFragmentMap>{
@@ -57,8 +56,6 @@ export default class FlexibleColumnLayout extends BaseController {
 		this._oRouter = this.oComponent.getRouter();
 		this._oRouter.attachBeforeRouteMatched(this._onBeforeRouteMatched, this);
 		this._oRouter.attachRouteMatched(this._onRouteMatched, this);
-
-		this.imageEventHandlers = new ImageEventHandlers(this.applyToFragment.bind(this));
 	}
 
 	private _onBeforeRouteMatched(oEvent: Event) {
@@ -69,7 +66,8 @@ export default class FlexibleColumnLayout extends BaseController {
 
 		// If there is no layout parameter, query for the default level 0 layout (normally OneColumn)
 		if (!sLayout) {
-			var oNextUIState = this.oComponent.getHelper().getNextUIState(0);
+			// var oNextUIState = this.oComponent.getHelper().getNextUIState(0);
+			var oNextUIState = Navigation.getInstance().getFCLHelper().getNextUIState(0);
 			sLayout = oNextUIState.layout;
 		}
 
@@ -98,6 +96,9 @@ export default class FlexibleColumnLayout extends BaseController {
 		super.applyToFragment(sId, fn, fnInit, this.mIdToFragment);
 	}
 
+	//////////////////////////////////////////////////////////
+	// GUI Handlers
+	//////////////////////////////////////////////////////////	
 	public onStateChanged(oEvent: Event) {
 		this._updateUIElements();
 		
@@ -115,7 +116,7 @@ export default class FlexibleColumnLayout extends BaseController {
 
 	private _updateUIElements() {
 		// Update the close/fullscreen buttons visibility
-		var oUIState: UIState = this.oComponent.getHelper().getCurrentUIState();
+		var oUIState: UIState =  Navigation.getInstance().getFCLHelper().getCurrentUIState();
 
 		// somehow with the migration to TS, starting the page with a TwoColumnLayout as URL does
 		// not work. Therefore, we need an ugly hack here. Todo: Make it better.
@@ -138,6 +139,9 @@ export default class FlexibleColumnLayout extends BaseController {
 		this._oRouter.detachBeforeRouteMatched(this._onBeforeRouteMatched, this);
 	}
 
+	//////////////////////////////////////////////////////////
+	// Shellbar Handlers
+	//////////////////////////////////////////////////////////	
 	public onShellBarMenuButtonPressed(oEvent: Event) {
 		var oSource = oEvent.getSource();
 		this.applyToFragment('menuShellBarMenu', (oMenu: Menu)=>{
@@ -157,8 +161,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	}
 
 	onPressButtonSave() {
-		//todo Save Class
-		this.savePlantsAndImages();
+		Saver.getInstance().saveMajorResources();
 	}
 
 	onPressButtonRefreshData() {
@@ -175,17 +178,17 @@ export default class FlexibleColumnLayout extends BaseController {
 			var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
 			MessageBox.confirm(
 				"Revert all changes?", {
-				onClose: this._onCloseRefreshConfirmationMessageBox.bind(this),
+				onClose: this._cbCloseRefreshConfirmationMessageBox.bind(this),
 				styleClass: bCompact ? "sapUiSizeCompact" : ""
 			}
 			);
 		} else {
 			//no modified data, therefore call handler directly with 'OK'
-			this._onCloseRefreshConfirmationMessageBox(Action.OK);
+			this._cbCloseRefreshConfirmationMessageBox(Action.OK);
 		}
 	}
 
-	private _onCloseRefreshConfirmationMessageBox(eAction: Action) {
+	private _cbCloseRefreshConfirmationMessageBox(eAction: Action) {
 		//callback for onPressButtonUndo's confirmation dialog
 		//revert all changes and return to data since last save or loading of site
 		if (eAction === Action.OK) {
@@ -198,6 +201,112 @@ export default class FlexibleColumnLayout extends BaseController {
 			// reset the taxa registry including it's clone and trigger reload of current plant's taxon details
 			oModelsHelper.resetTaxaRegistry();
 		}
+	}
+
+	onShowUntagged(oEvent: Event) {
+		//we need the currently selected plant as untagged requires a middle column
+		//(button triggering this is only visible if middle column is visible)
+		//ex. detail/146/TwoColumnsMidExpanded" --> 146
+		//ex. detail/160 --> 160
+		// var sCurrentHash = this.oComponent.getRouter().oHashChanger.getHash();
+		// var aHashItems = sCurrentHash.split('/');
+		// if(!([2,3].includes(aHashItems.length)) || aHashItems[0] !== 'detail' ){
+		// 	MessageToast.show('Technical issue with browser hash. Refresh website.');
+		// 	return;
+		// }
+		// var iPlantIndex = aHashItems[1];
+
+		// var oNextUIState = this.oComponent.getHelper().getNextUIState(2);
+		var oNextUIState = Navigation.getInstance().getFCLHelper().getNextUIState(2);
+		// this._oRouter.navTo("untagged", {layout: oNextUIState.layout, 
+		// 								product: iPlantIndex});
+
+		this._oRouter.navTo("untagged", {
+			layout: oNextUIState.layout,
+			plant_id: this._currentPlantId
+		});
+	}
+
+	onShellBarSearch(oEvent: Event) {
+		// navigate to selected plant
+		var plantId = oEvent.getParameter('suggestionItem').getBindingContext('plants').getObject().id;
+		Navigation.getInstance().navToPlantDetails(plantId);
+	}
+
+	onShellBarSuggest(oEvent: Event) {
+		var sValue = oEvent.getParameter("suggestValue"),
+			aFilters = [];
+
+		// we always filter on only active plants for search field
+		var oFilter = new Filter("active", FilterOperator.EQ, true);
+
+		// create or-connected filter for multiple fields based on query value
+		if (sValue) {
+			aFilters = [
+				new Filter([
+					new Filter("plant_name", function (sText) {
+						return (sText || "").toUpperCase().indexOf(sValue.toUpperCase()) > -1;
+					}),
+					new Filter("botanical_name", function (sText) {
+						return (sText || "").toUpperCase().indexOf(sValue.toUpperCase()) > -1;
+					}),
+					new Filter("id", FilterOperator.EQ, sValue)
+				])
+			];
+
+			var oOrFilter = new Filter({
+				filters: aFilters,
+				and: false
+			});
+			// connect via <<and>>
+			oFilter = new Filter({
+				filters: [oFilter, oOrFilter],
+				and: true
+			});
+		}
+		const oSearchField = <SearchManager>this.byId("searchField");
+		const oSuggestionItemsBinding = <ListBinding>oSearchField.getBinding("suggestionItems");
+		oSuggestionItemsBinding.filter(oFilter);
+		//@ts-ignore  somehow missing in definitions
+		oSearchField.suggest();
+	}
+
+	onShellBarNotificationsPressed(oEvent: Event) {
+		// open messages popover fragment, called by shellbar button in footer
+		var oSource = oEvent.getSource();
+		this.applyToFragment('MessagePopover', (oPopover: Popover) => {
+			oPopover.isOpen() ? oPopover.close() : oPopover.openBy(oSource, true);
+		});
+	}
+
+	onClearMessages(oEvent: Event) {
+		//clear messages in message popover fragment
+		MessageHandler.getInstance().removeAllMessages();
+	}
+
+	onHomeIconPressed(oEvent: Event) {
+		// go to home site, i.e. master view in single column layout
+		// var oHelper = this.oComponent.getHelper();
+		var oHelper =  Navigation.getInstance().getFCLHelper();
+		//@ts-ignore
+		var sNextLayoutType = oHelper.getDefaultLayouts().defaultLayoutType;
+		this._oRouter.navTo("master", { layout: sNextLayoutType });
+	}
+
+	//////////////////////////////////////////////////////////
+	// Upload Image Handlers
+	//////////////////////////////////////////////////////////	
+	onHandleTypeMissmatch(oEvent: Event) {
+		// handle file type missmatch for image upload
+		// note: there's a same-nemed method in detail controller handling uploads there
+		const oFileUpload = <FileUploader>oEvent.getSource();
+		const sFiletype = oEvent.getParameter("fileType")
+
+		var aFileTypes = oFileUpload.getFileType().map(ele => "*." + ele)
+		var sSupportedFileTypes = aFileTypes.join(", ");
+		MessageToast.show("The file type *." + sFiletype +
+								" is not supported. Choose one of the following types: " +
+								sSupportedFileTypes);		
 	}
 
 	onOpenFragmentUploadPhotos(oEvent: Event) {
@@ -287,9 +396,9 @@ export default class FlexibleColumnLayout extends BaseController {
 			this.oComponent.getModel('images').updateBindings(false);
 
 			const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
-			// this.resetUntaggedPhotos();
-			// this.oComponent.resetUntaggedPhotos();
-			new UntaggedImagesHandler(oUntaggedImagesModel).resetUntaggedPhotos();
+			// this.resetUntaggedImages();
+			// this.oComponent.resetUntaggedImages();
+			new UntaggedImagesHandler(oUntaggedImagesModel).resetUntaggedImages();
 			oUntaggedImagesModel.updateBindings(false);
 		}
 
@@ -315,102 +424,6 @@ export default class FlexibleColumnLayout extends BaseController {
 				});
 			oControl.addToken(oPlantToken);
 		}
-	}
-
-	onShowUntagged(oEvent: Event) {
-		//we need the currently selected plant as untagged requires a middle column
-		//(button triggering this is only visible if middle column is visible)
-		//ex. detail/146/TwoColumnsMidExpanded" --> 146
-		//ex. detail/160 --> 160
-		// var sCurrentHash = this.oComponent.getRouter().oHashChanger.getHash();
-		// var aHashItems = sCurrentHash.split('/');
-		// if(!([2,3].includes(aHashItems.length)) || aHashItems[0] !== 'detail' ){
-		// 	MessageToast.show('Technical issue with browser hash. Refresh website.');
-		// 	return;
-		// }
-		// var iPlantIndex = aHashItems[1];
-
-		var oNextUIState = this.oComponent.getHelper().getNextUIState(2);
-		// this._oRouter.navTo("untagged", {layout: oNextUIState.layout, 
-		// 								product: iPlantIndex});
-
-		this._oRouter.navTo("untagged", {
-			layout: oNextUIState.layout,
-			plant_id: this._currentPlantId
-		});
-	}
-
-	onShellBarSearch(oEvent: Event) {
-		// navigate to selected plant
-		var plantId = oEvent.getParameter('suggestionItem').getBindingContext('plants').getObject().id;
-		Navigation.getInstance().navToPlantDetails(plantId);
-	}
-
-	onShellBarSuggest(oEvent: Event) {
-		var sValue = oEvent.getParameter("suggestValue"),
-			aFilters = [];
-
-		// we always filter on only active plants for search field
-		var oFilter = new Filter("active", FilterOperator.EQ, true);
-
-		// create or-connected filter for multiple fields based on query value
-		if (sValue) {
-			aFilters = [
-				new Filter([
-					new Filter("plant_name", function (sText) {
-						return (sText || "").toUpperCase().indexOf(sValue.toUpperCase()) > -1;
-					}),
-					new Filter("botanical_name", function (sText) {
-						return (sText || "").toUpperCase().indexOf(sValue.toUpperCase()) > -1;
-					}),
-					new Filter("id", FilterOperator.EQ, sValue)
-				])
-			];
-
-			var oOrFilter = new Filter({
-				filters: aFilters,
-				and: false
-			});
-			// connect via <<and>>
-			oFilter = new Filter({
-				filters: [oFilter, oOrFilter],
-				and: true
-			});
-		}
-		const oSearchField = <SearchManager>this.byId("searchField");
-		const oSuggestionItemsBinding = <ListBinding>oSearchField.getBinding("suggestionItems");
-		oSuggestionItemsBinding.filter(oFilter);
-		//@ts-ignore  somehow missing in definitions
-		oSearchField.suggest();
-	}
-
-	onShellBarNotificationsPressed(oEvent: Event) {
-		// open messages popover fragment, called by shellbar button in footer
-		var oSource = oEvent.getSource();
-		this.applyToFragment('MessagePopover', (oPopover: Popover) => {
-			oPopover.isOpen() ? oPopover.close() : oPopover.openBy(oSource, true);
-		});
-	}
-
-	onClearMessages(oEvent: Event) {
-		//clear messages in message popover fragment
-		MessageHandler.getInstance().removeAllMessages();
-	}
-
-	onHomeIconPressed(oEvent: Event) {
-		// go to home site, i.e. master view in single column layout
-		var oHelper = this.oComponent.getHelper();
-		//@ts-ignore
-		var sNextLayoutType = oHelper.getDefaultLayouts().defaultLayoutType;
-		this._oRouter.navTo("master", { layout: sNextLayoutType });
-	}
-
-	onHandleTypeMissmatch(oEvent: Event) {
-		// handle file type missmatch for image upload
-		// note: there's a same-nemed method in detail controller handling uploads there
-		const oFileUpload = <FileUploader>oEvent.getSource();
-		const sFiletype = oEvent.getParameter("fileType")
-		this.imageEventHandlers.handleTypeMissmatch(oFileUpload, sFiletype);
-	}
+	}	
 
 }

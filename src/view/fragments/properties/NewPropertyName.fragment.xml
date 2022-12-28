@@ -9,7 +9,7 @@
 		placement="Vertical"
 		contentWidth="16em"
 		initialFocus="inpPropertyName"
-		afterClose=".onCloseNewPropertyNameDialog"
+		afterClose=".onAfterCloseNewPropertyNamePopover"
 	>
 		<content>
 			<VBox>

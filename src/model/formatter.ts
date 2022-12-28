@@ -1,4 +1,4 @@
-import * as Util from "plants/ui/customClasses/Util";
+import * as Util from "plants/ui/customClasses/shared/Util";
 import BaseController from "../controller/BaseController";
 import Detail from "../controller/Detail.controller";
 import SuggestionService from "../customClasses/SuggestionService";

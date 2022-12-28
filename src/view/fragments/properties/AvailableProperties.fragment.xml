@@ -9,7 +9,7 @@
 		placement="Vertical"
 		contentWidth="30em"
 		initialFocus="btnAddSelectedProperties"
-		afterClose=".onCloseAddPropertiesDialog">
+		afterClose=".onAfterCloseAddPropertyNamePopover">
 
 		<content>
 			
@@ -55,7 +55,7 @@
 					text="Add"
 					icon="sap-icon://add"
 					type="Accept"
-					press=".onAddProperty" />		
+					press=".onAssignPropertyNameToPlantAndOrTaxon" />		
 			</OverflowToolbar>
 		</footer>
 		
