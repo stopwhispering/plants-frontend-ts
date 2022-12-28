@@ -1,8 +1,6 @@
 //implements a set of functions that are reused by its subclasses (e.g. back button behaviour)
 //abstract controller -> no ".controller." in the filename --> prevents usage in views, too
 import Controller from "sap/ui/core/mvc/Controller"
-import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler"
-import * as Util from "plants/ui/customClasses/shared/Util";
 import MessageToast from "sap/m/MessageToast"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
 import Fragment from "sap/ui/core/Fragment"
@@ -11,7 +9,6 @@ import Component from "plants/ui/Component";
 import Router from "sap/ui/core/routing/Router";
 import Control from "sap/ui/core/Control";
 import { IdToFragmentMap } from "plants/ui/definitions/SharedLocal";
-import { BConfirmation, BMessage} from "plants/ui/definitions/Messages";
 import Event from "sap/ui/base/Event";
 import Popover from "sap/m/Popover";
 import ViewSettingsDialog from "sap/m/ViewSettingsDialog";
@@ -63,14 +60,6 @@ export default class BaseController extends Controller {
 		}
 	}
 
-	onAjaxSimpleSuccess(oConfirmation: BConfirmation, sStatus: string, oReturnData: object) {
-		//toast and create message
-		//requires pre-defined message from backend
-		//todo move to some utility class, e.g. MessageHandler
-		MessageToast.show(oConfirmation.message.message);
-		MessageHandler.getInstance().addMessageFromBackend(oConfirmation.message);
-	}
-
 	public onCancelDialog(oEvent: Event) {
 		// generic handler for fragments to be closed
 		let oControl = <Control>oEvent.getSource();
@@ -83,11 +72,5 @@ export default class BaseController extends Controller {
 			return
 		}
 		(<Dialog | Popover>oControl).close();
-	}
-
-	protected onReceiveSuccessGeneric(oMsg: BMessage) {
-		Util.stopBusyDialog();
-		MessageToast.show(oMsg.message);
-		MessageHandler.getInstance().addMessageFromBackend(oMsg);
 	}
 }

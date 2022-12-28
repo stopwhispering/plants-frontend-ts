@@ -12,6 +12,8 @@ import { LCurrentPlant } from "plants/ui/definitions/PlantsLocal";
 import PlantImagesLoader from "./PlantImagesLoader";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import PropertiesLoader from "plants/ui/customClasses/properties/PropertiesLoader";
+import TaxonLoader from "../taxonomy/TaxonLoader";
+import EventLoader from "../events/EventLoader";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -22,6 +24,7 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 	private _oEventsModel: JSONModel;
 	private _oPlantPropertiesModel: JSONModel;
 	private _oTaxonPropertiesModel: JSONModel;
+	private _oTaxonModel: JSONModel;
 	private _oDetailView: View;
 	private _mCurrentPlant: LCurrentPlant;
 	private _oPlantImagesLoader: PlantImagesLoader;
@@ -34,6 +37,7 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		oImagesModel: JSONModel, 
 		oPlantPropertiesModel: JSONModel, 
 		oTaxonPropertiesModel: JSONModel, 
+		oTaxonModel: JSONModel, 
 		mCurrentPlant: LCurrentPlant,
 		) {
 
@@ -42,6 +46,7 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		this._oEventsModel = oEventsModel;
 		this._oPlantPropertiesModel = oPlantPropertiesModel;
 		this._oTaxonPropertiesModel = oTaxonPropertiesModel;
+		this._oTaxonModel = oTaxonModel;
 
 		this._oDetailView = oDetailView;
 		this._mCurrentPlant = mCurrentPlant;
@@ -85,7 +90,8 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		//load only on first load of that plant, otherwise we would overwrite modifications
 		//to the plant's events
 		if (!this._oEventsModel.getProperty('/PlantsEventsDict/' + iPlantId.toString() + '/')) {
-			this._loadEventsForCurrentPlant(iPlantId);
+			// this._loadEventsForCurrentPlant(iPlantId);
+			new EventLoader(this._oEventsModel).loadEventsForPlant(iPlantId);
 		}
 	}
 
@@ -116,7 +122,9 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 			path: "/TaxaDict/" + this._mCurrentPlant.plant.taxon_id,
 			model: "taxon"
 		});
-		ModelsHelper.getInstance().loadTaxon(this._mCurrentPlant.plant.taxon_id);
+		if (this._mCurrentPlant.plant.taxon_id)
+			// ModelsHelper.getInstance().loadTaxon(this._mCurrentPlant.plant.taxon_id);
+			new TaxonLoader(this._oTaxonModel).loadTaxonIfRequired(this._mCurrentPlant.plant.taxon_id);
 
 		// bind taxon to view and have taxon data loaded
 		this._oDetailView.bindElement({
@@ -128,25 +136,25 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		}
 	}
 
-	private _loadEventsForCurrentPlant(iPlantId: int): void {
-		// request plant's events from backend
-		// data is added to local events model and bound to current view upon receivement
-		const uri = 'events/' + iPlantId;
-		$.ajax({
-			url: Util.getServiceUrl(uri),
-			context: this,
-			async: true
-		})
-			.done(this._cbReceivingEventsForPlant.bind(this, iPlantId))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Event (GET)'))
-	}
+	// private _loadEventsForCurrentPlant(iPlantId: int): void {
+	// 	// request plant's events from backend
+	// 	// data is added to local events model and bound to current view upon receivement
+	// 	const uri = 'events/' + iPlantId;
+	// 	$.ajax({
+	// 		url: Util.getServiceUrl(uri),
+	// 		context: this,
+	// 		async: true
+	// 	})
+	// 		.done(this._cbReceivingEventsForPlant.bind(this, iPlantId))
+	// 		.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Event (GET)'))
+	// }
 
-	private _cbReceivingEventsForPlant(plantId: int, oData: BResultsEventResource): void {
-		//insert (overwrite!) events data for current plant with data received from backend
-		const aEvents = <BEvents>oData.events;
-		this._oEventsModel.setProperty('/PlantsEventsDict/' + plantId + '/', aEvents);
-		// this._oEventsDataClone[plantId] = Util.getClonedObject(aEvents);
-		ChangeTracker.getInstance().setOriginalEventsForPlant(aEvents, plantId)
-		MessageHandler.getInstance().addMessageFromBackend(oData.message);
-	}
+	// private _cbReceivingEventsForPlant(plantId: int, oData: BResultsEventResource): void {
+	// 	//insert (overwrite!) events data for current plant with data received from backend
+	// 	const aEvents = <BEvents>oData.events;
+	// 	this._oEventsModel.setProperty('/PlantsEventsDict/' + plantId + '/', aEvents);
+	// 	// this._oEventsDataClone[plantId] = Util.getClonedObject(aEvents);
+	// 	ChangeTracker.getInstance().setOriginalEventsForPlant(aEvents, plantId)
+	// 	MessageHandler.getInstance().addMessageFromBackend(oData.message);
+	// }
 }

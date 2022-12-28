@@ -50,7 +50,7 @@ export default class PlantCloner extends ManagedObject {
 			context: this
 		})
 			.done(this._onReceivingPlantCloned.bind(this, oDialogClonePlant))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Clone Plant (POST)'));
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Clone Plant (POST)'));
 	}
 
 	private _onReceivingPlantCloned(oDialogClonePlant: Dialog, oBackendResultPlantCloned: BResultsPlantCloned): void {

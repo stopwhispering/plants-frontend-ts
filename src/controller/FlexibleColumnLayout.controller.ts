@@ -29,6 +29,9 @@ import { BTaxon } from "plants/ui/definitions/Taxon"
 import ChangeTracker from "../customClasses/singleton/ChangeTracker"
 import UntaggedImagesHandler from "../customClasses/images/UntaggedImagesHandler"
 import Saver from "../customClasses/singleton/Saver"
+import TaxonRegistryHandler from "../customClasses/taxonomy/TaxonRegistryHandler"
+import PlantsLoader from "../customClasses/plants/PlantsLoader"
+import ImageResetter from "../customClasses/images/ImageResetter"
 
 /**
  * @namespace plants.ui.controller
@@ -156,8 +159,8 @@ export default class FlexibleColumnLayout extends BaseController {
 			contentType: "application/json",
 			context: this
 		})
-			.done(this.onReceiveSuccessGeneric)
-			.fail(ModelsHelper.getInstance(undefined).onReceiveErrorGeneric.bind(this, 'Generate Missing Thumbnails (POST)'));
+			.done(ModelsHelper.onGenericSuccessWithMessage)
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Generate Missing Thumbnails (POST)'));
 	}
 
 	onPressButtonSave() {
@@ -194,12 +197,18 @@ export default class FlexibleColumnLayout extends BaseController {
 		if (eAction === Action.OK) {
 			Util.startBusyDialog('Loading...', 'Loading plants, taxa, and images');
 
-			var oModelsHelper = ModelsHelper.getInstance();
-			oModelsHelper.reloadPlantsFromBackend();
-			oModelsHelper.resetImages();
+			const oPlantsLoader = new PlantsLoader(this.oComponent.getModel('plants'));
+			oPlantsLoader.loadPlants();
+
+			new ImageResetter(this.oComponent.getModel('images'), this.oComponent.getModel('untaggedImages')).resetImages();
+			// var oModelsHelper = ModelsHelper.getInstance();
+			// oModelsHelper.reloadPlantsFromBackend();
+			// oModelsHelper.resetImages();
+
 			
 			// reset the taxa registry including it's clone and trigger reload of current plant's taxon details
-			oModelsHelper.resetTaxaRegistry();
+			// oModelsHelper.resetTaxaRegistry();
+			new TaxonRegistryHandler(this.oComponent.getModel('plants'), this.oComponent.getModel('taxon')).resetTaxonRegistry();
 		}
 	}
 

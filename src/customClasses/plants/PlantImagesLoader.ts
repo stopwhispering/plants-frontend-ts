@@ -33,7 +33,7 @@ export default class PlantImagesLoader extends ManagedObject {
 			async: true
 		})
 			.done(this._onReceivingImagesForPlant.bind(this, iPlantId))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Plant Images (GET)'));
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant Images (GET)'));
 	}
 
 	private _onReceivingImagesForPlant(iPlantId: int, aImages: FBImage[]): void {

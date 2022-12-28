@@ -67,7 +67,7 @@ export default class SoilCRUD extends ManagedObject {
 			context: this
 		})
 			.done(this._cbSavedNewSoil.bind(this, oDialogEditSoil))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Save New Soil'));
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Save New Soil'));
 	}
 
 	private _updateExistingSoil(oSoilData: SoilEditData, oDialogEditSoil: Dialog): void {
@@ -87,7 +87,7 @@ export default class SoilCRUD extends ManagedObject {
 			context: this
 		})
 			.done(this._cbUpdatedExistingSoil.bind(this, oDialogEditSoil))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Save New Soil'));
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Save New Soil'));
 	}
 
 	private _cbUpdatedExistingSoil(oDialogEditSoil: Dialog, data: BPResultsUpdateCreateSoil): void {

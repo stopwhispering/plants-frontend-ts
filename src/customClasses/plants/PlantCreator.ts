@@ -163,7 +163,7 @@ export default class PlantCreator extends ManagedObject {
 				Navigation.getInstance().navToPlantDetails(oPlantSaved.id!);
 
 			})
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Plant (POST)'))
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (POST)'))
 			.always(function () {
 				Util.stopBusyDialog();
 			});

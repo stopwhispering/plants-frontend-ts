@@ -8,7 +8,7 @@ import Button from "sap/m/Button";
 import {
 	EventEditData, EventEditDataSegments, EventInEventsModel, InitialSoil
 } from "plants/ui/definitions/EventsLocal";
-import { FBPot,  FBEvent, FBObservation, FBSoil } from "plants/ui/definitions/Events";
+import { FBPot, FBEvent, FBObservation, FBSoil } from "plants/ui/definitions/Events";
 import RadioButton from "sap/m/RadioButton";
 import { BPlant } from "plants/ui/definitions/Plants";
 import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
@@ -19,22 +19,10 @@ import { FBImage } from "plants/ui/definitions/Images";
  */
 // export default class EventUtil extends ManagedObject {
 export default class EventCRUD extends ManagedObject {
-	private static _instance: EventCRUD;
-	private applyToFragment: Function;
 	private oSuggestionsData;
 
-	public static getInstance(applyToFragment?: Function, oSuggestionsData?: LSuggestions): EventCRUD {
-
-		// todo really singleton??
-		if (!EventCRUD._instance && applyToFragment && oSuggestionsData) {
-			EventCRUD._instance = new EventCRUD(applyToFragment, oSuggestionsData);
-		}
-		return EventCRUD._instance;
-	}
-
-	private constructor(applyToFragment: Function, oSuggestionsData: LSuggestions) {
+	public constructor(oSuggestionsData: LSuggestions) {
 		super();
-		this.applyToFragment = applyToFragment;
 		this.oSuggestionsData = oSuggestionsData;
 	}
 
@@ -53,7 +41,7 @@ export default class EventCRUD extends ManagedObject {
 		oEventsModel.refresh();
 	}
 
-	private _getObservationData(oEventEditData: EventEditData): FBObservation|null {
+	private _getObservationData(oEventEditData: EventEditData): FBObservation | null {
 		//returns the cleansed observation data from the event edit data
 		if (!oEventEditData.segments.observation)
 			return null;
@@ -76,8 +64,8 @@ export default class EventCRUD extends ManagedObject {
 		}
 		return <FBObservation>oObservationDataClone;
 	}
-	
-	private _getPotData(oEventEditData: EventEditData, oView: View): FBPot|null {
+
+	private _getPotData(oEventEditData: EventEditData, oView: View): FBPot | null {
 		//loads, parses, and cleanses the pot data from the the dialog control
 		if (!oEventEditData.segments.pot)
 			return null;
@@ -106,18 +94,17 @@ export default class EventCRUD extends ManagedObject {
 		} else {
 			throw new Error('Pot shape not selected');
 		}
-
 		return oPotDataClone;
 	}
 
-	private _getSoilData(oEventEditData: EventEditData, oView: View): FBSoil|null {
+	private _getSoilData(oEventEditData: EventEditData, oView: View): FBSoil | null {
 		//loads, parses, and cleanses the soil data from the the dialog control
 		//note: we submit the whole soil object to the backend, but the backend does only care about the id
 		//      for modifying or creating a soil, there's a separate service
 		//      however, we parse the whole object here to make sure we have the correct data
 		if (!oEventEditData.segments.soil)
 			return null;
-		
+
 		const oSoilDataClone = <FBSoil>JSON.parse(JSON.stringify(oEventEditData.soil));
 		if (!oSoilDataClone.description || oSoilDataClone.description.length == 0) {
 			oSoilDataClone.description = undefined;
@@ -155,7 +142,7 @@ export default class EventCRUD extends ManagedObject {
 		// clone the data so we won't change the original new model
 		const oNewEventSave = <EventEditData>Util.getClonedObject(oNewEventData);
 
-		if (oNewEventSave.segments.soil && (!oNewEventSave.soil || !oNewEventSave.soil.id)){
+		if (oNewEventSave.segments.soil && (!oNewEventSave.soil || !oNewEventSave.soil.id)) {
 			MessageToast.show('Please choose soil first.');
 			return;
 		}
@@ -168,7 +155,7 @@ export default class EventCRUD extends ManagedObject {
 		const oNewEvent: EventInEventsModel = {
 			// id: number; no id, yet
 			date: oNewEventSave.date,
-			event_notes: <string|undefined>(oNewEventSave.event_notes && oNewEventSave.event_notes.length > 0 ? oNewEventSave.event_notes.trim() : undefined),
+			event_notes: <string | undefined>(oNewEventSave.event_notes && oNewEventSave.event_notes.length > 0 ? oNewEventSave.event_notes.trim() : undefined),
 			observation: oNewObservation,
 			pot: oNewPot,
 			soil: oNewSoil,
@@ -221,7 +208,7 @@ export default class EventCRUD extends ManagedObject {
 			throw new Error('Plant ID cannot be changed.');
 		}
 
-		if (oEventEditData.segments.soil && (!oEventEditData.soil || !oEventEditData.soil.id)){
+		if (oEventEditData.segments.soil && (!oEventEditData.soil || !oEventEditData.soil.id)) {
 			MessageToast.show('Please choose soil first.');
 			return;
 		}
@@ -233,15 +220,15 @@ export default class EventCRUD extends ManagedObject {
 
 		// update each attribute from the new model into the old event
 		oOldEvent.date = <string>oEventEditData.date;
-		oOldEvent.event_notes = <string|undefined>(oEventEditData.event_notes && oEventEditData.event_notes.length > 0 ? oEventEditData.event_notes.trim() : undefined);
-		
-		const iOldObservationId = oEditedObservation ? <int|undefined>oEditedObservation.id: undefined;
+		oOldEvent.event_notes = <string | undefined>(oEventEditData.event_notes && oEventEditData.event_notes.length > 0 ? oEventEditData.event_notes.trim() : undefined);
+
+		const iOldObservationId = oEditedObservation ? <int | undefined>oEditedObservation.id : undefined;
 		oOldEvent.observation = <FBObservation>oEditedObservation;
 		if (oOldEvent.observation)
-			oOldEvent.observation.id = <int|undefined>iOldObservationId;
+			oOldEvent.observation.id = <int | undefined>iOldObservationId;
 
-		oOldEvent.pot = <FBPot|undefined>oEditedPot;
-		oOldEvent.soil = <FBSoil|undefined>oEditedSoil;
+		oOldEvent.pot = <FBPot | undefined>oEditedPot;
+		oOldEvent.soil = <FBSoil | undefined>oEditedSoil;
 
 		// have events factory function in details controller regenerate the events list
 		oEventsModel.updateBindings(false);  // we updated a proprety of that model
@@ -266,11 +253,11 @@ export default class EventCRUD extends ManagedObject {
 		}
 	}
 
-	public editEvent(oSelectedEvent: FBEvent, oView: View, iCurrentPlantId: int) {
-		this.applyToFragment('dialogEvent', this._initEditSelectedEvent.bind(this, oSelectedEvent, oView, iCurrentPlantId));
-	}
+	// public editEvent(oSelectedEvent: FBEvent, oView: View, iCurrentPlantId: int) {
+	// 	this.applyToFragment('dialogEvent', this.initEditSelectedEvent.bind(this, oSelectedEvent, oView, iCurrentPlantId));
+	// }
 
-	private _initEditSelectedEvent(oSelectedEvent: FBEvent, oView: View, iCurrentPlantId: int, oDialog: Dialog) {
+	public initEditSelectedEvent(oSelectedEvent: FBEvent, oView: View, iCurrentPlantId: int, oDialog: Dialog) {
 		// get soils collection from backend proposals resource
 		this._loadSoils(oView);
 
@@ -282,7 +269,7 @@ export default class EventCRUD extends ManagedObject {
 		// we don't want to update the events model entity immediately from the dialog but only upon
 		// hitting update button, therefore we generate a edit model, fill it with our event's data,
 		// and, upon hitting update button, do it the other way around
-		var dEventEdit: EventEditData = this._getInitialEvent(iCurrentPlantId);
+		var dEventEdit: EventEditData = this.getInitialEvent(iCurrentPlantId);
 		dEventEdit.mode = 'edit';
 		dEventEdit.date = oSelectedEvent.date;
 		dEventEdit.event_notes = oSelectedEvent.event_notes;
@@ -356,7 +343,7 @@ export default class EventCRUD extends ManagedObject {
 		oDialog.open();
 	}
 
-	public _getInitialEvent(iCurrentPlantId: int): EventEditData {
+	public getInitialEvent(iCurrentPlantId: int): EventEditData {
 		// create initial data for the Create/Edit Event Dialog (we don't use the 
 		// actual data there in case of editing an event)
 		// called by both function to add and to edit event
@@ -387,7 +374,7 @@ export default class EventCRUD extends ManagedObject {
 		}
 
 		const oEventEditData = <EventEditData>{
-			plant_id: iCurrentPlantId, 
+			plant_id: iCurrentPlantId,
 			date: Util.getToday(),
 			event_notes: '',
 			pot: oPot,
@@ -395,7 +382,7 @@ export default class EventCRUD extends ManagedObject {
 			soil: oSoil,
 			segments: oEventEditDataSegments,
 			mode: "new",  // will be overwritten in case of editing
-		};		
+		};
 		return oEventEditData;
 	}
 }

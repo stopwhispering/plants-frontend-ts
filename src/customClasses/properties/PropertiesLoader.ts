@@ -47,7 +47,7 @@ export default class PropertiesLoader extends ManagedObject {
 			async: true
 		})
 			.done(this._onReceivingPropertiesForPlant.bind(this, oPlant))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Property (GET)'));
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Property (GET)'));
 	}
 
 	private _taxon_properties_already_loaded(taxon_id: int): boolean {

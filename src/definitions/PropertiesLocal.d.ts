@@ -29,6 +29,10 @@ export interface LPropertiesTaxonModelData {
     propertiesTaxon: LTaxonToPropertyCategoryMap;
 }
 
+export interface LPropertiesPlantsModelData {
+    propertiesPlants: LPlantIdToPropertyCollectionMap;  // really?
+}
+
 export interface LPlantPropertiesRequest {
     taxon_id?: number;
 }

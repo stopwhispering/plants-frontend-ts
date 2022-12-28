@@ -6,7 +6,7 @@ import { FBImage } from "plants/ui/definitions/Images";
 import { BTaxon, FTaxonImage } from "plants/ui/definitions/Taxon";
 
 /**
- * @namespace plants.ui.customClasses
+ * @namespace plants.ui.customClasses.images
  */
 export default class ImageToTaxonAssigner extends ManagedObject {
 

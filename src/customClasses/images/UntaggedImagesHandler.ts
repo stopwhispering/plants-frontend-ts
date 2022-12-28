@@ -27,7 +27,7 @@ export default class UntaggedImagesHandler extends ManagedObject {
 			async: true
 		})
 		.done(this._onReceivingUntaggedImages)
-		.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this,'Plant Untagged Images (GET)'));	
+		.fail(ModelsHelper.onReceiveErrorGeneric.bind(this,'Plant Untagged Images (GET)'));	
 	}
 
 	// load untagged images to display number as badge in top row

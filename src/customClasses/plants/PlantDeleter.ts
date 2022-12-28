@@ -12,14 +12,12 @@ import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 export default class PlantDeleter extends ManagedObject {
 
 	private _oPlantsModel: JSONModel;
-	private fnOnAjaxSimpleSuccess: Function;
 	private fnCloseDetails: Function;
 
 
-	public constructor(oPlantsModel: JSONModel, fnOnAjaxSimpleSuccess: Function, fnCloseDetails: Function) {
+	public constructor(oPlantsModel: JSONModel, fnCloseDetails: Function) {
 		super();
 		this._oPlantsModel = oPlantsModel;
-		this.fnOnAjaxSimpleSuccess = fnOnAjaxSimpleSuccess;
 		this.fnCloseDetails = fnCloseDetails;
 	}	
 
@@ -53,12 +51,13 @@ export default class PlantDeleter extends ManagedObject {
 			context: this
 		})
 			.done(this._onPlantDeleted.bind(this, oPlant))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Plant (DELETE)'));
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (DELETE)'));
 	}
 
 	private _onPlantDeleted(oPlantDeleted: BPlant, oMsg: any, sStatus: string, oReturnData: any): void {
 		Util.stopBusyDialog();
-		this.fnOnAjaxSimpleSuccess(oMsg, sStatus, oReturnData);  // todo implement this in a better way
+		// this.fnOnAjaxSimpleSuccess(oMsg, sStatus, oReturnData); 
+		ModelsHelper.onGenericSuccessWithMessage(oMsg, sStatus, oReturnData);
 
 		//remove from plants model and plants model clone
 		//find deleted image in model and remove there

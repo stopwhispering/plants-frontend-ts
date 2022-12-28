@@ -75,6 +75,7 @@ import NewPropertyNamePopoverOpener from "plants/ui/customClasses/properties/New
 import PropertyNameCRUD from "plants/ui/customClasses/properties/PropertyNameCRUD"
 import { LPopoverWithPropertiesCategory, LTemporaryAvailableProperties } from "plants/ui/definitions/PropertiesLocal"
 import PropertyValueCRUD from "plants/ui/customClasses/properties/PropertyValueCRUD"
+import ModelsHelper from "../model/ModelsHelper"
 
 /**
  * @namespace plants.ui.controller
@@ -123,7 +124,7 @@ export default class Detail extends BaseController {
 
 		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 
-		this.eventCRUD = EventCRUD.getInstance(this.applyToFragment.bind(this), oSuggestionsModel.getData());
+		this.eventCRUD = new EventCRUD(oSuggestionsModel.getData());
 
 		this.oLayoutModel = this.oComponent.getModel();
 
@@ -169,6 +170,7 @@ export default class Detail extends BaseController {
 			this.oComponent.getModel('images'),
 			this.oComponent.getModel('properties'),
 			this.oComponent.getModel('propertiesTaxa'),
+			this.oComponent.getModel('taxon'),
 			this.mCurrentPlant
 		);
 		oPlantDetailsBootstrap.load(this.mCurrentPlant.plant_id)
@@ -275,7 +277,7 @@ export default class Detail extends BaseController {
 
 		const oDialogRenamePlant = <Dialog>this.byId('dialogRenamePlant');
 		const oPlantImagesLoader =  new PlantImagesLoader(this.oComponent.getModel('images'));
-		const oPlantRenamer = new PlantRenamer(this.oPlantLookup, oPlantImagesLoader);
+		const oPlantRenamer = new PlantRenamer(this.oPlantLookup, oPlantImagesLoader, this.oComponent.getModel('plants'), this.oComponent.getModel('images'), this.oComponent.getModel('untaggedImages'));
 		// oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName, this._requestImagesForPlant.bind(this), oDialogRenamePlant);
 		oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName,oDialogRenamePlant);
 	}	
@@ -451,7 +453,7 @@ export default class Detail extends BaseController {
 		var oPlant = <BPlant>oMenuItem.getBindingContext('plants')!.getObject();
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
 
-		const oPlantDeleter = new PlantDeleter(this.oComponent.getModel('plants'), this.onAjaxSimpleSuccess, this.onHandleClose.bind(this));
+		const oPlantDeleter = new PlantDeleter(this.oComponent.getModel('plants'), this.onHandleClose.bind(this));
 		oPlantDeleter.askToDeletePlant(oPlant, bCompact);
 	}
 
@@ -679,8 +681,6 @@ export default class Detail extends BaseController {
 
 	onOpenDialogAddProperty(oEvent: Event) {
 		const oBtnAddProperty = <Button>oEvent.getSource();
-		// const oModelPropertyNames = oBtnAddProperty.getModel('propertyNames');
-		// this.propertiesUtil.openDialogAddProperty(this.getView(), this.mCurrentPlant.plant, oBtnAddProperty);
 
 		if (this.byId('dialogAddProperties')) {  // todo do this in corresponding events instead
 			this.byId('dialogAddProperties').destroy();
@@ -808,7 +808,7 @@ export default class Detail extends BaseController {
 
 			// set defaults for new event
 			if (!oDialog.getModel("editOrNewEvent")) {
-				let mEventEditData: EventEditData = this.eventCRUD._getInitialEvent(this.mCurrentPlant.plant.id!);
+				let mEventEditData: EventEditData = this.eventCRUD.getInitialEvent(this.mCurrentPlant.plant.id!);
 				mEventEditData.mode = 'new';
 				const oEventEditModel = new JSONModel(mEventEditData);
 				oDialog.setModel(oEventEditModel, "editOrNewEvent");
@@ -823,7 +823,8 @@ export default class Detail extends BaseController {
 		// triggered by edit button in a custom list item header in events list
 		const oSource = <Button>oEvent.getSource();
 		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
-		this.eventCRUD.editEvent(oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id!);
+		// this.eventCRUD.editEvent(oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id!);
+		this.applyToFragment('dialogEvent', this.eventCRUD.initEditSelectedEvent.bind(this, oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id));
 	}
 	onOpenDialogEditSoil(oEvent: Event) {
 		const oSource = <Button>oEvent.getSource();
@@ -960,7 +961,7 @@ export default class Detail extends BaseController {
 		const oImagesModel = this.oComponent.getModel('images');;
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
 		//todo use imageregistryhandler instaed in imagedeleter
-		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.onAjaxSimpleSuccess);
+		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, ModelsHelper.onGenericSuccessWithMessage);
 		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
 

@@ -54,7 +54,7 @@ export default class TaxonomyUtil extends ManagedObject {
 			// async: true
 		})
 			.done(this._onReceivingSpeciesDatabase.bind(this, oModelKewSearchResults))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Search Taxa by Name (POST)'));
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Search Taxa by Name (POST)'));
 	}
 
 	private _onReceivingSpeciesDatabase(oModelKewSearchResults: JSONModel, data: BResultsTaxonInfoRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) {
@@ -105,7 +105,7 @@ export default class TaxonomyUtil extends ManagedObject {
 			data: JSON.stringify(dPayload)
 		})
 			.done(this._onReceivingAdditionalSpeciesInformationSaved.bind(this, oDialog, oPlant, oDetailController, oView))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Retrieve Details for selected Taxon (POST)'));
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Retrieve Details for selected Taxon (POST)'));
 	}
 
 	private _onReceivingAdditionalSpeciesInformationSaved(oDialog: Dialog, oPlant: BPlant, oDetailController: Detail,
@@ -228,7 +228,7 @@ export default class TaxonomyUtil extends ManagedObject {
 			context: this,
 		})
 			.done(this._onReceivingRefetchdeGbifImages.bind(this, oTaxonModel, oCurrentPlant))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'fetch_taxon_occurrence_images (POST)'));
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'fetch_taxon_occurrence_images (POST)'));
 	}
 
 	private _onReceivingRefetchdeGbifImages(oTaxonModel: JSONModel, oCurrentPlant: BPlant, data: BResultsFetchTaxonImages, sStatus: ResponseStatus, oResponse: JQueryXHR) {

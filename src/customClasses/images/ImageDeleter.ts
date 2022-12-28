@@ -72,7 +72,7 @@ export default class ImageDeleter extends ManagedObject {
 			context: this
 		})
 			.done(this._onAjaxDeletedImagesSuccess.bind(this, aImages, cbCallback))
-			.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Image(s) (DELETE)'));
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Image(s) (DELETE)'));
 	}
 
 	private _onAjaxDeletedImagesSuccess(aDeletedImages: FBImage[], cbCallback: Function | undefined, data: BConfirmation, textStats: any, jqXHR: any): void {

@@ -119,7 +119,7 @@ export default class Untagged extends BaseController {
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
 		//todo use imageregistryhandler instaed in imagedeleter
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
-		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.onAjaxSimpleSuccess);
+		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, ModelsHelper.onGenericSuccessWithMessage);
 		oImageDeleter.askToDeleteMultipleImages(aSelectedImages, bCompact, this.onSelectNone.bind(this));
 	}
 
@@ -183,7 +183,7 @@ export default class Untagged extends BaseController {
 		const oImagesModel = this.oComponent.getModel('images');;
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
 		//todo use imageregistryhandler instaed in imagedeleter
-		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, this.onAjaxSimpleSuccess);
+		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, ModelsHelper.onGenericSuccessWithMessage);
 		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
 	

@@ -107,7 +107,7 @@ export default class Saver extends ManagedObject {
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Plant (POST)'));
+				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (POST)'));
 		}
 
 		// save images
@@ -122,7 +122,7 @@ export default class Saver extends ManagedObject {
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Image (PUT)'));
+				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Image (PUT)'));
 		}
 
 		// save taxa
@@ -147,7 +147,7 @@ export default class Saver extends ManagedObject {
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Taxon (POST)'));
+				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Taxon (POST)'));
 		}
 
 		// save events
@@ -162,7 +162,7 @@ export default class Saver extends ManagedObject {
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'Event (POST)'));
+				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Event (POST)'));
 		}
 
 		// save properties
@@ -177,7 +177,7 @@ export default class Saver extends ManagedObject {
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'plant_properties (POST)'));
+				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'plant_properties (POST)'));
 		}
 
 		// save properties taxa
@@ -192,7 +192,7 @@ export default class Saver extends ManagedObject {
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.getInstance().onReceiveErrorGeneric.bind(this, 'taxon_properties (POST)'));
+				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'taxon_properties (POST)'));
 		}
 	}
 
