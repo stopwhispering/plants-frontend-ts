@@ -1,4 +1,4 @@
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import ModelsHelper from "plants/ui/model/ModelsHelper"
 import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler"
 import JSONModel from "sap/ui/model/json/JSONModel"

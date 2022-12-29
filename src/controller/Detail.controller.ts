@@ -3,7 +3,7 @@ import JSONModel from "sap/ui/model/json/JSONModel"
 import Filter from "sap/ui/model/Filter"
 import formatter from "plants/ui/model/formatter"
 import MessageToast from "sap/m/MessageToast"
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import Navigation from "plants/ui/customClasses/singleton/Navigation"
 import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler"
 import EventCRUD from "plants/ui/customClasses/events/EventCRUD"
@@ -11,7 +11,7 @@ import Sorter from "sap/ui/model/Sorter"
 import FilterOperator from "sap/ui/model/FilterOperator"
 import ImageToTaxonAssigner from "plants/ui/customClasses/images/ImageToTaxonAssigner"
 import ImageToEventAssigner from "plants/ui/customClasses/images/ImageToEventAssigner"
-import TaxonomyUtil from "plants/ui/customClasses/taxonomy/TaxonomyUtil"
+import SpeciesFinderDialogHelper from "plants/ui/customClasses/taxonomy/SpeciesFinderDialogHelper"
 import Fragment from "sap/ui/core/Fragment"
 import Dialog from "sap/m/Dialog"
 import {
@@ -92,7 +92,6 @@ export default class Detail extends BaseController {
 	public suggestionService: SuggestionService; // public because used in formatter
 	// helper classes for controllers
 	// TraitUtil = TraitUtil.getInstance()
-	private TaxonomyUtil = TaxonomyUtil.getInstance();
 	private mCurrentPlant: LCurrentPlant;  // container currentPlantId, currentPlantIndex, currentPlant
 	private oLayoutModel: JSONModel;
 
@@ -579,34 +578,31 @@ export default class Detail extends BaseController {
 	}
 
 	//////////////////////////////////////////////////////////
-	// Taxonomy Handlers
+	// Search Species Handlers
 	//////////////////////////////////////////////////////////
 	onOpenFindSpeciesDialog() {
 		this.applyToFragment('dialogFindSpecies',
-			(oDialog: Dialog) => oDialog.open(),
-			(oDialog: Dialog) => {
-				var oKewResultsModel = new JSONModel();
-				this.getView().setModel(oKewResultsModel, 'kewSearchResults');
-			});
+		(oDialog: Dialog) => {
+			oDialog.setModel(new JSONModel(), 'kewSearchResults');			
+			oDialog.open();
+		});
 	}
 
 	onButtonFindSpecies(oEvent: Event) {
-		const sTaxonNamePattern = (<Input>this.byId('inputTaxonNamePattern')).getValue();
+		// when hitting search, trigger a backend call to retrieve species matching the search pattern
+		const sTaxonNamePattern = (<Input>this.byId('inputSearchPattern')).getValue();
 		const bIncludeExternalApis = (<CheckBox>this.byId('cbIncludeExternalApis')).getSelected();
 		const bSearchForGenusNotSpecies = (<CheckBox>this.byId('cbGenus')).getSelected();
-		const oModelKewSearchResults = <JSONModel>this.getView().getModel('kewSearchResults');  //model attached to view, not component
-		// this.TaxonomyUtil.findSpecies(sTaxonNamePattern, bIncludeExternalApis, bSearchForGenusNotSpecies, oModelKewSearchResults);
+		const oModelKewSearchResults = <JSONModel>(<Dialog>this.getView().byId("dialogFindSpecies")).getModel('kewSearchResults');  //model attached to view, not component
 		new SpeciesFinder(oModelKewSearchResults).searchSpecies(sTaxonNamePattern, bIncludeExternalApis, bSearchForGenusNotSpecies);
 	}
 
 	onFindSpeciesChoose(oEvent: Event) {
-		const oSelectedItem = <ColumnListItem>(<Table>this.byId('tableFindSpeciesResults')).getSelectedItem();
-		const sCustomName = (<GenericTag>this.byId('textFindSpeciesAdditionalName')).getText().trim();
+		// when user chooses a species from the search results, trigger a backend call to retrieve additional information on
+		// that species and assign it to the current plant
 		const oDialog = <Dialog>this.getView().byId("dialogFindSpecies");
-		const oModelKewSearchResults = <JSONModel>this.getView().getModel('kewSearchResults');  //model attached to view, not component
-		const oView = this.getView();
 		const oTaxonToPlantAssigner = new TaxonToPlantAssigner(this.oComponent.getModel('plants'), this.oComponent.getModel('taxon'))
-
+		const oView = this.getView();
 		const cbReceivingAdditionalSpeciesInformation: LAjaxLoadDetailsForSpeciesDoneCallback = (
 			data: BResultsRetrieveTaxonDetailsRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) => {
 			Util.stopBusyDialog();
@@ -622,34 +618,42 @@ export default class Detail extends BaseController {
 			});
 		}
 
-		new SpeciesFinder(oModelKewSearchResults).loadDetailsForSpecies(oSelectedItem, sCustomName, this.mCurrentPlant.plant, cbReceivingAdditionalSpeciesInformation);
+		const oSelectedSpeciesItem = <ColumnListItem>(<Table>this.byId('tableFindSpeciesResults')).getSelectedItem();
+		const sCustomName = (<GenericTag>this.byId('textFindSpeciesAdditionalName')).getText().trim();
+		const oModelKewSearchResults = <JSONModel>(<Dialog>this.getView().byId("dialogFindSpecies")).getModel('kewSearchResults');  //model attached to dialog, not component
+		new SpeciesFinder(oModelKewSearchResults).loadDetailsForSpecies(oSelectedSpeciesItem, sCustomName, this.mCurrentPlant.plant, cbReceivingAdditionalSpeciesInformation);
 	}
 
 	onFindSpeciesTableSelectedOrDataUpdated(oEvent: Event) {
-		const oSelectedItem = <ColumnListItem>(<Table>this.byId('tableFindSpeciesResults')).getSelectedItem();
-		const oText = <GenericTag>this.byId('textFindSpeciesAdditionalName');
+		// depending on selected search result, the additional name input field is enabled or disabled and the preview custom name tag is updated
+		const oSelectedSpeciesItem = <ColumnListItem>(<Table>this.byId('tableFindSpeciesResults')).getSelectedItem();
+		const oCustomNamePreviewTag = <GenericTag>this.byId('textFindSpeciesAdditionalName');
 		const oInputAdditionalName = <Input>this.byId('inputFindSpeciesAdditionalName');
-		this.TaxonomyUtil.findSpeciesTableSelectedOrDataUpdated(oText, oInputAdditionalName, oSelectedItem);
+		new SpeciesFinderDialogHelper().findSpeciesTableSelectedOrDataUpdated(oCustomNamePreviewTag, oInputAdditionalName, oSelectedSpeciesItem);
 	}
 
 	onFindSpeciesAdditionalNameLiveChange(oEvent: Event) {
-		this.TaxonomyUtil.findSpeciesAdditionalNameLiveChange(this.getView());
+		// when changing the optional additional name, update the corresponding tag to preview final full custom species name
+		const oSelectedSpeciesItem = <ColumnListItem> (<Table> this.getView().byId('tableFindSpeciesResults')).getSelectedItem();
+		const oCustomNamePreviewTag = <GenericTag> this.getView().byId('textFindSpeciesAdditionalName');
+		const sNewAdditionalName = (<Input>this.getView().byId('inputFindSpeciesAdditionalName')).getValue();		
+		new SpeciesFinderDialogHelper().handleSpeciesAdditionalNameLiveChange(oSelectedSpeciesItem, oCustomNamePreviewTag, sNewAdditionalName);
 	}
 
 	onDialogFindSpeciesBeforeOpen(oEvent: Event) {
-		this.TaxonomyUtil.findSpeciesBeforeOpen(this.getView());
+		// before opening find species dialog, set default values for species (current species)and additional name (empty)
+		const oInputSearchPattern = <Input>this.getView().byId('inputSearchPattern');
+		const oInputAdditionalName = <Input>this.getView().byId('inputFindSpeciesAdditionalName');
+		const oTaxon = <BTaxon|null>this.getView().getBindingContext('taxon')!.getObject(); 
+		new SpeciesFinderDialogHelper().setInitialInputValues(oInputSearchPattern, oInputAdditionalName, oTaxon);
 	}
 
+	//////////////////////////////////////////////////////////
+	// Leaflet Map Handlers
+	//////////////////////////////////////////////////////////	
 	onShowMap(oEvent: Event) {
-		// var oSource = evt.getSource();
 		this.applyToFragment('dialogLeafletMap',
 			(oDialog: Dialog) => oDialog.open());
-	}
-	onRefetchGbifImages(oEvent: Event) {
-		const oTaxon = <BTaxon>(<Control>oEvent.getSource()).getBindingContext('taxon')!.getObject()
-		if (!oTaxon.gbif_id)
-			throw new Error('No gbif_id found for taxon ' + oTaxon.name);
-		new OccurrenceImagesFetcher(this.oComponent.getModel('taxon')).fetchOccurrenceImages(oTaxon.gbif_id, this.mCurrentPlant.plant);
 	}
 
 	onCloseLeafletMap(oEvent: Event) {
@@ -658,6 +662,16 @@ export default class Detail extends BaseController {
 
 	afterCloseLeafletMap(oEvent: Event) {
 		this.applyToFragment('dialogLeafletMap', (oDialog: Dialog) => oDialog.destroy());
+	}
+
+	//////////////////////////////////////////////////////////
+	// Taxonomy Handlers
+	//////////////////////////////////////////////////////////	
+	onRefetchGbifImages(oEvent: Event) {
+		const oTaxon = <BTaxon>(<Control>oEvent.getSource()).getBindingContext('taxon')!.getObject()
+		if (!oTaxon.gbif_id)
+			throw new Error('No gbif_id found for taxon ' + oTaxon.name);
+		new OccurrenceImagesFetcher(this.oComponent.getModel('taxon')).fetchOccurrenceImages(oTaxon.gbif_id, this.mCurrentPlant.plant);
 	}
 
 	onIconPressUnassignImageFromTaxon(oEvent: Event) {

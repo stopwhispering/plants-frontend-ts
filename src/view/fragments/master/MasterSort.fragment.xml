@@ -11,4 +11,5 @@
 			<ViewSettingsItem text="{i18n>id}" key="id" />
 		</sortItems>
 	</ViewSettingsDialog>
+	
 </core:FragmentDefinition>

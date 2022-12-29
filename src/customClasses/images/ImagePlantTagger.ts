@@ -1,7 +1,7 @@
 
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject"
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { FBImage, FBImagePlantTag } from "plants/ui/definitions/Images";
 import { BPlant } from "plants/ui/definitions/Plants";

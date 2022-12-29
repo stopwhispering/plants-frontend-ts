@@ -7,7 +7,7 @@ import ListBinding from "sap/ui/model/ListBinding";
 /**
  * @namespace plants.ui.customClasses.plants
  */
-export default class PlantSearch extends ManagedObject {
+export default class PlantSearcher extends ManagedObject {
 	private _oPlantsTableBinding: ListBinding;
 
 	public constructor(oPlantsTableBinding: ListBinding) {

@@ -1,4 +1,4 @@
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import Dialog from "sap/m/Dialog";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject"

@@ -1,4 +1,4 @@
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
@@ -83,7 +83,7 @@ export default class Saver extends ManagedObject {
 		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
 		const dModifiedEvents: PlantIdToEventsMap = oChangeTracker.getModifiedEvents();
 		const dModifiedPropertiesPlants: LPlantIdToPropertyCollectionMap = oChangeTracker.getModifiedPlantProperties();
-		const dModifiedPropertiesTaxa: LCategoryToPropertiesInCategoryMap = oChangeTracker.getModifiedTaxonProperties();
+		const dModifiedPropertiesTaxa: LTaxonToPropertyCategoryMap = oChangeTracker.getModifiedTaxonProperties();
 
 		// cancel busydialog if nothing was modified (callbacks not triggered)
 		if ((aModifiedPlants.length === 0) && (aModifiedImages.length === 0) && (aModifiedTaxa.length === 0)

@@ -1,6 +1,6 @@
 import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import { LTaxonData, LTaxonMap } from "plants/ui/definitions/TaxonLocal";
 import { FBImage } from "plants/ui/definitions/Images";
 import { LImageMap } from "plants/ui/definitions/ImageLocal";
@@ -188,9 +188,10 @@ export default class ChangeTracker extends ManagedObject {
 		return dModifiedPropertiesDict;
 	}
 
-	public getModifiedTaxonProperties(): LCategoryToPropertiesInCategoryMap {
+	public getModifiedTaxonProperties(): LTaxonToPropertyCategoryMap {
 		const oDataPropertiesTaxon: LPropertiesTaxonModelData = this._oTaxonPropertiesModel.getData();
-		const oPropertiesTaxon: LCategoryToPropertiesInCategoryMap = oDataPropertiesTaxon.propertiesTaxon;  // todo fix entity
+		const oPropertiesTaxon: LTaxonToPropertyCategoryMap = oDataPropertiesTaxon.propertiesTaxon;  // todo fix entity
+		// const oPropertiesTaxon: LCategoryToPropertiesInCategoryMap = oDataPropertiesTaxon.propertiesTaxon;  // todo fix entity
 		// const oPropertiesTaxonOriginal: LCategoryToPropertiesInCategoryMap = this.oComponent.oPropertiesTaxonDataClone;
 
 		if (!this._oTaxonPropertiesDataClone) {
@@ -199,7 +200,7 @@ export default class ChangeTracker extends ManagedObject {
 
 		// get taxa for which we have properties in the original dataset
 		// then, for each of them, check whether properties have been changed
-		var oModifiedPropertiesDict: LCategoryToPropertiesInCategoryMap = {};
+		var oModifiedPropertiesDict: LTaxonToPropertyCategoryMap = {};
 		const keys_clone_s = Object.keys(this._oTaxonPropertiesDataClone);
 		const keys_clone = keys_clone_s.map(key => parseInt(key));
 		const that = this;

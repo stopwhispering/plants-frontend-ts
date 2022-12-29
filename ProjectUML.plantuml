@@ -5,7 +5,7 @@ skinparam dpi 300
 namespace plants.ui <<Rectangle>> {
 class plants.ui.controller.Untagged <<Controller>> #honeydew ##green {
 	+ formatter: plants.ui.model.formatter
-	- oPlantLookup: plants.ui.customClasses.PlantLookup
+	- oPlantLookup: plants.ui.customClasses.plants.PlantLookup
 	- _currentPlantId: number
 	+ ModelsHelper: plants.ui.model.ModelsHelper
 	+ onInit(): void
@@ -27,8 +27,8 @@ class plants.ui.controller.Untagged <<Controller>> #honeydew ##green {
 }
 class plants.ui.controller.Master <<Controller>> #honeydew ##green {
 	+ formatter: plants.ui.model.formatter
-	- navigation: plants.ui.customClasses.Navigation
-	- oPlantLookup: plants.ui.customClasses.PlantLookup
+	- navigation: plants.ui.customClasses.singleton.Navigation
+	- oPlantLookup: plants.ui.customClasses.plants.PlantLookup
 	- oTaxonTreeModel: sap.ui.model.json.JSONModel
 	- mIdToFragment: IdToFragmentMap
 	+ onInit(): void
@@ -51,7 +51,7 @@ class plants.ui.controller.Master <<Controller>> #honeydew ##green {
 }
 class plants.ui.controller.FlexibleColumnLayout <<Controller>> #honeydew ##green {
 	+ formatter: plants.ui.model.formatter
-	- oPlantLookup: plants.ui.customClasses.PlantLookup
+	- oPlantLookup: plants.ui.customClasses.plants.PlantLookup
 	- mIdToFragment: IdToFragmentMap
 	- _currentPlantId: number
 	- _oRouter: sap.ui.core.routing.Router
@@ -83,11 +83,9 @@ class plants.ui.controller.FlexibleColumnLayout <<Controller>> #honeydew ##green
 }
 class plants.ui.controller.Detail <<Controller>> #honeydew ##green {
 	+ formatter: plants.ui.model.formatter
-	- eventsUtil: plants.ui.customClasses.EventsUtil
-	- oPlantLookup: plants.ui.customClasses.PlantLookup
-	+ suggestionService: plants.ui.customClasses.SuggestionService
-	- propertiesUtil: plants.ui.customClasses.PropertiesUtil
-	- TaxonomyUtil: plants.ui.customClasses.TaxonomyUtil
+	- eventCRUD: plants.ui.customClasses.events.EventCRUD
+	- oPlantLookup: plants.ui.customClasses.plants.PlantLookup
+	+ suggestionService: plants.ui.customClasses.shared.SuggestionService
 	- mCurrentPlant: LCurrentPlant
 	- oLayoutModel: sap.ui.model.json.JSONModel
 	- mIdToFragment: IdToFragmentMap
@@ -125,17 +123,17 @@ class plants.ui.controller.Detail <<Controller>> #honeydew ##green {
 	+ onFindSpeciesAdditionalNameLiveChange(oEvent: sap.ui.base.Event): void
 	+ onDialogFindSpeciesBeforeOpen(oEvent: sap.ui.base.Event): void
 	+ onShowMap(oEvent: sap.ui.base.Event): void
-	+ onRefetchGbifImages(gbif_id: number, controller: plants.ui.controller.Detail.controller): void
 	+ onCloseLeafletMap(oEvent: sap.ui.base.Event): void
 	+ afterCloseLeafletMap(oEvent: sap.ui.base.Event): void
+	+ onRefetchGbifImages(oEvent: sap.ui.base.Event): void
 	+ onIconPressUnassignImageFromTaxon(oEvent: sap.ui.base.Event): void
 	+ onIconPressAssignImageToTaxon(oEvent: sap.ui.base.Event): void
 	+ onEditPropertyValueDelete(oEvent: sap.ui.base.Event): void
 	+ onCloseDialogEditPropertyValue(evt: sap.ui.base.Event): void
-	+ onCloseAddPropertiesDialog(evt: sap.ui.base.Event): void
+	+ onAfterCloseAddPropertyNamePopover(evt: sap.ui.base.Event): void
+	+ onAfterCloseNewPropertyNamePopover(evt: sap.ui.base.Event): void
 	+ onOpenDialogAddProperty(oEvent: sap.ui.base.Event): void
-	+ onCloseNewPropertyNameDialog(evt: sap.ui.base.Event): void
-	+ onAddProperty(oEvent: sap.ui.base.Event): void
+	+ onAssignPropertyNameToPlantAndOrTaxon(oEvent: sap.ui.base.Event): void
 	+ onNewPropertyNameCreate(oEvent: sap.ui.base.Event): void
 	+ onOpenDialogNewProperty(oEvent: sap.ui.base.Event): void
 	+ onEditPropertyValueTag(oEvent: sap.ui.base.Event): void
@@ -171,22 +169,8 @@ class plants.ui.view.FlexibleColumnLayoutView << (V,orchid) >> #gainsboro ##grey
 class plants.ui.view.DetailView << (V,orchid) >> #gainsboro ##grey {}
 }
 class plants.ui.model.ModelsHelper {
-	- {static} _instance: plants.ui.model.ModelsHelper
-	- formatter: plants.ui.model.formatter
-	- _component: plants.ui.Component
-	+ {static} getInstance(component: plants.ui.Component): plants.ui.model.ModelsHelper
-	+ onReceiveErrorGeneric(sCaller: string, error: JQueryXHR, sTypeOfError: "timeout" | "error" | "abort" | "parsererror" | null, oExceptionObject: any): void
-	- _onReceivingPlantsFromBackend(oRequestInfo: sap.ui.base.Event): void
-	- _onReceivingTaxaFromBackend(oRequestInfo: sap.ui.base.Event): void
-	+ reloadPlantsFromBackend(): void
-	+ resetImages(): void
-	+ loadTaxon(taxon_id: number | undefined): void
-	- _onReceivingTaxonDetailsForPlant(taxonId: number, oData: BResultsGetTaxon): void
-	- _parse_plant_id_from_hash(): number | undefined
-	+ resetTaxaRegistry(): void
-	+ reloadKeywordProposalsFromBackend(): void
-	+ reloadNurserySourceProposalsFromBackend(): void
-	+ reloadPropertyNamesFromBackend(): void
+	+ {static} onReceiveErrorGeneric(sCaller: string, error: JQueryXHR, sTypeOfError: "timeout" | "error" | "abort" | "parsererror" | null, oExceptionObject: any): void
+	+ {static} onGenericSuccessWithMessage(oConfirmation: BConfirmation, sStatus: string, oReturnData: object): void
 }
 class plants.ui.model.formatter {
 	+ activeInactive(active: boolean): string
@@ -210,38 +194,43 @@ class plants.ui.model.formatter {
 	+ createDescendantParentPollenVisibleByPropagationType(ePropagationType: FBPropagationType): boolean
 	+ getSrcAvatarImageS(filename_previewimage: string): string | undefined
 	+ getSrcAvatarImageL(filename_previewimage: string): string | undefined
-	+ getSrcImageThumbnail(filename: string): any
+	+ getSrcImageThumbnail(filename: string): string | undefined
 	+ getSrcImage(filename: string): string | undefined
-	+ getSrcImage120px(filename: string): any
+	+ getSrcImage120px(filename: string): string | undefined
 	+ getSrcImageOccurrenceThumbnail(gbif_id: number, occurrence_id: number, img_no: number): string
-	+ getSrcMasterHoverImage(filename: string): any
+	+ getSrcMasterHoverImage(filename: string): string | undefined
 }
-class plants.ui.customClasses.UntaggedImagesHandler {
-	- _oUntaggedImagesModel: sap.ui.model.json.JSONModel
-	+ requestUntaggedImages(): void
-	- _onReceivingUntaggedImages(oData: BResultsImageResource, sStatus: any, oReturnData: any): void
-	- _addPhotosToRegistry(aImages: FBImage): void
-	+ resetUntaggedImages(): void
+class plants.ui.customClasses.taxonomy.TaxonToPlantAssigner {
+	- _oTaxonModel: sap.ui.model.json.JSONModel
+	- _oPlantsModel: sap.ui.model.json.JSONModel
+	+ assignTaxonToPlant(oPlant: BPlant, oTaxon: BTaxon, sBotanicalName: string): void
 }
-class plants.ui.customClasses.TaxonomyUtil {
-	- {static} _instance: plants.ui.customClasses.TaxonomyUtil
-	+ {static} getInstance(): plants.ui.customClasses.TaxonomyUtil
-	+ findSpecies(sTaxonNamePattern: string, bIncludeExternalApis: boolean, bSearchForGenusNotSpecies: boolean, oModelKewSearchResults: sap.ui.model.json.JSONModel): void
-	- _onReceivingSpeciesDatabase(oModelKewSearchResults: sap.ui.model.json.JSONModel, data: BResultsTaxonInfoRequest, sStatus: ResponseStatus, oResponse: JQueryXHR): void
-	+ chooseSpecies(oSelectedItem: sap.m.ColumnListItem, sCustomName: string, oDialog: sap.m.Dialog, oPlant: BPlant, oDetailController: plants.ui.controller.Detail.controller, oView: sap.ui.core.mvc.View): void
-	- _onReceivingAdditionalSpeciesInformationSaved(oDialog: sap.m.Dialog, oPlant: BPlant, oDetailController: plants.ui.controller.Detail.controller, oView: sap.ui.core.mvc.View, data: BResultsRetrieveTaxonDetailsRequest, sStatus: ResponseStatus, oResponse: JQueryXHR): void
-	+ findSpeciesTableSelectedOrDataUpdated(oText: sap.m.GenericTag, oInputAdditionalName: sap.m.Input, oSelectedItem: sap.m.ColumnListItem): void
-	+ findSpeciesAdditionalNameLiveChange(oView: sap.ui.core.mvc.View): void
-	+ findSpeciesBeforeOpen(oView: sap.ui.core.mvc.View): void
-	+ refetchGbifImages(gbif_id: number, oTaxonModel: sap.ui.model.json.JSONModel, oCurrentPlant: BPlant): void
-	- _onReceivingRefetchdeGbifImages(oTaxonModel: sap.ui.model.json.JSONModel, oCurrentPlant: BPlant, data: BResultsFetchTaxonImages, sStatus: ResponseStatus, oResponse: JQueryXHR): void
+class plants.ui.customClasses.taxonomy.TaxonRegistryHandler {
+	- _oPlantsModel: sap.ui.model.json.JSONModel
+	- _oTaxonModel: sap.ui.model.json.JSONModel
+	+ resetTaxonRegistry(): void
+	- _parse_plant_id_from_hash(): number | undefined
 }
-class plants.ui.customClasses.SuggestionService {
-	- {static} _instance: plants.ui.customClasses.SuggestionService
-	- _oSuggesionsModel: sap.ui.model.json.JSONModel
-	+ {static} createInstance(oSuggesionsModel: sap.ui.model.json.JSONModel): void
-	+ {static} getInstance(): plants.ui.customClasses.SuggestionService
-	+ getSuggestionItem(rootKey: "propagationTypeCollection", key: LPropagationTypeData): LPropagationTypeData
+class plants.ui.customClasses.taxonomy.TaxonLoader {
+	- _oTaxonModel: sap.ui.model.json.JSONModel
+	+ loadTaxonIfRequired(taxon_id: number): void
+	- _onReceivingTaxonDetailsForPlant(taxonId: number, oData: BResultsGetTaxon): void
+}
+class plants.ui.customClasses.taxonomy.SpeciesFinderDialogHelper {
+	+ findSpeciesTableSelectedOrDataUpdated(oCustomNamePreviewTag: sap.m.GenericTag, oInputAdditionalName: sap.m.Input, oSelectedSpeciesItem: sap.m.ColumnListItem): void
+	+ handleSpeciesAdditionalNameLiveChange(oSelectedSpeciesItem: sap.m.ColumnListItem, oCustomNamePreviewTag: sap.m.GenericTag, sNewAdditionalName: string): void
+	+ setInitialInputValues(oInputSearchPattern: sap.m.Input, oInputAdditionalName: sap.m.Input, oTaxon: BTaxon): void
+}
+class plants.ui.customClasses.taxonomy.SpeciesFinder {
+	- _oModelKewSearchResults: sap.ui.model.json.JSONModel
+	+ searchSpecies(sTaxonNamePattern: string, bIncludeExternalApis: boolean, bSearchForGenusNotSpecies: boolean): void
+	- _onReceivingSpeciesSearchResult(data: BResultsTaxonInfoRequest, sStatus: ResponseStatus, oResponse: JQueryXHR): void
+	+ loadDetailsForSpecies(oSelectedItem: sap.m.ColumnListItem, sCustomName: string, oPlant: BPlant, cbReceivingAdditionalSpeciesInformation: LAjaxLoadDetailsForSpeciesDoneCallback): void
+}
+class plants.ui.customClasses.taxonomy.OccurrenceImagesFetcher {
+	- _oTaxonModel: sap.ui.model.json.JSONModel
+	+ fetchOccurrenceImages(gbif_id: number, oCurrentPlant: BPlant): void
+	- _cbReceivingOccurrenceImages(oCurrentPlant: BPlant, data: BResultsFetchTaxonImages, sStatus: ResponseStatus, oResponse: JQueryXHR): void
 }
 class plants.ui.customClasses.singleton.Saver {
 	- {static} _instance: plants.ui.customClasses.singleton.Saver
@@ -260,6 +249,26 @@ class plants.ui.customClasses.singleton.Saver {
 	+ {static} getInstance(): plants.ui.customClasses.singleton.Saver
 	+ saveMajorResources(): void
 	- _onAjaxSuccessSave(oMsg: BSaveConfirmation, sStatus: string, oReturnData: object): void
+}
+class plants.ui.customClasses.singleton.Navigation {
+	- {static} _instance: plants.ui.customClasses.singleton.Navigation
+	- _oRouter: sap.ui.core.routing.Router
+	- _oRootControl: sap.ui.core.mvc.View
+	+ {static} createInstance(oRootControl: sap.ui.core.mvc.View, oRouter: sap.ui.core.routing.Router): void
+	+ {static} getInstance(): plants.ui.customClasses.singleton.Navigation
+	+ getFCLHelper(): sap.f.FlexibleColumnLayoutSemanticHelper
+	+ navToPlantDetails(iPlant: number): void
+	+ navToPlant(oPlant: BPlant): void
+}
+class plants.ui.customClasses.singleton.MessageHandler {
+	- {static} _instance: plants.ui.customClasses.singleton.MessageHandler
+	- _oMessageManager: sap.ui.core.message.MessageManager
+	+ {static} createInstance(): void
+	+ {static} getInstance(): plants.ui.customClasses.singleton.MessageHandler
+	+ getMessageManager(): sap.ui.core.message.MessageManager
+	+ addMessageFromBackend(backendMessage: BMessage): void
+	+ addMessage(sType: MessageType, sMessage: string, sAdditionalText: string | undefined, sDescription: string | undefined): void
+	+ removeAllMessages(): void
 }
 class plants.ui.customClasses.singleton.ImageRegistryHandler {
 	- {static} _instance: plants.ui.customClasses.singleton.ImageRegistryHandler
@@ -301,7 +310,7 @@ class plants.ui.customClasses.singleton.ChangeTracker {
 	+ getModifiedTaxa(): BTaxon
 	+ getModifiedEvents(): PlantIdToEventsMap
 	+ getModifiedPlantProperties(): LPlantIdToPropertyCollectionMap
-	+ getModifiedTaxonProperties(): LCategoryToPropertiesInCategoryMap
+	+ getModifiedTaxonProperties(): LTaxonToPropertyCategoryMap
 	+ getModifiedImages(): FBImage
 	+ getPropertiesSansTaxa(dProperties_: LPlantIdToPropertyCollectionMap): LPlantIdToPropertyCollectionMap
 	+ setOriginalPlants(oPlantsData: FPlantsUpdateRequest): void
@@ -323,65 +332,104 @@ class plants.ui.customClasses.singleton.ChangeTracker {
 	+ addTaxonPropertiesInCategory(oPropertiesInCategory: LTaxonToPropertiesInCategoryMap, iTaxonId: number): void
 	+ setTaxonProperties(oTaxonToPropertyCategoryMap: LTaxonToPropertyCategoryMap): void
 }
-class plants.ui.customClasses.PropertiesUtil {
-	- _btnAdd: sap.m.Button
-	- _btnNew: sap.m.Button
-	- {static} _instance: plants.ui.customClasses.PropertiesUtil
-	- applyToFragment: Function
-	+ {static} getInstance(applyToFragment: Function | undefined): plants.ui.customClasses.PropertiesUtil
+class plants.ui.customClasses.shared.Util {
+	+ {static} parse_resource_from_url(sUrl: string): string
+	+ {static} getServiceUrl(sUrl: string): string
+	+ {static} getImageUrl(filename: string, size_type: string | undefined, width: number | undefined, height: number | undefined): string | undefined
+	+ {static} getClonedObject(oOriginal: any): any
+	+ {static} startBusyDialog(title: string | undefined, text: string | undefined): void
+	+ {static} stopBusyDialog(): void
+	+ {static} getToday(): string
+	+ {static} assertCorrectDate(sdate: string): void
+	+ {static} formatDate(date: Date): string
+	+ {static} getDaysFromToday(sDate: string): number
+	+ {static} objectsEqualManually(dict1: any, dict2: any): boolean
+	- {static} _isObject(val: any): boolean
+	+ {static} dictsAreEqual(dict1: AnyDict, dict2: AnyDict): boolean
+	+ {static} isDictKeyInArray(dict: AnyDict, aDicts: AnyDict): boolean
+	+ {static} romanize(num: number): string | number
+	+ {static} arabize(romanNum: string): number
+}
+class plants.ui.customClasses.shared.SuggestionService {
+	- {static} _instance: plants.ui.customClasses.shared.SuggestionService
+	- _oSuggesionsModel: sap.ui.model.json.JSONModel
+	+ {static} createInstance(oSuggesionsModel: sap.ui.model.json.JSONModel): void
+	+ {static} getInstance(): plants.ui.customClasses.shared.SuggestionService
+	+ getSuggestionItem(rootKey: "propagationTypeCollection", key: LPropagationTypeData): LPropagationTypeData
+}
+class plants.ui.customClasses.properties.PropertyValueCRUD {
 	+ editPropertyValueDelete(oPropertiesModel: sap.ui.model.json.JSONModel, oPropertiesTaxaModel: sap.ui.model.json.JSONModel, oPropertiesBindingContext: sap.ui.model.Context, oCurrentPlant: BPlant): void
+}
+class plants.ui.customClasses.properties.PropertyNameCRUD {
+	- _oPropertyNamesModel: sap.ui.model.json.JSONModel
+	- _oPlantPropertiesModel: sap.ui.model.json.JSONModel
+	- _oTaxonPropertiesModel: sap.ui.model.json.JSONModel
+	+ createNewPropertyName(sPropertyName: string, oCategory: FBPropertiesInCategory, oPlant: BPlant, bAddToPlant: boolean, bAddToTaxon: boolean): void
+	+ assignPropertyNameToPlantAndOrTaxon(iTaxonId: number, aAvailablePropertiesFromDialog: LTemporaryAvailableProperties, oPropertiesInCategory: FBPropertiesInCategory): void
+	- _insertPropertyIntoPropertiesTaxaModel(oPropertyValue: FBPropertyValue, iCategoryId: number, iTaxonId: number, oEntry: LTemporaryAvailableProperties, oPropertiesTaxaModel: sap.ui.model.json.JSONModel): void
+}
+class plants.ui.customClasses.properties.PropertiesLoader {
+	- _oPlantPropertiesModel: sap.ui.model.json.JSONModel
+	- _oTaxonPropertiesModel: sap.ui.model.json.JSONModel
+	+ loadPropertiesForCurrentPlant(oPlant: BPlant): void
+	- _taxon_properties_already_loaded(taxon_id: number): boolean
+	- _onReceivingPropertiesForPlant(oPlant: BPlant, oData: BResultsPropertiesForPlant, sStatus: ResponseStatus, oResponse: JQueryXHR): void
+	- _appendTaxonPropertiesToPlantProperties(oPlant: BPlant): void
+}
+class plants.ui.customClasses.properties.NewPropertyNamePopoverOpener {
+	+ openPopupNewPropertyWhenPromiseResolved(oPromise: sap.m.Popover, oPlant: BPlant, oBtnNewProperty: sap.m.Button): void
+}
+class plants.ui.customClasses.properties.AssignPropertyNamePopoverOpener {
+	+ openPopupAddPropertyWhenPromiseResolved(oPromise: sap.m.Popover, oCurrentPlant: BPlant, oBtnAddProperty: sap.m.Button): void
 	- _getTemporaryAvailablePropertiesModel(oCategory: FBPropertiesInCategory, oModelPropertyNames: sap.ui.model.json.JSONModel): sap.ui.model.json.JSONModel
 	- _comparePropertiesLists(aPropertiesAvailable: BPropertyName, aPropertiesUsed: FBProperty): LTemporaryAvailableProperties
-	+ openDialogNewProperty(oPlant: BPlant, oSource: sap.m.Button): void
-	+ createNewPropertyName(oSource: sap.m.Input, oView: sap.ui.core.mvc.View): void
-	+ closeNewPropertyNameDialog(): void
-	+ openDialogAddProperty(oView: sap.ui.core.mvc.View, oCurrentPlant: BPlant, oBtnAddProperty: sap.m.Button): void
-	+ addProperty(oView: sap.ui.core.mvc.View, oSource: sap.m.Button): void
-	- _insertPropertyIntoPropertiesTaxaModel(oPropertyValue: FBPropertyValue, iCategoryId: number, iTaxonId: number, oEntry: LTemporaryAvailableProperties, oPropertiesTaxaModel: sap.ui.model.json.JSONModel): void
-	- _taxon_properties_already_loaded(oOwnerComponent: plants.ui.Component, taxon_id: number): boolean
-	+ loadPropertiesForCurrentPlant(oPlant: BPlant, oOwnerComponent: plants.ui.Component): void
-	- _onReceivingPropertiesForPlant(oPlant: BPlant, oOwnerComponent: plants.ui.Component, oData: BResultsPropertiesForPlant, sStatus: ResponseStatus, oResponse: JQueryXHR): void
-	- _appendTaxonPropertiesToPlantProperties(oOwnerComponent: plants.ui.Component, oPlant: BPlant): void
 }
-class plants.ui.customClasses.PlantTagger {
+class plants.ui.customClasses.plants.PlantTagger {
 	- _oPlantsModel: sap.ui.model.json.JSONModel
 	+ addTagToPlant(oPlant: BPlant, oModelTagTypes: sap.ui.model.json.JSONModel): void
 }
-class plants.ui.customClasses.PlantSearch {
+class plants.ui.customClasses.plants.PlantsLoader {
+	- _oPlantsModel: sap.ui.model.json.JSONModel
+	+ loadPlants(): void
+	- _onReceivingPlantsFromBackend(oRequestInfo: sap.ui.base.Event): void
+}
+class plants.ui.customClasses.plants.PlantSearcher {
 	- _oPlantsTableBinding: sap.ui.model.ListBinding
 	+ search(sQuery: string): void
 }
-class plants.ui.customClasses.PlantRenamer {
-	- modelsHelper: plants.ui.model.ModelsHelper
-	- _oPlantLookup: plants.ui.customClasses.PlantLookup
-	- _oPlantImagesLoader: plants.ui.customClasses.PlantImagesLoader
+class plants.ui.customClasses.plants.PlantRenamer {
+	- _oPlantLookup: plants.ui.customClasses.plants.PlantLookup
+	- _oPlantImagesLoader: plants.ui.customClasses.plants.PlantImagesLoader
+	- _oPlantsModel: sap.ui.model.json.JSONModel
+	- _oImagesModel: sap.ui.model.json.JSONModel
+	- _oUntaggedImagesModel: sap.ui.model.json.JSONModel
 	+ renamePlant(oPlant: BPlant, sNewPlantName: string, oDialogRenamePlant: sap.m.Dialog): void
 	- _onReceivingPlantNameRenamed(oPlant: BPlant, oDialogRenamePlant: sap.m.Dialog, oMsg: BConfirmation): void
 }
-class plants.ui.customClasses.PlantNameGenerator {
-	- _oPlantLookup: plants.ui.customClasses.PlantLookup
-	- _oSuggestionService: plants.ui.customClasses.SuggestionService
+class plants.ui.customClasses.plants.PlantNameGenerator {
+	- _oPlantLookup: plants.ui.customClasses.plants.PlantLookup
+	- _oSuggestionService: plants.ui.customClasses.shared.SuggestionService
 	+ generateDescendantPlantName(oDescendantPlantInput: LDescendantPlantInput): string
 	- _generateNewPlantNameSuggestion(oParentPlant: BPlant, oParentPlantPollen: BPlant): string
 	+ generatePlantNameWithRomanizedSuffix(baseName: string, beginWith: number): string
 }
-class plants.ui.customClasses.PlantLookup {
+class plants.ui.customClasses.plants.PlantLookup {
 	- _oPlantsModel: sap.ui.model.json.JSONModel
 	+ plantNameExists(sPlantName: string): boolean
 	+ getPlantById(plantId: number): BPlant
 	+ getPlantByName(plantName: string): BPlant
 }
-class plants.ui.customClasses.PlantImagesLoader {
+class plants.ui.customClasses.plants.PlantImagesLoader {
 	- _oImagesModel: sap.ui.model.json.JSONModel
 	+ requestImagesForPlant(iPlantId: number): void
 	- _onReceivingImagesForPlant(iPlantId: number, aImages: FBImage): void
 }
-class plants.ui.customClasses.PlantFilterTaxonTree {
+class plants.ui.customClasses.plants.PlantFilterTaxonTree {
 	- _oTaxonTreeModel: sap.ui.model.json.JSONModel
 	+ selectSubItemsInTaxonTree(aSelectedItems: sap.m.StandardTreeItem): void
 	- _addSelectedFlag(aNodes: BTaxonTreeNode, bSelected: boolean): void
 }
-class plants.ui.customClasses.PlantFilterOpener {
+class plants.ui.customClasses.plants.PlantFilterOpener {
 	- _oPlantsTableBinding: sap.ui.model.ListBinding
 	- _oFilterValuesModel: sap.ui.model.json.JSONModel
 	- _oPlantsModel: sap.ui.model.json.JSONModel
@@ -391,76 +439,77 @@ class plants.ui.customClasses.PlantFilterOpener {
 	- _fillFilterModels(): void
 	- _getDistinctTagsFromPlants(aPlants: BPlant): string[]
 }
-class plants.ui.customClasses.PlantDetailsBootstrap {
+class plants.ui.customClasses.plants.PlantDetailsBootstrap {
 	- _oPlantsModel: sap.ui.model.json.JSONModel
-	- _oPropertiesModel: sap.ui.model.json.JSONModel
 	- _oEventsModel: sap.ui.model.json.JSONModel
+	- _oPlantPropertiesModel: sap.ui.model.json.JSONModel
+	- _oTaxonPropertiesModel: sap.ui.model.json.JSONModel
+	- _oTaxonModel: sap.ui.model.json.JSONModel
 	- _oDetailView: sap.ui.core.mvc.View
-	- _oComponent: plants.ui.Component
 	- _mCurrentPlant: LCurrentPlant
-	- _oPlantImagesLoader: plants.ui.customClasses.PlantImagesLoader
+	- _oPlantImagesLoader: plants.ui.customClasses.plants.PlantImagesLoader
 	+ load(iPlantId: number): void
 	- _bindAndRequestEventsForPlant(iPlantId: number): void
 	- _cbPlantsLoaded(): void
-	- _loadEventsForCurrentPlant(iPlantId: number): void
-	- _cbReceivingEventsForPlant(plantId: number, oData: BResultsEventResource): void
 }
-class plants.ui.customClasses.PlantDeleter {
+class plants.ui.customClasses.plants.PlantDeleter {
 	- _oPlantsModel: sap.ui.model.json.JSONModel
-	- fnOnAjaxSimpleSuccess: Function
 	- fnCloseDetails: Function
 	+ askToDeletePlant(oPlant: BPlant, bCompact: boolean): void
 	- _confirmDeletePlant(oPlant: BPlant, sAction: string): void
 	- _deletePlant(oPlant: BPlant): void
 	- _onPlantDeleted(oPlantDeleted: BPlant, oMsg: any, sStatus: string, oReturnData: any): void
 }
-class plants.ui.customClasses.PlantCreator {
+class plants.ui.customClasses.plants.PlantCreator {
 	- _oPlantsModel: sap.ui.model.json.JSONModel
-	- _oPlantLookup: plants.ui.customClasses.PlantLookup
+	- _oPlantLookup: plants.ui.customClasses.plants.PlantLookup
 	+ addNewPlantAndSave(sPlantName: string): void
 	+ createDescendantPlant(descendantPlantInput: LDescendantPlantInput): void
 	- _saveNewPlant(oPlant: FPlant): void
 }
-class plants.ui.customClasses.PlantCloner {
+class plants.ui.customClasses.plants.PlantCloner {
 	- _oPlantsModel: sap.ui.model.json.JSONModel
-	- _oPlantLookup: plants.ui.customClasses.PlantLookup
+	- _oPlantLookup: plants.ui.customClasses.plants.PlantLookup
 	+ clonePlant(oPlant: BPlant, sClonedPlantName: string, oDialogClonePlant: sap.m.Dialog): void
 	- _onReceivingPlantCloned(oDialogClonePlant: sap.m.Dialog, oBackendResultPlantCloned: BResultsPlantCloned): void
 }
-class plants.ui.customClasses.Navigation {
-	- {static} _instance: plants.ui.customClasses.Navigation
-	- _component: plants.ui.Component
-	+ {static} getInstance(oComponent: plants.ui.Component): plants.ui.customClasses.Navigation
-	+ navToPlantDetails(iPlant: number): void
-	+ navToPlant(oPlant: FBPlant, oComponent: plants.ui.Component): void
+class plants.ui.customClasses.plants.FilterPlantsService {
+	- _oTaxonTreeModel: sap.ui.model.json.JSONModel
+	+ createFilter(aFilterItems: any[], sFilterString: string, aSelectedTreeItems: sap.m.StandardTreeItem, aActiveFilters: sap.ui.model.Filter, eFilterHiddenChoice: LFilterHiddenChoice): sap.ui.model.Filter
+	- _getHiddenPlantsFilter(eFilterHiddenChoice: LFilterHiddenChoice): sap.ui.model.Filter
+	- _getSelectedItems(aNodes: LTaxonTreeNodeInFilterDialog, iDeepestLevel: number): LTaxonTreeNodeInFilterDialog
 }
-class plants.ui.customClasses.MessageHandler {
-	- {static} _instance: plants.ui.customClasses.MessageHandler
-	- _oMessageManager: sap.ui.core.message.MessageManager
-	+ {static} getInstance(oContext: sap.ui.core.Component): plants.ui.customClasses.MessageHandler
-	+ addMessageFromBackend(backendMessage: BMessage): void
-	+ addMessage(sType: MessageType, sMessage: string, sAdditionalText: string | undefined, sDescription: string | undefined): void
-	+ removeAllMessages(): void
+class plants.ui.customClasses.images.UntaggedImagesHandler {
+	- _oUntaggedImagesModel: sap.ui.model.json.JSONModel
+	+ requestUntaggedImages(): void
+	- _onReceivingUntaggedImages(oData: BResultsImageResource, sStatus: any, oReturnData: any): void
+	- _addPhotosToRegistry(aImages: FBImage): void
+	+ resetUntaggedImages(): void
 }
-class plants.ui.customClasses.ImageToTaxonAssigner {
+class plants.ui.customClasses.images.ImageToTaxonAssigner {
 	+ assignImageToTaxon(oSource: sap.ui.core.Icon, oTaxonModel: sap.ui.model.json.JSONModel): void
 	+ unassignImageFromTaxon(oSource: sap.ui.core.Icon, oTaxonModel: sap.ui.model.json.JSONModel): void
 }
-class plants.ui.customClasses.ImageToEventAssigner {
+class plants.ui.customClasses.images.ImageToEventAssigner {
 	+ assignImageToEvent(oImage: FBImage, oSelectedEvent: FBEvent, oEventsModel: sap.ui.model.json.JSONModel): void
 	+ unassignImageFromEvent(sEventsBindingPath: string, oEventsModel: sap.ui.model.json.JSONModel): void
 }
-class plants.ui.customClasses.ImagePlantTagger {
+class plants.ui.customClasses.images.ImageResetter {
+	- _oImagesModel: sap.ui.model.json.JSONModel
+	- _oUntaggedImagesModel: sap.ui.model.json.JSONModel
+	+ resetImages(): void
+}
+class plants.ui.customClasses.images.ImagePlantTagger {
 	- _oAnyImageModel: sap.ui.model.json.JSONModel
 	+ addPlantToImage(oPlant: BPlant, oImage: FBImage): boolean
 	+ removePlantFromImage(sPlantName: string, oImage: FBImage): void
 }
-class plants.ui.customClasses.ImageKeywordTagger {
+class plants.ui.customClasses.images.ImageKeywordTagger {
 	- _oAnyImageModel: sap.ui.model.json.JSONModel
 	+ addKeywordToImage(sKeyword: string, oImage: FBImage): void
 	+ removeKeywordFromImage(sKeyword: string, oImage: FBImage): void
 }
-class plants.ui.customClasses.ImageDeleter {
+class plants.ui.customClasses.images.ImageDeleter {
 	- _oImagesModel: sap.ui.model.json.JSONModel
 	- _oUntaggedImagesModel: sap.ui.model.json.JSONModel
 	- fnOnAjaxSimpleSuccess: Function
@@ -469,19 +518,25 @@ class plants.ui.customClasses.ImageDeleter {
 	- _cbConfirmDelete(aImages: FBImage, cbCallback: Function | undefined, sAction: string): void
 	- _onAjaxDeletedImagesSuccess(aDeletedImages: FBImage, cbCallback: Function | undefined, data: BConfirmation, textStats: any, jqXHR: any): void
 }
-class plants.ui.customClasses.FilterPlantsService {
-	- _oTaxonTreeModel: sap.ui.model.json.JSONModel
-	+ createFilter(aFilterItems: any[], sFilterString: string, aSelectedTreeItems: sap.m.StandardTreeItem, aActiveFilters: sap.ui.model.Filter, eFilterHiddenChoice: LFilterHiddenChoice): sap.ui.model.Filter
-	- _getHiddenPlantsFilter(eFilterHiddenChoice: LFilterHiddenChoice): sap.ui.model.Filter
-	- _getSelectedItems(aNodes: LTaxonTreeNodeInFilterDialog, iDeepestLevel: number): LTaxonTreeNodeInFilterDialog
+class plants.ui.customClasses.events.SoilDialogHandler {
+	+ openDialogNewSoilWhenPromiseResolved(oPromise: sap.m.Dialog, oView: sap.ui.core.mvc.View): void
+	+ openDialogEditSoilWhenPromiseResolved(oSoil: FBSoil, oPromise: sap.m.Dialog, oView: sap.ui.core.mvc.View): void
 }
-class plants.ui.customClasses.EventsUtil {
-	- {static} _instance: plants.ui.customClasses.EventsUtil
-	- applyToFragment: Function
+class plants.ui.customClasses.events.SoilCRUD {
+	- _oSoilsModel: sap.ui.model.json.JSONModel
+	+ updateOrCreateSoil(oEditedSoil: SoilEditData, oDialogEditSoil: sap.m.Dialog): void
+	- _saveNewSoil(oNewSoil: SoilEditData, oDialogEditSoil: sap.m.Dialog): void
+	- _updateExistingSoil(oSoilData: SoilEditData, oDialogEditSoil: sap.m.Dialog): void
+	- _cbUpdatedExistingSoil(oDialogEditSoil: sap.m.Dialog, data: BPResultsUpdateCreateSoil): void
+	- _cbSavedNewSoil(oDialogEditSoil: sap.m.Dialog, data: BPResultsUpdateCreateSoil): void
+}
+class plants.ui.customClasses.events.EventLoader {
+	- _oEventsModel: sap.ui.model.json.JSONModel
+	+ loadEventsForPlant(iPlantId: number): void
+	- _cbReceivingEventsForPlant(plantId: number, oData: BResultsEventResource): void
+}
+class plants.ui.customClasses.events.EventCRUD {
 	- oSuggestionsData: LSuggestions
-	- modelsHelper: plants.ui.model.ModelsHelper
-	+ {static} getInstance(applyToFragment: Function | undefined, oSuggestionsData: LSuggestions): plants.ui.customClasses.EventsUtil
-	+ eventsListFactory(sId: string, oBindingContext: sap.ui.model.Context): sap.m.CustomListItem
 	+ deleteEventsTableRow(oSelectedEvent: FBEvent, oEventsModel: sap.ui.model.json.JSONModel, oCurrentPlant: BPlant): void
 	- _getObservationData(oEventEditData: EventEditData): FBObservation
 	- _getPotData(oEventEditData: EventEditData, oView: sap.ui.core.mvc.View): FBPot
@@ -491,16 +546,8 @@ class plants.ui.customClasses.EventsUtil {
 	- _assertNoDuplicateOnDate(aEventsCurrentPlant: EventInEventsModel, sDate: string, oEvent: FBEvent): void
 	- _editEvent(oView: sap.ui.core.mvc.View, oEventsModel: sap.ui.model.json.JSONModel, aEventsCurrentPlant: FBEvent): void
 	+ addOrEditEvent(oView: sap.ui.core.mvc.View, oCurrentPlant: BPlant): void
-	+ editEvent(oSelectedEvent: FBEvent, oView: sap.ui.core.mvc.View, iCurrentPlantId: number): void
-	- _initEditSelectedEvent(oSelectedEvent: FBEvent, oView: sap.ui.core.mvc.View, iCurrentPlantId: number, oDialog: sap.m.Dialog): void
-	+ _getInitialEvent(iCurrentPlantId: number): EventEditData
-	+ openDialogEditSoil(oView: sap.ui.core.mvc.View, oSoil: FBSoil): void
-	+ openDialogNewSoil(oView: sap.ui.core.mvc.View): void
-	- _saveNewSoil(oNewSoil: SoilEditData, oSoilsModel: sap.ui.model.json.JSONModel): void
-	- _updateExistingSoil(oSoilData: SoilEditData, oSoilsModel: sap.ui.model.json.JSONModel): void
-	+ updateOrCreateSoil(oEditedSoil: SoilEditData, oSoilsModel: sap.ui.model.json.JSONModel): void
-	- _cbUpdatedExistingSoil(oSoilsModel: sap.ui.model.json.JSONModel, data: BPResultsUpdateCreateSoil): void
-	- _cbSavedNewSoil(oSoilsModel: sap.ui.model.json.JSONModel, data: BPResultsUpdateCreateSoil): void
+	+ initEditSelectedEvent(oSelectedEvent: FBEvent, oView: sap.ui.core.mvc.View, iCurrentPlantId: number, oDialog: sap.m.Dialog): void
+	+ getInitialEvent(iCurrentPlantId: number): EventEditData
 }
 class plants.ui.controller.BaseController <<Controller>> #honeydew ##green {
 	+ ModelsHelper: plants.ui.model.ModelsHelper
@@ -508,9 +555,7 @@ class plants.ui.controller.BaseController <<Controller>> #honeydew ##green {
 	# oRouter: sap.ui.core.routing.Router
 	+ onInit(): void
 	# applyToFragment(sId: string, fn: Function, fnInit: Function | undefined, mIdToFragment: IdToFragmentMap): void
-	+ onAjaxSimpleSuccess(oConfirmation: BConfirmation, sStatus: string, oReturnData: object): void
 	+ onCancelDialog(oEvent: sap.ui.base.Event): void
-	# onReceiveSuccessGeneric(oMsg: BMessage): void
 }
 class plants.ui.Constants {
 	+ {static} base_url: string
@@ -518,7 +563,6 @@ class plants.ui.Constants {
 class plants.ui.Component {
 	+ {static} metadata: { manifest: string; }
 	+ init(): void
-	+ getHelper(): sap.f.FlexibleColumnLayoutSemanticHelper
 	+ getModel(sModelName: string | undefined): sap.ui.model.json.JSONModel
 }
 class plants.ui.view.embedded.DetailImagesFragment << (F,sandybrown) >> #gainsboro ##grey {}
@@ -567,41 +611,49 @@ plants.ui.view.DetailView ..> plants.ui.view.fragments.taxonomy.DetailTaxonomyFr
 plants.ui.view.DetailView ..> plants.ui.view.fragments.taxonomy.DetailTaxonomyOccurrenceImagesFragment
 plants.ui.view.DetailView ..> plants.ui.view.fragments.taxonomy.DetailTaxonomyImagesFragment
 plants.ui.view.DetailView ..> plants.ui.view.embedded.DetailImagesFragment
-plants.ui.Component ..> plants.ui.model.ModelsHelper
-plants.ui.Component ..> plants.ui.customClasses.MessageHandler
-plants.ui.Component ..> plants.ui.customClasses.Navigation
+plants.ui.Component ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.Component ..> plants.ui.customClasses.singleton.Navigation
 plants.ui.Component ..> plants.ui.customClasses.singleton.ImageRegistryHandler
 plants.ui.Component ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.Component ..> plants.ui.customClasses.UntaggedImagesHandler
+plants.ui.Component ..> plants.ui.customClasses.images.UntaggedImagesHandler
 plants.ui.Component ..> plants.ui.customClasses.singleton.Saver
-plants.ui.controller.BaseController ..> plants.ui.customClasses.MessageHandler
+plants.ui.Component ..> plants.ui.customClasses.plants.PlantsLoader
 plants.ui.controller.BaseController ..> plants.ui.model.ModelsHelper
 plants.ui.controller.BaseController ..> plants.ui.Component
 plants.ui.controller.BaseController <|-- plants.ui.controller.Detail
 plants.ui.controller.Detail ..> plants.ui.model.formatter
-plants.ui.controller.Detail ..> plants.ui.customClasses.Navigation
-plants.ui.controller.Detail ..> plants.ui.customClasses.MessageHandler
-plants.ui.controller.Detail ..> plants.ui.customClasses.EventsUtil
-plants.ui.controller.Detail ..> plants.ui.customClasses.ImageToTaxonAssigner
-plants.ui.controller.Detail ..> plants.ui.customClasses.PropertiesUtil
-plants.ui.controller.Detail ..> plants.ui.customClasses.ImageToEventAssigner
-plants.ui.controller.Detail ..> plants.ui.customClasses.TaxonomyUtil
-plants.ui.controller.Detail ..> plants.ui.customClasses.PlantLookup
-plants.ui.controller.Detail ..> plants.ui.customClasses.PlantCreator
-plants.ui.controller.Detail ..> plants.ui.customClasses.SuggestionService
-plants.ui.controller.Detail ..> plants.ui.customClasses.PlantCloner
-plants.ui.controller.Detail ..> plants.ui.customClasses.PlantRenamer
-plants.ui.controller.Detail ..> plants.ui.customClasses.PlantTagger
-plants.ui.controller.Detail ..> plants.ui.customClasses.PlantNameGenerator
-plants.ui.controller.Detail ..> plants.ui.customClasses.PlantDeleter
+plants.ui.controller.Detail ..> plants.ui.customClasses.shared.Util
+plants.ui.controller.Detail ..> plants.ui.customClasses.singleton.Navigation
+plants.ui.controller.Detail ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.controller.Detail ..> plants.ui.customClasses.events.EventCRUD
+plants.ui.controller.Detail ..> plants.ui.customClasses.images.ImageToTaxonAssigner
+plants.ui.controller.Detail ..> plants.ui.customClasses.images.ImageToEventAssigner
+plants.ui.controller.Detail ..> plants.ui.customClasses.taxonomy.SpeciesFinderDialogHelper
+plants.ui.controller.Detail ..> plants.ui.customClasses.plants.PlantLookup
+plants.ui.controller.Detail ..> plants.ui.customClasses.plants.PlantCreator
+plants.ui.controller.Detail ..> plants.ui.customClasses.shared.SuggestionService
+plants.ui.controller.Detail ..> plants.ui.customClasses.plants.PlantCloner
+plants.ui.controller.Detail ..> plants.ui.customClasses.plants.PlantRenamer
+plants.ui.controller.Detail ..> plants.ui.customClasses.plants.PlantTagger
+plants.ui.controller.Detail ..> plants.ui.customClasses.plants.PlantNameGenerator
+plants.ui.controller.Detail ..> plants.ui.customClasses.plants.PlantDeleter
 plants.ui.controller.Detail ..> plants.ui.customClasses.singleton.ImageRegistryHandler
-plants.ui.controller.Detail ..> plants.ui.customClasses.PlantDetailsBootstrap
-plants.ui.controller.Detail ..> plants.ui.Component
-plants.ui.controller.Detail ..> plants.ui.customClasses.PlantImagesLoader
-plants.ui.controller.Detail ..> plants.ui.customClasses.ImageDeleter
+plants.ui.controller.Detail ..> plants.ui.customClasses.plants.PlantDetailsBootstrap
+plants.ui.controller.Detail ..> plants.ui.customClasses.plants.PlantImagesLoader
+plants.ui.controller.Detail ..> plants.ui.customClasses.images.ImageDeleter
 plants.ui.controller.Detail ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.controller.Detail ..> plants.ui.customClasses.ImageKeywordTagger
-plants.ui.controller.Detail ..> plants.ui.customClasses.ImagePlantTagger
+plants.ui.controller.Detail ..> plants.ui.customClasses.images.ImageKeywordTagger
+plants.ui.controller.Detail ..> plants.ui.customClasses.images.ImagePlantTagger
+plants.ui.controller.Detail ..> plants.ui.customClasses.events.SoilCRUD
+plants.ui.controller.Detail ..> plants.ui.customClasses.events.SoilDialogHandler
+plants.ui.controller.Detail ..> plants.ui.customClasses.properties.AssignPropertyNamePopoverOpener
+plants.ui.controller.Detail ..> plants.ui.customClasses.properties.NewPropertyNamePopoverOpener
+plants.ui.controller.Detail ..> plants.ui.customClasses.properties.PropertyNameCRUD
+plants.ui.controller.Detail ..> plants.ui.customClasses.properties.PropertyValueCRUD
+plants.ui.controller.Detail ..> plants.ui.model.ModelsHelper
+plants.ui.controller.Detail ..> plants.ui.customClasses.taxonomy.OccurrenceImagesFetcher
+plants.ui.controller.Detail ..> plants.ui.customClasses.taxonomy.SpeciesFinder
+plants.ui.controller.Detail ..> plants.ui.customClasses.taxonomy.TaxonToPlantAssigner
 plants.ui.controller.Detail ..> plants.ui.view.fragments.detail.DetailCancellationFragment
 plants.ui.controller.Detail ..> plants.ui.view.fragments.detail.DetailCloneFragment
 plants.ui.controller.Detail ..> plants.ui.view.fragments.detail.DetailCreateDescendantFragment
@@ -619,95 +671,134 @@ plants.ui.controller.Detail ..> plants.ui.view.fragments.taxonomy.DetailTaxonomy
 plants.ui.controller.Detail ..> plants.ui.view.DetailView
 plants.ui.controller.BaseController <|-- plants.ui.controller.FlexibleColumnLayout
 plants.ui.controller.FlexibleColumnLayout ..> plants.ui.model.ModelsHelper
-plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.MessageHandler
+plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.singleton.MessageHandler
 plants.ui.controller.FlexibleColumnLayout ..> plants.ui.model.formatter
-plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.Navigation
-plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.PlantLookup
+plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.shared.Util
+plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.singleton.Navigation
+plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.plants.PlantLookup
 plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.singleton.ImageRegistryHandler
 plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.UntaggedImagesHandler
+plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.images.UntaggedImagesHandler
 plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.singleton.Saver
+plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.taxonomy.TaxonRegistryHandler
+plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.plants.PlantsLoader
+plants.ui.controller.FlexibleColumnLayout ..> plants.ui.customClasses.images.ImageResetter
 plants.ui.controller.FlexibleColumnLayout ..> plants.ui.view.fragments.menu.MessagePopoverFragment
 plants.ui.controller.FlexibleColumnLayout ..> plants.ui.view.fragments.menu.ShellBarMenuFragment
 plants.ui.controller.FlexibleColumnLayout ..> plants.ui.view.fragments.menu.UploadPhotosFragment
 plants.ui.controller.FlexibleColumnLayout ..> plants.ui.view.FlexibleColumnLayoutView
 plants.ui.controller.BaseController <|-- plants.ui.controller.Master
 plants.ui.controller.Master ..> plants.ui.model.formatter
-plants.ui.controller.Master ..> plants.ui.customClasses.Navigation
-plants.ui.controller.Master ..> plants.ui.customClasses.PlantLookup
-plants.ui.controller.Master ..> plants.ui.customClasses.FilterPlantsService
-plants.ui.controller.Master ..> plants.ui.customClasses.PlantCreator
-plants.ui.controller.Master ..> plants.ui.customClasses.PlantSearch
-plants.ui.controller.Master ..> plants.ui.customClasses.PlantFilterOpener
-plants.ui.controller.Master ..> plants.ui.customClasses.PlantFilterTaxonTree
+plants.ui.controller.Master ..> plants.ui.customClasses.shared.Util
+plants.ui.controller.Master ..> plants.ui.customClasses.singleton.Navigation
+plants.ui.controller.Master ..> plants.ui.customClasses.plants.PlantLookup
+plants.ui.controller.Master ..> plants.ui.customClasses.plants.FilterPlantsService
+plants.ui.controller.Master ..> plants.ui.customClasses.plants.PlantCreator
+plants.ui.controller.Master ..> plants.ui.customClasses.plants.PlantSearcher
+plants.ui.controller.Master ..> plants.ui.customClasses.plants.PlantFilterOpener
+plants.ui.controller.Master ..> plants.ui.customClasses.plants.PlantFilterTaxonTree
 plants.ui.controller.Master ..> plants.ui.view.fragments.master.MasterImagePopoverFragment
 plants.ui.controller.Master ..> plants.ui.view.fragments.master.MasterSortFragment
 plants.ui.controller.Master ..> plants.ui.view.MasterView
 plants.ui.controller.BaseController <|-- plants.ui.controller.Untagged
 plants.ui.controller.Untagged ..> plants.ui.model.formatter
 plants.ui.controller.Untagged ..> plants.ui.model.ModelsHelper
-plants.ui.controller.Untagged ..> plants.ui.customClasses.Navigation
-plants.ui.controller.Untagged ..> plants.ui.customClasses.PlantLookup
+plants.ui.controller.Untagged ..> plants.ui.customClasses.singleton.Navigation
+plants.ui.controller.Untagged ..> plants.ui.customClasses.plants.PlantLookup
 plants.ui.controller.Untagged ..> plants.ui.customClasses.singleton.ImageRegistryHandler
-plants.ui.controller.Untagged ..> plants.ui.customClasses.ImageDeleter
-plants.ui.controller.Untagged ..> plants.ui.customClasses.UntaggedImagesHandler
-plants.ui.controller.Untagged ..> plants.ui.customClasses.ImageKeywordTagger
-plants.ui.controller.Untagged ..> plants.ui.customClasses.ImagePlantTagger
+plants.ui.controller.Untagged ..> plants.ui.customClasses.images.ImageDeleter
+plants.ui.controller.Untagged ..> plants.ui.customClasses.images.UntaggedImagesHandler
+plants.ui.controller.Untagged ..> plants.ui.customClasses.images.ImageKeywordTagger
+plants.ui.controller.Untagged ..> plants.ui.customClasses.images.ImagePlantTagger
 plants.ui.controller.Untagged ..> plants.ui.view.UntaggedView
-plants.ui.customClasses.EventsUtil ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.ImageDeleter ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.ImageDeleter ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.customClasses.ImageDeleter ..> plants.ui.customClasses.singleton.ImageRegistryHandler
-plants.ui.customClasses.Navigation ..> plants.ui.Component
-plants.ui.customClasses.PlantCloner ..> plants.ui.customClasses.PlantLookup
-plants.ui.customClasses.PlantCloner ..> plants.ui.customClasses.Navigation
-plants.ui.customClasses.PlantCloner ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.PlantCloner ..> plants.ui.customClasses.MessageHandler
-plants.ui.customClasses.PlantCloner ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.customClasses.PlantCreator ..> plants.ui.customClasses.PlantLookup
-plants.ui.customClasses.PlantCreator ..> plants.ui.customClasses.SuggestionService
-plants.ui.customClasses.PlantCreator ..> plants.ui.customClasses.Navigation
-plants.ui.customClasses.PlantCreator ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.PlantCreator ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.customClasses.PlantDeleter ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.PlantDeleter ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.customClasses.PlantDetailsBootstrap ..> plants.ui.customClasses.MessageHandler
-plants.ui.customClasses.PlantDetailsBootstrap ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.PlantDetailsBootstrap ..> plants.ui.customClasses.PropertiesUtil
-plants.ui.customClasses.PlantDetailsBootstrap ..> plants.ui.Component
-plants.ui.customClasses.PlantDetailsBootstrap ..> plants.ui.customClasses.singleton.ImageRegistryHandler
-plants.ui.customClasses.PlantDetailsBootstrap ..> plants.ui.customClasses.PlantImagesLoader
-plants.ui.customClasses.PlantDetailsBootstrap ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.customClasses.PlantImagesLoader ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.PlantImagesLoader ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.customClasses.PlantImagesLoader ..> plants.ui.customClasses.singleton.ImageRegistryHandler
-plants.ui.customClasses.PlantNameGenerator ..> plants.ui.customClasses.PlantLookup
-plants.ui.customClasses.PlantNameGenerator ..> plants.ui.customClasses.SuggestionService
-plants.ui.customClasses.PlantRenamer ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.PlantRenamer ..> plants.ui.customClasses.MessageHandler
-plants.ui.customClasses.PlantRenamer ..> plants.ui.customClasses.PlantLookup
-plants.ui.customClasses.PlantRenamer ..> plants.ui.customClasses.PlantImagesLoader
-plants.ui.customClasses.PropertiesUtil ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.PropertiesUtil ..> plants.ui.customClasses.MessageHandler
-plants.ui.customClasses.PropertiesUtil ..> plants.ui.Component
-plants.ui.customClasses.PropertiesUtil ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.events.EventCRUD ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.events.EventLoader ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.events.EventLoader ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.events.EventLoader ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.customClasses.events.EventLoader ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.events.SoilCRUD ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.events.SoilCRUD ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.images.ImageDeleter ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.images.ImageDeleter ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.images.ImageDeleter ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.images.ImageDeleter ..> plants.ui.customClasses.singleton.ImageRegistryHandler
+plants.ui.customClasses.images.ImagePlantTagger ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.images.ImageResetter ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.images.ImageResetter ..> plants.ui.customClasses.singleton.ImageRegistryHandler
+plants.ui.customClasses.images.UntaggedImagesHandler ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.images.UntaggedImagesHandler ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.images.UntaggedImagesHandler ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.images.UntaggedImagesHandler ..> plants.ui.customClasses.singleton.ImageRegistryHandler
+plants.ui.customClasses.plants.PlantCloner ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.plants.PlantCloner ..> plants.ui.customClasses.plants.PlantLookup
+plants.ui.customClasses.plants.PlantCloner ..> plants.ui.customClasses.singleton.Navigation
+plants.ui.customClasses.plants.PlantCloner ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.plants.PlantCloner ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.customClasses.plants.PlantCloner ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.plants.PlantCreator ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.plants.PlantCreator ..> plants.ui.customClasses.plants.PlantLookup
+plants.ui.customClasses.plants.PlantCreator ..> plants.ui.customClasses.shared.SuggestionService
+plants.ui.customClasses.plants.PlantCreator ..> plants.ui.customClasses.singleton.Navigation
+plants.ui.customClasses.plants.PlantCreator ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.plants.PlantCreator ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.plants.PlantDeleter ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.plants.PlantDeleter ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.plants.PlantDeleter ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.plants.PlantDetailsBootstrap ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.plants.PlantDetailsBootstrap ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.customClasses.plants.PlantDetailsBootstrap ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.plants.PlantDetailsBootstrap ..> plants.ui.customClasses.singleton.ImageRegistryHandler
+plants.ui.customClasses.plants.PlantDetailsBootstrap ..> plants.ui.customClasses.plants.PlantImagesLoader
+plants.ui.customClasses.plants.PlantDetailsBootstrap ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.plants.PlantDetailsBootstrap ..> plants.ui.customClasses.properties.PropertiesLoader
+plants.ui.customClasses.plants.PlantDetailsBootstrap ..> plants.ui.customClasses.taxonomy.TaxonLoader
+plants.ui.customClasses.plants.PlantDetailsBootstrap ..> plants.ui.customClasses.events.EventLoader
+plants.ui.customClasses.plants.PlantImagesLoader ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.plants.PlantImagesLoader ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.plants.PlantImagesLoader ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.plants.PlantImagesLoader ..> plants.ui.customClasses.singleton.ImageRegistryHandler
+plants.ui.customClasses.plants.PlantNameGenerator ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.plants.PlantNameGenerator ..> plants.ui.customClasses.plants.PlantLookup
+plants.ui.customClasses.plants.PlantNameGenerator ..> plants.ui.customClasses.shared.SuggestionService
+plants.ui.customClasses.plants.PlantRenamer ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.plants.PlantRenamer ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.plants.PlantRenamer ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.customClasses.plants.PlantRenamer ..> plants.ui.customClasses.plants.PlantLookup
+plants.ui.customClasses.plants.PlantRenamer ..> plants.ui.customClasses.plants.PlantImagesLoader
+plants.ui.customClasses.plants.PlantRenamer ..> plants.ui.customClasses.plants.PlantsLoader
+plants.ui.customClasses.plants.PlantRenamer ..> plants.ui.customClasses.images.ImageResetter
+plants.ui.customClasses.plants.PlantsLoader ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.plants.PlantsLoader ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.plants.PlantsLoader ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.plants.PlantsLoader ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.customClasses.properties.PropertiesLoader ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.properties.PropertiesLoader ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.properties.PropertiesLoader ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.customClasses.properties.PropertiesLoader ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.shared.Util ..> plants.ui.Constants
+plants.ui.customClasses.singleton.ChangeTracker ..> plants.ui.customClasses.shared.Util
 plants.ui.customClasses.singleton.ChangeTracker ..> plants.ui.customClasses.singleton.ImageRegistryHandler
+plants.ui.customClasses.singleton.ImageRegistryHandler ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.singleton.Saver ..> plants.ui.customClasses.shared.Util
 plants.ui.customClasses.singleton.Saver ..> plants.ui.model.ModelsHelper
 plants.ui.customClasses.singleton.Saver ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.customClasses.singleton.Saver ..> plants.ui.customClasses.MessageHandler
-plants.ui.customClasses.TaxonomyUtil ..> plants.ui.customClasses.MessageHandler
-plants.ui.customClasses.TaxonomyUtil ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.TaxonomyUtil ..> plants.ui.controller.Detail
-plants.ui.customClasses.TaxonomyUtil ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.customClasses.UntaggedImagesHandler ..> plants.ui.model.ModelsHelper
-plants.ui.customClasses.UntaggedImagesHandler ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.customClasses.UntaggedImagesHandler ..> plants.ui.customClasses.singleton.ImageRegistryHandler
-plants.ui.model.formatter ..> plants.ui.controller.BaseController
+plants.ui.customClasses.singleton.Saver ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.customClasses.taxonomy.OccurrenceImagesFetcher ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.taxonomy.OccurrenceImagesFetcher ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.taxonomy.OccurrenceImagesFetcher ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.customClasses.taxonomy.SpeciesFinder ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.taxonomy.SpeciesFinder ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.taxonomy.SpeciesFinder ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.customClasses.taxonomy.TaxonLoader ..> plants.ui.customClasses.shared.Util
+plants.ui.customClasses.taxonomy.TaxonLoader ..> plants.ui.model.ModelsHelper
+plants.ui.customClasses.taxonomy.TaxonLoader ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.customClasses.taxonomy.TaxonLoader ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.taxonomy.TaxonRegistryHandler ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.customClasses.taxonomy.TaxonRegistryHandler ..> plants.ui.customClasses.taxonomy.TaxonLoader
+plants.ui.customClasses.taxonomy.TaxonToPlantAssigner ..> plants.ui.customClasses.singleton.ChangeTracker
+plants.ui.model.formatter ..> plants.ui.customClasses.shared.Util
 plants.ui.model.formatter ..> plants.ui.controller.Detail
-plants.ui.model.formatter ..> plants.ui.customClasses.SuggestionService
-plants.ui.model.ModelsHelper ..> plants.ui.customClasses.MessageHandler
-plants.ui.model.ModelsHelper ..> plants.ui.model.formatter
-plants.ui.model.ModelsHelper ..> plants.ui.Component
-plants.ui.model.ModelsHelper ..> plants.ui.customClasses.singleton.ChangeTracker
-plants.ui.model.ModelsHelper ..> plants.ui.customClasses.singleton.ImageRegistryHandler
+plants.ui.model.formatter ..> plants.ui.customClasses.shared.SuggestionService
+plants.ui.model.ModelsHelper ..> plants.ui.customClasses.singleton.MessageHandler
+plants.ui.model.ModelsHelper ..> plants.ui.customClasses.shared.Util
 @enduml

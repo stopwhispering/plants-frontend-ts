@@ -1,5 +1,5 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import { BResultsFetchTaxonImages, FFetchTaxonOccurrenceImagesRequest } from "plants/ui/definitions/Taxon";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { BPlant } from "plants/ui/definitions/Plants";

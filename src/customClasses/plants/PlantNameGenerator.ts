@@ -1,4 +1,4 @@
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import PlantLookup from "./PlantLookup"
 import { BPlant} from "plants/ui/definitions/Plants";

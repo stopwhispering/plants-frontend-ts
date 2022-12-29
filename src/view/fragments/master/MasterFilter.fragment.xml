@@ -5,7 +5,7 @@
 	<ViewSettingsDialog
 		id="settingsDialogFilter"
 		confirm=".onConfirmFilters"
-		resetFilters="onResetFilters">
+		resetFilters=".onResetFilters">
 		
 		<filterItems>
 			<ViewSettingsFilterItem 

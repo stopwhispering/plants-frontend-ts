@@ -3,7 +3,7 @@ import Device from "sap/ui/Device"
 import { LTaxonData, LTaxonMap } from "plants/ui/definitions/TaxonLocal";
 import { LPlantIdToPropertyCollectionMap, LPropertiesPlantsModelData, LPropertiesTaxonModelData, LTaxonToPropertyCategoryMap } from "plants/ui/definitions/PropertiesLocal";
 import { EventsModelData } from "plants/ui/definitions/EventsLocal";
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 
 /**
  * @namespace plants.ui.model

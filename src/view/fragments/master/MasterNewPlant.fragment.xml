@@ -19,7 +19,7 @@
 	    <beginButton>
 		    <Button
 	    		text="Save"
-            	press="onAddSaveButton"/>
+            	press=".onAddSaveButton"/>
 	    </beginButton>
 	    
 	    <endButton>

@@ -61,20 +61,20 @@
 							text="New Plant"
 							tooltip="{i18n>new_plant}"
 							type="Ghost"
-							press="onAddNewPlant"
+							press=".onAddNewPlant"
 						/>
 						<OverflowToolbarButton
 							icon="sap-icon://sort"
 							tooltip="{i18n>sort}"
 							type="Ghost"
-							press="onShowSortDialog"
+							press=".onShowSortDialog"
 						/>
 						<OverflowToolbarButton
 							id="btnShowFilterDialog"
 							icon="sap-icon://filter"
 							tooltip="Filter"
 							type="Ghost"
-							press="onShowFilterDialog"
+							press=".onShowFilterDialog"
 						/>
 					</OverflowToolbar>
 				</headerToolbar>

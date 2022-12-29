@@ -1,6 +1,6 @@
 
 import MessageToast from "sap/m/MessageToast";
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import { BPlant } from "plants/ui/definitions/Plants";
 import ModelsHelper from "plants/ui/model/ModelsHelper";

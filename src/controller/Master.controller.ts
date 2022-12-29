@@ -3,7 +3,7 @@ import JSONModel from "sap/ui/model/json/JSONModel"
 import Filter from "sap/ui/model/Filter"
 import Sorter from "sap/ui/model/Sorter"
 import Formatter from "plants/ui/model/formatter"
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import Navigation from "plants/ui/customClasses/singleton/Navigation"
 import Fragment from "sap/ui/core/Fragment"
 import Popover from "sap/m/Popover"
@@ -28,7 +28,7 @@ import FilterService from "../customClasses/plants/FilterPlantsService"
 import { LFilterHiddenChoice } from "../definitions/PlantsLocal"
 import PlantCreator from "plants/ui/customClasses/plants/PlantCreator"
 import Label from "sap/m/Label"
-import PlantSearch from "plants/ui/customClasses/plants/PlantSearch"
+import PlantSearcher from "plants/ui/customClasses/plants/PlantSearcher"
 import PlantFilterOpener from "plants/ui/customClasses/plants/PlantFilterOpener"
 import PlantFilterTaxonTree from "plants/ui/customClasses/plants/PlantFilterTaxonTree"
 
@@ -44,8 +44,8 @@ export default class Master extends BaseController {
 
 	private mIdToFragment = <IdToFragmentMap>{
 		popoverPopupImage: "plants.ui.view.fragments.master.MasterImagePopover",
-		settingsDialogFilter: 'plants.ui.view.fragments.master.MasterFilter',
-		dialogNewPlant: 'plants.ui.view.fragments.master.MasterNewPlant',
+		// settingsDialogFilter: "plants.ui.view.fragments.master.MasterFilter",
+		// dialogNewPlant: "plants.ui.view.fragments.master.MasterNewPlant",
 		dialogSort: "plants.ui.view.fragments.master.MasterSort",
 	}
 
@@ -95,8 +95,8 @@ export default class Master extends BaseController {
 		// AND( filter_active, OR( filter_plant_name, filter_botanical_name))
 		var sQuery = oEvent.getParameter("query");
 		const oPlantsTableBinding = <ListBinding>this.getView().byId("plantsTable").getBinding('items')
-		const oPlantSearch = new PlantSearch(oPlantsTableBinding);
-		oPlantSearch.search(sQuery);
+		const oPlantSearcher = new PlantSearcher(oPlantsTableBinding);
+		oPlantSearcher.search(sQuery);
 
 		// update count in table header
 		this.updateTableHeaderPlantsCount();
@@ -109,10 +109,10 @@ export default class Master extends BaseController {
 	onAddNewPlant(oEvent: Event) {
 		//open dialog to create new plant
 		var oView = this.getView();
-		const oDialog = <Dialog>this.byId('dialogNewPlant');
+		const oDialog = <Dialog>this.byId("dialogNewPlant");
 		if (!oDialog) {
 			Fragment.load({
-				name: this.mIdToFragment["dialogNewPlant"],
+				name: "plants.ui.view.fragments.master.MasterNewPlant",
 				id: oView.getId(),
 				controller: this
 			}).then((oControl: Control | Control[]) => {
@@ -127,7 +127,7 @@ export default class Master extends BaseController {
 		const sPlantName = (<Input>this.byId("inputCreateNewPlantName")).getValue();
 		const oPlantCreator = new PlantCreator(this.oComponent.getModel('plants'), this.oPlantLookup);
 		oPlantCreator.addNewPlantAndSave(sPlantName);
-		this.applyToFragment('dialogNewPlant', (oDialog: Dialog) => oDialog.close());
+		(<Dialog>this.byId("dialogNewPlant")).close();
 	}
 
 
@@ -156,7 +156,7 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Filter Handlers
 	//////////////////////////////////////////////////////////
-	onShowFilterDialog(oEvent: Event) {
+	onShowFilterDialog(oEvent: Event): void {
 		// triggered by show-filters-dialog button; displays filter settings dialog
 		const oPlantsTableBinding = <ListBinding>this.byId('plantsTable').getBinding('items');
 		const oFilterValuesModel = <JSONModel>this.oComponent.getModel('filterValues');
@@ -174,7 +174,7 @@ export default class Master extends BaseController {
 		const oDialog = <Dialog>this.byId('settingsDialogFilter');
 		if (!oDialog) {
 			const oPromiseFragmentLoaded = Fragment.load({
-				name: 'plants.ui.view.fragments.master.MasterFilter',
+				name: "plants.ui.view.fragments.master.MasterFilter",
 				id: oView.getId(),
 				controller: this
 			});
@@ -182,15 +182,16 @@ export default class Master extends BaseController {
 		} else {
 			oPlantFilterOpener.openFilterDialog(oDialog);
 		}
+		this.applyToFragment('settingsDialogFilter', (oViewSettingsDialog: ViewSettingsDialog) => oViewSettingsDialog.open());  //todo remove
 	}
 
-	public onSelectionChangeTaxonTree(oEvent: Event) {
+	public onSelectionChangeTaxonTree(oEvent: Event): void {
 		const aSelectedItems = <StandardTreeItem[]>oEvent.getParameter("listItems");
 		const oPlantFilterTaxonTree = new PlantFilterTaxonTree(this.oTaxonTreeModel);
 		oPlantFilterTaxonTree.selectSubItemsInTaxonTree(aSelectedItems);
 	}
 
-	public onConfirmFilters(oEvent: Event) {
+	public onConfirmFilters(oEvent: Event): void {
 		const aFilterItems = oEvent.getParameter("filterItems");
 		const sFilterString = oEvent.getParameter("filterString");
 		const oPlantsTable = <Table>this.byId("plantsTable");
@@ -218,7 +219,7 @@ export default class Master extends BaseController {
 		(<Text>this.byId("tableFilterLabel")).setText(sFilterString);
 	}
 
-	public onResetFilters(oEvent: Event) {
+	public onResetFilters(oEvent: Event): void {
 		var sUrl = Util.getServiceUrl('selection_data');
 		this.oTaxonTreeModel.loadData(sUrl);
 	}
@@ -227,7 +228,7 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Preview Image Popup Handlers
 	//////////////////////////////////////////////////////////
-	public onHoverImage(oAvatar: Avatar, evtDelegate: JQuery.Event) {
+	public onHoverImage(oAvatar: Avatar, evtDelegate: JQuery.Event): void {
 		// apply _onHoverImageShow function to popover
 		var oBindingContext = oAvatar.getBindingContext('plants')!;
 		var oView = this.getView();
@@ -249,11 +250,11 @@ export default class Master extends BaseController {
 		}
 	}
 
-	public onClickImagePopupImage(oEvent: Event) {
+	public onClickImagePopupImage(oEvent: Event): void {
 		this.applyToFragment('popoverPopupImage', (oPopover: Popover) => { if (oPopover.isOpen()) { oPopover.close() } });
 	}
 
-	public onHoverAwayFromImage(oAvatar: Avatar, evtDelegate: JQuery.Event) {
+	public onHoverAwayFromImage(oAvatar: Avatar, evtDelegate: JQuery.Event): void {
 		this.applyToFragment('popoverPopupImage', (oPopover: Popover) => { if (oPopover.isOpen()) { oPopover.close() } });
 	}
 

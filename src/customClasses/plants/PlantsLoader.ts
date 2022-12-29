@@ -1,6 +1,6 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "../singleton/ChangeTracker";
 import MessageHandler from "../singleton/MessageHandler";

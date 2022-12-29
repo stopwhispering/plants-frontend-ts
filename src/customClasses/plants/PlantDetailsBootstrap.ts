@@ -1,4 +1,4 @@
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import { BPlant} from "plants/ui/definitions/Plants";
 import JSONModel from "sap/ui/model/json/JSONModel";

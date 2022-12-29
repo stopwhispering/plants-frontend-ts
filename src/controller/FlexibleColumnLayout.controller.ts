@@ -4,7 +4,7 @@ import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler"
 import formatter from "plants/ui/model/formatter"
 import MessageToast from "sap/m/MessageToast"
 import MessageBox, { Action } from "sap/m/MessageBox"
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import Token from "sap/m/Token"
 import Filter from "sap/ui/model/Filter"
 import FilterOperator from "sap/ui/model/FilterOperator"

@@ -1,7 +1,7 @@
 import { BKewSearchResultEntry, BResultsTaxonInfoRequest, FAssignTaxonRequest, FTaxonInfoRequest } from "plants/ui/definitions/Taxon";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
-import * as Util from "plants/ui/customClasses/shared/Util";
+import Util from "plants/ui/customClasses/shared/Util";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import MessageHandler from "../singleton/MessageHandler";

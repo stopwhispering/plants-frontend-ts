@@ -23,7 +23,7 @@
 					    		maxLength="40"
 					    		width="12em"
 					    		submit=".onButtonFindSpecies"
-					    		id="inputTaxonNamePattern"
+					    		id="inputSearchPattern"
 					    		class="sapUiTinyMarginEnd"/>
 					    	<Button
 					    		text="Search"

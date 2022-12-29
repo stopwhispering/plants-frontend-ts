@@ -1,7 +1,6 @@
-import * as Util from "plants/ui/customClasses/shared/Util";
-import BaseController from "../controller/BaseController";
+import Util from "plants/ui/customClasses/shared/Util";
 import Detail from "../controller/Detail.controller";
-import SuggestionService from "../customClasses/SuggestionService";
+import SuggestionService from "../customClasses/shared/SuggestionService";
 import { FBEvent, FBImageAssignedToEvent } from "../definitions/Events";
 import { FBPropagationType } from "../definitions/Plants";
 import { LPropagationTypeData } from "../definitions/PlantsLocal";
