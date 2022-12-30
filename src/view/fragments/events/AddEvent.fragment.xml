@@ -11,6 +11,7 @@
 				id="idIconTabBarNoIcons"
 				expanded="{device>/isNoPhone}"
 				class="sapUiResponsiveContentPadding"
+				backgroundDesign="Transparent"
 			>
 				<items>
 					<IconTabFilter
@@ -154,7 +155,7 @@
 									app:radiobuttonId="idPotHeight0"
 								/>
 								<RadioButton
-									id="idPotHeight0"
+									selected="{editOrNewEvent>/potHeightOptions/very_flat}"
 									groupName="height"
 								/>
 							</VBox>
@@ -170,7 +171,7 @@
 									app:radiobuttonId="idPotHeight1"
 								/>
 								<RadioButton
-									id="idPotHeight1"
+									selected="{editOrNewEvent>/potHeightOptions/flat}"
 									groupName="height"
 								/>
 							</VBox>
@@ -186,8 +187,7 @@
 									app:radiobuttonId="idPotHeight2"
 								/>
 								<RadioButton
-									id="idPotHeight2"
-									selected="true"
+									selected="{editOrNewEvent>/potHeightOptions/high}"
 									groupName="height"
 								/>
 							</VBox>
@@ -203,7 +203,7 @@
 									app:radiobuttonId="idPotHeight3"
 								/>
 								<RadioButton
-									id="idPotHeight3"
+									selected="{editOrNewEvent>/potHeightOptions/very_high}"
 									groupName="height"
 								/>
 							</VBox>
@@ -226,8 +226,7 @@
 									app:radiobuttonId="idPotShape0"
 								/>
 								<RadioButton
-									id="idPotShape0"
-									selected="true"
+									selected="{editOrNewEvent>/potShapeOptions/square}"
 									groupName="shape"
 								/>
 							</VBox>
@@ -243,7 +242,7 @@
 									app:radiobuttonId="idPotShape1"
 								/>
 								<RadioButton
-									id="idPotShape1"
+									selected="{editOrNewEvent>/potShapeOptions/round}"
 									groupName="shape"
 								/>
 							</VBox>
@@ -259,7 +258,7 @@
 									app:radiobuttonId="idPotShape2"
 								/>
 								<RadioButton
-									id="idPotShape2"
+									selected="{editOrNewEvent>/potShapeOptions/oval}"
 									groupName="shape"
 								/>
 							</VBox>
@@ -275,7 +274,7 @@
 									app:radiobuttonId="idPotShape3"
 								/>
 								<RadioButton
-									id="idPotShape3"
+									selected="{editOrNewEvent>/potShapeOptions/hexagonal}"
 									groupName="shape"
 								/>
 							</VBox>
@@ -379,7 +378,7 @@
 			<Button
 				text="{i18n>cancel}"
 				type="Reject"
-				press=".onCancelDialog"
+				press=".onCancelAddOrEditEventDialog"
 			/>
 		</buttons>
 	</Dialog>

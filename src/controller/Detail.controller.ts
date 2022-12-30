@@ -17,9 +17,8 @@ import Dialog from "sap/m/Dialog"
 import {
 	ObjectStatusCollection,
 } from "plants/ui/definitions/entities"
-import { IdToFragmentMap, ResponseStatus } from "plants/ui/definitions/SharedLocal"
-import { FBEvent, FBSoil } from "plants/ui/definitions/Events"
-import { EventEditData, SoilEditData } from "plants/ui/definitions/EventsLocal"
+import { LIdToFragmentMap, ResponseStatus } from "plants/ui/definitions/SharedLocal"
+import { FBEvent } from "plants/ui/definitions/Events"
 import DatePicker from "sap/m/DatePicker"
 import Event from "sap/ui/base/Event"
 import Control from "sap/ui/core/Control"
@@ -38,8 +37,6 @@ import Menu from "sap/m/Menu"
 import Table from "sap/m/Table"
 import GenericTag from "sap/m/GenericTag"
 import Context from "sap/ui/model/Context"
-import RadioButton from "sap/m/RadioButton"
-import List from "sap/m/List"
 import GridListItem from "sap/f/GridListItem"
 import { FBImage, FBImagePlantTag } from "plants/ui/definitions/Images"
 import Token from "sap/m/Token"
@@ -47,8 +44,6 @@ import { FBCancellationReason, FBAssociatedPlantExtractForPlant, BPlant, FBPropa
 import { LCurrentPlant, LDescendantPlantInput } from "plants/ui/definitions/PlantsLocal"
 import Tokenizer from "sap/m/Tokenizer"
 import ColumnListItem from "sap/m/ColumnListItem"
-import ResourceModel from "sap/ui/model/resource/ResourceModel"
-import ResourceBundle from "sap/base/i18n/ResourceBundle"
 import { LCancellationReasonChoice } from "plants/ui/definitions/PlantsLocal"
 import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
 import PlantCreator from "plants/ui/customClasses/plants/PlantCreator"
@@ -67,8 +62,6 @@ import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker"
 import { BResultsRetrieveTaxonDetailsRequest, BTaxon } from "plants/ui/definitions/Taxon"
 import ImageKeywordTagger from "plants/ui/customClasses/images/ImageKeywordTagger"
 import ImagePlantTagger from "plants/ui/customClasses/images/ImagePlantTagger"
-import SoilCRUD from "plants/ui/customClasses/events/SoilCRUD"
-import SoilDialogHandler from "plants/ui/customClasses/events/SoilDialogHandler"
 import EventListItemFactory from "plants/ui/customClasses/events/EventListItemFactory"
 import AssignPropertyNamePopoverOpener from "plants/ui/customClasses/properties/AssignPropertyNamePopoverOpener"
 import NewPropertyNamePopoverOpener from "plants/ui/customClasses/properties/NewPropertyNamePopoverOpener"
@@ -80,6 +73,8 @@ import OccurrenceImagesFetcher from "../customClasses/taxonomy/OccurrenceImagesF
 import SpeciesFinder from "../customClasses/taxonomy/SpeciesFinder"
 import TaxonToPlantAssigner from "../customClasses/taxonomy/TaxonToPlantAssigner"
 import { LAjaxLoadDetailsForSpeciesDoneCallback } from "../definitions/TaxonLocal"
+import EventDialogHandler from "../customClasses/events/EventDialogHandler"
+import EventsListHandler from "./EventsListHandler"
 
 /**
  * @namespace plants.ui.controller
@@ -88,20 +83,21 @@ export default class Detail extends BaseController {
 	// container for xml view control event handlers
 	public formatter = new formatter();
 	private eventCRUD: EventCRUD;
+	private oEventDialogHandler: EventDialogHandler;
 	private oPlantLookup: PlantLookup;
 	public suggestionService: SuggestionService; // public because used in formatter
 	// helper classes for controllers
 	// TraitUtil = TraitUtil.getInstance()
 	private mCurrentPlant: LCurrentPlant;  // container currentPlantId, currentPlantIndex, currentPlant
 	private oLayoutModel: JSONModel;
+	private oEventsListHandler: EventsListHandler;
 
-	private mIdToFragment = <IdToFragmentMap>{
+	private mIdToFragment = <LIdToFragmentMap>{
 		dialogRenamePlant: "plants.ui.view.fragments.detail.DetailRename",
 		dialogCancellation: "plants.ui.view.fragments.detail.DetailCancellation",
 		menuDeleteTag: "plants.ui.view.fragments.detail.DetailTagDelete",
 		dialogAddTag: "plants.ui.view.fragments.detail.DetailTagAdd",
 		dialogCreateDescendant: "plants.ui.view.fragments.detail.DetailCreateDescendant",
-		dialogEvent: "plants.ui.view.fragments.events.AddEvent",
 		dialogAssignEventToImage: "plants.ui.view.fragments.events.DetailAssignEvent",
 		dialogClonePlant: "plants.ui.view.fragments.detail.DetailClone",
 		dialogFindSpecies: "plants.ui.view.fragments.detail.DetailFindSpecies",
@@ -109,7 +105,6 @@ export default class Detail extends BaseController {
 		dialogEditPropertyValue: "plants.ui.view.fragments.properties.EditPropertyValue",
 		dialogAddProperties: "plants.ui.view.fragments.properties.AvailableProperties",
 		dialogNewPropertyName: "plants.ui.view.fragments.properties.NewPropertyName",
-		dialogEditSoil: "plants.ui.view.fragments.events.EditSoil",
 	}
 
 	onInit() {
@@ -127,9 +122,15 @@ export default class Detail extends BaseController {
 
 		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 
-		this.eventCRUD = new EventCRUD(oSuggestionsModel.getData());
+		this.eventCRUD = new EventCRUD(this.oComponent.getModel('events'), oSuggestionsModel.getData());
 
 		this.oLayoutModel = this.oComponent.getModel();
+
+		this.oEventDialogHandler = new EventDialogHandler(this.eventCRUD, 
+			this.getView(), <JSONModel>this.oComponent.getModel('events'));
+
+		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
+		this.oEventsListHandler = new EventsListHandler(oEventsModel, this.eventCRUD);
 
 		// default: view mode for plants information
 		this.oComponent.getModel('status').setProperty('/details_editable', false);
@@ -805,58 +806,10 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Event Handlers
 	//////////////////////////////////////////////////////////
-	public activateRadioButton(oEvent: Event): void {
-		const oSource = <Control>oEvent.getSource();
-		const sRadioButtonId: string = oSource.data('radiobuttonId');
-		const oRadioButton = <RadioButton>this.byId(sRadioButtonId);
-		oRadioButton.setSelected(true);
-	}
 
-	onSoilMixSelect(oEvent: Event) {
-		// transfer selected soil from soils model to new/edit-event model (which has only one entry)
-		const oSource = <List>oEvent.getSource()
-		const oContexts = <Context[]>oSource.getSelectedContexts();
-		if (oContexts.length !== 1) {
-			MessageToast.show('No or more than one soil selected');
-			throw new Error('No or more than one soil selected');
-		}
-		var oSelectedSoil = <FBSoil>oContexts[0].getObject();
-		this.applyToFragment('dialogEvent', (oDialog: Dialog) => {
-			const oModelNewEvent = <JSONModel>oDialog.getModel("editOrNewEvent");
-			const oSelectedDataNew = Util.getClonedObject(oSelectedSoil);
-			oModelNewEvent.setProperty('/soil', oSelectedDataNew);
-		});
-	}
 
 	onOpenDialogAddEvent(oEvent: Event) {
-		this.applyToFragment('dialogEvent', (oDialog: Dialog) => {
-			// get soils collection from backend proposals resource
-			this.eventCRUD._loadSoils(this.getView());
-
-			// if dialog was used for editing an event before, then destroy it first
-			if (!!oDialog.getModel("editOrNewEvent") && oDialog.getModel("editOrNewEvent").getProperty('/mode') !== 'new') {
-				oDialog.getModel("editOrNewEvent").destroy();
-				oDialog.setModel(null, "editOrNewEvent");
-
-				// set header and button to add instead of edit
-				const oI18Model = <ResourceModel>this.getView().getModel("i18n");
-				const oResourceBundle = <ResourceBundle>oI18Model.getResourceBundle();
-				oDialog.setTitle(oResourceBundle.getText("header_event"));
-				const oBtnSave = <Button>this.getView().byId('btnEventUpdateSave');
-				oBtnSave.setText('Add');
-			}
-
-			// set defaults for new event
-			if (!oDialog.getModel("editOrNewEvent")) {
-				let mEventEditData: EventEditData = this.eventCRUD.getInitialEvent(this.mCurrentPlant.plant.id!);
-				mEventEditData.mode = 'new';
-				const oEventEditModel = new JSONModel(mEventEditData);
-				oDialog.setModel(oEventEditModel, "editOrNewEvent");
-			}
-
-			this.getView().addDependent(oDialog);
-			oDialog.open();
-		})
+		this.oEventDialogHandler.openDialogNewEvent(this.getView(), this.mCurrentPlant.plant);
 	}
 
 	onEditEvent(oEvent: Event) {
@@ -864,56 +817,16 @@ export default class Detail extends BaseController {
 		const oSource = <Button>oEvent.getSource();
 		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
 		// this.eventCRUD.editEvent(oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id!);
-		this.applyToFragment('dialogEvent', this.eventCRUD.initEditSelectedEvent.bind(this, oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id));
-	}
-	onOpenDialogEditSoil(oEvent: Event) {
-		const oSource = <Button>oEvent.getSource();
-		const oSoil = <FBSoil>oSource.getBindingContext('soils')!.getObject();
-		// this.eventCRUD.openDialogEditSoil(this.getView(), oSoil);
-
-		const oPromiseFragmentLoaded = <Promise<Dialog>>Fragment.load({
-			name: 'plants.ui.view.fragments.events.EditSoil',
-			id: this.getView().getId(),
-			controller: this
-		});
-		new SoilDialogHandler().openDialogEditSoilWhenPromiseResolved(oSoil, oPromiseFragmentLoaded, this.getView());
-	}
-	onOpenDialogNewSoil(oEvent: Event) {
-		// we need to load the fragment in the controller to connect the fragment's events to the controller
-		// the dialog is always destroyed upon closing, so we don't need to check for existence
-		const oPromiseFragmentLoaded = <Promise<Dialog>>Fragment.load({
-			name: 'plants.ui.view.fragments.events.EditSoil',
-			id: this.getView().getId(),
-			controller: this
-		});
-		new SoilDialogHandler().openDialogNewSoilWhenPromiseResolved(oPromiseFragmentLoaded, this.getView());
-
+		// this.applyToFragment('dialogEvent', this.eventCRUD.initEditSelectedEvent.bind(this, oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id));
+		// const oEventDialogHandler = new EventDialogHandler(this.mCurrentPlant.plant, this.eventCRUD, this.getView());
+		this.oEventDialogHandler.openDialogEditEvent(this.getView(), oSelectedEvent)
 	}
 
-	onAddOrEditEvent(oEvent: Event) {
-		//Triggered by 'Add' / 'Update' Button in Create/Edit Event Dialog
-		this.eventCRUD.addOrEditEvent(this.getView(), this.mCurrentPlant.plant);
-	}
-	onUpdateOrCreateSoil(oEvent: Event) {
-		const oEditedSoil = <SoilEditData>(<Button>oEvent.getSource()).getBindingContext('editedSoil')!.getObject();
-		const oSoilsModel = <JSONModel>this.byId('dialogEvent').getModel('soils');
-		// this.eventCRUD.updateOrCreateSoil(oEditedSoil, oSoilsModel);
-
-		const oDialogEditSoil = <Dialog>this.byId('dialogEditSoil');
-		const oSoilCRUD = new SoilCRUD(oSoilsModel);
-		oSoilCRUD.updateOrCreateSoil(oEditedSoil, oDialogEditSoil);
-
-
-	}
-	onCancelEditSoil(oEvent: Event) {
-		this.applyToFragment('dialogEditSoil', (oDialog: Dialog) => oDialog.close(),);
-	}
 	onDeleteEventsTableRow(oEvent: Event) {
 		const oSelectedEvent = <FBEvent>oEvent.getParameter('listItem').getBindingContext('events').getObject();
-		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
-		this.eventCRUD.deleteEventsTableRow(oSelectedEvent, oEventsModel, this.mCurrentPlant.plant)
-
+		this.oEventsListHandler.deleteRow(oSelectedEvent);
 	}
+
 	onIconPressUnassignImageFromEvent(oEvent: Event) {
 		const sEventsBindingPath = oEvent.getParameter('listItem').getBindingContextPath('events');
 		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
@@ -1127,5 +1040,7 @@ export default class Detail extends BaseController {
 			" is not supported. Choose one of the following types: " +
 			sSupportedFileTypes);
 	}
+
+
 
 }

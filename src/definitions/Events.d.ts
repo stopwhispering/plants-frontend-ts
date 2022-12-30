@@ -94,3 +94,9 @@ export interface FSoilCreate {
   mix?: string;
   description?: string;
 }
+export interface FSoil {
+  id: number;
+  soil_name: string;
+  mix?: string;
+  description?: string;
+}

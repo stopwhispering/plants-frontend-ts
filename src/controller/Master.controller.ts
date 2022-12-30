@@ -22,7 +22,7 @@ import Dialog from "sap/m/Dialog"
 import Input from "sap/m/Input"
 import Avatar from "sap/m/Avatar"
 import { BPlant} from "../definitions/Plants"
-import { IdToFragmentMap } from "../definitions/SharedLocal"
+import { LIdToFragmentMap } from "../definitions/SharedLocal"
 import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
 import FilterService from "../customClasses/plants/FilterPlantsService"
 import { LFilterHiddenChoice } from "../definitions/PlantsLocal"
@@ -42,7 +42,7 @@ export default class Master extends BaseController {
 	private oPlantLookup: PlantLookup;
 	private oTaxonTreeModel: JSONModel;
 
-	private mIdToFragment = <IdToFragmentMap>{
+	private mIdToFragment = <LIdToFragmentMap>{
 		popoverPopupImage: "plants.ui.view.fragments.master.MasterImagePopover",
 		// settingsDialogFilter: "plants.ui.view.fragments.master.MasterFilter",
 		// dialogNewPlant: "plants.ui.view.fragments.master.MasterNewPlant",

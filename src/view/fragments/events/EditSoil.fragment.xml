@@ -43,8 +43,6 @@
 		</content>
 
 <!--text of edit button is switched to "Add" in controller if new-->
-       
-		    	<!-- text = "{editedSoil>btn_text}" -->
         <buttons>   
             <Button 
 		    	text = "{editedSoil>btn_text}" 

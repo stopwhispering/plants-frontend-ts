@@ -5,23 +5,37 @@ import { FBSoil, FBObservation, FBPot, FBEvent } from "./Events";
  * @namespace plants.ui.definitions.entities
  */
 
-export interface EventEditDataSegments{
+export interface LEventEditDataSegments{
     observation: boolean;
     pot: boolean;
 	soil: boolean;
 }
 
-export interface EventInEventsModel extends Omit<FBEvent, "id">{
+export interface LEventInEventsModel extends Omit<FBEvent, "id">{
     // only difference in comparison to PEvent from backend: id is optional
     // to allow for new events
     id?: number;
 }
 
-export interface PlantIdToEventsMap {
+export interface LPlantIdToEventsMap {
     [key: int]: FBEvent[];  //plant_it to Events array
 }
 
-export interface EventEditData{
+export interface LPotHeightOptions{
+    very_flat: boolean;
+    flat: boolean;
+    high: boolean;  // default
+    very_high: boolean;
+}
+
+export interface LPotShapeOptions{
+    square: boolean;  // default
+    round: boolean;
+    oval: boolean;
+    hexagonal: boolean;
+}
+
+export interface LEventEditData{
     // for new event or editing existing event
     // might have no id, yet; has additional fields for dialog control
     // missing fields: observation_id, pot_id
@@ -30,17 +44,19 @@ export interface EventEditData{
     date: string;
     event_notes?: string;
     observation?: FBObservation;
-    soil?: FBSoil;
+    soil?: FBSoil | LInitialSoil;
     plant_id: number;
     pot?: FBPot;
 
-    segments : EventEditDataSegments;
+    potHeightOptions: LPotHeightOptions;
+    potShapeOptions: LPotShapeOptions;
+    segments: EventEditDataSegments;
     mode: 'new' | 'edit'
-    oldEvent: FBEvent;
+    oldEvent?: FBEvent;
 }
 
 
-export interface SoilEditData {
+export interface LSoilEditData {
     // for new soil or editing existing soil
     dialog_title: string,
     btn_text: string;
@@ -51,15 +67,15 @@ export interface SoilEditData {
     mix: string;
 }
 
-export interface PlantsEventsDict{
+export interface LPlantsEventsDict{
     [key: int]: FBEvent[];
 }
 
-export interface EventsModelData {
+export interface LEventsModelData {
     PlantsEventsDict: PlantsEventsDict;
 }
 
-export interface InitialSoil extends Omit<FBSoil, "id" | "soil_name">{
+export interface LInitialSoil extends Omit<FBSoil, "id" | "soil_name">{
 // for initially opening the dialog before selecting a soil
     id?: number;
     soil_name?: string;

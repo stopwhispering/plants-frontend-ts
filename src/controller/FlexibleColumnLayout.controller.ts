@@ -9,7 +9,7 @@ import Token from "sap/m/Token"
 import Filter from "sap/ui/model/Filter"
 import FilterOperator from "sap/ui/model/FilterOperator"
 import Navigation from "plants/ui/customClasses/singleton/Navigation"
-import { IdToFragmentMap } from "../definitions/SharedLocal"
+import { LIdToFragmentMap } from "../definitions/SharedLocal"
 import Router from "sap/ui/core/routing/Router"
 import SearchManager from "sap/f/SearchManager"
 import ListBinding from "sap/ui/model/ListBinding"
@@ -41,7 +41,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	formatter = new formatter();
 	private oPlantLookup: PlantLookup;
 
-	private mIdToFragment = <IdToFragmentMap>{
+	private mIdToFragment = <LIdToFragmentMap>{
 		MessagePopover: "plants.ui.view.fragments.menu.MessagePopover",
 		dialogUploadPhotos: "plants.ui.view.fragments.menu.UploadPhotos",
 		menuShellBarMenu: "plants.ui.view.fragments.menu.ShellBarMenu",

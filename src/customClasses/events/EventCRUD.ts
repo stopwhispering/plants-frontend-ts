@@ -3,10 +3,8 @@ import MessageToast from "sap/m/MessageToast"
 import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
 import View from "sap/ui/core/mvc/View";
-import Dialog from "sap/m/Dialog";
-import Button from "sap/m/Button";
 import {
-	EventEditData, EventEditDataSegments, EventInEventsModel, InitialSoil
+	LEventEditData, LEventEditDataSegments, LEventInEventsModel, LInitialSoil, LPotHeightOptions, LPotShapeOptions
 } from "plants/ui/definitions/EventsLocal";
 import { FBPot, FBEvent, FBObservation, FBSoil } from "plants/ui/definitions/Events";
 import RadioButton from "sap/m/RadioButton";
@@ -19,20 +17,24 @@ import { FBImage } from "plants/ui/definitions/Images";
  */
 // export default class EventUtil extends ManagedObject {
 export default class EventCRUD extends ManagedObject {
+	private _oEventsModel: JSONModel;  // "events"
 	private oSuggestionsData;
 
-	public constructor(oSuggestionsData: LSuggestions) {
+
+	public constructor(oEventsModel: JSONModel, oSuggestionsData: LSuggestions) {
 		super();
+
+		this._oEventsModel = oEventsModel;
 		this.oSuggestionsData = oSuggestionsData;
 	}
 
-	deleteEventsTableRow(oSelectedEvent: FBEvent, oEventsModel: JSONModel, oCurrentPlant: BPlant) {
-		// deleting row from events table
+	removeEvent(oSelectedEvent: FBEvent, oEventsModel: JSONModel): void {
+		// remove an event from events model
 
-		var aEvents = oEventsModel.getProperty('/PlantsEventsDict/' + oCurrentPlant.id);
+		const aEvents = oEventsModel.getProperty('/PlantsEventsDict/' + oSelectedEvent.plant_id);
 
 		// delete the item from array
-		var iIndex = aEvents.indexOf(oSelectedEvent);
+		const iIndex = aEvents.indexOf(oSelectedEvent);
 		if (iIndex < 0) {
 			MessageToast.show('An error happended in internal processing of deletion.');
 			return;
@@ -41,7 +43,7 @@ export default class EventCRUD extends ManagedObject {
 		oEventsModel.refresh();
 	}
 
-	private _getObservationData(oEventEditData: EventEditData): FBObservation | null {
+	private _getObservationData(oEventEditData: LEventEditData): FBObservation | null {
 		//returns the cleansed observation data from the event edit data
 		if (!oEventEditData.segments.observation)
 			return null;
@@ -65,39 +67,38 @@ export default class EventCRUD extends ManagedObject {
 		return <FBObservation>oObservationDataClone;
 	}
 
-	private _getPotData(oEventEditData: EventEditData, oView: View): FBPot | null {
+	private _getPotData(oEventEditData: LEventEditData, oView: View): FBPot | null {
 		//loads, parses, and cleanses the pot data from the the dialog control
 		if (!oEventEditData.segments.pot)
 			return null;
 		const oPotDataClone = <FBPot>JSON.parse(JSON.stringify(oEventEditData.pot));
 
-		if ((<RadioButton>oView.byId('idPotHeight0')).getSelected()) {
+		if (oEventEditData.potHeightOptions.very_flat)
 			oPotDataClone.shape_side = 'very flat';
-		} else if ((<RadioButton>oView.byId('idPotHeight1')).getSelected()) {
+		else if (oEventEditData.potHeightOptions.flat)
 			oPotDataClone.shape_side = 'flat';
-		} else if ((<RadioButton>oView.byId('idPotHeight2')).getSelected()) {
+		else if (oEventEditData.potHeightOptions.high)
 			oPotDataClone.shape_side = 'high';
-		} else if ((<RadioButton>oView.byId('idPotHeight3')).getSelected()) {
+		else if (oEventEditData.potHeightOptions.very_high)
 			oPotDataClone.shape_side = 'very high';
-		} else {
+		else
 			throw new Error('Pot height not selected');
-		}
 
-		if ((<RadioButton>oView.byId('idPotShape0')).getSelected()) {
+		if (oEventEditData.potShapeOptions.square)
 			oPotDataClone.shape_top = 'square';
-		} else if ((<RadioButton>oView.byId('idPotShape1')).getSelected()) {
+		else if (oEventEditData.potShapeOptions.round)
 			oPotDataClone.shape_top = 'round';
-		} else if ((<RadioButton>oView.byId('idPotShape2')).getSelected()) {
+		else if (oEventEditData.potShapeOptions.oval)
 			oPotDataClone.shape_top = 'oval';
-		} else if ((<RadioButton>oView.byId('idPotShape3')).getSelected()) {
+		else if (oEventEditData.potShapeOptions.hexagonal)
 			oPotDataClone.shape_top = 'hexagonal';
-		} else {
+		else
 			throw new Error('Pot shape not selected');
-		}
+
 		return oPotDataClone;
 	}
 
-	private _getSoilData(oEventEditData: EventEditData, oView: View): FBSoil | null {
+	private _getSoilData(oEventEditData: LEventEditData): FBSoil | null {
 		//loads, parses, and cleanses the soil data from the the dialog control
 		//note: we submit the whole soil object to the backend, but the backend does only care about the id
 		//      for modifying or creating a soil, there's a separate service
@@ -112,35 +113,17 @@ export default class EventCRUD extends ManagedObject {
 		return oSoilDataClone;
 	}
 
-	public _loadSoils(oView: View) {
-		// triggered when opening dialog to add/edit event
-		// get soils collection from backend proposals resource
-		var sUrl = Util.getServiceUrl('events/soils');
-		let oSoilsModel = <JSONModel>oView.getModel('soils');
-		if (!oSoilsModel) {
-			oSoilsModel = new JSONModel(sUrl);
-			oView.setModel(oSoilsModel, 'soils');
-		} else {
-			oSoilsModel.loadData(sUrl);
-		}
-	}
-
 	//triggered by addOrEditEvent
-	private _addEvent(oView: View, oEventsModel: JSONModel, aEventsCurrentPlant: EventInEventsModel[]) {
+	public addEvent(oView: View, aEventsCurrentPlant: LEventInEventsModel[], oEventNewData: LEventEditData): void {
 		//triggered by add button in add/edit event dialog
 		//validates and filters data to be saved
 
-		// get new event data
-		const oDialog = <Dialog>oView.byId('dialogEvent');
-		const oNewEventModel = <JSONModel>oDialog.getModel("editOrNewEvent");
-		const oNewEventData = <EventEditData>oNewEventModel.getData();
-
 		// assert date matches pattern "YYYY-MM-DD"
-		Util.assertCorrectDate(oNewEventData.date);
-		this._assertNoDuplicateOnDate(aEventsCurrentPlant, oNewEventData.date);
+		Util.assertCorrectDate(oEventNewData.date);
+		this._assertNoDuplicateOnDate(aEventsCurrentPlant, oEventNewData.date);
 
 		// clone the data so we won't change the original new model
-		const oNewEventSave = <EventEditData>Util.getClonedObject(oNewEventData);
+		const oNewEventSave = <LEventEditData>Util.getClonedObject(oEventNewData);
 
 		if (oNewEventSave.segments.soil && (!oNewEventSave.soil || !oNewEventSave.soil.id)) {
 			MessageToast.show('Please choose soil first.');
@@ -150,9 +133,9 @@ export default class EventCRUD extends ManagedObject {
 		// get the data in the dialog's segments
 		const oNewObservation = <FBObservation | undefined>this._getObservationData(oNewEventSave);
 		const oNewPot = <FBPot | undefined>this._getPotData(oNewEventSave, oView);
-		const oNewSoil = <FBSoil | undefined>this._getSoilData(oNewEventSave, oView);
+		const oNewSoil = <FBSoil | undefined>this._getSoilData(oNewEventSave);
 
-		const oNewEvent: EventInEventsModel = {
+		const oNewEvent: LEventInEventsModel = {
 			// id: number; no id, yet
 			date: oNewEventSave.date,
 			event_notes: <string | undefined>(oNewEventSave.event_notes && oNewEventSave.event_notes.length > 0 ? oNewEventSave.event_notes.trim() : undefined),
@@ -166,11 +149,11 @@ export default class EventCRUD extends ManagedObject {
 		// actual saving is done upon hitting save button
 		// here, we only update the events model
 		aEventsCurrentPlant.push(oNewEvent);
-		oEventsModel.updateBindings(false);
-		oDialog.close();
+		this._oEventsModel.updateBindings(false);
+		// oDialog.close();
 	}
 
-	private _assertNoDuplicateOnDate(aEventsCurrentPlant: EventInEventsModel[], sDate: string, oEvent?: FBEvent): void {
+	private _assertNoDuplicateOnDate(aEventsCurrentPlant: LEventInEventsModel[], sDate: string, oEvent?: FBEvent): void {
 		// make sure there's only one event per day and plant (otherwise backend problems would occur)
 		// if new event data is supplied, we're editing an event and need to make sure we're not comparing the event to itself
 		const found = aEventsCurrentPlant.find(function (element) {
@@ -182,15 +165,10 @@ export default class EventCRUD extends ManagedObject {
 		}
 	}
 
-	private _editEvent(oView: View, oEventsModel: JSONModel, aEventsCurrentPlant: FBEvent[]): void {
+	public editEvent(oView: View, aEventsCurrentPlant: FBEvent[], oEventEditData: LEventEditData): void {
 		//triggered by addOrEditEvent
 		//triggered by button in add/edit event dialog
 		//validates and filters data to be saved and triggers saving
-
-		// get new event data
-		const oDialog = <Dialog>oView.byId('dialogEvent');
-		const oEditEventModel = <JSONModel>oDialog.getModel("editOrNewEvent");
-		const oEventEditData = <EventEditData>oEditEventModel.getData();
 
 		// old record (which we are updating as it is a pointer to the events model itself) is hidden as a property in the new model
 		if (!oEventEditData.oldEvent) {
@@ -216,7 +194,7 @@ export default class EventCRUD extends ManagedObject {
 		// get the data in the dialog's segments
 		const oEditedObservation = <FBObservation>this._getObservationData(oEventEditData);
 		const oEditedPot = <FBPot>this._getPotData(oEventEditData, oView);
-		const oEditedSoil = <FBSoil>this._getSoilData(oEventEditData, oView);
+		const oEditedSoil = <FBSoil>this._getSoilData(oEventEditData);
 
 		// update each attribute from the new model into the old event
 		oOldEvent.date = <string>oEventEditData.date;
@@ -231,155 +209,65 @@ export default class EventCRUD extends ManagedObject {
 		oOldEvent.soil = <FBSoil | undefined>oEditedSoil;
 
 		// have events factory function in details controller regenerate the events list
-		oEventsModel.updateBindings(false);  // we updated a proprety of that model
-		oEventsModel.refresh(true);
-		oDialog.close();
+		this._oEventsModel.updateBindings(false);  // we updated a proprety of that model
+		this._oEventsModel.refresh(true);
 	}
 
-	addOrEditEvent(oView: View, oCurrentPlant: BPlant) {
-		var oDialog = oView.byId('dialogEvent');
-		var oNewEventModel = <JSONModel>oDialog.getModel("editOrNewEvent");
-		var dDataNew = <EventEditData>oNewEventModel.getData();
-		var sMode = dDataNew.mode; //edit or new
+	public getInitialEvent(iCurrentPlantId: int): LEventEditData {
+//todo move to soildialoghandler?
 
-		var oEventsModel = <JSONModel>oView.getModel('events');
-		var sPathEventsModel = '/PlantsEventsDict/' + oCurrentPlant.id + '/';
-		var aEventsCurrentPlant = oEventsModel.getProperty(sPathEventsModel);
-
-		if (sMode === 'edit') {
-			this._editEvent(oView, oEventsModel, aEventsCurrentPlant);
-		} else {  //'new'
-			this._addEvent(oView, oEventsModel, aEventsCurrentPlant);
-		}
-	}
-
-	// public editEvent(oSelectedEvent: FBEvent, oView: View, iCurrentPlantId: int) {
-	// 	this.applyToFragment('dialogEvent', this.initEditSelectedEvent.bind(this, oSelectedEvent, oView, iCurrentPlantId));
-	// }
-
-	public initEditSelectedEvent(oSelectedEvent: FBEvent, oView: View, iCurrentPlantId: int, oDialog: Dialog) {
-		// get soils collection from backend proposals resource
-		this._loadSoils(oView);
-
-		// update dialog title and save/update button
-		oDialog.setTitle('Edit Event (' + oSelectedEvent.date + ')');
-		(<Button>oView.byId('btnEventUpdateSave')).setText('Update');
-
-		// there is some logic involved in mapping the dialog controls and the events model, additionally
-		// we don't want to update the events model entity immediately from the dialog but only upon
-		// hitting update button, therefore we generate a edit model, fill it with our event's data,
-		// and, upon hitting update button, do it the other way around
-		var dEventEdit: EventEditData = this.getInitialEvent(iCurrentPlantId);
-		dEventEdit.mode = 'edit';
-		dEventEdit.date = oSelectedEvent.date;
-		dEventEdit.event_notes = oSelectedEvent.event_notes;
-
-		// we need to remember the old record
-		dEventEdit.oldEvent = oSelectedEvent;
-		if (oSelectedEvent.pot && oSelectedEvent.pot.id) {
-			dEventEdit.pot!.id = oSelectedEvent.pot.id;
-		}
-		if (oSelectedEvent.observation && oSelectedEvent.observation.id) {
-			dEventEdit.observation!.id = oSelectedEvent.observation.id;
-		}
-
-		// observation segment
-		if (!!oSelectedEvent.observation) {
-			// activate observation tab if there is an observation
-			dEventEdit.segments.observation = true;
-			dEventEdit.observation!.diseases = oSelectedEvent.observation.diseases;
-			dEventEdit.observation!.height = oSelectedEvent.observation.height;
-			dEventEdit.observation!.observation_notes = oSelectedEvent.observation.observation_notes;
-			dEventEdit.observation!.stem_max_diameter = oSelectedEvent.observation.stem_max_diameter;
-		} else {
-			dEventEdit.segments.observation = false;
-		}
-
-		// pot segment
-		if (!!oSelectedEvent.pot) {
-			dEventEdit.segments.pot = true;
-			dEventEdit.pot!.diameter_width = oSelectedEvent.pot.diameter_width;
-			dEventEdit.pot!.material = oSelectedEvent.pot.material;
-			// the shape attributes are not set via model
-			switch (oSelectedEvent.pot.shape_side) {
-				case 'very flat':
-					(<RadioButton>oView.byId('idPotHeight0')).setSelected(true); break;
-				case 'flat':
-					(<RadioButton>oView.byId('idPotHeight1')).setSelected(true); break;
-				case 'high':
-					(<RadioButton>oView.byId('idPotHeight2')).setSelected(true); break;
-				case 'very high':
-					(<RadioButton>oView.byId('idPotHeight3')).setSelected(true); break;
-			}
-
-			switch (oSelectedEvent.pot.shape_top) {
-				case 'square':
-					(<RadioButton>oView.byId('idPotShape0')).setSelected(true); break;
-				case 'round':
-					(<RadioButton>oView.byId('idPotShape1')).setSelected(true); break;
-				case 'oval':
-					(<RadioButton>oView.byId('idPotShape2')).setSelected(true); break;
-				case 'hexagonal':
-					(<RadioButton>oView.byId('idPotShape3')).setSelected(true); break;
-			}
-		} else {
-			dEventEdit.segments.pot = false;
-		}
-
-		// soil segment
-		if (!!oSelectedEvent.soil) {
-			dEventEdit.segments.soil = true;
-			dEventEdit.soil = Util.getClonedObject(oSelectedEvent.soil);
-		} else {
-			dEventEdit.segments.soil = false;
-		}
-
-		// set model and open dialog
-		if (oDialog.getModel("editOrNewEvent")) {
-			oDialog.getModel("editOrNewEvent").destroy();
-		}
-		var oModel = new JSONModel(dEventEdit);
-		oDialog.setModel(oModel, "editOrNewEvent");
-		oDialog.open();
-	}
-
-	public getInitialEvent(iCurrentPlantId: int): EventEditData {
-		// create initial data for the Create/Edit Event Dialog (we don't use the 
-		// actual data there in case of editing an event)
+		// create initial data for the Create/Edit Event Dialog (we actually don't use the 
+		// data in case of editing an event)
 		// called by both function to add and to edit event
 		const oPot = <FBPot>{
 			'diameter_width': 4,
 			'material': this.oSuggestionsData['potMaterialCollection'][0].name
 		};
 
-		const oObservation = <FBObservation>{
+		const oObservation: FBObservation = {
 			'height': 0,
 			'stem_max_diameter': 0,
 			'diseases': '',
 			'observation_notes': ''
 		}
 
-		const oSoil: InitialSoil = {
+		const oSoil: LInitialSoil = {
 			id: undefined,
 			soil_name: undefined,
 			mix: undefined,
 			description: undefined,
 		}
 
-		const oEventEditDataSegments = <EventEditDataSegments>{
+		const oEventEditDataSegments: LEventEditDataSegments = {
 			// defaults to inactive segments
 			observation: false,
 			pot: false,
 			soil: false,
 		}
 
-		const oEventEditData = <EventEditData>{
+		const oPotHeightOptions: LPotHeightOptions = {
+			very_flat: false,
+			flat: false,
+			high: true,  // default
+			very_high: false
+		}
+
+		const oPotShapeOptions: LPotShapeOptions = {
+			square: true,  // default
+			round: false,
+			oval: false,
+			hexagonal: false
+		}
+
+		const oEventEditData: LEventEditData = {
 			plant_id: iCurrentPlantId,
 			date: Util.getToday(),
 			event_notes: '',
 			pot: oPot,
 			observation: oObservation,
 			soil: oSoil,
+			potHeightOptions: oPotHeightOptions,
+			potShapeOptions: oPotShapeOptions,
 			segments: oEventEditDataSegments,
 			mode: "new",  // will be overwritten in case of editing
 		};

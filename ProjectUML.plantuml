@@ -30,7 +30,7 @@ class plants.ui.controller.Master <<Controller>> #honeydew ##green {
 	- navigation: plants.ui.customClasses.singleton.Navigation
 	- oPlantLookup: plants.ui.customClasses.plants.PlantLookup
 	- oTaxonTreeModel: sap.ui.model.json.JSONModel
-	- mIdToFragment: IdToFragmentMap
+	- mIdToFragment: LIdToFragmentMap
 	+ onInit(): void
 	+ onAfterRendering(): void
 	# applyToFragment(sId: string, fn: Function, fnInit: Function | undefined): void
@@ -52,7 +52,7 @@ class plants.ui.controller.Master <<Controller>> #honeydew ##green {
 class plants.ui.controller.FlexibleColumnLayout <<Controller>> #honeydew ##green {
 	+ formatter: plants.ui.model.formatter
 	- oPlantLookup: plants.ui.customClasses.plants.PlantLookup
-	- mIdToFragment: IdToFragmentMap
+	- mIdToFragment: LIdToFragmentMap
 	- _currentPlantId: number
 	- _oRouter: sap.ui.core.routing.Router
 	- _currentRouteName: string
@@ -88,7 +88,7 @@ class plants.ui.controller.Detail <<Controller>> #honeydew ##green {
 	+ suggestionService: plants.ui.customClasses.shared.SuggestionService
 	- mCurrentPlant: LCurrentPlant
 	- oLayoutModel: sap.ui.model.json.JSONModel
-	- mIdToFragment: IdToFragmentMap
+	- mIdToFragment: LIdToFragmentMap
 	+ onInit(): void
 	- _onPatternMatched(oEvent: sap.ui.base.Event): void
 	# applyToFragment(sId: string, fn: Function, fnInit: Function | undefined): void
@@ -554,7 +554,7 @@ class plants.ui.controller.BaseController <<Controller>> #honeydew ##green {
 	# oComponent: plants.ui.Component
 	# oRouter: sap.ui.core.routing.Router
 	+ onInit(): void
-	# applyToFragment(sId: string, fn: Function, fnInit: Function | undefined, mIdToFragment: IdToFragmentMap): void
+	# applyToFragment(sId: string, fn: Function, fnInit: Function | undefined, mIdToFragment: LIdToFragmentMap): void
 	+ onCancelDialog(oEvent: sap.ui.base.Event): void
 }
 class plants.ui.Constants {

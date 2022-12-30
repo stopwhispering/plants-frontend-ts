@@ -8,7 +8,7 @@ import Dialog from "sap/m/Dialog";
 import Component from "plants/ui/Component";
 import Router from "sap/ui/core/routing/Router";
 import Control from "sap/ui/core/Control";
-import { IdToFragmentMap } from "plants/ui/definitions/SharedLocal";
+import { LIdToFragmentMap } from "plants/ui/definitions/SharedLocal";
 import Event from "sap/ui/base/Event";
 import Popover from "sap/m/Popover";
 import ViewSettingsDialog from "sap/m/ViewSettingsDialog";
@@ -27,7 +27,7 @@ export default class BaseController extends Controller {
 		this.oRouter = this.oComponent.getRouter();
 	}
 
-	protected applyToFragment(sId: string, fn: Function, fnInit?: Function, mIdToFragment?: IdToFragmentMap) {
+	protected applyToFragment(sId: string, fn: Function, fnInit?: Function, mIdToFragment?: LIdToFragmentMap) {
 		//create fragment singleton and apply supplied function to it (e.g. open, close)
 		// if stuff needs to be done only once, supply fnInit wher^^e first usage happens
 
@@ -38,7 +38,7 @@ export default class BaseController extends Controller {
 
 		//fragment id to fragment file path
 		if (!mIdToFragment) {
-			mIdToFragment = <IdToFragmentMap>{
+			mIdToFragment = <LIdToFragmentMap>{
 			}
 		}
 

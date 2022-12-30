@@ -3,23 +3,30 @@ import Dialog from "sap/m/Dialog";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { BPResultsUpdateCreateSoil, FBSoil } from "plants/ui/definitions/Events";
-import { SoilEditData } from "plants/ui/definitions/EventsLocal";
+import { BPResultsUpdateCreateSoil, BResultsSoilsResource, FBSoil, FSoil, FSoilCreate } from "plants/ui/definitions/Events";
+import { LSoilEditData } from "plants/ui/definitions/EventsLocal";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
+import Control from "sap/ui/core/Control";
 
 /**
  * @namespace plants.ui.customClasses.events
  */
 export default class SoilCRUD extends ManagedObject {
 
-	private _oSoilsModel: JSONModel;
+	private _oSoilsModel: JSONModel;  // "soils"
 
-	public constructor(oSoilsModel: JSONModel) {
+	public constructor() {
 		super();
-		this._oSoilsModel = oSoilsModel;
+
+		this._oSoilsModel = new JSONModel(<BResultsSoilsResource>{});  // will be loaded from backend
 	}
 
-	public updateOrCreateSoil(oEditedSoil: SoilEditData, oDialogEditSoil: Dialog): void {
+	public getSoilsModel(): JSONModel {
+		// todo remove?
+		return this._oSoilsModel;
+	}
+
+	public updateOrCreateSoil(oEditedSoil: LSoilEditData, oDialogToCloseAfter: Dialog): void {
 		//make sure soil has a name and a mix
 		if (oEditedSoil.soil_name === "" || oEditedSoil.mix === "") {
 			MessageToast.show('Enter soil mix name and mix ingredients.');
@@ -32,14 +39,12 @@ export default class SoilCRUD extends ManagedObject {
 				MessageToast.show("Unexpected ID found.")
 				return;
 			}
-			this._saveNewSoil(oEditedSoil, oDialogEditSoil);
-
-			// update existing soil
+			this._saveNewSoil(oEditedSoil, oDialogToCloseAfter);
 		} else
-			this._updateExistingSoil(oEditedSoil, oDialogEditSoil);
+			this._updateExistingSoil(oEditedSoil, oDialogToCloseAfter);
 	}	
 
-	private _saveNewSoil(oNewSoil: SoilEditData, oDialogEditSoil: Dialog): void {
+	private _saveNewSoil(oNewSoil: LSoilEditData, oDialogToCloseAfter: Dialog): void {
 
 		// check if there's already a same-named soil
 		var aSoils = <FBSoil[]>this._oSoilsModel.getData().SoilsCollection;
@@ -51,7 +56,7 @@ export default class SoilCRUD extends ManagedObject {
 			return;
 		}
 
-		var newSoil = {
+		var newSoil = <FSoilCreate>{
 			id: undefined,
 			soil_name: oNewSoil.soil_name,
 			description: oNewSoil.description,
@@ -66,12 +71,34 @@ export default class SoilCRUD extends ManagedObject {
 			data: JSON.stringify(newSoil),
 			context: this
 		})
-			.done(this._cbSavedNewSoil.bind(this, oDialogEditSoil))
+			.done(this._cbSavedNewSoil.bind(this, oDialogToCloseAfter))
 			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Save New Soil'));
 	}
 
-	private _updateExistingSoil(oSoilData: SoilEditData, oDialogEditSoil: Dialog): void {
-		var updatedSoil = {
+	private _cbSavedNewSoil(oDialogToCloseAfter: Dialog, data: BPResultsUpdateCreateSoil): void {
+		// callback for request saving new soil 
+		if (!data.soil.id) {
+			MessageToast.show("Unexpected backend error - No Soil ID")
+			return;
+		}
+
+		var aSoils = this._oSoilsModel.getData().SoilsCollection;
+		var oNewSoil = {
+			id: data.soil.id,
+			soil_name: data.soil.soil_name,
+			description: data.soil.description,
+			mix: data.soil.mix
+		}
+		aSoils.push(oNewSoil);
+		this._oSoilsModel.updateBindings(false);
+
+		// busy dialog was started before ajax call
+		Util.stopBusyDialog();
+		oDialogToCloseAfter.close();
+	}
+
+	private _updateExistingSoil(oSoilData: LSoilEditData, oDialogToCloseAfter: Dialog): void {
+		var updatedSoil = <FSoil>{
 			id: oSoilData.id,
 			soil_name: oSoilData.soil_name,
 			description: oSoilData.description,
@@ -86,11 +113,11 @@ export default class SoilCRUD extends ManagedObject {
 			data: JSON.stringify(updatedSoil),
 			context: this
 		})
-			.done(this._cbUpdatedExistingSoil.bind(this, oDialogEditSoil))
+			.done(this._cbUpdatedExistingSoil.bind(this, oDialogToCloseAfter))
 			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Save New Soil'));
 	}
 
-	private _cbUpdatedExistingSoil(oDialogEditSoil: Dialog, data: BPResultsUpdateCreateSoil): void {
+	private _cbUpdatedExistingSoil(oDialogToCloseAfter: Dialog, data: BPResultsUpdateCreateSoil): void {
 		// callback for request updating existing soil 
 		if (!data.soil.id) {
 			MessageToast.show("Unexpected backend error - No Soil ID")
@@ -114,32 +141,26 @@ export default class SoilCRUD extends ManagedObject {
 
 		// busy dialog was started before ajax call
 		Util.stopBusyDialog();
-		// this.applyToFragment('dialogEditSoil', (oDialog: Dialog) => oDialog.close(),);
-		oDialogEditSoil.close();
+		oDialogToCloseAfter.close();
 
 		// todo also update in current plant events list (currently requires a reload)
 	}
 
-	private _cbSavedNewSoil(oDialogEditSoil: Dialog, data: BPResultsUpdateCreateSoil): void {
-		// callback for request saving new soil 
-		if (!data.soil.id) {
-			MessageToast.show("Unexpected backend error - No Soil ID")
-			return;
-		}
+	public loadSoils(oSetModelFor: Control) {
+		// load soils collection from backend
+		$.ajax({
+			url: Util.getServiceUrl('events/soils'),
+			type: 'GET',
+			contentType: "application/json",
+			context: this
+		})
+			.done(this._cbSoilLoaded.bind(this, oSetModelFor))
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Get Soils'));
+	}	
 
-		var aSoils = this._oSoilsModel.getData().SoilsCollection;
-		var oNewSoil = {
-			id: data.soil.id,
-			soil_name: data.soil.soil_name,
-			description: data.soil.description,
-			mix: data.soil.mix
-		}
-		aSoils.push(oNewSoil);
-		this._oSoilsModel.updateBindings(false);
-
-		// busy dialog was started before ajax call
-		Util.stopBusyDialog();
-		// this.applyToFragment('dialogEditSoil', (oDialog: Dialog) => oDialog.close(),);
-		oDialogEditSoil.close();
+	private _cbSoilLoaded(oSetModelFor: Control, results: BResultsSoilsResource): void{
+		// callback for request to get soils collection
+		this._oSoilsModel.setData(results);
+		oSetModelFor.setModel(this._oSoilsModel, 'soils');
 	}
 }

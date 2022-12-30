@@ -1,22 +1,32 @@
 import Dialog from "sap/m/Dialog";
 import ManagedObject from "sap/ui/base/ManagedObject"
-import View from "sap/ui/core/mvc/View";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { SoilEditData } from "plants/ui/definitions/EventsLocal";
+import { LSoilEditData } from "plants/ui/definitions/EventsLocal";
 import { FBSoil } from "plants/ui/definitions/Events"
+import Fragment from "sap/ui/core/Fragment";
+import Control from "sap/ui/core/Control";
+import Button from "sap/m/Button";
+import SoilCRUD from "./SoilCRUD";
+import Event from "sap/ui/base/Event";
 
 /**
  * @namespace plants.ui.customClasses.events
  */
 export default class SoilDialogHandler extends ManagedObject {
+	private _oSoilDialog: Dialog;  // used for both new and edit soil
+	private _oSoilsModel: JSONModel;
+	private _oSoilCRUD: SoilCRUD;
 
-	public constructor() {
+	public constructor(oSoilsModel: JSONModel, oSoilCRUD: SoilCRUD) {
 		super();
+
+		this._oSoilsModel = oSoilsModel;
+		this._oSoilCRUD = oSoilCRUD;
 	}
 
-	public openDialogNewSoilWhenPromiseResolved(oPromise: Promise<Dialog>, oView: View): void {
-		// open the new/edit-soil dialog when it's promise is resolved
-		var dNewSoil = <SoilEditData>{
+	public openDialogNewSoil(oAttachTo: Dialog): void {
+		// open the new/edit-soil dialog
+		var dNewSoil = <LSoilEditData>{
 			dialog_title: 'New Soil',
 			btn_text: 'Create',
 			new: true,
@@ -27,20 +37,26 @@ export default class SoilDialogHandler extends ManagedObject {
 		}
 		var oNewSoilModel = new JSONModel(dNewSoil);
 
-		oPromise.then((oDialog: Dialog) => {
-			oDialog.setModel(oNewSoilModel, 'editedSoil');
-			oDialog.bindElement({
+		// the dialog is always destroyed upon closing, so we don't need to check for existence
+		Fragment.load({
+			name: "plants.ui.view.fragments.events.EditSoil",
+			id: oAttachTo.getId(),
+			controller: this
+		}).then((oControl: Control | Control[]) => {
+			this._oSoilDialog = <Dialog>oControl;
+			this._oSoilDialog.setModel(oNewSoilModel, 'editedSoil');
+			this._oSoilDialog.bindElement({
 				path: '/',
 				model: "editedSoil"
 			});
-			oView.addDependent(oDialog);
-			oDialog.open();
+			oAttachTo.addDependent(this._oSoilDialog);
+			this._oSoilDialog.open();
 		});
 	}
 
-	openDialogEditSoilWhenPromiseResolved(oSoil: FBSoil, oPromise: Promise<Dialog>, oView: View): void {
+	openDialogEditSoil(oSoil: FBSoil, oAttachTo: Dialog): void {
 		// open the new/edit-soil dialog when it's promise is resolved
-		var dEditedSoil = <SoilEditData>{
+		var dEditedSoil = <LSoilEditData>{
 			dialog_title: 'Edit Soil (ID ' + oSoil.id + ')',
 			btn_text: 'Update',
 			new: false,
@@ -51,15 +67,34 @@ export default class SoilDialogHandler extends ManagedObject {
 		}
 		var oEditedSoilModel = new JSONModel(dEditedSoil);
 
-		oPromise.then((oDialog: Dialog) => {
-			oDialog.setModel(oEditedSoilModel, 'editedSoil');
-			oDialog.bindElement({
+
+		Fragment.load({
+			name: "plants.ui.view.fragments.events.EditSoil",
+			id: oAttachTo.getId(),
+			controller: this
+		}).then((oControl: Control | Control[]) => {
+			this._oSoilDialog = <Dialog>oControl;
+			this._oSoilDialog.setModel(oEditedSoilModel, 'editedSoil');
+			this._oSoilDialog.bindElement({
 				path: '/',
 				model: "editedSoil"
 			});
-			oView.addDependent(oDialog);
-			oDialog.open();
+			oAttachTo.addDependent(this._oSoilDialog);
+			this._oSoilDialog.open();
 		});	
+	}
+
+	onUpdateOrCreateSoil(oEvent: Event) {
+		const oEditedSoil = <LSoilEditData>(<Button>oEvent.getSource()).getBindingContext('editedSoil')!.getObject();
+		// const oSoilsModel = <JSONModel>this.byId('dialogEvent').getModel('soils');
+		// this.eventCRUD.updateOrCreateSoil(oEditedSoil, oSoilsModel);
+
+		// const oDialogEditSoil = <Dialog>this.byId('dialogEditSoil');
+		this._oSoilCRUD.updateOrCreateSoil(oEditedSoil, this._oSoilDialog);
+	}
+	onCancelEditSoil(oEvent: Event) {
+		this._oSoilDialog.close();
+		// this.applyToFragment('dialogEditSoil', (oDialog: Dialog) => oDialog.close(),);
 	}
 
 }

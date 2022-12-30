@@ -19,7 +19,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/stopwhispering/plants-frontend-ts"
+    "url": "git+https://github.com/stopwhispering/plants-frontend-ts.git"
   },
   "devDependencies": {
     "@babel/cli": "^7.18.6",
@@ -30,7 +30,7 @@
     "@types/openui5": "1.104.0",
     "@typescript-eslint/eslint-plugin": "^5.30.6",
     "@typescript-eslint/parser": "^5.30.6",
-    "@ui5/cli": "^2.14.9",
+    "@ui5/cli": "^2.14.17",
     "babel-preset-transform-ui5": "^7.0.5",
     "eslint": "^8.20.0",
     "npm-run-all": "^4.1.5",
@@ -44,5 +44,10 @@
   },
   "dependencies": {
     "@types/estree": "^1.0.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/stopwhispering/plants-frontend-ts/issues"
+  },
+  "homepage": "https://github.com/stopwhispering/plants-frontend-ts#readme",
+  "main": "index.js"
 }

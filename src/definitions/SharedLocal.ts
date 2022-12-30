@@ -17,6 +17,6 @@ export type ResponseStatus =
   | "nocontent"
   | "notmodified";
 
-export interface IdToFragmentMap {
+export interface LIdToFragmentMap {
   [key: string]: string;  // e.g. dialogRenamePlant: "plants.ui.view.fragments.DetailRename"
 }
