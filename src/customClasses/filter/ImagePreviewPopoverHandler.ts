@@ -1,3 +1,4 @@
+import formatter from "plants/ui/model/formatter";
 import Popover from "sap/m/Popover";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Control from "sap/ui/core/Control";
@@ -11,6 +12,8 @@ import Context from "sap/ui/model/Context";
 export default class ImagePreviewPopoverHandler extends ManagedObject {
 
     private _oImagePreviewPopover: Popover;  // "popoverPopupImage"
+
+    public formatter: formatter = new formatter();  // requires instant instantiation, otherwise formatter is not available in view
 
     public constructor() {
         super();
