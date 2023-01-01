@@ -14,13 +14,11 @@ import Event from "sap/ui/base/Event";
  */
 export default class SoilDialogHandler extends ManagedObject {
 	private _oSoilDialog: Dialog;  // used for both new and edit soil
-	private _oSoilsModel: JSONModel;
 	private _oSoilCRUD: SoilCRUD;
 
-	public constructor(oSoilsModel: JSONModel, oSoilCRUD: SoilCRUD) {
+	public constructor(oSoilCRUD: SoilCRUD) {
 		super();
 
-		this._oSoilsModel = oSoilsModel;
 		this._oSoilCRUD = oSoilCRUD;
 	}
 
@@ -86,15 +84,10 @@ export default class SoilDialogHandler extends ManagedObject {
 
 	onUpdateOrCreateSoil(oEvent: Event) {
 		const oEditedSoil = <LSoilEditData>(<Button>oEvent.getSource()).getBindingContext('editedSoil')!.getObject();
-		// const oSoilsModel = <JSONModel>this.byId('dialogEvent').getModel('soils');
-		// this.eventCRUD.updateOrCreateSoil(oEditedSoil, oSoilsModel);
-
-		// const oDialogEditSoil = <Dialog>this.byId('dialogEditSoil');
 		this._oSoilCRUD.updateOrCreateSoil(oEditedSoil, this._oSoilDialog);
 	}
 	onCancelEditSoil(oEvent: Event) {
 		this._oSoilDialog.close();
-		// this.applyToFragment('dialogEditSoil', (oDialog: Dialog) => oDialog.close(),);
 	}
 
 }

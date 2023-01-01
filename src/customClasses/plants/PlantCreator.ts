@@ -3,7 +3,7 @@ import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { BResultsPlantsUpdate, FPlant } from "plants/ui/definitions/Plants";
-import PlantLookup from "./PlantLookup"
+import PlantLookup from "plants/ui//customClasses/plants/PlantLookup";
 import { BPlant, FBAssociatedPlantExtractForPlant } from "plants/ui/definitions/Plants";
 import { LDescendantPlantInput, LPropagationTypeData } from "plants/ui/definitions/PlantsLocal";
 import SuggestionService from "plants/ui/customClasses/shared/SuggestionService";

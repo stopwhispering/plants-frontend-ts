@@ -41,7 +41,8 @@
 			 class="sapUiTinyMarginTop">
 			<Label text="Shape (Side)" class="sapUiTinyMarginEnd"/>
 			<Label
-				design="Bold" text="{path: 'events>pot/shape_side'}"
+				design="Bold" 
+				text="{path: 'events>pot/shape_side'}"
 				wrapping="true"/>
 		</VBox>
 		<VBox visible="{ path: 'events>pot/diameter_width',
@@ -50,7 +51,8 @@
 			 class="sapUiTinyMarginTop">
 			<Label text="Diameter/Width (in cm)" class="sapUiTinyMarginTop"/>
 			<Label
-				design="Bold" text="{path: 'events>pot/diameter_width'}"
+				design="Bold" 
+				text="{path: 'events>pot/diameter_width'}"
 				wrapping="true"/>
 		</VBox>
 	</VBox>

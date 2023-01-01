@@ -256,15 +256,15 @@
 								<!-- templates that are cloned in the factory function -->
 								<m:dependents>
 									<core:Fragment
-										fragmentName="plants.ui.view.fragments.events.Header"
+										fragmentName="plants.ui.view.embedded.EventHeader"
 										type="XML"
 									/>
 									<core:Fragment
-										fragmentName="plants.ui.view.fragments.events.Observation"
+										fragmentName="plants.ui.view.embedded.Observation"
 										type="XML"
 									/>
 									<core:Fragment
-										fragmentName="plants.ui.view.fragments.events.Pot"
+										fragmentName="plants.ui.view.embedded.Pot"
 										type="XML"
 									/>
 									<core:Fragment
@@ -272,11 +272,11 @@
 										type="XML"
 									/>
 									<core:Fragment
-										fragmentName="plants.ui.view.fragments.events.Image"
+										fragmentName="plants.ui.view.embedded.Image"
 										type="XML"
 									/>
 									<core:Fragment
-										fragmentName="plants.ui.view.fragments.events.ImageContainer"
+										fragmentName="plants.ui.view.embedded.ImageContainer"
 										type="XML"
 									/>
 								</m:dependents>

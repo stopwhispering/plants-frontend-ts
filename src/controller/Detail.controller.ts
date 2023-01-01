@@ -11,18 +11,9 @@ import Sorter from "sap/ui/model/Sorter"
 import FilterOperator from "sap/ui/model/FilterOperator"
 import ImageToTaxonAssigner from "plants/ui/customClasses/images/ImageToTaxonAssigner"
 import ImageToEventAssigner from "plants/ui/customClasses/images/ImageToEventAssigner"
-import SpeciesFinderDialogHelper from "plants/ui/customClasses/taxonomy/SpeciesFinderDialogHelper"
-import Fragment from "sap/ui/core/Fragment"
-import Dialog from "sap/m/Dialog"
-import {
-	ObjectStatusCollection,
-} from "plants/ui/definitions/entities"
-import { LIdToFragmentMap, ResponseStatus } from "plants/ui/definitions/SharedLocal"
 import { FBEvent } from "plants/ui/definitions/Events"
-import DatePicker from "sap/m/DatePicker"
 import Event from "sap/ui/base/Event"
 import Control from "sap/ui/core/Control"
-import Popover from "sap/m/Popover"
 import Input from "sap/m/Input"
 import Icon from "sap/ui/core/Icon"
 import ListBinding from "sap/ui/model/ListBinding"
@@ -32,26 +23,15 @@ import ObjectStatus from "sap/m/ObjectStatus"
 import { MessageType } from "sap/ui/core/library"
 import FileUploader from "sap/ui/unified/FileUploader"
 import Button from "sap/m/Button"
-import CheckBox from "sap/m/CheckBox"
-import Menu from "sap/m/Menu"
-import Table from "sap/m/Table"
-import GenericTag from "sap/m/GenericTag"
 import Context from "sap/ui/model/Context"
-import GridListItem from "sap/f/GridListItem"
 import { FBImage, FBImagePlantTag } from "plants/ui/definitions/Images"
 import Token from "sap/m/Token"
-import { FBCancellationReason, FBAssociatedPlantExtractForPlant, BPlant, FBPropagationType } from "plants/ui/definitions/Plants"
-import { LCurrentPlant, LDescendantPlantInput } from "plants/ui/definitions/PlantsLocal"
+import { FBAssociatedPlantExtractForPlant, BPlant } from "plants/ui/definitions/Plants"
+import { LCurrentPlant } from "plants/ui/definitions/PlantsLocal"
 import Tokenizer from "sap/m/Tokenizer"
-import ColumnListItem from "sap/m/ColumnListItem"
-import { LCancellationReasonChoice } from "plants/ui/definitions/PlantsLocal"
 import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
-import PlantCreator from "plants/ui/customClasses/plants/PlantCreator"
 import SuggestionService from "plants/ui/customClasses/shared/SuggestionService"
-import PlantCloner from "plants/ui/customClasses/plants/PlantCloner"
 import PlantRenamer from "plants/ui/customClasses/plants/PlantRenamer"
-import PlantTagger from "plants/ui/customClasses/plants/PlantTagger"
-import PlantNameGenerator from "plants/ui/customClasses/plants/PlantNameGenerator"
 import PlantDeleter from "plants/ui/customClasses/plants/PlantDeleter"
 import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler"
 import PlantDetailsBootstrap from "plants/ui/customClasses/plants/PlantDetailsBootstrap"
@@ -59,22 +39,28 @@ import PlantImagesLoader from "plants/ui/customClasses/plants/PlantImagesLoader"
 import ImageDeleter from "plants/ui/customClasses/images/ImageDeleter"
 import MessageBox from "sap/m/MessageBox"
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker"
-import { BResultsRetrieveTaxonDetailsRequest, BTaxon } from "plants/ui/definitions/Taxon"
+import { BTaxon } from "plants/ui/definitions/Taxon"
 import ImageKeywordTagger from "plants/ui/customClasses/images/ImageKeywordTagger"
 import ImagePlantTagger from "plants/ui/customClasses/images/ImagePlantTagger"
 import EventListItemFactory from "plants/ui/customClasses/events/EventListItemFactory"
-import AssignPropertyNamePopoverOpener from "plants/ui/customClasses/properties/AssignPropertyNamePopoverOpener"
-import NewPropertyNamePopoverOpener from "plants/ui/customClasses/properties/NewPropertyNamePopoverOpener"
+import AssignPropertyNamePopoverHandler from "plants/ui/customClasses/properties/AssignPropertyNamePopoverHandler"
+import NewPropertyNamePopoverHandler from "plants/ui/customClasses/properties/NewPropertyNamePopoverHandler"
 import PropertyNameCRUD from "plants/ui/customClasses/properties/PropertyNameCRUD"
-import { LPopoverWithPropertiesCategory, LTemporaryAvailableProperties } from "plants/ui/definitions/PropertiesLocal"
 import PropertyValueCRUD from "plants/ui/customClasses/properties/PropertyValueCRUD"
 import ModelsHelper from "../model/ModelsHelper"
 import OccurrenceImagesFetcher from "../customClasses/taxonomy/OccurrenceImagesFetcher"
-import SpeciesFinder from "../customClasses/taxonomy/SpeciesFinder"
-import TaxonToPlantAssigner from "../customClasses/taxonomy/TaxonToPlantAssigner"
-import { LAjaxLoadDetailsForSpeciesDoneCallback } from "../definitions/TaxonLocal"
 import EventDialogHandler from "../customClasses/events/EventDialogHandler"
-import EventsListHandler from "./EventsListHandler"
+import EventsListHandler from "../customClasses/events/EventsListHandler"
+import PropertyValuePopoverHandler from "../customClasses/properties/PropertyValuePopoverHandler"
+import AssignImageToEventDialogHandler from "../view/fragments/events/AssignImageToEventDialogHandler"
+import RenamePlantDialogHandler from "../customClasses/plants/RenamePlantDialogHandler"
+import NewDescendantPlantDialogHandler from "../customClasses/plants/NewDescendantPlantDialogHandler"
+import ClonePlantDialogHandler from "../customClasses/plants/ClonePlantDialogHandler"
+import CancelPlantPopverHandler from "../customClasses/plants/CancelPlantPopverHandler"
+import SearchSpeciesDialogHandler from "../customClasses/taxonomy/SearchSpeciesDialogHandler"
+import NewPlantTagPopoverHandler from "../customClasses/plants/NewPlantTagPopoverHandler"
+import DeletePlantTagMenuHandler from "../customClasses/plants/DeletePlantTagMenuHandler"
+import LeafletMapHandler from "../customClasses/taxonomy/LeafletMapHandler"
 
 /**
  * @namespace plants.ui.controller
@@ -86,26 +72,15 @@ export default class Detail extends BaseController {
 	private oEventDialogHandler: EventDialogHandler;
 	private oPlantLookup: PlantLookup;
 	public suggestionService: SuggestionService; // public because used in formatter
-	// helper classes for controllers
-	// TraitUtil = TraitUtil.getInstance()
 	private mCurrentPlant: LCurrentPlant;  // container currentPlantId, currentPlantIndex, currentPlant
 	private oLayoutModel: JSONModel;
 	private oEventsListHandler: EventsListHandler;
 
-	private mIdToFragment = <LIdToFragmentMap>{
-		dialogRenamePlant: "plants.ui.view.fragments.detail.DetailRename",
-		dialogCancellation: "plants.ui.view.fragments.detail.DetailCancellation",
-		menuDeleteTag: "plants.ui.view.fragments.detail.DetailTagDelete",
-		dialogAddTag: "plants.ui.view.fragments.detail.DetailTagAdd",
-		dialogCreateDescendant: "plants.ui.view.fragments.detail.DetailCreateDescendant",
-		dialogAssignEventToImage: "plants.ui.view.fragments.events.DetailAssignEvent",
-		dialogClonePlant: "plants.ui.view.fragments.detail.DetailClone",
-		dialogFindSpecies: "plants.ui.view.fragments.detail.DetailFindSpecies",
-		dialogLeafletMap: "plants.ui.view.fragments.taxonomy.DetailTaxonomyMap",
-		dialogEditPropertyValue: "plants.ui.view.fragments.properties.EditPropertyValue",
-		dialogAddProperties: "plants.ui.view.fragments.properties.AvailableProperties",
-		dialogNewPropertyName: "plants.ui.view.fragments.properties.NewPropertyName",
-	}
+	private _oAssignImageToEventDialogHandler: AssignImageToEventDialogHandler;  // lazy loaded
+	private _oPlantImagesLoader: PlantImagesLoader;  // lazy loaded
+	private _oPlantRenamer: PlantRenamer;  // lazy loaded
+	private _oSearchSpeciesDialogHandler: SearchSpeciesDialogHandler;  // lazy loaded
+	private _oLeafletMapHandler: LeafletMapHandler;  // lazy loaded
 
 	onInit() {
 		super.onInit();
@@ -122,15 +97,15 @@ export default class Detail extends BaseController {
 
 		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 
-		this.eventCRUD = new EventCRUD(this.oComponent.getModel('events'), oSuggestionsModel.getData());
+		this.eventCRUD = new EventCRUD(this.oComponent.getModel('events'));
 
 		this.oLayoutModel = this.oComponent.getModel();
 
 		this.oEventDialogHandler = new EventDialogHandler(this.eventCRUD, 
-			this.getView(), <JSONModel>this.oComponent.getModel('events'));
+			this.getView(), oSuggestionsModel.getData());
 
 		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
-		this.oEventsListHandler = new EventsListHandler(oEventsModel, this.eventCRUD);
+		this.oEventsListHandler = new EventsListHandler(this.eventCRUD);
 
 		// default: view mode for plants information
 		this.oComponent.getModel('status').setProperty('/details_editable', false);
@@ -163,7 +138,6 @@ export default class Detail extends BaseController {
 		Util.startBusyDialog();
 
 		// bind taxon of current plant and events to view (deferred as we may not know the plant name here, yet)
-		// this.mCurrentPlant.plant_id = parseInt(oEvent.getParameter("arguments").plant_id || this.mCurrentPlant.plant_id || "0");
 		this.mCurrentPlant.plant_id = parseInt(oEvent.getParameter("arguments").plant_id || this.mCurrentPlant.plant_id || "0");
 
 
@@ -178,13 +152,6 @@ export default class Detail extends BaseController {
 			this.mCurrentPlant
 		);
 		oPlantDetailsBootstrap.load(this.mCurrentPlant.plant_id)
-	}
-
-	protected applyToFragment(sId: string, fn: Function, fnInit?: Function) {
-		// to enable vs code to connect fragments with a controller, we may not mention
-		// the Dialog/Popover ID in the base controller; therefore we have these names
-		// hardcoded in each controller 
-		super.applyToFragment(sId, fn, fnInit, this.mIdToFragment);
 	}
 
 	//////////////////////////////////////////////////////////
@@ -222,68 +189,22 @@ export default class Detail extends BaseController {
 	}
 
 	//////////////////////////////////////////////////////////
-	// Shared Handlers
-	//////////////////////////////////////////////////////////
-	onLiveChangeNewPlantName(oEvent: Event, type: 'clone' | 'rename' | 'descendant') {
-		// called from either rename or clone fragment
-		var sText = oEvent.getParameter('value');
-		if (type === 'clone') {
-			(<Button>this.byId('btnClonePlantSubmit')).setEnabled(sText.length > 0);
-		} else if (type === 'rename') {
-			(<Button>this.byId('btnRenamePlantSubmit')).setEnabled(sText.length > 0);
-		} else if (type === 'descendant') {
-			(<Button>this.byId('btnDescendantDialogCreate')).setEnabled(sText.length > 0);
-		}
-	}
-
-	//////////////////////////////////////////////////////////
-	// Clone Plant Handlers
-	//////////////////////////////////////////////////////////	
-	onPressButtonSubmitClonePlant(oEvent: Event) {
-		// use ajax to clone plant in backend
-		const sClonedPlantName = (<Input>this.byId('inputClonedPlantName')).getValue().trim();
-		const oPlantCloner = new PlantCloner(this.oComponent.getModel('plants'), this.oPlantLookup)
-		const oDialogClonePlant = <Dialog>this.byId('dialogClonePlant');
-		oPlantCloner.clonePlant(this.mCurrentPlant.plant, sClonedPlantName, oDialogClonePlant);
-	}
-
-	//////////////////////////////////////////////////////////
-	// Rename Plant Handlers
+	// Rename Plant Handler
 	//////////////////////////////////////////////////////////
 	onPressButtonRenamePlant(oEvent: Event) {
 		// triggered by button in details upper menu
 		// opens dialog to rename current plant
+		if (!this._oPlantRenamer){
 
-		// check if there are any unsaved changes
-		const oChangeTracker = ChangeTracker.getInstance();
-		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
-		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
+			if (!this._oPlantImagesLoader)
+				this._oPlantImagesLoader = new PlantImagesLoader(this.oComponent.getModel('images'));
 
-		// var aModifiedPlants = this.getModifiedPlants();
-		// var aModifiedImages = this.getModifiedImages();
-		// var aModifiedTaxa = this.getModifiedTaxa();
-		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
-			MessageToast.show('There are unsaved changes. Save modified data or reload data first.');
-			return;
+			this._oPlantRenamer = new PlantRenamer(this.oPlantLookup, this._oPlantImagesLoader, 
+				this.oComponent.getModel('plants'), this.oComponent.getModel('images'), this.oComponent.getModel('untaggedImages'));
 		}
-
-		this.applyToFragment('dialogRenamePlant', (oDialog: Dialog) => {
-			var oInput = <Input>this.byId('inputNewPlantName');
-			oInput.setValue(this.mCurrentPlant.plant.plant_name);
-			oDialog.open();
-		});
-	}
-
-	onPressButtonSubmitRenamePlant(oEvent: Event) {
-		// use ajax to rename plant in backend
-		const sNewPlantName = (<Input>this.byId('inputNewPlantName')).getValue().trim();
-
-		const oDialogRenamePlant = <Dialog>this.byId('dialogRenamePlant');
-		const oPlantImagesLoader = new PlantImagesLoader(this.oComponent.getModel('images'));
-		const oPlantRenamer = new PlantRenamer(this.oPlantLookup, oPlantImagesLoader, this.oComponent.getModel('plants'), this.oComponent.getModel('images'), this.oComponent.getModel('untaggedImages'));
-		// oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName, this._requestImagesForPlant.bind(this), oDialogRenamePlant);
-		oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName, oDialogRenamePlant);
+		
+		const oRenamePlantDialogHandler = new RenamePlantDialogHandler(this._oPlantRenamer);
+		oRenamePlantDialogHandler.openRenamePlantDialog(this.getView(), this.mCurrentPlant.plant);
 	}
 
 	//////////////////////////////////////////////////////////
@@ -291,88 +212,24 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	public onPressTag(oEvent: Event) {
 		var oSource = <ObjectStatus>oEvent.getSource();
-		// create delete dialog for tags
 		var sPathTag = oSource.getBindingContext('plants')!.getPath();
-
-		this.applyToFragment('menuDeleteTag', (oMenu: Menu) => {
-			oMenu.bindElement({
-				path: sPathTag,
-				model: "plants"
-			});
-			oMenu.openBy(oSource, true);
-		});
-	}
-
-	pressDeleteTag(oEvent: Event) {
-		var oSource = <ObjectStatus>oEvent.getSource();
-		var oContext = oSource.getBindingContext('plants');
-		// get position in tags array
-		var sPathItem = oContext!.getPath();
-		var iIndex = sPathItem.substr(sPathItem.lastIndexOf('/') + 1);
-		// remove item from array
-		this.oComponent.getModel('plants').getData().PlantsCollection[this.mCurrentPlant.plant_index!].tags.splice(iIndex, 1);
-		this.oComponent.getModel('plants').refresh();
+		const oDeletePlantTagMenuHandler = new DeletePlantTagMenuHandler(this.oComponent.getModel('plants'));
+		oDeletePlantTagMenuHandler.openDeletePlantTagMenu(this.mCurrentPlant.plant, sPathTag, this.getView(), oSource);
 	}
 
 	onOpenAddTagDialog(oEvent: Event) {
 		// create add tag dialog
-		var oButton = oEvent.getSource();
+		var oButton = <Control>oEvent.getSource();
 
-		this.applyToFragment(
-			'dialogAddTag',
-			(p: Popover) => p.openBy(oButton, true),
-			_initTagDialog.bind(this));
-		function _initTagDialog(oPopover: Popover) {
-			var mObjectStatusSelection = <ObjectStatusCollection>{
-				ObjectStatusCollection: [
-					{ selected: false, 'text': 'None', 'state': 'None' },
-					{ selected: false, 'text': 'Indication01', 'state': 'Indication01' },
-					{ selected: false, 'text': 'Success', 'state': 'Success' },
-					{ selected: true, 'text': 'Information', 'state': 'Information' },
-					{ selected: false, 'text': 'Error', 'state': 'Error' },
-					{ selected: false, 'text': 'Warning', 'state': 'Warning' }
-				],
-				Value: ''
-			};
-			var oTagTypesModel = new JSONModel(mObjectStatusSelection);
-			oPopover.setModel(oTagTypesModel, 'tagTypes');
-		}
+		const oPlantsModel = this.oComponent.getModel('plants');
+		const oNewPlantTagPopoverHandler = new NewPlantTagPopoverHandler(oPlantsModel);
+		oNewPlantTagPopoverHandler.openNewPlantTagPopover(this.mCurrentPlant.plant, oButton, this.getView());
 	}
 
-	onAddTag(oEvent: Event) {
-		// create a new tag inside the plant's object in the plants model
-		// it will be saved in backend when saving the plant
-		// new/deleted tags are within scope of the plants model modification tracking
-		const oPopover = <Popover>this.byId('dialogAddTag');
-		const oPlant = <BPlant>this.oComponent.getModel('plants').getData().PlantsCollection[this.mCurrentPlant.plant_index!];
-		const oPlantTagger = new PlantTagger(this.oComponent.getModel('plants'));
-		const oModelTagTypes = <JSONModel>oPopover.getModel('tagTypes');
-		oPlantTagger.addTagToPlant(oPlant, oModelTagTypes);
-		(<Popover>this.byId('dialogAddTag')).close();
-	}
 
 	//////////////////////////////////////////////////////////
 	// Plant Details Handlers
 	//////////////////////////////////////////////////////////		
-	onSetInactive(oEvent: Event) {
-		//set plant inactive after choosing a reason (e.g. freezing, drought, etc.)
-		//we don't use radiobuttongroup helper, so we must get selected element manually
-		var aReasons = <LCancellationReasonChoice[]>this.oComponent.getModel('suggestions').getProperty('/cancellationReasonCollection');
-		var oReasonSelected = aReasons.find(ele => ele.selected);
-
-		//set current plant's cancellation reason and date
-		var oCurrentPlant = <BPlant>this.getView().getBindingContext('plants')!.getObject();
-		oCurrentPlant.cancellation_reason = oReasonSelected!.text as FBCancellationReason;
-		var oDatePicker = <DatePicker>this.byId("cancellationDate");
-		let oDate: Date = oDatePicker.getDateValue() as unknown as Date;
-		var sDateFormatted = Util.formatDate(oDate);
-		// this.getView().getBindingContext('plants').getObject().cancellation_date = sDateFormatted;
-		oCurrentPlant.cancellation_date = sDateFormatted;
-		(<JSONModel>this.oComponent.getModel('plants')).updateBindings(false);
-
-		(<Dialog>this.byId('dialogCancellation')).close();
-	}
-
 	onPressGoToPlant(parentPlantId: int) {
 		//navigate to supplied plant
 		if (!!parentPlantId) {
@@ -406,21 +263,8 @@ export default class Detail extends BaseController {
 			return;
 		}
 
-		var oView = this.getView();
-		if (!this.byId('dialogCancellation')) {
-			Fragment.load({
-				name: "plants.ui.view.fragments.detail.DetailCancellation",
-				id: oView.getId(),
-				controller: this
-			}).then((oControl: Control | Control[]) => {
-				const oPopover: Popover = oControl as Popover;
-				(<DatePicker>oView.byId("cancellationDate")).setDateValue(new Date());
-				oView.addDependent(oPopover);
-				oPopover.openBy(oSwitch, true);
-			});
-		} else {
-			(<Popover>this.byId('dialogCancellation')).openBy(oSwitch, true);
-		}
+		const oCancelPlantPopverHandler = new CancelPlantPopverHandler(this.oComponent.getModel('suggestions'), this.oComponent.getModel('plants'));
+		oCancelPlantPopverHandler.openCancelPlantPopover(this.getView(), this.mCurrentPlant.plant);
 	}
 
 	onChangeParent(oEvent: Event) {
@@ -449,7 +293,7 @@ export default class Detail extends BaseController {
 	}
 
 	//////////////////////////////////////////////////////////
-	// Delete Plant Handlers
+	// Delete Plant Handler
 	//////////////////////////////////////////////////////////	
 	onPressButtonDeletePlant(oEvent: Event) {
 		//confirm dialog
@@ -467,202 +311,43 @@ export default class Detail extends BaseController {
 	onPressButtonClonePlant(oEvent: Event) {
 		// triggered by button in details upper menu
 		// opens dialog to clone current plant
-
-		// check if there are any unsaved changes
-
-		const oChangeTracker = ChangeTracker.getInstance();
-		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
-		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
-		// var aModifiedPlants = this.getModifiedPlants();
-		// var aModifiedImages = this.getModifiedImages();
-		// var aModifiedTaxa = this.getModifiedTaxa();
-		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
-			MessageToast.show('There are unsaved changes. Save modified data or reload data first.');
-			return;
-		}
-
-		this.applyToFragment('dialogClonePlant', (o: Dialog) => {
-			const oPlantNameGenerator = new PlantNameGenerator(this.oPlantLookup);
-			const clonePlantName = oPlantNameGenerator.generatePlantNameWithRomanizedSuffix(this.mCurrentPlant.plant.plant_name, 2);
-			// const clonePlantName = this._generatePlantNameWithRomanizedSuffix(this.mCurrentPlant.plant.plant_name, 2);
-			const oInput = <Input>this.byId('inputClonedPlantName');
-			oInput.setValue(clonePlantName);
-			o.open();
-		});
+		const oPlantsModel = this.oComponent.getModel('plants');
+		const oClonePlantDialogHandler = new ClonePlantDialogHandler(this.oPlantLookup, oPlantsModel);
+		oClonePlantDialogHandler.openClonePlantDialog(this.getView(), this.mCurrentPlant.plant);
 	}
 
-	//////////////////////////////////////////////////////////
-	// Create Descendant Plant Handlers
-	//////////////////////////////////////////////////////////
-	onDescendantDialogCreate(oEvent: Event) {
-		// triggered from create-descendant-dialog to create the descendant plant
-		const descendantPlantInput = <LDescendantPlantInput>(<JSONModel>this.byId('dialogCreateDescendant').getModel('descendant')).getData();
-		// this.oPlantLookup.createDescendantPlant(descendantPlantInput);
-
-		const oPlantCreator = new PlantCreator(this.oComponent.getModel('plants'), this.oPlantLookup);
-		oPlantCreator.createDescendantPlant(descendantPlantInput);
-
-		this.applyToFragment('dialogCreateDescendant', (oDialog: Dialog) => oDialog.close());
-	}
-
-	onDescendantDialogChangeParent(oEvent: Event, parentType: 'parent' | 'parent_pollen') {
-		// reset parent plant (/pollen) input if entered plant name is invalid
-		var parentPlantName = oEvent.getParameter('newValue').trim();
-
-		if (!parentPlantName || !this.oPlantLookup.plantNameExists(parentPlantName)) {
-			(<Input>oEvent.getSource()).setValue('');
-			return;
-		}
-
-		this.onUpdatePlantNameSuggestion();
-	}
-
-	onDescendantDialogSwitchParents() {
-		// triggered by switch button; switch parent plant and parent plant pollen
-		var model = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
-		var parentPlantName = model.getProperty('/parentPlant');
-		model.setProperty('/parentPlant', model.getProperty('/parentPlantPollen'));
-		model.setProperty('/parentPlantPollen', parentPlantName);
-
-		this.onUpdatePlantNameSuggestion();
-	}
 
 	onPressButtonCreateDescendantPlant(oEvent: Event) {
 		// triggered by button in details upper menu
 		// opens dialog to create descendant plant with current plant as mother plant
 
-		// check if there are any unsaved changes
-		const oChangeTracker = ChangeTracker.getInstance();
-		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
-		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
-		// var aModifiedPlants = this.getModifiedPlants();
-		// var aModifiedImages = this.getModifiedImages();
-		// var aModifiedTaxa = this.getModifiedTaxa();
-		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
-			MessageToast.show('There are unsaved changes. Save modified data or reload data first.');
-			return;
-		}
+		const oNewDescendantPlantDialogHandler = new NewDescendantPlantDialogHandler(this.oPlantLookup, this.oComponent.getModel('plants'));
+		oNewDescendantPlantDialogHandler.openNewDescendantPlantDialog(this.getView(), this.mCurrentPlant.plant);
 
-		this.applyToFragment('dialogCreateDescendant', (oDialog: Dialog) => {
-			// create json model descendant and set it (default settings are when opening)
-			var defaultPropagationType: FBPropagationType = 'seed (collected)';
-			var descendantPlantDataInit: LDescendantPlantInput = {
-				propagationType: defaultPropagationType,
-				parentPlant: this.oPlantLookup.getPlantById(this.mCurrentPlant.plant_id!).plant_name,
-				parentPlantPollen: undefined,
-				descendantPlantName: undefined
-			};
-			var oModelDescendant = new JSONModel(descendantPlantDataInit);
-			oDialog.setModel(oModelDescendant, "descendant");
-			this.onUpdatePlantNameSuggestion();
-			oDialog.open();
-		}
-		);
-	}
-
-	onUpdatePlantNameSuggestion() {
-		// generate new plant name suggestion
-		const oCheckbox = <CheckBox>this.byId('autoNameDescendantPlantName');
-		if (!oCheckbox.getSelected()) {
-			return;
-		}
-
-		const oDescendantModel = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
-		const oDescendantPlantInput = <LDescendantPlantInput>oDescendantModel.getData();
-		const oPlantNameGenerator = new PlantNameGenerator(this.oPlantLookup);
-		const sSuggestedName = oPlantNameGenerator.generateDescendantPlantName(oDescendantPlantInput);
-
-		const oModelDescendant = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
-		oModelDescendant.setProperty('/descendantPlantName', sSuggestedName);
 	}
 
 	//////////////////////////////////////////////////////////
-	// Search Species Handlers
+	// Search Species Handler
 	//////////////////////////////////////////////////////////
 	onOpenFindSpeciesDialog() {
-		this.applyToFragment('dialogFindSpecies',
-		(oDialog: Dialog) => {
-			oDialog.setModel(new JSONModel(), 'kewSearchResults');			
-			oDialog.open();
-		});
-	}
 
-	onButtonFindSpecies(oEvent: Event) {
-		// when hitting search, trigger a backend call to retrieve species matching the search pattern
-		const sTaxonNamePattern = (<Input>this.byId('inputSearchPattern')).getValue();
-		const bIncludeExternalApis = (<CheckBox>this.byId('cbIncludeExternalApis')).getSelected();
-		const bSearchForGenusNotSpecies = (<CheckBox>this.byId('cbGenus')).getSelected();
-		const oModelKewSearchResults = <JSONModel>(<Dialog>this.getView().byId("dialogFindSpecies")).getModel('kewSearchResults');  //model attached to view, not component
-		new SpeciesFinder(oModelKewSearchResults).searchSpecies(sTaxonNamePattern, bIncludeExternalApis, bSearchForGenusNotSpecies);
-	}
-
-	onFindSpeciesChoose(oEvent: Event) {
-		// when user chooses a species from the search results, trigger a backend call to retrieve additional information on
-		// that species and assign it to the current plant
-		const oDialog = <Dialog>this.getView().byId("dialogFindSpecies");
-		const oTaxonToPlantAssigner = new TaxonToPlantAssigner(this.oComponent.getModel('plants'), this.oComponent.getModel('taxon'))
-		const oView = this.getView();
-		const cbReceivingAdditionalSpeciesInformation: LAjaxLoadDetailsForSpeciesDoneCallback = (
-			data: BResultsRetrieveTaxonDetailsRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) => {
-			Util.stopBusyDialog();
-			MessageToast.show(data.message.message);
-			MessageHandler.getInstance().addMessageFromBackend(data.message);
-			oDialog.close();
-			oTaxonToPlantAssigner.assignTaxonToPlant(this.mCurrentPlant.plant, data.taxon_data, data.botanical_name);
-
-			// bind received taxon to view (otherwise applied upon switching plant in detail view)
-			oView.bindElement({
-				path: "/TaxaDict/" + data.taxon_data.id,
-				model: "taxon"
-			});
+		if (!this._oSearchSpeciesDialogHandler){
+			this._oSearchSpeciesDialogHandler = new SearchSpeciesDialogHandler(this.oComponent.getModel('plants'), this.oComponent.getModel('taxon'), this.getView());
 		}
-
-		const oSelectedSpeciesItem = <ColumnListItem>(<Table>this.byId('tableFindSpeciesResults')).getSelectedItem();
-		const sCustomName = (<GenericTag>this.byId('textFindSpeciesAdditionalName')).getText().trim();
-		const oModelKewSearchResults = <JSONModel>(<Dialog>this.getView().byId("dialogFindSpecies")).getModel('kewSearchResults');  //model attached to dialog, not component
-		new SpeciesFinder(oModelKewSearchResults).loadDetailsForSpecies(oSelectedSpeciesItem, sCustomName, this.mCurrentPlant.plant, cbReceivingAdditionalSpeciesInformation);
+		const oTaxon = <BTaxon|undefined>this.getView().getBindingContext('taxon')!.getObject(); 
+		this._oSearchSpeciesDialogHandler.openSearchSpeciesDialog(this.getView(), 
+			this.mCurrentPlant.plant, oTaxon);
 	}
 
-	onFindSpeciesTableSelectedOrDataUpdated(oEvent: Event) {
-		// depending on selected search result, the additional name input field is enabled or disabled and the preview custom name tag is updated
-		const oSelectedSpeciesItem = <ColumnListItem>(<Table>this.byId('tableFindSpeciesResults')).getSelectedItem();
-		const oCustomNamePreviewTag = <GenericTag>this.byId('textFindSpeciesAdditionalName');
-		const oInputAdditionalName = <Input>this.byId('inputFindSpeciesAdditionalName');
-		new SpeciesFinderDialogHelper().findSpeciesTableSelectedOrDataUpdated(oCustomNamePreviewTag, oInputAdditionalName, oSelectedSpeciesItem);
-	}
 
-	onFindSpeciesAdditionalNameLiveChange(oEvent: Event) {
-		// when changing the optional additional name, update the corresponding tag to preview final full custom species name
-		const oSelectedSpeciesItem = <ColumnListItem> (<Table> this.getView().byId('tableFindSpeciesResults')).getSelectedItem();
-		const oCustomNamePreviewTag = <GenericTag> this.getView().byId('textFindSpeciesAdditionalName');
-		const sNewAdditionalName = (<Input>this.getView().byId('inputFindSpeciesAdditionalName')).getValue();		
-		new SpeciesFinderDialogHelper().handleSpeciesAdditionalNameLiveChange(oSelectedSpeciesItem, oCustomNamePreviewTag, sNewAdditionalName);
-	}
-
-	onDialogFindSpeciesBeforeOpen(oEvent: Event) {
-		// before opening find species dialog, set default values for species (current species)and additional name (empty)
-		const oInputSearchPattern = <Input>this.getView().byId('inputSearchPattern');
-		const oInputAdditionalName = <Input>this.getView().byId('inputFindSpeciesAdditionalName');
-		const oTaxon = <BTaxon|null>this.getView().getBindingContext('taxon')!.getObject(); 
-		new SpeciesFinderDialogHelper().setInitialInputValues(oInputSearchPattern, oInputAdditionalName, oTaxon);
-	}
 
 	//////////////////////////////////////////////////////////
-	// Leaflet Map Handlers
+	// Leaflet Map Handler
 	//////////////////////////////////////////////////////////	
 	onShowMap(oEvent: Event) {
-		this.applyToFragment('dialogLeafletMap',
-			(oDialog: Dialog) => oDialog.open());
-	}
-
-	onCloseLeafletMap(oEvent: Event) {
-		this.applyToFragment('dialogLeafletMap', (oDialog: Dialog) => oDialog.close());
-	}
-
-	afterCloseLeafletMap(oEvent: Event) {
-		this.applyToFragment('dialogLeafletMap', (oDialog: Dialog) => oDialog.destroy());
+		if (!this._oLeafletMapHandler)
+			this._oLeafletMapHandler = new LeafletMapHandler();
+			this._oLeafletMapHandler.openLeafletMapDialog(this.getView());
 	}
 
 	//////////////////////////////////////////////////////////
@@ -690,124 +375,43 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Properties Handlers
 	//////////////////////////////////////////////////////////
-	onEditPropertyValueDelete(oEvent: Event) {
-		var oPropertiesModel = <JSONModel>this.oComponent.getModel('properties');
-		const oPropertiesTaxaModel = <JSONModel>this.oComponent.getModel('propertiesTaxa');
-		const oPropertiesBindingContext = <Context>(<Button>oEvent.getSource()).getBindingContext('properties');
-		// this.propertiesUtil.editPropertyValueDelete(oPropertiesModel, oPropertiesTaxaModel, oPropertiesBindingContext, this.mCurrentPlant.plant)
-
-		const oPropertyValueCRUD = new PropertyValueCRUD();
-		oPropertyValueCRUD.editPropertyValueDelete(oPropertiesModel, oPropertiesTaxaModel, oPropertiesBindingContext, this.mCurrentPlant.plant);
-	}
-
-	onCloseDialogEditPropertyValue(evt: Event) {
-		this.applyToFragment('dialogEditPropertyValue', (oPopover: Popover) => oPopover.close());
-	}
-
-	onAfterCloseAddPropertyNamePopover(evt: Event) {
-		// when closing Add Properties Popover, make sure it is destroyed and reset the Add-Property Button from Emphasized to Default
-		evt.getParameter('openBy').setType('Transparent');
-		evt.getSource().destroy();
-	}
-
-	onAfterCloseNewPropertyNamePopover(evt: Event) {
-		// when closing New Property Name Popover, make sure it is destroyed and reset the New-Property Button from Emphasized to Default
-		evt.getParameter('openBy').setType('Transparent');
-		evt.getSource().destroy();
-
-		// this.propertiesUtil.closeNewPropertyNameDialog();
-		// const oBtnNewPropertyName = <Button>this.byId("btnNewPropertyName");
-		// oBtnNewPropertyName.setType('Transparent');
-	}
-
 	onOpenDialogAddProperty(oEvent: Event) {
-		const oBtnAddProperty = <Button>oEvent.getSource();
-
-		if (this.byId('dialogAddProperties')) {  // todo do this in corresponding events instead
-			this.byId('dialogAddProperties').destroy();
-		}
-		const oPromiseFragmentLoaded = <Promise<Popover>>Fragment.load({
-			name: 'plants.ui.view.fragments.properties.AvailableProperties',
-			id: this.getView().getId(),
-			controller: this
-		});
-		new AssignPropertyNamePopoverOpener().openPopupAddPropertyWhenPromiseResolved(oPromiseFragmentLoaded, this.mCurrentPlant.plant, oBtnAddProperty);
-	}
-
-	onAssignPropertyNameToPlantAndOrTaxon(oEvent: Event) {
-		// this.propertiesUtil.assignPropertyNameToPlantAndOrTaxon(this.getView(), <Button>oEvent.getSource());
-
-		const oBtn = <Button>oEvent.getSource();
-		const oPropertyNamesModel = <JSONModel>this.getView().getModel('propertyNames');
+		const oBtnAddProperty = <Button>oEvent.getSource();		const oPropertyNamesModel = <JSONModel>this.getView().getModel('propertyNames');
 		const oPlantPropertiesModel = <JSONModel>this.getView().getModel('properties');
 		const oTaxonPropertiesModel = <JSONModel>this.getView().getModel('propertiesTaxa');
 		const oPropertyNameCRUD = new PropertyNameCRUD(oPropertyNamesModel, oPlantPropertiesModel, oTaxonPropertiesModel)
 
-		const aAvailablePropertiesFromDialog = <LTemporaryAvailableProperties[]>(<JSONModel>oBtn.getModel('propertiesCompare')).getData();
-
-		// const oPropertiesInCategory = <FBPropertiesInCategory>oBtn.getBindingContext('properties')!.getObject()
-		const oPropertiesInCategory = (<LPopoverWithPropertiesCategory>this.byId('dialogAddProperties')).property_category;
-		// const iTaxonId = (<BPlant>oBtn.getBindingContext('plants')!.getObject()).taxon_id!;  // dialog wouldn't open at all if we had no taxon_id
-
-		oPropertyNameCRUD.assignPropertyNameToPlantAndOrTaxon(this.mCurrentPlant.plant.taxon_id, aAvailablePropertiesFromDialog, oPropertiesInCategory);
-
-		(<Popover>this.byId('dialogAddProperties')).close();
-		(<Popover>this.byId('dialogAddProperties')).destroy();
-	}
-
-	onNewPropertyNameCreate(oEvent: Event) {
-		// this.propertiesUtil.createNewPropertyName(oSourceControl, this.getView());
-
-		var oSourceControl = <Input | Button>oEvent.getSource();
-		// const oCategory = <FBPropertiesInCategory>oSourceControl.getBindingContext('properties')!.getObject();
-		const oCategory = (<LPopoverWithPropertiesCategory>this.byId('dialogNewPropertyName')).property_category;
-		const oPropertyNamesModel = <JSONModel>this.getView().getModel('propertyNames');
-		const oPlantPropertiesModel = <JSONModel>this.getView().getModel('properties');
-		const oTaxonPropertiesModel = <JSONModel>this.getView().getModel('propertiesTaxa');
-		const sPropertyName = (<Input>this.byId('inpPropertyName')).getValue();
-		const bAddToPlant = (<CheckBox>this.byId("chkNewPropertyNameAddToPlant")).getSelected();
-		const bAddToTaxon = (<CheckBox>this.byId("chkNewPropertyNameAddToTaxon")).getSelected();
-
-		const oPropertyNameCRUD = new PropertyNameCRUD(oPropertyNamesModel, oPlantPropertiesModel, oTaxonPropertiesModel)
-		oPropertyNameCRUD.createNewPropertyName(sPropertyName, oCategory, this.mCurrentPlant.plant, bAddToPlant, bAddToTaxon);
-
-		(<Popover>this.byId('dialogNewPropertyName')).close();
+		const oAssignPropertyNamePopoverHandler = new AssignPropertyNamePopoverHandler(
+			this.mCurrentPlant.plant, oPropertyNameCRUD);
+		oAssignPropertyNamePopoverHandler.openPopupAddProperty(this.getView(), oBtnAddProperty);
 	}
 
 	onOpenDialogNewProperty(oEvent: Event) {
-		// const oPlant = <BPlant>this.getView().getBindingContext('plants')!.getObject()
 		var oBtnNewProperty = <Button>oEvent.getSource();
-		// this.propertiesUtil.openDialogNewProperty(oPlant, oSource);
-
-		const oPromiseFragmentLoaded = <Promise<Popover>>Fragment.load({
-			name: 'plants.ui.view.fragments.properties.NewPropertyName',
-			id: this.getView().getId(),
-			controller: this
-		});
-		new NewPropertyNamePopoverOpener().openPopupNewPropertyWhenPromiseResolved(oPromiseFragmentLoaded, this.mCurrentPlant.plant, oBtnNewProperty);
+		const oPropertyNamesModel = <JSONModel>this.getView().getModel('propertyNames');
+		const oPlantPropertiesModel = <JSONModel>this.getView().getModel('properties');
+		const oTaxonPropertiesModel = <JSONModel>this.getView().getModel('propertiesTaxa');
+		const oPropertyNameCRUD = new PropertyNameCRUD(oPropertyNamesModel, oPlantPropertiesModel, oTaxonPropertiesModel)
+		const oNewPropertyNamePopoverHandler = new NewPropertyNamePopoverHandler(oPropertyNameCRUD, this.mCurrentPlant.plant)
+		oNewPropertyNamePopoverHandler.openPopupNewProperty(this.mCurrentPlant.plant, oBtnNewProperty, this.getView());
 
 	}
 	onEditPropertyValueTag(oEvent: Event) {
-		// show fragment to edit or delete property value
+		// open popover to edit or delete property value
+		const oPlantPropertiesModel = <JSONModel>this.oComponent.getModel('properties');
+		const oTaxonPropertiesModel = <JSONModel>this.oComponent.getModel('propertiesTaxa');
+		const oPropertyValueCRUD = new PropertyValueCRUD(oPlantPropertiesModel, oTaxonPropertiesModel);
+
 		var oSource = <ObjectStatus>oEvent.getSource();
 		var sPathPropertyValue = oSource.getBindingContext('properties')!.getPath();
-		// var oModelSoils = this._getFragment('dialogEvent').getModel('soils');
+		const oPropertyValuePopoverHandler = new PropertyValuePopoverHandler(oPropertyValueCRUD, this.mCurrentPlant.plant);
+		oPropertyValuePopoverHandler.openPropertyValuePopover(this.getView(), oSource, sPathPropertyValue)
 
-		this.applyToFragment('dialogEditPropertyValue', (oPopover: Popover) => {
-			// oPopover.setModel(oModelSoils, 'soils');
-			oPopover.bindElement({
-				path: sPathPropertyValue,
-				model: "properties"
-			});
-			oPopover.openBy(oSource, true);
-		});
 	}
 
 	//////////////////////////////////////////////////////////
 	// Event Handlers
 	//////////////////////////////////////////////////////////
-
-
 	onOpenDialogAddEvent(oEvent: Event) {
 		this.oEventDialogHandler.openDialogNewEvent(this.getView(), this.mCurrentPlant.plant);
 	}
@@ -816,9 +420,6 @@ export default class Detail extends BaseController {
 		// triggered by edit button in a custom list item header in events list
 		const oSource = <Button>oEvent.getSource();
 		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
-		// this.eventCRUD.editEvent(oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id!);
-		// this.applyToFragment('dialogEvent', this.eventCRUD.initEditSelectedEvent.bind(this, oSelectedEvent, this.getView(), this.mCurrentPlant.plant.id));
-		// const oEventDialogHandler = new EventDialogHandler(this.mCurrentPlant.plant, this.eventCRUD, this.getView());
 		this.oEventDialogHandler.openDialogEditEvent(this.getView(), oSelectedEvent)
 	}
 
@@ -837,25 +438,12 @@ export default class Detail extends BaseController {
 		// triggered by icon beside image; assign that image to one of the plant's events
 		const oSource = <Icon>oEvent.getSource();
 		var sPathCurrentImage = oSource.getBindingContext("images")!.getPath();
-		// generate dialog from fragment if not already instantiated		
-		this.applyToFragment('dialogAssignEventToImage', (oPopover: Popover) => {
-			// bind the selected image's path in images model to the popover dialog
-			oPopover.bindElement({
-				path: sPathCurrentImage,
-				model: "images"
-			});
-			oPopover.openBy(oSource, true);
-		});
-	}
+		if (!this._oAssignImageToEventDialogHandler){
+			const oEventsModel = <JSONModel>this.oComponent.getModel('events');
+			this._oAssignImageToEventDialogHandler = new AssignImageToEventDialogHandler(oEventsModel);
+		}
+		this._oAssignImageToEventDialogHandler.openAssignImageToEventDialog(this.getView(), sPathCurrentImage);
 
-	onSelectEventForImage(oEvent: Event) {
-		// triggered upon selection of event in event selection dialog for an image get selected event
-		const oSource = <GridListItem>oEvent.getSource();
-		const oEventsModel = <JSONModel>this.getView().getModel('events');
-		const oImage = <FBImage>oSource.getBindingContext('images')!.getObject();
-		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
-		new ImageToEventAssigner().assignImageToEvent(oImage, oSelectedEvent, oEventsModel);
-		(<Popover>this.byId('dialogAssignEventToImage')).close();
 	}
 
 	//////////////////////////////////////////////////////////
@@ -1040,7 +628,4 @@ export default class Detail extends BaseController {
 			" is not supported. Choose one of the following types: " +
 			sSupportedFileTypes);
 	}
-
-
-
 }

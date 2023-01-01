@@ -8,14 +8,16 @@
 		class="sapUiContentPadding"
 		placement="Bottom"
 		contentWidth="22em"
+		afterClose=".onAfterCloseCancelPlantPopover"
 		initialFocus="btnSetInactive">
 
 		<content>
 			<HBox>
         		<VBox>
 
+						<!-- id="cancellationDate" -->
 					<DatePicker
-						id="cancellationDate"
+						dateValue="{cancelPlant>/cancellationDate}"
 						class="sapUiSmallMarginBottom"/>
 
 					<VBox
@@ -48,10 +50,10 @@
 				id="btnSetInactive"
 				text="Set Inactive"
 				type="Accept"
-				press=".onSetInactive" />
+				press=".onSetPlantInactive" />
 				<ToolbarSpacer/>
 			<Button
-				press=".onCancelDialog"
+				press=".onCancelCancelPlantPopover"
 				text="Cancel"
 				type="Reject"
 				/>				

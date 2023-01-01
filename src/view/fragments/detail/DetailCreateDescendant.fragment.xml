@@ -5,6 +5,7 @@
     <Dialog 
     	title='Create descendant plant'
 		class="sapUiContentPadding"
+		afterClose=".onDescendantDialogAfterClose"
     	id="dialogCreateDescendant">
  
 	    <content>
@@ -50,7 +51,7 @@
 					
 					<Input
 						width='13rem'
-						change=".onDescendantDialogChangeParent($event, 'parent_plant_pollen')"
+						change=".onDescendantDialogChangeParent"
 						class="sapUiTinyMargin"
 						value="{descendant>/parentPlant}" 
 						showSuggestion="true"
@@ -127,7 +128,7 @@
 					<Input
 						width='13rem'
 						class="sapUiTinyMargin"
-						change=".onDescendantDialogChangeParent($event, 'parent_plant_pollen')"
+						change=".onDescendantDialogChangeParent"
 						value="{descendant>/parentPlantPollen}"
 						showSuggestion="true"
 						maxSuggestionWidth="650px"
@@ -174,7 +175,7 @@
 				<CheckBox 
 					id="autoNameDescendantPlantName"
 					text="Auto-Name" 
-					selected="true"/>
+					selected="{descendant>/autoNameDescendantPlantName}"/>
 
 				<HBox  
 					alignItems="Center" 
@@ -191,10 +192,10 @@
 						width='13rem'
 						value="{descendant>/descendantPlantName}"
 						autocomplete="false"
-						liveChange=".onLiveChangeNewPlantName($event, 'descendant')"
 						maxLength="100"
 						required="true"
 						placeholder="{i18n>descendant_plant_name}"/>
+						<!-- liveChange=".onLiveChangeNewPlantName($event, 'descendant')" -->
 						
 				</HBox>
 			</VBox>
@@ -214,7 +215,7 @@
 			<Button
 				id="btnDescendantDialogCancel"
 				text="Cancel"
-				press=".onCancelDialog"
+				press=".onCancelCreateDescendantPlantDialog"
 				/>
 		</endButton>
     </Dialog>

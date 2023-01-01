@@ -27,8 +27,8 @@ export interface FBEvent {
 export interface FBObservation {
   id?: number;
   diseases?: string;
-  stem_max_diameter?: number;
-  height?: number;
+  stem_max_diameter?: number;  // in cm
+  height?: number;  // in cm
   observation_notes?: string;
 }
 export interface FBSoil {
@@ -42,7 +42,7 @@ export interface FBPot {
   material: string;
   shape_top: FBShapeTop;
   shape_side: FBShapeSide;
-  diameter_width: number;
+  diameter_width: number;  // in cm (decimal) 
 }
 export interface FBImageAssignedToEvent {
   id: number;

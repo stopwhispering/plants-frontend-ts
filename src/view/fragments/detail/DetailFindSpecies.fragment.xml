@@ -7,8 +7,8 @@
     	title = "Find Species"
     	stretch="{device>/system/phone}"
     	id="dialogFindSpecies"
-		contentWidth="87em"
-    	beforeOpen=".onDialogFindSpeciesBeforeOpen">
+		contentWidth="87em">
+    	<!-- beforeOpen=".onBeforeOpenSearchSpeciesDialog" -->
  
 	    <content>
 	    	<l:Grid>
@@ -24,6 +24,7 @@
 					    		width="12em"
 					    		submit=".onButtonFindSpecies"
 					    		id="inputSearchPattern"
+								value="{searchSpeciesInput>/searchPattern}"
 					    		class="sapUiTinyMarginEnd"/>
 					    	<Button
 					    		text="Search"
@@ -41,12 +42,11 @@
 			    	
 			    	<VBox>
 				    	<CheckBox
-				    		id="cbIncludeExternalApis"
-				    		selected="true"
+				    		selected="{searchSpeciesInput>/includeExternalApis}"
 				    		text='Use "Plants of the World" Online Database'
 				    		/>
 				    	<CheckBox
-				    		id="cbGenus"
+							selected="{searchSpeciesInput>/genusNotSpecies}"
 				    		text='Unknown Species, search for genus instead'
 				    		/>
 				    	
@@ -191,6 +191,8 @@
 				    		width="8em"
 				    		liveChange=".onFindSpeciesAdditionalNameLiveChange"
 				    		id="inputFindSpeciesAdditionalName"
+							editable="{searchSpeciesInput>/additionalNameEditable}"
+							value="{searchSpeciesInput>/additionalName}"
 			    			class="sapUiSmallMarginEnd"/>
 						<layoutData>
 							<l:GridData
@@ -209,6 +211,7 @@
 				    	
 				    	<GenericTag
 				    		id="textFindSpeciesAdditionalName"
+							text="{searchSpeciesInput>/customName}"
 				    		design="StatusIconHidden" 
 				    		status="Success"/>
 	
@@ -231,7 +234,7 @@
 	    <endButton>
 		    <Button
 	    		text="Cancel"
-				press=".onCancelDialog"
+				press=".onCancelSearchSpeciesDialog"
 				/>
 	    </endButton>
     </Dialog>

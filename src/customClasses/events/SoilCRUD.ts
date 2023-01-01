@@ -21,11 +21,6 @@ export default class SoilCRUD extends ManagedObject {
 		this._oSoilsModel = new JSONModel(<BResultsSoilsResource>{});  // will be loaded from backend
 	}
 
-	public getSoilsModel(): JSONModel {
-		// todo remove?
-		return this._oSoilsModel;
-	}
-
 	public updateOrCreateSoil(oEditedSoil: LSoilEditData, oDialogToCloseAfter: Dialog): void {
 		//make sure soil has a name and a mix
 		if (oEditedSoil.soil_name === "" || oEditedSoil.mix === "") {

@@ -53,9 +53,8 @@ export default class ImageDeleter extends ManagedObject {
 	}
 
 	private _cbConfirmDelete(aImages: FBImage[], cbCallback: Function | undefined, sAction: string) {
-		if (sAction !== 'Delete') {
+		if (sAction !== 'Delete')
 			return;
-		}
 
 		const oPayload = <FImagesToDelete>{
 			images: aImages.map((oImage) => (<FImageDelete>{
@@ -83,7 +82,6 @@ export default class ImageDeleter extends ManagedObject {
 		var aDataImages = <FBImage[]>this._oImagesModel.getData().ImagesCollection;
 		var aDataUntagged = <FBImage[]>this._oUntaggedImagesModel.getData().ImagesCollection;
 
-		var that = this;  // for the closure
 		aDeletedImages.forEach(function (image: FBImage) {
 
 			var iPosImages = aDataImages.indexOf(image);
@@ -97,9 +95,7 @@ export default class ImageDeleter extends ManagedObject {
 			}
 
 			//... and deleted image in images registry
-			// delete that._oImageRegistry[image.filename];  // todo create imageregistry class to handle this
 			ImageRegistryHandler.getInstance().removeImageFromRegistry(image.filename);
-			// delete that._oImageRegistryClone[image.filename]
 			ChangeTracker.getInstance().removeOriginalImage(image.filename);
 
 		});

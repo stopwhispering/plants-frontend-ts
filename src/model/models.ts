@@ -2,8 +2,9 @@ import JSONModel from "sap/ui/model/json/JSONModel"
 import Device from "sap/ui/Device"
 import { LTaxonData, LTaxonMap } from "plants/ui/definitions/TaxonLocal";
 import { LPlantIdToPropertyCollectionMap, LPropertiesPlantsModelData, LPropertiesTaxonModelData, LTaxonToPropertyCategoryMap } from "plants/ui/definitions/PropertiesLocal";
-import { EventsModelData } from "plants/ui/definitions/EventsLocal";
+import { LEventsModelData } from "plants/ui/definitions/EventsLocal";
 import Util from "plants/ui/customClasses/shared/Util";
+import { LStatusModelData } from "../definitions/SharedLocal";
 
 /**
  * @namespace plants.ui.model
@@ -66,7 +67,7 @@ export function createProposalKeywordsModel(): JSONModel {
 }
 
 export function createEventsModel(): JSONModel {
-	const oInitialData: EventsModelData = {
+	const oInitialData: LEventsModelData = {
 		PlantsEventsDict: {}
 	}
 	const oModel = new JSONModel(oInitialData);
@@ -98,8 +99,10 @@ export function createLayoutModel(): JSONModel {
 }
 
 export function createStatusModel(): JSONModel {
-	const oInitialData = {
-		"preview_image": "favourite_image"
+	const oInitialData: LStatusModelData = {
+		preview_image: "favourite_image",
+		filterBarVisible: false,
+		filterBarLabel: "",
 	}
 	const oModel = new JSONModel(oInitialData);
 	return oModel;

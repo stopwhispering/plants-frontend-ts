@@ -5,6 +5,7 @@
     <Dialog 
     	title='Clone {plants>plant_name} ({plants>id})'
 		class="sapUiContentPadding"
+		afterClose=".onAfterCloseClonePlantDialog"
     	id="dialogClonePlant">
  
 	    <content>
@@ -18,11 +19,12 @@
 				<Input
 					id='inputClonedPlantName'
 					width='15rem'
+					value="{clonePlant>/plantName}"
 					autocomplete="false"
-					liveChange=".onLiveChangeNewPlantName($event, 'clone')"
 					maxLength="100"
 					required="true"
 					placeholder="New plant name"/>
+					<!-- liveChange=".onLiveChangeNewPlantName($event, 'clone')" -->
 			</VBox>
 		</content>
 
@@ -31,14 +33,14 @@
 				id="btnClonePlantSubmit"
 				type="Emphasized"
 				text="Submit"
-				enabled="false"  
+				enabled="{= !!${clonePlant>/plantName} }"
 				press=".onPressButtonSubmitClonePlant"/>
 		</beginButton>
 		
 		<endButton>
 			<Button
 				text="Cancel"
-				press=".onCancelDialog"
+				press=".onCancelClonePlantDialog"
 				/>
 		</endButton>				
     </Dialog>

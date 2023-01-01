@@ -9,12 +9,17 @@ import { BPlant } from "plants/ui/definitions/Plants";
  */
 export default class PropertyValueCRUD extends ManagedObject {
 
-	public constructor() {
+	private _oPlantPropertiesModel: JSONModel;  // "properties"
+	private _oTaxonPropertiesModel: JSONModel;  // "propertiesTaxa"
+
+	public constructor(oPlantPropertiesModel: JSONModel, oTaxonPropertiesModel: JSONModel) {
 		super();
-		// this.applyToFragment = applyToFragment;
+		
+		this._oPlantPropertiesModel = oPlantPropertiesModel;
+		this._oTaxonPropertiesModel = oTaxonPropertiesModel;
 	}
 
-	public editPropertyValueDelete(oPropertiesModel: JSONModel, oPropertiesTaxaModel: JSONModel, oPropertiesBindingContext: Context, oCurrentPlant: BPlant): void {
+	public editPropertyValueDelete(oPropertiesBindingContext: Context, oCurrentPlant: BPlant): void {
 		// delete a property value, either for current plant or it's taxon
 		var sPathPropertyValue = oPropertiesBindingContext.getPath();
 		var oPropertyValue = <FBPropertyValue>oPropertiesBindingContext.getObject();
@@ -22,14 +27,14 @@ export default class PropertyValueCRUD extends ManagedObject {
 		// if it's a taxon's property value, we need to remove it from the original taxon properties model as well
 		if (oPropertyValue.type === 'taxon') {
 			// get property name id
-			var sPathPropertyValues = sPathPropertyValue.substr(0, sPathPropertyValue.lastIndexOf('/'));
-			var sPathPropertyName = sPathPropertyValues.substr(0, sPathPropertyValues.lastIndexOf('/'));
-			var iPropertyNameId = oPropertiesModel.getProperty(sPathPropertyName).property_name_id;
+			var sPathPropertyValues = sPathPropertyValue.substring(0, sPathPropertyValue.lastIndexOf('/'));
+			var sPathPropertyName = sPathPropertyValues.substring(0, sPathPropertyValues.lastIndexOf('/'));
+			var iPropertyNameId = this._oPlantPropertiesModel.getProperty(sPathPropertyName).property_name_id;
 
 			// get category id
-			var sPath_1 = sPathPropertyName.substr(0, sPathPropertyName.lastIndexOf('/'));
-			var sPathCategory = sPath_1.substr(0, sPath_1.lastIndexOf('/'));
-			var iCategoryId = oPropertiesModel.getProperty(sPathCategory).category_id;
+			var sPath_1 = sPathPropertyName.substring(0, sPathPropertyName.lastIndexOf('/'));
+			var sPathCategory = sPath_1.substring(0, sPath_1.lastIndexOf('/'));
+			var iCategoryId = this._oPlantPropertiesModel.getProperty(sPathCategory).category_id;
 
 			// var iTaxonId = evt.getSource().getBindingContext('plants').getObject().taxon_id;
 			var iTaxonId = oCurrentPlant.taxon_id;
@@ -37,7 +42,7 @@ export default class PropertyValueCRUD extends ManagedObject {
 			// now we can find the respective node in the taxon properties model
 			// find path in taxon properties model
 			var sPath = '/propertiesTaxon/' + iTaxonId + '/' + iCategoryId + '/properties';
-			var aPropertyNames = <FBProperty[]>oPropertiesTaxaModel.getProperty(sPath);
+			var aPropertyNames = <FBProperty[]>this._oTaxonPropertiesModel.getProperty(sPath);
 			var foundPropertyName = aPropertyNames.find(ele => ele['property_name_id'] == iPropertyNameId);
 			var foundPropertyValue = foundPropertyName!.property_values.find(ele => ele['type'] == 'taxon');
 
@@ -53,11 +58,11 @@ export default class PropertyValueCRUD extends ManagedObject {
 		}
 
 		//delete from (plants) properties model
-		sPathPropertyValues = sPathPropertyValue.substr(0, sPathPropertyValue.lastIndexOf('/'));
-		var aPathPropertyValues = oPropertiesModel.getProperty(sPathPropertyValues);
+		sPathPropertyValues = sPathPropertyValue.substring(0, sPathPropertyValue.lastIndexOf('/'));
+		var aPathPropertyValues = this._oPlantPropertiesModel.getProperty(sPathPropertyValues);
 		var iIndex = aPathPropertyValues.indexOf(oPropertyValue);
 		aPathPropertyValues.splice(iIndex, 1);
 
-		oPropertiesModel.refresh();
+		this._oPlantPropertiesModel.refresh();
 	}
 }

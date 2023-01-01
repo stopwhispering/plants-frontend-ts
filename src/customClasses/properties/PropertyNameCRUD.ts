@@ -8,7 +8,6 @@ import {
 import {
 	LCategoryToPropertiesInCategoryMap, LTaxonToPropertyCategoryMap, LTemporaryAvailableProperties
 } from "plants/ui/definitions/PropertiesLocal";
-
 import { BPlant } from "plants/ui/definitions/Plants";
 import { LPropertiesTaxonModelData } from "plants/ui/definitions/PropertiesLocal";
 
@@ -26,6 +25,21 @@ export default class PropertyNameCRUD extends ManagedObject {
 		this._oPropertyNamesModel = oPropertyNamesModel;
 		this._oPlantPropertiesModel = oPlantPropertiesModel;
 		this._oTaxonPropertiesModel = oTaxonPropertiesModel;
+	}
+
+	public getPlantPropertiesModel(): JSONModel {
+		// todo remove this
+		return this._oPlantPropertiesModel;
+	}
+
+	public getTaxonPropertiesModel(): JSONModel {
+		// todo remove this
+		return this._oTaxonPropertiesModel;
+	}
+
+	public getPropertyNamesModel(): JSONModel {
+		// todo remove this
+		return this._oPropertyNamesModel;
 	}
 
 	public createNewPropertyName(sPropertyName: string, oCategory:FBPropertiesInCategory, oPlant: BPlant, bAddToPlant: boolean, bAddToTaxon: boolean): void {
@@ -95,20 +109,16 @@ export default class PropertyNameCRUD extends ManagedObject {
 				type: 'taxon',
 				property_value: '',
 			}
-			this._insertPropertyIntoPropertiesTaxaModel(oEmptyPropertyValue, oCategory.category_id, oPlant.taxon_id!, oEntry, this._oTaxonPropertiesModel);
+			this._insertPropertyIntoPropertiesTaxaModel(oEmptyPropertyValue, oCategory.category_id, oPlant.taxon_id!, oEntry);
 		}
 
 		this._oPlantPropertiesModel.refresh();
 	}
 
-	public assignPropertyNameToPlantAndOrTaxon(iTaxonId: int, aAvailablePropertiesFromDialog: LTemporaryAvailableProperties[], oPropertiesInCategory: FBPropertiesInCategory) {
+	public assignPropertyNameToPlantAndOrTaxon(iTaxonId: int, aAvailablePropertiesFromDialog: LTemporaryAvailableProperties[], oPropertiesInCategory: FBPropertiesInCategory): void {
 		// add selected properties to the plant's properties
-		// var aPropertiesFromDialog = <LTemporaryAvailableProperties[]>(<JSONModel>oSource.getModel('propertiesCompare')).getData();
-		// const oPropertiesInCategory = <FBPropertiesInCategory>oSource.getBindingContext('properties')!.getObject();
 		var aProperties = <FBProperty[]>oPropertiesInCategory.properties;
 		var iCategoryId = oPropertiesInCategory.category_id;
-		// var iTaxonId = (<BPlant>oSource.getBindingContext('plants')!.getObject()).taxon_id;
-		// aPropertiesFromDialog.forEach(function(entry) {
 		for (var i = 0; i < aAvailablePropertiesFromDialog.length; i++) {
 			var entry = <LTemporaryAvailableProperties>aAvailablePropertiesFromDialog[i];
 			if ((entry.selected_plant && !entry.blocked_plant) || (entry.selected_taxon && !entry.blocked_taxon)) {
@@ -129,7 +139,7 @@ export default class PropertyNameCRUD extends ManagedObject {
 						};  // property_value_id: undefined
 						found.property_values.push(oItem);
 						// const oPropertiesTaxaModel = <JSONModel>oView.getModel('propertiesTaxa');
-						this._insertPropertyIntoPropertiesTaxaModel(oItem, iCategoryId, iTaxonId!, entry, this._oTaxonPropertiesModel);
+						this._insertPropertyIntoPropertiesTaxaModel(oItem, iCategoryId, iTaxonId!, entry);
 					}
 				}
 				else {
@@ -148,7 +158,7 @@ export default class PropertyNameCRUD extends ManagedObject {
 						};  //, 'property_value_id': undefined 
 						aPropertyValues.push(oItem_);
 						// const oPropertiesTaxaModel = <JSONModel>oView.getModel('propertiesTaxa');
-						this._insertPropertyIntoPropertiesTaxaModel(oItem_, iCategoryId, iTaxonId!, entry, this._oTaxonPropertiesModel);
+						this._insertPropertyIntoPropertiesTaxaModel(oItem_, iCategoryId, iTaxonId!, entry);
 					}
 					oPropertiesInCategory.properties.push(<FBProperty>
 						{
@@ -161,14 +171,11 @@ export default class PropertyNameCRUD extends ManagedObject {
 		}
 		
 		this._oPlantPropertiesModel.refresh();
-		// this._btnAdd.setType('Transparent');
 	}
 	
-
-	private _insertPropertyIntoPropertiesTaxaModel(oPropertyValue: FBPropertyValue, iCategoryId: int, iTaxonId: int, oEntry: LTemporaryAvailableProperties, oPropertiesTaxaModel: JSONModel): void {
-		// todo use in propertiesutil only
+	private _insertPropertyIntoPropertiesTaxaModel(oPropertyValue: FBPropertyValue, iCategoryId: int, iTaxonId: int, oEntry: LTemporaryAvailableProperties): void {
 		// add a property value to taxon properties model
-		const oPropertiesTaxaData = <LPropertiesTaxonModelData>oPropertiesTaxaModel.getData();
+		const oPropertiesTaxaData = <LPropertiesTaxonModelData>this._oTaxonPropertiesModel.getData();
 		const oTaxonToPropertyCategoryMap = <LTaxonToPropertyCategoryMap>oPropertiesTaxaData.propertiesTaxon;  // // maps from taxon_id to it's property categories
 		const oCategoriesForCurrentTaxon = <LCategoryToPropertiesInCategoryMap>oTaxonToPropertyCategoryMap[iTaxonId];  //current taxon's property categories
 		const oPropertiesInSelectedCategory = <FBPropertiesInCategory>oCategoriesForCurrentTaxon[iCategoryId];

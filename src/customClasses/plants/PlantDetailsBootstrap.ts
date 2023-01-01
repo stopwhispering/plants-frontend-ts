@@ -1,16 +1,11 @@
-import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import { BPlant} from "plants/ui/definitions/Plants";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { BEvents, BResultsEventResource } from "plants/ui/definitions/Events";
-import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler";
 import View from "sap/ui/core/mvc/View";
-import ModelsHelper from "plants/ui/model/ModelsHelper";
 import MessageToast from "sap/m/MessageToast";
 import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler";
 import { LCurrentPlant } from "plants/ui/definitions/PlantsLocal";
 import PlantImagesLoader from "./PlantImagesLoader";
-import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import PropertiesLoader from "plants/ui/customClasses/properties/PropertiesLoader";
 import TaxonLoader from "../taxonomy/TaxonLoader";
 import EventLoader from "../events/EventLoader";
@@ -71,13 +66,11 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		// ... so does requesting images
 		// if we haven't loaded images for this plant, yet, we do so before generating the images model
 		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
-		// if (!this._setImagesPlantsLoaded.has(iPlantId)) {
-		if (!oImageRegistryHandler.isPlantInPlantsWithImagesLoaded(iPlantId)){
+		if (!oImageRegistryHandler.isPlantInPlantsWithImagesLoaded(iPlantId))
 			this._oPlantImagesLoader.requestImagesForPlant(iPlantId);
-			// this._requestImagesForPlant(iPlantId);
-		} else {
+		else
 			oImageRegistryHandler.resetImagesForPlant(iPlantId);
-		}
+		
 	}
 
 	private _bindAndRequestEventsForPlant(iPlantId: int): void {
@@ -135,26 +128,4 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 			new PropertiesLoader(this._oPlantPropertiesModel, this._oTaxonPropertiesModel).loadPropertiesForCurrentPlant(this._mCurrentPlant.plant);
 		}
 	}
-
-	// private _loadEventsForCurrentPlant(iPlantId: int): void {
-	// 	// request plant's events from backend
-	// 	// data is added to local events model and bound to current view upon receivement
-	// 	const uri = 'events/' + iPlantId;
-	// 	$.ajax({
-	// 		url: Util.getServiceUrl(uri),
-	// 		context: this,
-	// 		async: true
-	// 	})
-	// 		.done(this._cbReceivingEventsForPlant.bind(this, iPlantId))
-	// 		.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Event (GET)'))
-	// }
-
-	// private _cbReceivingEventsForPlant(plantId: int, oData: BResultsEventResource): void {
-	// 	//insert (overwrite!) events data for current plant with data received from backend
-	// 	const aEvents = <BEvents>oData.events;
-	// 	this._oEventsModel.setProperty('/PlantsEventsDict/' + plantId + '/', aEvents);
-	// 	// this._oEventsDataClone[plantId] = Util.getClonedObject(aEvents);
-	// 	ChangeTracker.getInstance().setOriginalEventsForPlant(aEvents, plantId)
-	// 	MessageHandler.getInstance().addMessageFromBackend(oData.message);
-	// }
 }

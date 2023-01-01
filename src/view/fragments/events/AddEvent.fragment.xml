@@ -284,8 +284,8 @@
 							<StepInput
 								value="{editOrNewEvent>/pot/diameter_width}"
 								displayValuePrecision="1"
-								min="0"
-								max="999"
+								min="0.0"
+								max="999.0"
 								width="5em"
 								step="0.5"
 								description="cm"

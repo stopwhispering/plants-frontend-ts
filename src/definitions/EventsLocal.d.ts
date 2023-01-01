@@ -13,7 +13,7 @@ export interface LEventEditDataSegments{
 
 export interface LEventInEventsModel extends Omit<FBEvent, "id">{
     // only difference in comparison to PEvent from backend: id is optional
-    // to allow for new events
+    // to allow for new events  // todo replace everywhere with FBEvent|FCreateOrUpdateEvent
     id?: number;
 }
 

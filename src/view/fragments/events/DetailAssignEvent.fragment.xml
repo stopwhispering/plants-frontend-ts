@@ -34,7 +34,6 @@
 							text="{= ${events>event_notes} || ${events>observation/diseases} }"
 							wrapping="true"
 							/>
-							<!-- "{= (${events>event_notes}.trim().length ) ? (${events>event_notes}) : (${events>observation/observation_notes}) }" -->
 					</VBox>
 				</CustomListItem>
 				

@@ -20,3 +20,9 @@ export type ResponseStatus =
 export interface LIdToFragmentMap {
   [key: string]: string;  // e.g. dialogRenamePlant: "plants.ui.view.fragments.DetailRename"
 }
+
+export interface LStatusModelData {
+  preview_image: string;
+  filterBarVisible: boolean;
+  filterBarLabel: string;
+}

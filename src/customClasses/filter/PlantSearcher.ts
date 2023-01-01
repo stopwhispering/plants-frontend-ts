@@ -5,7 +5,7 @@ import FilterType from "sap/ui/model/FilterType";
 import ListBinding from "sap/ui/model/ListBinding";
 
 /**
- * @namespace plants.ui.customClasses.plants
+ * @namespace plants.ui.customClasses.filter
  */
 export default class PlantSearcher extends ManagedObject {
 	private _oPlantsTableBinding: ListBinding;
@@ -22,7 +22,6 @@ export default class PlantSearcher extends ManagedObject {
 
 		//check for  filter on active plants
 		const aActiveFilters = <Filter[]>this._oPlantsTableBinding.getFilters(FilterType.Application);
-		// var aActiveFilters = oBinding.aApplicationFilters;
 
 		//modify filters only on fields plant_name and botanical_name
 		//leave active state filter (and possible others) as is
@@ -33,7 +32,6 @@ export default class PlantSearcher extends ManagedObject {
 			const oActiveFilter = <Filter>aActiveFilters[i];
 			const sPath: string | undefined = oActiveFilter.getPath();
 			if (!(aRelevantPaths.indexOf(sPath) > -1)) {
-				// if (!aRelevantPaths.includes(sPath)) {
 				aNewFilters.push(aActiveFilters[i]);  //and	
 			}
 		}

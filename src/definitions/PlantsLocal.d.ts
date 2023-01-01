@@ -49,6 +49,8 @@ export interface LPropagationTypeData{
       propagationType: string;
       parentPlant: string;
       parentPlantPollen?: string;
+
+      autoNameDescendantPlantName: boolean;
   }
 
   export interface LCancellationReasonChoice {
@@ -72,3 +74,28 @@ export interface LCurrentPlant{
   plant: BPlant| undefined;
 }
 		
+export interface LNewPlantInputData{
+  newPlantName: string | undefined;
+}
+
+export interface LRenamePlantInputData{
+  newPlantName: string;
+}
+
+export interface LClonePlantInputData{
+  plantName: string;
+}
+
+export interface LCancelPlantInputData{
+  cancellationDate: Date;
+}
+
+interface LSearchSpeciesInputData{
+  searchPattern: string;
+  additionalName: string;
+  includeExternalApis: boolean;
+  genusNotSpecies: boolean;
+  customName: string;
+  additionalNameEditable: boolean;
+  searchResultName?: string;
+}

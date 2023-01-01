@@ -8,6 +8,7 @@
     <Dialog
 		contentWidth="35em" 
 		title="{i18n>upload_photos_title}"
+		afterClose=".onAfterCloseUploadPhotoseDialog"
     	id="dialogUploadPhotos">
  
 	    <l:Grid 
@@ -23,7 +24,7 @@
 					multiple="true"
 					name="files"
 					tooltip="{i18n>file_uploader_tooltip}"
-					uploadComplete="handleUploadComplete"
+					uploadComplete=".handleUploadComplete"
 					typeMissmatch=".onHandleTypeMissmatch"
                 	sendXHR="true"
 					style="Emphasized"
@@ -89,7 +90,7 @@
 	    	<Button
 			 	text = "{i18n>cancel}" 
 		    	type = "Reject"
-				press=".onCancelDialog"
+				press=".onCancelUploadImagesDialog"
 				/>
 	    </buttons>
     </Dialog>

@@ -3,7 +3,7 @@
 	xmlns="sap.m">
 
    <Popover
-		id="dialogAddProperties"
+		id="popoverAvailableProperties"
 		title="Available Properties"
 		class="sapUiContentPadding"
 		placement="Vertical"

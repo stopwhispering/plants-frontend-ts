@@ -8,9 +8,9 @@ import { LTaxonTreeNodeInFilterDialog } from "plants/ui/definitions/SelectionLoc
 import { LFilterHiddenChoice } from "plants/ui/definitions/PlantsLocal"
 
 /**
- * @namespace plants.ui.customClasses.plants
+ * @namespace plants.ui.customClasses.filter
  */
-export default class FilterPlantsService extends ManagedObject {
+export default class PlantFilterService extends ManagedObject {
 	private _oTaxonTreeModel: JSONModel;
 
 	public constructor(oTaxonTreeModel: JSONModel) {
@@ -19,7 +19,7 @@ export default class FilterPlantsService extends ManagedObject {
 	}
 
 	public createFilter(aFilterItems: any[], 
-		sFilterString: string, 
+		// sFilterString: string, 
 		aSelectedTreeItems: StandardTreeItem[], 
 		aActiveFilters: Filter[],
 		eFilterHiddenChoice: LFilterHiddenChoice): Filter[] {

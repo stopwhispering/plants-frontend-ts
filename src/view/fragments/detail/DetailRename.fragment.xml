@@ -5,6 +5,7 @@
     <Dialog 
     	title='Rename "{plants>plant_name}"'
 		class="sapUiContentPadding"
+		afterClose=".onAfterCloseRenamePlantDialog"
     	id="dialogRenamePlant">
  
 	    <content>
@@ -16,10 +17,9 @@
 					text="New Plant Name"
 					labelFor='inputNewPlantName'/>
 				<Input
-					id='inputNewPlantName'
 					width='15rem'
+					value="{renamePlant>/newPlantName}"
 					autocomplete="false"
-					liveChange=".onLiveChangeNewPlantName($event, 'rename')"
 					maxLength="100"
 					required="true"
 					placeholder="New plant name"/>
@@ -31,14 +31,14 @@
 				id="btnRenamePlantSubmit"
 				type="Emphasized"
 				text="Submit"
-				enabled="false"  
+				enabled="{= (!!${renamePlant>/newPlantName}) }"  
 				press=".onPressButtonSubmitRenamePlant"/>
 		</beginButton>
 		
 		<endButton>
 			<Button
 				text="Cancel"
-				press=".onCancelDialog"
+				press=".onCancelRenamePlantDialog"
 				/>
 		</endButton>				
     </Dialog>

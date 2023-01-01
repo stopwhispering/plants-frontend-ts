@@ -5,7 +5,7 @@ import { BTaxonTreeNode } from "plants/ui/definitions/Selection";
 import { LTaxonTreeNodeInFilterDialog } from "plants/ui/definitions/SelectionLocal";
 
 /**
- * @namespace plants.ui.customClasses.plants
+ * @namespace plants.ui.customClasses.filter
  */
 export default class PlantFilterTaxonTree extends ManagedObject {
 	private _oTaxonTreeModel: JSONModel

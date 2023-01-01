@@ -14,22 +14,24 @@
 		<content>
 			<VBox>
 				<Label
-					text="New Property Name"
+					text="New Property Name for {newPropertyNameInput>/propertyCategory/category_name}"
 					wrapping="true"
 				/>
+					<!-- value="{properties>property_value}" -->
 				<Input
 					id="inpPropertyName"
-					value="{properties>property_value}"
 					submit=".onNewPropertyNameCreate"
+					value="{newPropertyNameInput>/propertyName}"
 				/>
 				<CheckBox
 					id="chkNewPropertyNameAddToPlant"
 					text="Add to Plant"
-					selected="true"
+					selected="{newPropertyNameInput>/addToPlant}"
 				/>
 				<CheckBox
 					id="chkNewPropertyNameAddToTaxon"
 					text="Add to Taxon"
+					selected="{newPropertyNameInput>/addToTaxon}"
 				/>
 			</VBox>
 		</content>

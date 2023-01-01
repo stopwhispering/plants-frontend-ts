@@ -81,9 +81,11 @@
 				<infoToolbar>
 					<OverflowToolbar
 						id="tableFilterBar"
-						visible="false"
+						visible="{status>/filterBarVisible}"
 					>
-						<Text id="tableFilterLabel"/>
+						<!-- <Text id="tableFilterLabel"/> -->
+						<Text id="tableFilterLabel"
+							text="{status>/filterBarLabel}"/>
 					</OverflowToolbar>
 				</infoToolbar>
 				<columns>

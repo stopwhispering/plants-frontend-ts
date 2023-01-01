@@ -7,41 +7,58 @@ import Button from "sap/m/Button";
 import MessageToast from "sap/m/MessageToast";
 import { LPopoverWithPropertiesCategory, LTemporaryAvailableProperties } from "plants/ui/definitions/PropertiesLocal";
 import { BPlant } from "plants/ui/definitions/Plants";
+import Fragment from "sap/ui/core/Fragment";
+import Control from "sap/ui/core/Control";
+import View from "sap/ui/core/mvc/View";
+import Event from "sap/ui/base/Event";
+import PropertyNameCRUD from "./PropertyNameCRUD";
+import PropertyValueCRUD from "./PropertyValueCRUD";
 
 /**
  * @namespace plants.ui.customClasses.properties
  */
-export default class AssignPropertyNamePopoverOpener extends ManagedObject {
+export default class AssignPropertyNamePopoverHandler extends ManagedObject {
+	private _oPlant: BPlant;
+	private _oPropertyNameCRUD: PropertyNameCRUD;
 
-	public constructor() {
+	private _oAddPropertyPopover: Popover;
+
+	public constructor(oPlant: BPlant, oPropertyNameCRUD: PropertyNameCRUD) {
 		super();
+		this._oPlant = oPlant;
+		this._oPropertyNameCRUD = oPropertyNameCRUD;
 	}
 
-	public openPopupAddPropertyWhenPromiseResolved(oPromise: Promise<Popover>, oCurrentPlant: BPlant, oBtnAddProperty: Button): void {
-		if (!oCurrentPlant.taxon_id) {
+	public openPopupAddProperty(oViewAttachTo: View, oBtnAOpenBy: Button): void {
+		if (!this._oPlant.taxon_id) {
 			MessageToast.show('Function available after setting botanical name.');
 			return;
 		}
 
-		const oCategory = <FBPropertiesInCategory>oBtnAddProperty.getBindingContext('properties')!.getObject();
+		const oCategory = <FBPropertiesInCategory>oBtnAOpenBy.getBindingContext('properties')!.getObject();
 		// const sBindingPathProperties = oBtnAddProperty.getBindingContext('properties')!.getPath();
-		const oModelPropertyNames = <JSONModel>oBtnAddProperty.getModel('propertyNames');
+		const oModelPropertyNames = <JSONModel>oBtnAOpenBy.getModel('propertyNames');
 
-		oPromise.then((oPopover: Popover) => {
+		Fragment.load({
+			name: "plants.ui.view.fragments.properties.AvailableProperties",
+			id: oViewAttachTo.getId(),
+			controller: this
+		}).then((oControl: Control | Control[]) => {
+			this._oAddPropertyPopover = <Popover>oControl;
 			const oModelTemp = this._getTemporaryAvailablePropertiesModel(oCategory, oModelPropertyNames);
-			oPopover.setModel(oModelTemp, 'propertiesCompare');
+			this._oAddPropertyPopover.setModel(oModelTemp, 'propertiesCompare');
 			// we bind the current category to the popover to be able to find it when assigning later (seems to have a bug)
 			// oPopover.bindElement({
 			// 	path: sBindingPathProperties,
 			// 	model: "properties"
 			// });
 			// as a workaround, we add the category to the popover
-			const oPopoverWithPropertiesCategory = <LPopoverWithPropertiesCategory>oPopover;
+			const oPopoverWithPropertiesCategory = <LPopoverWithPropertiesCategory>this._oAddPropertyPopover;  // todo remove this workaround
 			oPopoverWithPropertiesCategory.property_category = oCategory;
-			oPopoverWithPropertiesCategory.openBy(oBtnAddProperty, true);
+			oPopoverWithPropertiesCategory.openBy(oBtnAOpenBy, true);
 		});
 
-		oBtnAddProperty.setType('Emphasized');
+		oBtnAOpenBy.setType('Emphasized');
 	}
 	private _getTemporaryAvailablePropertiesModel(oCategory: FBPropertiesInCategory, oModelPropertyNames: JSONModel): JSONModel {
 		var sPathPropertiesAvailable = '/propertiesAvailablePerCategory/' + oCategory.category_name;
@@ -92,5 +109,29 @@ export default class AssignPropertyNamePopoverOpener extends ManagedObject {
 			aList.push(oItem);
 		});
 		return aList;
+	}
+
+	onAssignPropertyNameToPlantAndOrTaxon(oEvent: Event) {
+		// this.propertiesUtil.assignPropertyNameToPlantAndOrTaxon(this.getView(), <Button>oEvent.getSource());
+
+		const oBtn = <Button>oEvent.getSource();
+		const oPropertyNamesModel = this._oPropertyNameCRUD.getPropertyNamesModel();  // todo remove
+		const oPlantPropertiesModel = this._oPropertyNameCRUD.getPlantPropertiesModel();  // todo remove
+		const oTaxonPropertiesModel = this._oPropertyNameCRUD.getTaxonPropertiesModel();  // todo remove
+		const oPropertyNameCRUD = new PropertyNameCRUD(oPropertyNamesModel, oPlantPropertiesModel, oTaxonPropertiesModel)
+
+		const aAvailablePropertiesFromDialog = <LTemporaryAvailableProperties[]>(<JSONModel>oBtn.getModel('propertiesCompare')).getData();
+		const oPropertiesInCategory = (<LPopoverWithPropertiesCategory>this._oAddPropertyPopover).property_category;  //todo remove
+		oPropertyNameCRUD.assignPropertyNameToPlantAndOrTaxon(this._oPlant.taxon_id!, aAvailablePropertiesFromDialog, oPropertiesInCategory);
+
+		this._oAddPropertyPopover.close();
+		this._oAddPropertyPopover.destroy();
+	}
+
+	onAfterCloseAddPropertyNamePopover(evt: Event) {
+		// when closing Add Properties Popover, make sure it is destroyed 
+		// and reset the Add-Property Button from Emphasized to Default
+		evt.getParameter('openBy').setType('Transparent');
+		evt.getSource().destroy();
 	}
 }

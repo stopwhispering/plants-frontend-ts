@@ -19,4 +19,5 @@ export interface ObjectStatusData {
 
 export interface ObjectStatusCollection {
     ObjectStatusCollection: ObjectStatusData[];
+    Value: string;
 }

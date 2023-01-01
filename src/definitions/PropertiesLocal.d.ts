@@ -48,3 +48,11 @@ export type LTaxonToPropertiesInCategoryMap = {
 export interface LPopoverWithPropertiesCategory extends Popover{
     property_category: FBPropertiesInCategory
 }
+
+export interface LNewPropertyNameInputData {
+    // used in new property name popover
+    propertyName: string | undefined;
+    propertyCategory: FBPropertiesInCategory;
+    addToPlant: boolean;
+    addToTaxon: boolean;
+}

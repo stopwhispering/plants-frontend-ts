@@ -7,6 +7,7 @@
 		title="Edit Property Value"
 		class="sapUiContentPadding"
 		placement="Vertical"
+		afterClose=".onAfterClosePropertyValuePopover"
 		contentWidth="15em"
 		initialFocus="inpPropertyValue">
 
@@ -15,7 +16,7 @@
 					<Input
 						id="inpPropertyValue"
 						value="{properties>property_value}"
-						submit=".onCloseDialogEditPropertyValue"/>
+						submit=".onClosePropertyValuePopover"/>
 					
 				</VBox>
 		</content>
@@ -27,7 +28,7 @@
 					text="Delete"
 					icon="sap-icon://delete"
 					type="Reject"
-					press=".onEditPropertyValueDelete" />
+					press=".onDeletePropertyValue" />
 			</OverflowToolbar>
 		</footer>
 		

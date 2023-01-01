@@ -7,8 +7,8 @@
 		id="dialogLeafletMap"
 		title="{taxon>genus} {taxon>species}"
 		stretch="{device>/system/phone}"
-		afterClose=".afterCloseLeafletMap"
 	>
+	<!-- afterClose=".afterCloseLeafletMap" -->
 		<content>
 			<HBox>
 				<VBox class="sapUiTinyMarginEnd">
