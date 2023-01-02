@@ -133,11 +133,22 @@
 						<cells>
 							<!-- plant name and botanical name plus icons for propagation type and geographic origin-->
 							<HBox justifyContent="SpaceBetween">
-								<ObjectIdentifier
+								<VBox>
+									<Label 
+										text="{plants>plant_name}" 
+										design="Bold" 
+										wrapping="true"
+										tooltip="{plants>id} - {plants>plant_name}" />
+									<FormattedText 
+										htmlText="{plants>full_botanical_html_name}"
+										tooltip="{plants>id} - {plants>plant_name}"
+										/>
+								</VBox>
+								<!-- <ObjectIdentifier
 									class="textAlignLeft"
 									title="[{plants>id}] {plants>plant_name}"
 									text="{plants>botanical_name}"
-								/>
+								/> -->
 								<VBox>
 									<Image
 										src="css/seed.png"
