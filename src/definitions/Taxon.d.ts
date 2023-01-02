@@ -8,25 +8,36 @@ export type BSearchResultSource =
   | "Plants of the World"
   | "International Plant Names Index + Plants of the World";
 
-export interface BKewSearchResultEntry {
-  source: BSearchResultSource;
-  id?: number;
-  count: number;
-  count_inactive: number;
-  is_custom: boolean;
-  synonym?: boolean;
-  authors: string;
-  family: string;
-  name: string;
-  rank: string;
-  lsid: string;
-  genus: string;
-  species?: string;
-  namePublishedInYear?: string;
-  phylum?: string;
-  synonyms_concat?: string;
-  distribution_concat?: string;
-}
+  export interface BKewSearchResultEntry {
+    source: BSearchResultSource;
+    id?: number;
+    count: number;
+    count_inactive: number;
+    synonym: boolean;
+    authors: string;
+    family: string;
+    name: string;
+    rank: string;
+    taxonomic_status: string;
+    lsid: string;
+    genus: string;
+    species?: string;
+    infraspecies?: string;
+    is_custom: boolean;
+    custom_rank?: FBRank;
+    custom_infraspecies?: string;
+    cultivar?: string;
+    affinis?: string;
+    custom_suffix?: string;
+    hybrid: boolean;
+    hybridgenus: boolean;
+    namePublishedInYear?: number;
+    basionym?: string;
+    // phylum: string;
+    synonyms_concat?: string;
+    distribution_concat?: string;
+  }
+  
 export interface BMessage {
   type: BMessageType;
   message: string;
@@ -66,7 +77,7 @@ export interface BTaxon {
   subgen?: string;
   genus: string;
   family: string;
-  phylum?: string;
+  // phylum?: string;
   kingdom?: string;
   rank: string;
   taxonomic_status?: string;
@@ -128,7 +139,7 @@ export interface FTaxon {
   subgen?: string;
   genus: string;
   family: string;
-  phylum?: string;
+  // phylum?: string;
   kingdom?: string;
   rank: string;
   taxonomic_status?: string;
@@ -169,4 +180,58 @@ export interface FTaxonInfoRequest {
   include_external_apis: boolean;
   taxon_name_pattern: string;
   search_for_genus_not_species: boolean;
+}
+
+export interface BResultsGetBotanicalName {
+  full_html_name: string;
+  name: string;
+}
+
+export interface FBotanicalAttributes {
+  rank: string;
+  genus: string;
+  species?: string;
+  infraspecies?: string;
+  hybrid: boolean;
+  hybridgenus: boolean;
+  authors?: string;
+  name_published_in_year?: number;
+
+  is_custom: boolean;
+  cultivar?: string;
+  affinis?: string;
+  custom_rank?: string;
+  custom_infraspecies?: string;
+  custom_suffix?: string;
+}
+
+export interface BCreatedTaxonResponse {
+  action: string;
+  message: BMessage;
+  new_taxon: BTaxon;
+}
+
+export interface FNewTaxon {
+  id?: number;
+  rank: string;
+  family: string;
+  genus: string;
+  species?: string;
+  infraspecies?: string;
+  lsid: string;
+  taxonomic_status: string;
+  synonym: boolean;
+  authors: string;
+  namePublishedInYear?: number;
+  basionym?: string;
+  hybrid: boolean;
+  hybridgenus: boolean;
+  synonyms_concat?: string;
+  distribution_concat?: string;
+  is_custom: boolean;
+  custom_rank?: FBRank;
+  custom_infraspecies?: string;
+  cultivar?: string;
+  affinis?: string;
+  custom_suffix?: string;
 }

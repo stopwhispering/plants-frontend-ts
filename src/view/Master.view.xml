@@ -106,7 +106,7 @@
 						<Text text="Tags"/>
 					</Column>
 					<Column
-						width="5.4em"
+						width="6.0em"
 						styleClass="myVeryCompact"
 					>
 						<Text text="{i18n>plants_table_header_image_date}"/>
@@ -135,7 +135,7 @@
 							<HBox justifyContent="SpaceBetween">
 								<ObjectIdentifier
 									class="textAlignLeft"
-									title="{plants>plant_name}"
+									title="[{plants>id}] {plants>plant_name}"
 									text="{plants>botanical_name}"
 								/>
 								<VBox>

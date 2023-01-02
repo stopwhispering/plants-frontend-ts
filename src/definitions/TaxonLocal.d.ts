@@ -15,4 +15,4 @@ export interface LTaxonData {
     TaxaDict: LTaxonMap;
 }
 
-export type LAjaxLoadDetailsForSpeciesDoneCallback = (data: BResultsRetrieveTaxonDetailsRequest, sStatus: ResponseStatus, oResponse: JQueryXHR) => void;
+export type LAjaxLoadDetailsForSpeciesDoneCallback = (data: BCreatedTaxonResponse, sStatus: ResponseStatus, oResponse: JQueryXHR) => void;

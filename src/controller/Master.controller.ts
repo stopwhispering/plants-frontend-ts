@@ -82,7 +82,6 @@ export default class Master extends BaseController {
 		oNewPlantDialogHandler.openNewPlantDialog(this.getView());
 	}
 
-
 	//////////////////////////////////////////////////////////
 	// Sort Handler
 	//////////////////////////////////////////////////////////
@@ -108,7 +107,6 @@ export default class Master extends BaseController {
 		}
 		this._oPlantFilterDialogHandler.openFilterDialog(this.getView());
 	}
-
 
 	//////////////////////////////////////////////////////////
 	// Preview Image Popup Handlers

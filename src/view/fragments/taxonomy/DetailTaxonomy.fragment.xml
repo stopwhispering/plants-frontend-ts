@@ -14,10 +14,10 @@
 		<m:Text id="textRank" text="{taxon>rank}"/>
 	</m:VBox>	
 
-	<m:VBox class="sapUiTinyMarginBottom" >
+	<!-- <m:VBox class="sapUiTinyMarginBottom" >
 		<m:Label text="{i18n>divisio}" labelFor="textPhylum"/>
 		<m:Text id="textPhylum" text="{taxon>phylum}"/>
-	</m:VBox>
+	</m:VBox> -->
 	<m:VBox class="sapUiTinyMarginBottom" >
 		<m:Label text="{i18n>familia}" labelFor="textFamily"/>
 		<m:Text id="textFamily" text="{taxon>family}"/>

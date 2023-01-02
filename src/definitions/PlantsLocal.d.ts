@@ -98,4 +98,20 @@ interface LSearchSpeciesInputData{
   customName: string;
   additionalNameEditable: boolean;
   searchResultName?: string;
+  resultSelected: boolean;
 }
+
+interface SearchSpeciesCustomTaxonInputData{
+  visible: boolean; 
+  editable: boolean;
+  editableCustomInfraspecies: boolean;
+  newCustomTaxon: boolean;
+  customRankNone: boolean;  // default true
+  customRankSubspecies: boolean;  // default false
+  customRankVariety: boolean;  // default false
+  customRankForma: boolean;  // default false
+  customInfraspecies?: string;
+  cultivar?: string;
+  customSuffix?: string;
+  affinis?: string;
+}  

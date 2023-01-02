@@ -4,6 +4,7 @@ import Constants from "plants/ui/Constants"
 import { AnyDict, StringToNumberMap } from "plants/ui/definitions/SharedLocal";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
+import { SearchSpeciesCustomTaxonInputData } from "plants/ui/definitions/PlantsLocal";
 
 /**
  * @namespace plants.ui.customClasses.shared
@@ -200,6 +201,20 @@ export default class Util extends ManagedObject {
 			(curr < next) ? (num -= curr) : (num += curr);
 		}
 		return num;
+	}
+
+	public static extract_custom_rank(oCustomTaxonInputData: SearchSpeciesCustomTaxonInputData): string|undefined{
+		let custom_rank;
+        if (oCustomTaxonInputData.customRankNone)
+            return undefined;
+        else if (oCustomTaxonInputData.customRankVariety)
+			return 'var.';
+        else if (oCustomTaxonInputData.customRankSubspecies)
+			return 'subsp.';
+        else if (oCustomTaxonInputData.customRankForma)
+			return 'forma';
+        else
+            throw new Error('Invalid custom rank')
 	}
 }
 

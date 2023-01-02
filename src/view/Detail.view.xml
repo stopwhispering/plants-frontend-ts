@@ -156,25 +156,19 @@
 					displayShape="Square"
 					class="sapUiTinyMarginEnd"
 				/>
-				<m:VBox
-					justifyContent="Center"
-					class="sapUiSmallMarginEnd"
-				>
+				<m:VBox class="sapUiSmallMarginEnd">
 					<m:Label text="{i18n>Id}"/>
 					<m:Label text="{plants>id}"/>
 				</m:VBox>
 				<m:VBox
-					justifyContent="Center"
 					class="sapUiSmallMarginEnd"
+					width="15rem"
 				>
 					<m:Label text="{i18n>species}"/>
-					<m:Text text="{plants>botanical_name} {plants>taxon_authors}"/>
+					<m:FormattedText htmlText="{plants>full_botanical_html_name}"/>
 				</m:VBox>
-				<m:VBox
-					justifyContent="Center"
-					class="sapUiSmallMarginEnd"
-				>
-					<m:HBox alignItems="Center">
+				<m:VBox class="sapUiSmallMarginEnd">
+					<m:HBox alignItems="Start">
 						<m:Label text="{i18n>tags_label}"/>
 						<m:Button
 							icon="sap-icon://tag"
@@ -203,13 +197,10 @@
 						</m:items>
 					</m:HBox>
 				</m:VBox>
-				<m:VBox
-					justifyContent="Center"
-					class="sapUiSmallMarginEnd"
-				>
+				<!-- <m:VBox class="sapUiSmallMarginEnd">
 					<m:Label text="Notes"/>
 					<m:Text text="{taxon>custom_notes}"/>
-				</m:VBox>
+				</m:VBox> -->
 			</m:FlexBox>
 		</headerContent>
 		<sections>

@@ -2,7 +2,6 @@ import Util from "plants/ui/customClasses/shared/Util";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { EventsModelData, PlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
 import { FBImage } from "plants/ui/definitions/Images";
 import { BSaveConfirmation, FBMajorResource } from "plants/ui/definitions/Messages";
 import { BPlant, FPlantsUpdateRequest } from "plants/ui/definitions/Plants";

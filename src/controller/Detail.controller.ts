@@ -334,7 +334,11 @@ export default class Detail extends BaseController {
 		if (!this._oSearchSpeciesDialogHandler){
 			this._oSearchSpeciesDialogHandler = new SearchSpeciesDialogHandler(this.oComponent.getModel('plants'), this.oComponent.getModel('taxon'), this.getView());
 		}
-		const oTaxon = <BTaxon|undefined>this.getView().getBindingContext('taxon')!.getObject(); 
+		const oTaxonContext = <Context|undefined>this.getView().getBindingContext('taxon');
+		if (!oTaxonContext){
+			return;
+		}
+		const oTaxon = <BTaxon|undefined>oTaxonContext.getObject(); 
 		this._oSearchSpeciesDialogHandler.openSearchSpeciesDialog(this.getView(), 
 			this.mCurrentPlant.plant, oTaxon);
 	}

@@ -56,6 +56,7 @@ export interface BPlant {
   taxon_id?: number;
   taxon_authors?: string;
   botanical_name?: string;
+  full_botanical_html_name?: string;
   parent_plant?: FBAssociatedPlantExtractForPlant;
   parent_plant_pollen?: FBAssociatedPlantExtractForPlant;
   plant_notes?: string;
