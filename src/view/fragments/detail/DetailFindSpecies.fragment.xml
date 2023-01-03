@@ -1,6 +1,5 @@
 <core:FragmentDefinition
 	xmlns="sap.m"
-	xmlns:l="sap.ui.layout"
 	xmlns:f="sap.f"
 	xmlns:core="sap.ui.core"
 >

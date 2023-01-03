@@ -50,7 +50,6 @@ export default class Component extends UIComponent {
 		const oTaxonPropertiesModel = models.createTaxonPropertiesModel();
 		this.setModel(oTaxonPropertiesModel, "propertiesTaxa");
 
-		this.setModel(models.createFilterValuesModel(), "filterValues");
 		this.setModel(models.createStatusModel(), "status");
 
 		//////////////////////////////////////////////////////////

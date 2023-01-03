@@ -28,7 +28,7 @@
         </HBox>
 
 		<f:GridList
-            id="listImages"
+            id="detailImagesGridList"
             growing="true"
             growingScrollToLoad="true"
             growingThreshold="25"
@@ -41,6 +41,16 @@
                     descending: true
                     }
                 }">
+
+            <f:headerToolbar>
+                <Toolbar style="Clear">
+                    <SearchField
+                        placeholder="Filter Image by Keywords, Description, Date (YYYY-MM-DD), Plant Name, or Plant ID"
+                        liveChange=".onLiveChangeImageFilter"
+                        width="100%"
+                    />
+                </Toolbar>
+            </f:headerToolbar>
 
             <f:customLayout>
                 <grid:GridBasicLayout 

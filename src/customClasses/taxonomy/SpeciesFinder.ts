@@ -90,7 +90,7 @@ export default class SpeciesFinder extends ManagedObject {
 		Util.startBusyDialog('Assigning taxon to plant and retrieving additional information...');
 
 		$.ajax({
-			url: Util.getServiceUrl('taxa'),
+			url: Util.getServiceUrl('taxa/new'),
 			context: this,
 			contentType: "application/json",
 			dataType: 'json',

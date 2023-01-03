@@ -22,7 +22,6 @@ import Tree from "sap/m/Tree";
  */
 export default class PlantFilterDialogHandler extends ManagedObject {
     private _oPlantsModel: JSONModel;  // "plants"
-    private _oFilterValuesModel: JSONModel;  // "filterValues"  
 	private _oPlantsTableBinding: ListBinding;  // plants table binding to be filtered
     private _oStatusModel: JSONModel;  // "status" (LStatusModelData)
 
@@ -32,10 +31,9 @@ export default class PlantFilterDialogHandler extends ManagedObject {
 // todo remove!
     private _oView: View;
 
-    public constructor(oPlantsModel: JSONModel, oFilterValuesModel: JSONModel, oPlantsTableBinding: ListBinding, oStatusModel: JSONModel) {
+    public constructor(oPlantsModel: JSONModel, oPlantsTableBinding: ListBinding, oStatusModel: JSONModel) {
         super();
         this._oPlantsModel = oPlantsModel;
-        this._oFilterValuesModel = oFilterValuesModel;  // todo inst only here
         this._oPlantsTableBinding = oPlantsTableBinding;
         this._oStatusModel = oStatusModel;
     }
@@ -60,6 +58,10 @@ export default class PlantFilterDialogHandler extends ManagedObject {
 			}).then((oControl: Control|Control[]) => {
                 this._oPlantsFilterDialog = <ViewSettingsDialog>oControl;
                 // const oDialog: Dialog = oControl as Dialog;
+
+				this._oPlantsFilterDialog.setModel(new JSONModel(), "filterValues");
+				this._fillFilterModels();
+
                 oAttachToView.addDependent(this._oPlantsFilterDialog);
                 this._oPlantsFilterDialog.setModel(this._oTaxonTreeModel, 'selection');
                 // somehow, setting a segmented button's default in xml view doesn't work, so we do it here
@@ -78,21 +80,23 @@ export default class PlantFilterDialogHandler extends ManagedObject {
 	private _fillFilterModels(): void {
 		// (re-)fill filter values model with distinct values for tags and soil names
 		// soil names
+		const _oFilterValuesModel = <JSONModel>this._oPlantsFilterDialog.getModel('filterValues');
+
 		var aSoilNames = this._oPlantsTableBinding.getDistinctValues('current_soil/soil_name');
-		this._oFilterValuesModel.setProperty('/soilNames', aSoilNames);
+		_oFilterValuesModel.setProperty('/soilNames', aSoilNames);
 
 		// propagation types
 		var aPropagationTypes = this._oPlantsTableBinding.getDistinctValues('propagation_type');
-		this._oFilterValuesModel.setProperty('/propagationTypes', aPropagationTypes);
+		_oFilterValuesModel.setProperty('/propagationTypes', aPropagationTypes);
 
 		// nursery/source
 		var aNurseriesSources = this._oPlantsTableBinding.getDistinctValues('nursery_source');
-		this._oFilterValuesModel.setProperty('/nurseriesSources', aNurseriesSources);
+		_oFilterValuesModel.setProperty('/nurseriesSources', aNurseriesSources);
 
 		// tags is a list for each plant, so we can't use getDistinctValues on the binding here
 		var aPlants = this._oPlantsModel.getData().PlantsCollection;
 		var aTags = this._getDistinctTagsFromPlants(aPlants);
-		this._oFilterValuesModel.setProperty('/tags', aTags);
+		_oFilterValuesModel.setProperty('/tags', aTags);
 
 		// // update taxon tree values from backend
 		// var sUrl = Util.getServiceUrl('selection_data');

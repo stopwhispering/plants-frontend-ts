@@ -7,8 +7,10 @@
         "preserveConstEnums": true,
         "inlineSourceMap": true,
         "allowJs": true,
+
+        // when setting to true, "npx tsc" will result in error for each type error!
         "strict": true,
-        "strictNullChecks": true,
+        "strictNullChecks": false,
         "strictPropertyInitialization": false,
         "rootDir": "./src",
         "outDir": "./dist",
@@ -22,4 +24,13 @@
     "include": [
         "./src/**/*"
     ]
+
+    // when you use the @sapui5/ts-types-esm (or @openui5/ts-types-esm) types instead of @types/openui5@1.104.0, 
+    // you need to add the following section
+    // "typeRoots": [
+    //     "./node_modules/@types"
+    // ],
+    // "types": [
+    //     "@sapui5/ts-types-esm"
+    // ],
 }

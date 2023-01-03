@@ -24,7 +24,7 @@ import { MessageType } from "sap/ui/core/library"
 import FileUploader from "sap/ui/unified/FileUploader"
 import Button from "sap/m/Button"
 import Context from "sap/ui/model/Context"
-import { FBImage, FBImagePlantTag } from "plants/ui/definitions/Images"
+import { FBImage, FBImagePlantTag, FBKeyword } from "plants/ui/definitions/Images"
 import Token from "sap/m/Token"
 import { FBAssociatedPlantExtractForPlant, BPlant } from "plants/ui/definitions/Plants"
 import { LCurrentPlant } from "plants/ui/definitions/PlantsLocal"
@@ -61,6 +61,8 @@ import SearchSpeciesDialogHandler from "../customClasses/taxonomy/SearchSpeciesD
 import NewPlantTagPopoverHandler from "../customClasses/plants/NewPlantTagPopoverHandler"
 import DeletePlantTagMenuHandler from "../customClasses/plants/DeletePlantTagMenuHandler"
 import LeafletMapHandler from "../customClasses/taxonomy/LeafletMapHandler"
+import SearchField from "sap/m/SearchField"
+import GridList from "sap/f/GridList"
 
 /**
  * @namespace plants.ui.controller
@@ -631,5 +633,33 @@ export default class Detail extends BaseController {
 		MessageToast.show("The file type *." + sFiletype +
 			" is not supported. Choose one of the following types: " +
 			sSupportedFileTypes);
+	}
+	onLiveChangeImageFilter(oEvent: Event) {
+
+		// add filter to ongoing pollinations gridlist
+		var aFilters = [];
+		var sQuery = (<SearchField>oEvent.getSource()).getValue().trim().toUpperCase();
+		if (sQuery && sQuery.length > 0) {
+			var filter = new Filter([
+				new Filter("description", function (sDescription) {
+					return (sDescription || "").toUpperCase().indexOf(sQuery) > -1;
+				}),
+				new Filter("plants", function (aPlants: FBImagePlantTag[]) {
+					return (aPlants.some(oPlantTag => 
+						oPlantTag.text.toUpperCase().includes(sQuery) ||
+						oPlantTag.plant_id === parseInt(sQuery)))
+				}),
+				new Filter("keywords", function (aKeywords: FBKeyword[]) {
+					return (aKeywords.some(oKeywordTag => oKeywordTag.keyword.toUpperCase().includes(sQuery)))
+				}),
+				new Filter("record_date_time", FilterOperator.Contains, sQuery),
+			], false);
+			aFilters.push(filter);
+		}
+
+		// update list binding
+		const oDetailImagesGridList = <GridList>this.byId('detailImagesGridList');
+		var oBinding = <ListBinding>oDetailImagesGridList .getBinding("items");
+		oBinding.filter(aFilters, "Application");
 	}
 }

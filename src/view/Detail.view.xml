@@ -164,8 +164,10 @@
 					class="sapUiSmallMarginEnd"
 					width="15rem"
 				>
-					<m:Label text="{i18n>species}"/>
-					<m:FormattedText htmlText="{plants>full_botanical_html_name}"/>
+					<m:Label text="Botanical Name"/>
+					<m:FormattedText 
+						visible="{= !!${plants>full_botanical_html_name} }"
+						htmlText="{plants>full_botanical_html_name}"/>
 				</m:VBox>
 				<m:VBox class="sapUiSmallMarginEnd">
 					<m:HBox alignItems="Start">
@@ -236,7 +238,8 @@
 			<!--Events-->
 			<ObjectPageSection title="{i18n>events_title}">
 				<subSections>
-					<ObjectPageSubSection showTitle="false">
+					<ObjectPageSubSection 
+						showTitle="false">
 						<blocks>
 							<!--list is filled by generator function, see onInit()-->
 							<m:List
@@ -288,7 +291,10 @@
 				</subSections>
 			</ObjectPageSection>
 			<!--Taxonomony-->
-			<ObjectPageSection title="{i18n>taxonomy}">
+			<ObjectPageSection 
+				title="{i18n>taxonomy}"
+				visible="{= (!!${taxon>}) }"
+				>
 				<subSections>
 					<ObjectPageSubSection
 						title="Taxonomy"
@@ -296,7 +302,7 @@
 					>
 						<blocks>
 							<core:Fragment
-								fragmentName="plants.ui.view.fragments.taxonomy.DetailTaxonomy"
+								fragmentName="plants.ui.view.embedded.DetailTaxonomy"
 								type="XML"
 							/>
 						</blocks>

@@ -90,10 +90,6 @@ export function createTaxonPropertiesModel(): JSONModel {
 	return oModel;
 }
 
-export function createFilterValuesModel(): JSONModel {
-	return new JSONModel();
-}
-
 export function createLayoutModel(): JSONModel {
 	return new JSONModel();
 }

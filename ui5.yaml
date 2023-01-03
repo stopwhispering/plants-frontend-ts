@@ -1,16 +1,16 @@
-specVersion: "2.0"
+specVersion: "2.3"
 metadata:
   name: plants.ui
 type: application
 framework:
   name: OpenUI5
-  version: "1.104.0"
+  version: "1.108.0"
   libraries:
-    - name: sap.f
     - name: sap.m
+    - name: sap.f
+    - name: sap.ui.unified
     - name: sap.ui.core
     - name: sap.ui.layout
-    - name: sap.ui.unified
     - name: sap.uxap
     - name: themelib_sap_fiori_3
 server:

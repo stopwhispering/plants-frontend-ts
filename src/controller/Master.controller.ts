@@ -52,7 +52,7 @@ export default class Master extends BaseController {
 
 	private updateTableHeaderPlantsCount() {
 		// update count in table header
-		var iPlants = (<ListBinding>this.getView().byId("plantsTable").getBinding("items")).getLength();
+		var iPlants = (<ListBinding>this.getView()!.byId("plantsTable")!.getBinding("items")).getLength();
 		var sTitle = "Plants (" + iPlants + ")";
 		(<Label>this.getView().byId("pageHeadingTitle")).setText(sTitle);
 	}
@@ -65,7 +65,7 @@ export default class Master extends BaseController {
 		// therefore, we are going to nest the filters:
 		// AND( filter_active, OR( filter_plant_name, filter_botanical_name))
 		var sQuery = oEvent.getParameter("query");
-		const oPlantsTableBinding = <ListBinding>this.getView().byId("plantsTable").getBinding('items')
+		const oPlantsTableBinding = <ListBinding>this.getView()!.byId("plantsTable")!.getBinding('items')
 		const oPlantSearcher = new PlantSearcher(oPlantsTableBinding);
 		oPlantSearcher.search(sQuery);
 
@@ -101,9 +101,8 @@ export default class Master extends BaseController {
 		if (!this._oPlantFilterDialogHandler) {
 			const oPlantsTableBinding = <ListBinding>this.byId('plantsTable').getBinding('items');
 			const oPlantsModel = this.oComponent.getModel('plants');
-			const oFilterValuesModel = <JSONModel>this.oComponent.getModel('filterValues');
 			const oStatusModel = this.oComponent.getModel('status');
-			this._oPlantFilterDialogHandler = new PlantFilterDialogHandler(oPlantsModel, oFilterValuesModel, oPlantsTableBinding, oStatusModel);
+			this._oPlantFilterDialogHandler = new PlantFilterDialogHandler(oPlantsModel, oPlantsTableBinding, oStatusModel);
 		}
 		this._oPlantFilterDialogHandler.openFilterDialog(this.getView());
 	}
