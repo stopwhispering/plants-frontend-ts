@@ -64,17 +64,19 @@
 						<Column
 							minScreenWidth="Tablet"
 							demandPopin="true"
-							width="8em"
+							width="10em"
 						>
-							<Text text="Tax. Status &amp; Custom"/>
+							<Text 
+								text="Tax. Status &amp; LSID"
+								tooltip="Taxonomic Staus &amp; Life Science Identifier"/>
 						</Column>
-						<Column
+						<!-- <Column
 							minScreenWidth="Tablet"
 							demandPopin="true"
 							width="10em"
 						>
 							<Text text="IPNI (Int. Plant Name Index)"/>
-						</Column>
+						</Column> -->
 						<Column width="8em">
 							<Text text="Genus &amp; Species"/>
 						</Column>
@@ -88,13 +90,13 @@
 						<Column
 							minScreenWidth="Tablet"
 							demandPopin="true"
-							width="8em"
+							width="10em"
 						>
-							<Text text="Family &amp; Phylum"/>
+							<Text text="Family &amp; Publication"/>
 						</Column>
-						<Column width="10em">
+						<!-- <Column width="10em">
 							<Text text="Authors &amp; Publ. Year"/>
-						</Column>
+						</Column> -->
 						<Column
 							minScreenWidth="Tablet"
 							demandPopin="true"
@@ -117,18 +119,14 @@
 								<ObjectIdentifier
 									title="{kewSearchResults>name}"
 									text="{
-										parts: ['kewSearchResults>source', 'kewSearchResults>count', 'kewSearchResults>count_inactive'],
-										formatter: '.formatter.sourceAndCount'
+										parts: ['kewSearchResults>count', 'kewSearchResults>count_inactive'],
+										formatter: '.formatter.customAndCount'
 									}"
 								/>
 								<ObjectIdentifier
-									title="{kewSearchResults>taxonomic_status}"
-									text="{kewSearchResults>is_custom}"
+									title="{= (${kewSearchResults>is_custom}) ? 'Custom' : ${kewSearchResults>taxonomic_status} }"
+									text="{= (${kewSearchResults>is_custom}) ? '' : ${kewSearchResults>lsid} }"
 								/>
-								<Text text="{
-									parts: ['kewSearchResults>lsid', 'kewSearchResults>is_custom'],
-									formatter: '.formatter.ipniOrCustomName'
-								}"/>
 								<ObjectIdentifier
 									title="{kewSearchResults>genus}"
 									text="{kewSearchResults>species}"
@@ -139,12 +137,12 @@
 								/>
 								<ObjectIdentifier
 									title="{kewSearchResults>family}"
-									text="TODOOOOOOOOO"
+									text="{kewSearchResults>authors} ({kewSearchResults>namePublishedInYear})"
 								/>
-								<ObjectIdentifier
+								<!-- <ObjectIdentifier
 									title="{kewSearchResults>authors}"
 									text="{kewSearchResults>namePublishedInYear}"
-								/>
+								/> -->
 								<HBox>
 									<Text
 										text="{kewSearchResults>synonyms_concat}"

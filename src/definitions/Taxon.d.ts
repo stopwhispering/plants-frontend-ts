@@ -9,8 +9,9 @@ export type BSearchResultSource =
   | "International Plant Names Index + Plants of the World";
 
   export interface BKewSearchResultEntry {
-    source: BSearchResultSource;
+    // source: BSearchResultSource;
     id?: number;
+    in_db: boolean;
     count: number;
     count_inactive: number;
     synonym: boolean;

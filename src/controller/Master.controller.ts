@@ -28,6 +28,7 @@ export default class Master extends BaseController {
 	private _oPlantFilterDialogHandler: PlantFilterDialogHandler | undefined;  // lazy instantiation
 	private _oSortPlantsDialogHandler: SortPlantsDialogHandler | undefined;  // lazy instantiation
 	private _oImagePreviewPopoverHandler: ImagePreviewPopoverHandler | undefined;  // lazy instantiation
+	private _oNewPlantDialogHandler: NewPlantDialogHandler | undefined;  // lazy instantiation
 
 	onInit() {
 		super.onInit();
@@ -78,8 +79,9 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////	
 	onAddNewPlant(oEvent: Event) {
 		//open dialog to create new plant
-		const oNewPlantDialogHandler = new NewPlantDialogHandler(this.oComponent.getModel('plants'));
-		oNewPlantDialogHandler.openNewPlantDialog(this.getView());
+		if (!this._oNewPlantDialogHandler)
+		 	this._oNewPlantDialogHandler = new NewPlantDialogHandler(this.oComponent.getModel('plants'));
+		this._oNewPlantDialogHandler.openNewPlantDialog(this.getView());
 	}
 
 	//////////////////////////////////////////////////////////

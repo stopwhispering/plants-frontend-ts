@@ -140,6 +140,7 @@
 										wrapping="true"
 										tooltip="{plants>id} - {plants>plant_name}" />
 									<FormattedText 
+										visible="{= !!${plants>full_botanical_html_name} }"
 										htmlText="{plants>full_botanical_html_name}"
 										tooltip="{plants>id} - {plants>plant_name}"
 										/>

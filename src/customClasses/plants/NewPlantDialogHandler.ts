@@ -54,9 +54,9 @@ export default class NewPlantDialogHandler extends ManagedObject {
             MessageToast.show("Please enter a name for the new plant");
 			return;
         }
-
-		this._oPlantCreator.addNewPlantAndSave(oNewPlantInputData.newPlantName);
-		this._oNewPlantDialog.close();
+        
+        const cbCloseDialog = () => this._oNewPlantDialog.close();
+		this._oPlantCreator.addNewPlantAndSave(oNewPlantInputData.newPlantName, cbCloseDialog);
 	}
 	onCancelNewPlantDialog(oEvent: Event) {
 		this._oNewPlantDialog.close();

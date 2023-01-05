@@ -104,16 +104,31 @@ export default class formatter{
 		}
 	}
 	
-	public sourceAndCount(sSource: string, iCount: boolean, iCountInactive: boolean){
+	// public sourceAndCount(sSource: string, iCount: boolean, iCountInactive: boolean){
+	// 	if (!iCount && !iCountInactive){
+	// 		return sSource;
+	// 	} else if (!!iCount && !!iCountInactive){
+	// 		return sSource + ' (' +  iCount + ' +' + iCountInactive + ' inactive )';
+	// 	} else if (!!iCount){
+	// 		return sSource + ' (' + iCount + ')';
+	// 	} else if (!!iCountInactive){
+	// 		return sSource + ' (' + iCountInactive + ' inactive )';
+	// 	}
+	// }
+
+	public customAndCount(iCount: boolean, iCountInactive: boolean){
+		// const sResult = (is_custom) ? 'Custom' : 'IPNI';
+		let sCount
 		if (!iCount && !iCountInactive){
-			return sSource;
+			sCount = '';
 		} else if (!!iCount && !!iCountInactive){
-			return sSource + ' (' +  iCount + ' +' + iCountInactive + ' inactive )';
+			sCount = iCount + ' plant(s) +' + iCountInactive + ' inactive';
 		} else if (!!iCount){
-			return sSource + ' (' + iCount + ')';
+			sCount = iCount + ' plant(s)';
 		} else if (!!iCountInactive){
-			return sSource + ' (' + iCountInactive + ' inactive )';
+			sCount = iCountInactive + ' inactive';
 		}
+		return sCount;
 	}
 	
 	public existsAndNotEmpty(obj: any){

@@ -83,6 +83,8 @@ export default class Detail extends BaseController {
 	private _oPlantRenamer: PlantRenamer;  // lazy loaded
 	private _oSearchSpeciesDialogHandler: SearchSpeciesDialogHandler;  // lazy loaded
 	private _oLeafletMapHandler: LeafletMapHandler;  // lazy loaded
+	private oDeletePlantTagMenuHandler: DeletePlantTagMenuHandler;  // lazy loaded
+	private oNewPlantTagPopoverHandler: NewPlantTagPopoverHandler;  // lazy loaded
 
 	onInit() {
 		super.onInit();
@@ -213,19 +215,20 @@ export default class Detail extends BaseController {
 	// Plant Tag Handlers
 	//////////////////////////////////////////////////////////
 	public onPressTag(oEvent: Event) {
-		var oSource = <ObjectStatus>oEvent.getSource();
-		var sPathTag = oSource.getBindingContext('plants')!.getPath();
-		const oDeletePlantTagMenuHandler = new DeletePlantTagMenuHandler(this.oComponent.getModel('plants'));
-		oDeletePlantTagMenuHandler.openDeletePlantTagMenu(this.mCurrentPlant.plant, sPathTag, this.getView(), oSource);
+		if (!this.oDeletePlantTagMenuHandler)
+			this.oDeletePlantTagMenuHandler = new DeletePlantTagMenuHandler(this.oComponent.getModel('plants'));
+		
+	const oSource = <Control>oEvent.getSource();
+	const sPathTag = oSource.getBindingContext('plants')!.getPath();
+	this.oDeletePlantTagMenuHandler.openDeletePlantTagMenu(this.mCurrentPlant.plant, sPathTag, this.getView(), oSource);
 	}
 
 	onOpenAddTagDialog(oEvent: Event) {
 		// create add tag dialog
+		if (!this.oNewPlantTagPopoverHandler)
+			this.oNewPlantTagPopoverHandler = new NewPlantTagPopoverHandler(this.oComponent.getModel('plants'));
 		var oButton = <Control>oEvent.getSource();
-
-		const oPlantsModel = this.oComponent.getModel('plants');
-		const oNewPlantTagPopoverHandler = new NewPlantTagPopoverHandler(oPlantsModel);
-		oNewPlantTagPopoverHandler.openNewPlantTagPopover(this.mCurrentPlant.plant, oButton, this.getView());
+		this.oNewPlantTagPopoverHandler.openNewPlantTagPopover(this.mCurrentPlant.plant, oButton, this.getView());
 	}
 
 

@@ -62,7 +62,7 @@ export default class SpeciesFinder extends ManagedObject {
 		}
 
 		const oNewTaxon: FNewTaxon = {
-			id: oSelectedSearchResult.id,  // if id is supplied, then we don't save anything but simply retrieve that existing taxon from db
+			id: (oCustomTaxonInputData.newCustomTaxon) ? null : oSelectedSearchResult.id,  // if id is supplied, then we don't save anything but simply retrieve that existing taxon from db
 			rank: oSelectedSearchResult.rank,
 			family: oSelectedSearchResult.family,
 			genus: oSelectedSearchResult.genus,

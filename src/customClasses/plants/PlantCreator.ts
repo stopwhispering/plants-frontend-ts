@@ -25,7 +25,7 @@ export default class PlantCreator extends ManagedObject {
         this._oPlantLookup = oPlantLookup;
 	}	
 
-    public addNewPlantAndSave(sPlantName: string): void {
+    public addNewPlantAndSave(sPlantName: string, cbCloseDialog: Function): void {
         // add plant to model
         // save plant to backend
 
@@ -55,7 +55,7 @@ export default class PlantCreator extends ManagedObject {
 			tags: [],
 		};
 
-		this._saveNewPlant(oNewPlant);
+		this._saveNewPlant(oNewPlant, cbCloseDialog);
     }
 
 	public createDescendantPlant(descendantPlantInput: LDescendantPlantInput): void {
@@ -136,11 +136,10 @@ export default class PlantCreator extends ManagedObject {
 		this._saveNewPlant(newPlant);
 	}    
 
-	private _saveNewPlant(oPlant: FPlant): void {
+	private _saveNewPlant(oPlant: FPlant, cbCloseDialog?: Function): void {
 		// save plant to backend to receive plant id
 		var dPayloadPlants = { 'PlantsCollection': [oPlant] };
 		Util.startBusyDialog('Creating...', 'new plant ' + oPlant.plant_name);
-		var that = this;
 		$.ajax({
 			url: Util.getServiceUrl('plants/'),
 			type: 'POST',
@@ -148,12 +147,22 @@ export default class PlantCreator extends ManagedObject {
 			data: JSON.stringify(dPayloadPlants),
 			context: this
 		})
-			.done(function (oData: BResultsPlantsUpdate, sStatus: string, oReturnData: any) {
+			.done(this._cbSavedPlant.bind(this, cbCloseDialog))
+			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (POST)'))
+			.always(function () {
+				Util.stopBusyDialog();
+			});
+	}	
+	
+	private _cbSavedPlant(cbCloseDialog: Function|undefined, oData: BResultsPlantsUpdate, sStatus: string, oReturnData: any): void {
 				// add new plant to model
 				var oPlantSaved = oData.plants[0];
-				var aPlants = that._oPlantsModel.getProperty('/PlantsCollection');
+				var aPlants = this._oPlantsModel.getProperty('/PlantsCollection');
 				aPlants.push(oPlantSaved);  // append at end to preserve change tracking with clone 
-				that._oPlantsModel.updateBindings(false);
+				this._oPlantsModel.updateBindings(false);
+
+				if (cbCloseDialog)
+					cbCloseDialog();
 
 				// ...and add to cloned plants to allow change tracking
 				ChangeTracker.getInstance().addOriginalPlant(oPlantSaved);
@@ -161,13 +170,7 @@ export default class PlantCreator extends ManagedObject {
 
 				// finally navigate to the newly created plant in details view
 				Navigation.getInstance().navToPlantDetails(oPlantSaved.id!);
-
-			})
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (POST)'))
-			.always(function () {
-				Util.stopBusyDialog();
-			});
-	}	    
+		}
 
 
 

@@ -7,9 +7,9 @@
         "preserveConstEnums": true,
         "inlineSourceMap": true,
         "allowJs": true,
+        "strict": true,
 
         // when setting to true, "npx tsc" will result in error for each type error!
-        "strict": true,
         "strictNullChecks": false,
         "strictPropertyInitialization": false,
         "rootDir": "./src",

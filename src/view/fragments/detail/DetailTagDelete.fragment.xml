@@ -7,6 +7,6 @@
     		text="Delete"
     		icon="sap-icon://delete"
     		tooltip="Delete Tag"
-			press="pressDeleteTag"/>
+			press=".pressDeleteTag"/>
 	</Menu>
 </core:FragmentDefinition>

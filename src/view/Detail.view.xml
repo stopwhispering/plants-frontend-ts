@@ -123,21 +123,21 @@
 						icon="sap-icon://full-screen"
 						press="onHandleFullScreen"
 						tooltip="{i18n>fullscreen_button_tooltip}"
-						visible="{= ${/actionButtonsInfo/midColumn/fullScreen} !== null }"
+						visible="{= !!${/actionButtonsInfo/midColumn/fullScreen} }"
 					/>
 					<m:OverflowToolbarButton
 						type="Transparent"
 						icon="sap-icon://exit-full-screen"
 						press="onHandleExitFullScreen"
 						tooltip="{i18n>exit_fullscreen_button_tooltip}"
-						visible="{= ${/actionButtonsInfo/midColumn/exitFullScreen} !== null }"
+						visible="{= !!${/actionButtonsInfo/midColumn/exitFullScreen} }"
 					/>
 					<m:OverflowToolbarButton
 						type="Transparent"
 						icon="sap-icon://decline"
 						press="onHandleClose"
 						tooltip="{i18n>close_column}"
-						visible="{= ${/actionButtonsInfo/midColumn/closeColumn} !== null }"
+						visible="{= !!${/actionButtonsInfo/midColumn/closeColumn} }"
 					/>
 				</actions>
 			</ObjectPageDynamicHeaderTitle>
@@ -262,7 +262,7 @@
 										type="XML"
 									/>
 									<core:Fragment
-										fragmentName="plants.ui.view.fragments.events.Soil"
+										fragmentName="plants.ui.view.embedded.Soil"
 										type="XML"
 									/>
 									<core:Fragment
