@@ -32,17 +32,12 @@ export default class UploadImagesDialogHandler extends ManagedObject {
     private _oMultiInputPlants: MultiInput;
     private _oMultiInputKeywords: MultiInput;
 
-    constructor(oFileUploader: FileUploader, oImagesModel: JSONModel, oUntaggedImagesModel: JSONModel, 
-        oPlantLookup: PlantLookup,
-        oMultiInputPlants: MultiInput, oMultiInputKeywords: MultiInput) {
+    constructor(oImagesModel: JSONModel, oUntaggedImagesModel: JSONModel, 
+        oPlantLookup: PlantLookup) {
         super();
-        this._oFileUploader = oFileUploader;
         this._oImagesModel = oImagesModel;
         this._oUntaggedImagesModel = oUntaggedImagesModel;
         this._oPlantLookup = oPlantLookup;
-
-        this._oMultiInputPlants = oMultiInputPlants;
-        this._oMultiInputKeywords = oMultiInputKeywords;
     }
 
     public openUploadImagesDialog(oViewAttachTo: View, iCurrentPlantId: int): void {
@@ -56,6 +51,10 @@ export default class UploadImagesDialogHandler extends ManagedObject {
         }).then((oControl: Control | Control[]) => {
             this._oUploadImagesDialog = <Dialog>oControl;
 			oViewAttachTo.addDependent(this._oUploadImagesDialog);
+
+			this._oFileUploader = <FileUploader>oViewAttachTo.byId("idPhotoUpload");
+			this._oMultiInputPlants = <MultiInput>oViewAttachTo.byId('multiInputUploadImagePlants');
+			this._oMultiInputKeywords = <MultiInput>oViewAttachTo.byId('multiInputUploadImageKeywords');
 
             // we need to manually add a validator here
             this._oMultiInputKeywords.addValidator(this._keywordValidator);            

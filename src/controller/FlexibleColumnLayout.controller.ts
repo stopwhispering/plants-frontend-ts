@@ -267,12 +267,11 @@ export default class FlexibleColumnLayout extends BaseController {
 	//////////////////////////////////////////////////////////	
 	onOpenFragmentUploadPhotos(oEvent: Event) {
 
-		const oFileUploader = <FileUploader>this.byId("idPhotoUpload");
 		const oImagesModel = this.oComponent.getModel('images');
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
 
 		if (!this._oUploadImagesDialogHandler) {
-			this._oUploadImagesDialogHandler = new UploadImagesDialogHandler(oFileUploader, oImagesModel, oUntaggedImagesModel,
+			this._oUploadImagesDialogHandler = new UploadImagesDialogHandler(oImagesModel, oUntaggedImagesModel,
 				this.oPlantLookup);
 		}
 		this._oUploadImagesDialogHandler.openUploadImagesDialog(this.getView(), this._currentPlantId);
