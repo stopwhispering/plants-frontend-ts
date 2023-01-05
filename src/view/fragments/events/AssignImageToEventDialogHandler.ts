@@ -1,4 +1,3 @@
-import Dialog from "sap/m/Dialog";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
@@ -9,6 +8,7 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import { FBImage } from "plants/ui/definitions/Images";
 import { FBEvent } from "plants/ui/definitions/Events";
 import ImageToEventAssigner from "plants/ui/customClasses/images/ImageToEventAssigner";
+import Popover from "sap/m/Popover";
 
 /**
  * @namespace plants.ui.view.fragments.events
@@ -16,14 +16,14 @@ import ImageToEventAssigner from "plants/ui/customClasses/images/ImageToEventAss
 export default class AssignImageToEventDialogHandler extends ManagedObject {
     private _oEventsModel: JSONModel;  // "events"
 
-    private _oAssignImageToEventDialog: Dialog;  // "dialogAssignEventToImage"
+    private _oAssignImageToEventDialog: Popover;  // "dialogAssignEventToImage"
 
     public constructor(oEventsModel: JSONModel) {
         super();
         this._oEventsModel = oEventsModel;
     }
 
-    openAssignImageToEventDialog(oAttachToView: View, sPathCurrentImage: string) {
+    openAssignImageToEventDialog(oAttachToView: View, oOpenBy: Control, sPathCurrentImage: string) {
         // open dialog to attach an image to an event
         // opened from the images list
         // sPathCurrentImage is the path to the image in the images model
@@ -33,20 +33,20 @@ export default class AssignImageToEventDialogHandler extends ManagedObject {
                 id: oAttachToView.getId(),
                 controller: this
             }).then((oControl: Control | Control[]) => {
-                this._oAssignImageToEventDialog = <Dialog>oControl;
+                this._oAssignImageToEventDialog = <Popover>oControl;
                 oAttachToView.addDependent(this._oAssignImageToEventDialog);
                 this._oAssignImageToEventDialog.bindElement({
                     path: sPathCurrentImage,
                     model: "images"
                 });
-                this._oAssignImageToEventDialog.open();
+                this._oAssignImageToEventDialog.openBy(oOpenBy, true);
             });
         } else {
             this._oAssignImageToEventDialog.bindElement({
                 path: sPathCurrentImage,
                 model: "images"
             });
-            this._oAssignImageToEventDialog.open();
+            this._oAssignImageToEventDialog.openBy(oOpenBy, true);
         }
     }
 

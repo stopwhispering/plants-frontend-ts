@@ -451,7 +451,7 @@ export default class Detail extends BaseController {
 			const oEventsModel = <JSONModel>this.oComponent.getModel('events');
 			this._oAssignImageToEventDialogHandler = new AssignImageToEventDialogHandler(oEventsModel);
 		}
-		this._oAssignImageToEventDialogHandler.openAssignImageToEventDialog(this.getView(), sPathCurrentImage);
+		this._oAssignImageToEventDialogHandler.openAssignImageToEventDialog(this.getView(), oSource, sPathCurrentImage);
 
 	}
 
