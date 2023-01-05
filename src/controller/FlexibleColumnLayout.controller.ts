@@ -40,6 +40,7 @@ export default class FlexibleColumnLayout extends BaseController {
 
 	private _oShellBarMenuHandler: ShellBarMenuHandler;  // lazy loaded
 	private _oMessagePopoverHandler: MessagePopoverHandler;  // lazy loaded
+	private _oUploadImagesDialogHandler: UploadImagesDialogHandler;  // lazy loaded
 
 	onInit() {
 		super.onInit();
@@ -87,36 +88,36 @@ export default class FlexibleColumnLayout extends BaseController {
 	//////////////////////////////////////////////////////////	
 	public onStateChanged(oEvent: Event) {
 		this._updateUIElements();
-		
+
 		// Replace the URL with the new layout if a navigation arrow was used
 		const bIsNavigationArrow = oEvent.getParameter("isNavigationArrow");
 		if (bIsNavigationArrow) {
 			const sLayout = oEvent.getParameter("layout");  // e.g. "OneColumn"
-			this._oRouter.navTo(this._currentRouteName, { 
-				layout: sLayout, 
-				plant_id: this._currentPlantId 
-			// }, true);
+			this._oRouter.navTo(this._currentRouteName, {
+				layout: sLayout,
+				plant_id: this._currentPlantId
+				// }, true);
 			});
 		}
 	}
 
 	private _updateUIElements() {
 		// Update the close/fullscreen buttons visibility
-		var oUIState: UIState =  Navigation.getInstance().getFCLHelper().getCurrentUIState();
+		var oUIState: UIState = Navigation.getInstance().getFCLHelper().getCurrentUIState();
 
 		// somehow with the migration to TS, starting the page with a TwoColumnLayout as URL does
 		// not work. Therefore, we need an ugly hack here. Todo: Make it better.
-		if (window.location.hash.includes('TwoColumnsMidExpanded')){
+		if (window.location.hash.includes('TwoColumnsMidExpanded')) {
 			oUIState.layout = "TwoColumnsMidExpanded"
 			oUIState.columnsVisibility!.midColumn = true
-		} else if (window.location.hash.includes('ThreeColumnsMidExpanded')){
+		} else if (window.location.hash.includes('ThreeColumnsMidExpanded')) {
 			oUIState.layout = "ThreeColumnsMidExpanded"
 			oUIState.columnsVisibility!.midColumn = true
 			oUIState.columnsVisibility!.endColumn = true
 		}
 
 		var oModel = this.oComponent.getModel();
-		if (oModel) 
+		if (oModel)
 			oModel.setData(oUIState);
 	}
 
@@ -131,7 +132,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	public onShellBarMenuButtonPressed(oEvent: Event) {
 		var oSource = <Control>oEvent.getSource();
 
-		if (!this._oShellBarMenuHandler){
+		if (!this._oShellBarMenuHandler) {
 			this._oShellBarMenuHandler = new ShellBarMenuHandler();
 		}
 		this._oShellBarMenuHandler.openShellBarMenu(this.getView(), oSource)
@@ -148,7 +149,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		const oChangeTracker = ChangeTracker.getInstance();
 		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
 		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
-		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();		
+		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
 
 		// if modified data exists, ask for confirmation if all changes should be undone
 		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
@@ -179,7 +180,7 @@ export default class FlexibleColumnLayout extends BaseController {
 			// oModelsHelper.reloadPlantsFromBackend();
 			// oModelsHelper.resetImages();
 
-			
+
 			// reset the taxa registry including it's clone and trigger reload of current plant's taxon details
 			// oModelsHelper.resetTaxaRegistry();
 			new TaxonRegistryHandler(this.oComponent.getModel('plants'), this.oComponent.getModel('taxon')).resetTaxonRegistry();
@@ -255,7 +256,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	onHomeIconPressed(oEvent: Event) {
 		// go to home site, i.e. master view in single column layout
 		// var oHelper = this.oComponent.getHelper();
-		var oHelper =  Navigation.getInstance().getFCLHelper();
+		var oHelper = Navigation.getInstance().getFCLHelper();
 		//@ts-ignore
 		var sNextLayoutType = oHelper.getDefaultLayouts().defaultLayoutType;
 		this._oRouter.navTo("master", { layout: sNextLayoutType });
@@ -269,13 +270,12 @@ export default class FlexibleColumnLayout extends BaseController {
 		const oFileUploader = <FileUploader>this.byId("idPhotoUpload");
 		const oImagesModel = this.oComponent.getModel('images');
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
-		const oMultiInputPlants = <MultiInput>this.byId('multiInputUploadImagePlants');
-		const oMultiInputKeywords = <MultiInput>this.byId('multiInputUploadImageKeywords');
-		const oUploadImagesDialogHandler = new UploadImagesDialogHandler(oFileUploader, oImagesModel, oUntaggedImagesModel, 
-			this.oPlantLookup,
-			oMultiInputPlants, oMultiInputKeywords
-			);
-		oUploadImagesDialogHandler.openUploadImagesDialog(this.getView(), this._currentPlantId);
-	}	
+
+		if (!this._oUploadImagesDialogHandler) {
+			this._oUploadImagesDialogHandler = new UploadImagesDialogHandler(oFileUploader, oImagesModel, oUntaggedImagesModel,
+				this.oPlantLookup);
+		}
+		this._oUploadImagesDialogHandler.openUploadImagesDialog(this.getView(), this._currentPlantId);
+	}
 
 }
