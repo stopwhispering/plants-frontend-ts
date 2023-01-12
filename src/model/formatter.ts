@@ -1,4 +1,5 @@
 import Util from "plants/ui/customClasses/shared/Util";
+import Constants from "../Constants";
 import Detail from "../controller/Detail.controller";
 import SuggestionService from "../customClasses/shared/SuggestionService";
 import { FBEvent, FBImageAssignedToEvent } from "../definitions/Events";
@@ -76,11 +77,23 @@ export default class formatter{
 		}
 	}
 	
-	public tokenFormat(key: string, plant_name: string){
-		if(key===plant_name){
-			return true;
+	// public tokenFormat(key: string, plant_name: string){
+	// 	// returns whether token is to be displayed in bold depending on whether it contains
+	// 	// the current plant's id
+	// 	if(key===plant_name){
+	// 		return true;
+	// 	} else {
+	// 		return false;
+	// 	}
+	// }
+
+	public shortenKeywordForTokenDisplay(sName: string): string {
+		if (!sName) {
+			return '';
+		} else if (sName.length <= Constants.LENGTH_SHORTENED_KEYWORD_FOR_TOKEN_DISPLAY) {
+			return sName;
 		} else {
-			return false;
+			return sName.slice(0, Constants.LENGTH_SHORTENED_KEYWORD_FOR_TOKEN_DISPLAY - 3) + '...';
 		}
 	}
 	

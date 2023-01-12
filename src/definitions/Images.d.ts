@@ -23,8 +23,10 @@ export interface FBKeyword {
 }
 export interface FBImagePlantTag {
   plant_id?: number;
-  key: string;
-  text: string;
+  plant_name: string;
+  plant_name_short: string;
+  // key: string;
+  // text: string;
 }
 export interface BResultsImageDeleted {
   action: string;

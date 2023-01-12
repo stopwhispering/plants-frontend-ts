@@ -5,6 +5,7 @@ import Util from "plants/ui/customClasses/shared/Util";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { FBImage, FBImagePlantTag } from "plants/ui/definitions/Images";
 import { BPlant } from "plants/ui/definitions/Plants";
+import { AnyDict } from "plants/ui/definitions/SharedLocal";
 
 /**
  * @namespace plants.ui.customClasses.images
@@ -27,12 +28,15 @@ export default class ImagePlantTagger extends ManagedObject {
 		var aCurrentlyAssignedPlants = <FBImagePlantTag[]>oImage.plants;
 		var oNewlyAssignedPlant = <FBImagePlantTag>{
 			plant_id: oPlant.id,
-			key: oPlant.plant_name,
-			text: oPlant.plant_name,
+			plant_name: oPlant.plant_name,
+			plant_name_short: Util.shorten_plant_name_for_tag(oPlant.plant_name),
 		};
 		
 		// check if already in list
-		if (Util.isDictKeyInArray(oNewlyAssignedPlant, aCurrentlyAssignedPlants)){
+		var oFound = aCurrentlyAssignedPlants.find(function (oElement: FBImagePlantTag) {
+			return oElement.plant_id === oNewlyAssignedPlant.plant_id;
+		});
+		if(oFound) {
 			MessageToast.show('Plant Name already assigned. ');
 			return false;
 		} else {
@@ -43,12 +47,12 @@ export default class ImagePlantTagger extends ManagedObject {
 		}			
 	}
 
-	public removePlantFromImage(sPlantName: string, oImage: FBImage){
+	public removePlantFromImage(iPlantId: int, oImage: FBImage){
 		// triggered upon changes of image's plant assignments
 		// either in untagged view or in detail view ==> oModel can be either images or untagged_images model
 		// find plant in the image's corresponding array and delete
 		const aPlantTags = <FBImagePlantTag[]>oImage.plants;
-		const iIndex: int = aPlantTags.findIndex(ele=>ele.key === sPlantName);
+		const iIndex: int = aPlantTags.findIndex(ele=>ele.plant_id === iPlantId);
 		if (iIndex < 0) throw new Error("Plant not found in image's plants tags array.");
 		aPlantTags.splice(iIndex, 1);
 		this._oAnyImageModel.updateBindings(false);

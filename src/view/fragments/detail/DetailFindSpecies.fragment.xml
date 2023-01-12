@@ -8,7 +8,7 @@
 		stretch="{device>/system/phone}"
 		id="dialogFindSpecies"
 		class="sapUiContentPadding"
-		contentWidth="92em"
+		contentWidth="66rem"
 	>
 		<!-- beforeOpen=".onBeforeOpenSearchSpeciesDialog" -->
 		<content>
@@ -30,24 +30,49 @@
 						/>
 					</HBox>
 				</VBox>
-				<HBox>
-					<CheckBox
+				<VBox>
+				<HBox alignContent="SpaceBetween" alignItems="Center"
+						class="sapUiSizeCompact">
+					<Label text="Use online Databases" width="12rem" wrapping="true"/>
+					<Switch 
+						state="{searchSpeciesInput>/includeExternalApis}"
+						customTextOn=" " 
+						customTextOff=" ">
+						<layoutData>
+							<FlexItemData growFactor="1" />
+						</layoutData>
+					</Switch>
+					<!-- <CheckBox
 						selected="{searchSpeciesInput>/includeExternalApis}"
 						text="Use &quot;Plants of the World&quot; Online Database"
-					/>
-					<CheckBox
+					/> -->
+				</HBox>
+					
+				<HBox alignContent="SpaceBetween" alignItems="Center" 
+						class="sapUiSizeCompact">
+					<Label text="Search for genus, not species" width="12rem" wrapping="true"/>
+					<Switch 
+						state="{searchSpeciesInput>/genusNotSpecies}"
+						customTextOn=" " 
+						customTextOff=" ">
+						<layoutData>
+							<FlexItemData growFactor="1" />
+						</layoutData>
+					</Switch>
+					<!-- <CheckBox
 						selected="{searchSpeciesInput>/genusNotSpecies}"
 						text="Unknown Species, search for genus instead"
-					/>
+					/> -->
 				</HBox>
+				</VBox>
 			</HBox>
-			<ScrollContainer
+			<!-- <ScrollContainer
 				height="28rem"
-				width="100%"
+				width="63rem"
 				vertical="true"
 				horizontal="false"
 				focusable="true"
-			>
+			> -->
 				<Table
 					id="tableFindSpeciesResults"
 					selectionChange=".onFindSpeciesTableSelectedOrDataUpdated"
@@ -58,57 +83,37 @@
 					}"
 				>
 					<columns>
-						<Column width="13em">
+						<Column width="10rem">
 							<Text text="Name &amp; Source"/>
 						</Column>
 						<Column
-							minScreenWidth="Tablet"
-							demandPopin="true"
-							width="10em"
+							width="8rem"
 						>
 							<Text 
 								text="Tax. Status &amp; LSID"
-								tooltip="Taxonomic Staus &amp; Life Science Identifier"/>
+								tooltip="Taxonomic Status &amp; Life Science Identifier"/>
 						</Column>
-						<!-- <Column
-							minScreenWidth="Tablet"
-							demandPopin="true"
-							width="10em"
-						>
-							<Text text="IPNI (Int. Plant Name Index)"/>
-						</Column> -->
-						<Column width="8em">
+						<Column width="6rem">
 							<Text text="Genus &amp; Species"/>
 						</Column>
 						<Column
-							minScreenWidth="Tablet"
-							demandPopin="true"
-							width="8em"
+							width="6rem"
 						>
 							<Text text="Rank &amp; Infraspecies"/>
 						</Column>
 						<Column
 							minScreenWidth="Tablet"
-							demandPopin="true"
-							width="10em"
+							width="9rem"
 						>
 							<Text text="Family &amp; Publication"/>
 						</Column>
-						<!-- <Column width="10em">
-							<Text text="Authors &amp; Publ. Year"/>
-						</Column> -->
 						<Column
 							minScreenWidth="Tablet"
-							demandPopin="true"
-							width="19em"
+							width="12rem"
 						>
 							<Text text="Synonyms"/>
 						</Column>
-						<Column
-							minScreenWidth="Tablet"
-							demandPopin="true"
-							width="19em"
-						>
+						<Column width="12rem">
 							<Text text="Distribution"/>
 						</Column>
 					</columns>
@@ -160,7 +165,7 @@
 						</ColumnListItem>
 					</items>
 				</Table>
-			</ScrollContainer>
+			<!-- </ScrollContainer> -->
 			<f:Card
 				class="sapUiSmallMarginTopBottom"
 				visible="{searchSpeciesInput>/resultSelected}"
@@ -169,21 +174,22 @@
 					<HBox>
 						<VBox class="sapUiSmallMarginTop sapUiSmallMarginBegin">
 							<Label
-								text="{i18n>label_additional_species_name}"
+								text="Custom Name"
 								tooltip="{i18n>label_additional_species_name}"
 								width="5rem"
 								wrapping="true"
 							/>
 							<Switch
-								customTextOn=""
-								customTextOff=""
+								customTextOn=" "
+								customTextOff=" "
 								enabled="{customTaxonInput>/editable}"
 								state="{customTaxonInput>/newCustomTaxon}"
 								change=".onCustomTaxonChange"
+								class="sapUiSizeCompact"
 							/>
 						</VBox>
 						<HBox class="sapUiSmallMarginTop">
-							<VBox class="sapUISmallMargin">
+							<VBox class="sapUISmallMargin" >
 								<Label
 									text="Custom Infraspecies"
 									labelFor="inputFindSpeciesAdditionalName"
@@ -191,7 +197,8 @@
 								/>
 								<RadioButtonGroup editable="{=
 									${customTaxonInput>/newCustomTaxon} &amp;&amp; ${customTaxonInput>/editable} &amp;&amp; ${customTaxonInput>/editableCustomInfraspecies}
-								}">
+								}"
+								class="sapUiSizeCompact">
 									<RadioButton
 										text="None"
 										selected="{customTaxonInput>/customRankNone}"
@@ -209,11 +216,6 @@
 										selected="{customTaxonInput>/customRankForma}"
 									/>
 								</RadioButtonGroup>
-							</VBox>
-							<VBox
-								justifyContent="Center"
-								class="sapUISmallMargin"
-							>
 								<Label
 									text="Infraspecies Name"
 									class="sapUiTinyMarginEnd"
@@ -226,8 +228,13 @@
 										!(${customTaxonInput>/customRankNone}) &amp;&amp; ${customTaxonInput>/editable} &amp;&amp; ${customTaxonInput>/editableCustomInfraspecies}
 									}"
 									value="{customTaxonInput>/customInfraspecies}"
-									class="sapUiSmallMarginEnd"
+									class="sapUiSmallMarginBottom"
 								/>
+							</VBox>
+							<VBox
+								justifyContent="Center"
+								class="sapUISmallMargin"
+							>
 							</VBox>
 							<VBox
 								justifyContent="Center"

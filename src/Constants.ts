@@ -18,4 +18,8 @@ export default class Constants extends ManagedObject {
             return 'https://plants.astroloba.net/api/';
         }
     })();
+
+    // keep in sync with backend constant LENGTH_SHORTENED_PLANT_NAME_FOR_TAG
+    public static LENGTH_SHORTENED_PLANT_NAME_FOR_TAG = 25;
+    public static LENGTH_SHORTENED_KEYWORD_FOR_TOKEN_DISPLAY = 30;
 }

@@ -226,13 +226,12 @@ export default class Untagged extends BaseController {
 		if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
 		const oToken = <Token>aTokens[0];
 		const sPlantTokenKey = oToken.getKey();
+		const iPlantId = parseInt(sPlantTokenKey);
 
 		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer> oEvent.getSource();
 		const oImage = <FBImage>oTokenizer.getBindingContext('untaggedImages')!.getObject();
 		
-		// const oImagesModel = this.oComponent.getModel('untaggedImages');
-		// this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);
-		new ImagePlantTagger(this.oComponent.getModel('untaggedImages')).removePlantFromImage(sPlantTokenKey, oImage);
+		new ImagePlantTagger(this.oComponent.getModel('untaggedImages')).removePlantFromImage(iPlantId, oImage);
 	}	
 }

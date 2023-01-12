@@ -566,14 +566,13 @@ export default class Detail extends BaseController {
 		if (aTokens.length > 1) throw new Error("Unexpected error: More than one token to be deleted at once");
 		const oToken = <Token>aTokens[0];
 		const sPlantTokenKey = oToken.getKey();
+		const iPlantId = parseInt(sPlantTokenKey);
 
 		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer>oEvent.getSource();
 		const oImage = <FBImage>oTokenizer.getBindingContext('images')!.getObject();
 
-		// const oImagesModel = this.oComponent.getModel('images');
-		// this.imageEventHandlers.removePlantImageTokenFromModel(sPlantTokenKey, oImage, oImagesModel);
-		new ImagePlantTagger(this.oComponent.getModel('images')).removePlantFromImage(sPlantTokenKey, oImage);
+		new ImagePlantTagger(this.oComponent.getModel('images')).removePlantFromImage(iPlantId, oImage);
 
 	}
 
@@ -649,7 +648,7 @@ export default class Detail extends BaseController {
 				}),
 				new Filter("plants", function (aPlants: FBImagePlantTag[]) {
 					return (aPlants.some(oPlantTag => 
-						oPlantTag.text.toUpperCase().includes(sQuery) ||
+						oPlantTag.plant_name.toUpperCase().includes(sQuery) ||
 						oPlantTag.plant_id === parseInt(sQuery)))
 				}),
 				new Filter("keywords", function (aKeywords: FBKeyword[]) {

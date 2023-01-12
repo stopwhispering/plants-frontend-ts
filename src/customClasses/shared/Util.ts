@@ -166,16 +166,16 @@ export default class Util extends ManagedObject {
 	}
 
 
-	public static isDictKeyInArray(dict: AnyDict, aDicts: AnyDict[]) {
-		var oFound = aDicts.find(function (element: AnyDict) {
-			return element.key === dict.key;
-		});
-		if (!!oFound) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+	// public static isDictKeyInArray(dict: AnyDict, aDicts: AnyDict[]) {
+	// 	var oFound = aDicts.find(function (element: AnyDict) {
+	// 		return element.key === dict.key;
+	// 	});
+	// 	if (!!oFound) {
+	// 		return true;
+	// 	} else {
+	// 		return false;
+	// 	}
+	// }
 
 	public static romanize(num: number) {
 		if (isNaN(num))
@@ -215,6 +215,16 @@ export default class Util extends ManagedObject {
 			return 'forma';
         else
             throw new Error('Invalid custom rank')
+	}
+
+	public static shorten_plant_name_for_tag(sName: string): string {
+		if (!sName) {
+			return '';
+		} else if (sName.length <= Constants.LENGTH_SHORTENED_PLANT_NAME_FOR_TAG) {
+			return sName;
+		} else {
+			return sName.slice(0, Constants.LENGTH_SHORTENED_PLANT_NAME_FOR_TAG - 3) + '...';
+		}
 	}
 }
 

@@ -92,10 +92,10 @@
 											
 										<Button 
 											icon="sap-icon://sys-find"
+											visible="{status>/details_editable}"
 											tooltip="Find botanical name"
 											type="Transparent"
 											press=".onOpenFindSpeciesDialog"/>
-											<!-- visible="{status>/details_editable}" -->
 										
 									</HBox>
 								</CustomListItem>

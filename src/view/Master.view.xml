@@ -106,6 +106,7 @@
 						<Text text="Tags"/>
 					</Column>
 					<Column
+						minScreenWidth="30em"
 						width="6.0em"
 						styleClass="myVeryCompact"
 					>
@@ -115,6 +116,7 @@
 					<Column
 						minScreenWidth="40em"
 						width="12em"
+						styleClass="myVeryCompact"
 					>
 						<Text text="Soil"/>
 					</Column>

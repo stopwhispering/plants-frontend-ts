@@ -203,28 +203,40 @@
 														suggestionRows="{
 															path: 'plants>/PlantsCollection', templateShareable: false
 															}">
-											
+                                    
 														<m:suggestionColumns>
 															<m:Column
-																popinDisplay="Inline"
-																demandPopin="true">
-																<m:Label text="{i18n>name}"/>
+																importance="High"
+																width="3em">
+																<m:Label 
+																	text="{i18n>id}"
+																/>
+															</m:Column>
+															<m:Column
+																importance="High"
+																width="15em">
+																<m:Label 
+																	text="{i18n>name}"
+																	wrapping="true"
+																/>
 															</m:Column>
 															<m:Column
 																hAlign="End"
 																minScreenWidth="Tablet">
-																<m:Label text="{i18n>species}"/>
+																<m:Label 
+																	text="{i18n>species}"
+																	wrapping="true"
+																/>
 															</m:Column>
 														</m:suggestionColumns>
-											
+                                    
 														<m:suggestionRows>
 															<m:ColumnListItem>
 																<m:cells>
-																	<m:Label 
-																		text="{plants>plant_name}"
+																	<m:Label text="{plants>id}"/>
+																	<m:Label text="{plants>plant_name}" 
 																		wrapping="true"/>
-																	<m:Label 
-																		text="{plants>botanical_name}"
+																	<m:Label text="{plants>botanical_name}"
 																		wrapping="true"/>
 																</m:cells>
 															</m:ColumnListItem>
@@ -234,7 +246,6 @@
 
 												<m:Tokenizer 
 													class="sapUiSizeCompact"
-													id="tokenizerPlantsUntagged"
 													tokenDelete=".onTokenizerPlantImageTokenDelete"
 													tokens="{
 														path: 'untaggedImages>plants', templateShareable: false,
@@ -242,18 +253,18 @@
 													}">
 													
 													<m:Token
-														key="{untaggedImages>key}" 
-														text="{untaggedImages>text}"
-														tooltip="{untaggedImages>text}"
-														selected="{
-															parts: [
-																{path:'untaggedImages>key'},
-																{path:'plants>plant_name'}],
-															formatter: '.formatter.tokenFormat'
-															}"
-															press=".onPressImagePlantToken"
+														key="{untaggedImages>plant_id}" 
+														text="{untaggedImages>plant_name_short}"
+														tooltip="{untaggedImages>plant_name}"
+														selected="{= ${untaggedImages>plant_id} === ${plants>id} }"
+														press=".onPressImagePlantToken"
 															/> 
-														
+														<!-- "{
+															parts: [
+																{path:'untaggedImages>plant_id'},
+																{path:'plants>id'}],
+															formatter: '.formatter.tokenFormat'
+															}" -->
 												</m:Tokenizer>
 												<!-- </m:HBox> -->
 
@@ -266,8 +277,8 @@
 													width="5.5rem"
 													id="inputImageNewKeywordUntagged"
 													submit="onInputImageNewKeywordSubmit"
-													app:sModel= "untaggedImages"
 													value=""
+                                    				maxLength="30"
 													suggestionItems="{
 														path: 'keywords>/KeywordsCollection',
 														templateShareable: false
