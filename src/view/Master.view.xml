@@ -58,10 +58,22 @@
 						<ToolbarSpacer/>
 						<OverflowToolbarButton
 							icon="sap-icon://e-care"
-							text="New Plant"
 							tooltip="{i18n>new_plant}"
 							type="Ghost"
 							press=".onAddNewPlant"
+						/>
+						<OverflowToolbarButton
+							icon="sap-icon://tag"
+							tooltip="Add Tag"
+							type="Accept"
+							press=".onAddTagToSelectedPlants"
+							visible="{status>/master_plants_selectable}"
+						/>
+						<OverflowToolbarButton
+							icon="sap-icon://multi-select"
+							tooltip="Multi-Select"
+							type="Ghost"
+							press=".onToggleMultiSelectPlants"
 						/>
 						<OverflowToolbarButton
 							icon="sap-icon://sort"
