@@ -233,13 +233,15 @@ export default class EventDialogHandler extends ManagedObject {
 		var sMode = oEventNewOrEditData.mode; //edit or new
 		const oPlant = <BPlant>this._oEventDialog.getBindingContext('plants')!.getObject();
 
+		let bSuccess: boolean;
 		if (sMode === 'edit') {
-			this._editEvent(oPlant, oEventNewOrEditData);
+			bSuccess = this._editEvent(oPlant, oEventNewOrEditData);
 		} else {  //'new'
-			this._addEvent(oPlant, oEventNewOrEditData);
+			bSuccess = this._addEvent(oPlant, oEventNewOrEditData);
 		}
 
-		this._oEventDialog.close();
+		if (bSuccess) 
+			this._oEventDialog.close();
 	}
 
 	onCancelAddOrEditEventDialog(oEvent: Event) {
@@ -247,26 +249,16 @@ export default class EventDialogHandler extends ManagedObject {
 	}
 
 	//triggered by addOrEditEvent
-	private _addEvent(oPlant: BPlant, oEventNewData: LEventEditData): void {
+	private _addEvent(oPlant: BPlant, oEventNewData: LEventEditData): boolean {
 		//triggered by add button in add/edit event dialog
 		//validates and filters data to be saved
-
-		
-
-		
-		// var sPathEventsModel = '/PlantsEventsDict/' + oPlant.id + '/';
-		// var aEventsCurrentPlant: FBEvent[] = this._oEventsModel.getProperty(sPathEventsModel);
-
-		// assert date matches pattern "YYYY-MM-DD"
-		// Util.assertCorrectDate(oEventNewData.date);
-		// this._assertNoDuplicateOnDate(aEventsCurrentPlant, oEventNewData.date);
 
 		// clone the data so we won't change the original new model
 		const oNewEventSave = <LEventEditData>Util.getClonedObject(oEventNewData);
 
 		if (oNewEventSave.segments.soil && (!oNewEventSave.soil || !oNewEventSave.soil.id)) {
 			MessageToast.show('Please choose soil first.');
-			return;
+			return false;
 		}
 
 		// get the data in the dialog's segments
@@ -286,6 +278,7 @@ export default class EventDialogHandler extends ManagedObject {
 		}
 
 		this._oEventCRUD.addEvent(oPlant, oNewEvent)
+		return true;
 	}
 
 	private _getSoilData(oEventEditData: LEventEditData): FBSoil | null {
@@ -360,7 +353,7 @@ export default class EventDialogHandler extends ManagedObject {
 		return <FBObservation>oObservationDataClone;
 	}
 
-	private _editEvent(oPlant: BPlant, oEventEditData: LEventEditData): void {
+	private _editEvent(oPlant: BPlant, oEventEditData: LEventEditData): boolean {
 		//triggered by addOrEditEvent
 		//triggered by button in add/edit event dialog
 		//validates and filters data to be saved and triggers saving
@@ -368,7 +361,7 @@ export default class EventDialogHandler extends ManagedObject {
 		// old record (which we are updating as it is a pointer to the events model itself) is hidden as a property in the new model
 		if (!oEventEditData.oldEvent) {
 			MessageToast.show("Can't determine old record. Aborting.");
-			return;
+			throw new Error("Can't determine old record. Aborting.");
 		}
 		const oOldEvent: FBEvent = oEventEditData.oldEvent;
 
@@ -383,7 +376,7 @@ export default class EventDialogHandler extends ManagedObject {
 
 		if (oEventEditData.segments.soil && (!oEventEditData.soil || !oEventEditData.soil.id)) {
 			MessageToast.show('Please choose soil first.');
-			return;
+			return false;
 		}
 
 		// get the data in the dialog's segments
@@ -409,6 +402,7 @@ export default class EventDialogHandler extends ManagedObject {
 		// // have events factory function in details controller regenerate the events list
 		// this._oEventsModel.updateBindings(false);  // we updated a proprety of that model
 		// this._oEventsModel.refresh(true);
+		return true;
 	}
 
 	private _getInitialEvent(iCurrentPlantId: int): LEventEditData {

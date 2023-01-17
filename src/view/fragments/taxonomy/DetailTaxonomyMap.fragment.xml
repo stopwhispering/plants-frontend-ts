@@ -1,7 +1,7 @@
 <core:FragmentDefinition
 	xmlns="sap.m"
 	xmlns:core="sap.ui.core"
-	xmlns:map="custom.map"
+	xmlns:map="plants.ui.custom.map"
 >
 	<Dialog
 		id="dialogLeafletMap"

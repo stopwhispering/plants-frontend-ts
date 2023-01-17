@@ -37,8 +37,8 @@ export default class LeafletMapHandler extends ManagedObject {
 		this._oLeafletMapDialog.close();
 	}
 
-	// afterCloseLeafletMap(oEvent: Event) {
-	// 	this._oLeafletMapDialog.destroy();
-	// }
+	afterCloseLeafletMap(oEvent: Event) {
+		this._oLeafletMapDialog.destroy();
+	}
 
 }
