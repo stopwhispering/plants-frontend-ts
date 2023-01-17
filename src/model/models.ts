@@ -99,6 +99,8 @@ export function createStatusModel(): JSONModel {
 		preview_image: "favourite_image",
 		filterBarVisible: false,
 		filterBarLabel: "",
+		untagged_selectable: false,
+		master_plants_selectable: false,
 	}
 	const oModel = new JSONModel(oInitialData);
 	return oModel;

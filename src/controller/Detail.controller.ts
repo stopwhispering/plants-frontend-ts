@@ -228,7 +228,7 @@ export default class Detail extends BaseController {
 		if (!this.oNewPlantTagPopoverHandler)
 			this.oNewPlantTagPopoverHandler = new NewPlantTagPopoverHandler(this.oComponent.getModel('plants'));
 		var oButton = <Control>oEvent.getSource();
-		this.oNewPlantTagPopoverHandler.openNewPlantTagPopover(this.mCurrentPlant.plant, oButton, this.getView());
+		this.oNewPlantTagPopoverHandler.openNewPlantTagPopover([this.mCurrentPlant.plant], oButton, this.getView());
 	}
 
 

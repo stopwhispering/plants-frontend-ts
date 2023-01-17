@@ -1,6 +1,6 @@
 // todo remove and distribute to other files
 import ManagedObject from "sap/ui/base/ManagedObject";
-import { FBPlant } from "./Plants";
+import { FBPlant, FBTagState } from "./Plants";
 import { FBTaxon } from "./Taxon";
 
 /**
@@ -10,14 +10,13 @@ export interface NewPlant extends FBPlant {
     id: undefined;
 }
 
-export interface ObjectStatusData {
-    // ObjectStatus is reserved word
+export interface LTagInputStatus {
     selected: boolean;
     text: string;
-    state: string;
+    state: FBTagState;
 }
 
-export interface ObjectStatusCollection {
-    ObjectStatusCollection: ObjectStatusData[];
+export interface LTagInput {
+    TagStatusCollection: LTagInputStatus[];
     Value: string;
 }

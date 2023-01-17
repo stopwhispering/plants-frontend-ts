@@ -25,4 +25,6 @@ export interface LStatusModelData {
   preview_image: string;
   filterBarVisible: boolean;
   filterBarLabel: string;
+  untagged_selectable: boolean;
+  master_plants_selectable: boolean;
 }

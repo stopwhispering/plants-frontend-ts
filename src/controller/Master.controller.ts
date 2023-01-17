@@ -15,6 +15,9 @@ import NewPlantDialogHandler from "../customClasses/plants/NewPlantDialogHandler
 import PlantFilterDialogHandler from "../customClasses/filter/PlantFilterDialogHandler"
 import SortPlantsDialogHandler from "../customClasses/filter/SortPlantsDialogHandler"
 import ImagePreviewPopoverHandler from "../customClasses/filter/ImagePreviewPopoverHandler"
+import OverflowToolbarButton from "sap/m/OverflowToolbarButton"
+import MessageToast from "sap/m/MessageToast"
+import NewPlantTagPopoverHandler from "../customClasses/plants/NewPlantTagPopoverHandler"
 
 /**
  * @namespace plants.ui.controller
@@ -29,6 +32,7 @@ export default class Master extends BaseController {
 	private _oSortPlantsDialogHandler: SortPlantsDialogHandler | undefined;  // lazy instantiation
 	private _oImagePreviewPopoverHandler: ImagePreviewPopoverHandler | undefined;  // lazy instantiation
 	private _oNewPlantDialogHandler: NewPlantDialogHandler | undefined;  // lazy instantiation
+	private _oNewPlantTagPopoverHandler: NewPlantTagPopoverHandler; // lazy instantiation
 
 	onInit() {
 		super.onInit();
@@ -125,6 +129,48 @@ export default class Master extends BaseController {
 	public onHoverAwayFromImage(oAvatar: Avatar, evtDelegate: JQuery.Event): void {
 		const oPopover = <Popover>this.byId('popoverPopupImage');
 		oPopover.close();
+	}
+
+	//////////////////////////////////////////////////////////
+	// Toggle multi-select mode for plants table
+	//////////////////////////////////////////////////////////
+	onToggleMultiSelectPlants(oEvent: Event) {
+		const oSource = <OverflowToolbarButton>oEvent.getSource();
+		const sCurrentType = oSource.getType();  // 'Ghost' or 'Emphasized'
+		const oPlantsTable = <Table>this.byId('plantsTable');
+		const oStatusModel = <JSONModel>this.getView().getModel('status');  // todo entity type
+		
+		// set multi-select mode
+		if (sCurrentType === 'Ghost') {
+			oSource.setType('Emphasized');
+			oPlantsTable.setMode('MultiSelect');
+			// we need to save current mode to a model to allow access via expression binding
+			oStatusModel.setProperty('/master_plants_selectable', true);
+
+		// set default mode
+		} else {
+			oSource.setType('Ghost');
+			oPlantsTable.setMode('None');
+			oStatusModel.setProperty('/master_plants_selectable', false);
+		}
+	}
+	onAddTagToSelectedPlants(oEvent: Event) {
+		//open Popover to add tag to 1..n selected plants
+		const oSource = <OverflowToolbarButton>oEvent.getSource();
+		const oPlantsTable = <Table>this.byId('plantsTable');
+		const aSelectedItems = oPlantsTable.getSelectedItems();
+		const aSelectedPlants = <BPlant[]> aSelectedItems.map(item => item.getBindingContext('plants')!.getObject())
+		if (aSelectedItems.length == 0) {
+			MessageToast.show("Nothing selected.");
+			return;
+		}
+
+		if (!this._oNewPlantTagPopoverHandler){
+			const oPlantsModel = this.oComponent.getModel('plants');;
+			this._oNewPlantTagPopoverHandler = new NewPlantTagPopoverHandler(oPlantsModel);
+		}
+
+		this._oNewPlantTagPopoverHandler.openNewPlantTagPopover(aSelectedPlants, oSource, this.getView());
 	}
 
 }

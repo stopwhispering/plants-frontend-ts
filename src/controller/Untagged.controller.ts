@@ -40,7 +40,7 @@ export default class Untagged extends BaseController {
 		
 		this.oPlantLookup = new PlantLookup(this.oComponent.getModel('plants'));
 		
-		(this.oComponent.getModel('status')).setProperty('/untagged_selectable', false);
+		// this.oComponent.getModel('status').setProperty('/untagged_selectable', false);
 	}
 
 	private _onPatternMatched(oEvent: Event) {

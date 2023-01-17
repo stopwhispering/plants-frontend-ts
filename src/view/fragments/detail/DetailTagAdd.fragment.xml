@@ -20,7 +20,7 @@
 					<Input
 						id="inputTag"
 						required="true"
-						value="{	path: 'tagTypes>/Value'	}"
+						value="{	path: 'tagInput>/Value'	}"
 						width="10em"
 						maxLength="20"
 						class="sapUiTinyMargin"
@@ -36,19 +36,19 @@
 					<VBox
 						id="vboxStatus"
 						class="sapUiTinyMargin"
-        				items="{tagTypes>/ObjectStatusCollection}">
+        				items="{tagInput>/TagStatusCollection}">
 						
 						<items>
 							<HBox
 								alignItems="Center">
 								<RadioButton
 									groupName="tagType"
-									selected="{tagTypes>selected}"/>
+									selected="{tagInput>selected}"/>
 								<ObjectStatus
 									class="sapUiTinyMarginBottom"
-									text="{tagTypes>text}"
+									text="{tagInput>text}"
 									inverted="true"
-									state="{tagTypes>state}"/>
+									state="{tagInput>state}"/>
 							</HBox>
 						</items>
 					</VBox>
