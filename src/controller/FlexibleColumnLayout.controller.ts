@@ -25,6 +25,7 @@ import UploadImagesDialogHandler from "../customClasses/images/UploadImagesDialo
 import ShellBarMenuHandler from "../customClasses/shared/ShellBarMenuHandler"
 import Control from "sap/ui/core/Control"
 import MessagePopoverHandler from "../customClasses/shared/MessagePopoverHandler"
+import UntaggedImagesHandler from "../customClasses/images/UntaggedImagesHandler";
 
 /**
  * @namespace plants.ui.controller
@@ -142,7 +143,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		Saver.getInstance().saveMajorResources();
 	}
 
-	onPressButtonRefreshData() {
+	public onPressButtonRefreshData() {
 		//refresh data from backend
 
 		// check if there are any unsaved changes
@@ -175,7 +176,10 @@ export default class FlexibleColumnLayout extends BaseController {
 			const oPlantsLoader = new PlantsLoader(this.oComponent.getModel('plants'));
 			oPlantsLoader.loadPlants();
 
-			new ImageResetter(this.oComponent.getModel('images'), this.oComponent.getModel('untaggedImages')).resetImages();
+			const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
+			new UntaggedImagesHandler(oUntaggedImagesModel).requestUntaggedImages();
+
+			new ImageResetter(this.oComponent.getModel('images'), oUntaggedImagesModel).resetImages();
 
 			// reset the taxa registry including it's clone and trigger reload of current plant's taxon details
 			new TaxonRegistryHandler(this.oComponent.getModel('plants'), this.oComponent.getModel('taxon')).resetTaxonRegistry();
