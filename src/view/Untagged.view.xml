@@ -276,6 +276,7 @@
 												<m:Input
 													width="5.5rem"
 													id="inputImageNewKeywordUntagged"
+                                    				startSuggestion="3"
 													submit="onInputImageNewKeywordSubmit"
 													value=""
                                     				maxLength="30"
@@ -285,6 +286,7 @@
 														}"
 													textAlign="Begin"
 													placeholder="Keywords"
+													autocomplete="false"
 													showSuggestion="true">
 													<m:suggestionItems>
 														<core:Item text="{keywords>keyword}"/>

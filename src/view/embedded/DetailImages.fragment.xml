@@ -303,6 +303,7 @@
                                     visible="{status>/images_editable}"
                                     value=""
                                     maxLength="30"
+                                    startSuggestion="3"
                                     maxSuggestionWidth="25rem"
                                     suggestionItems="{
                                         path: 'keywords>/KeywordsCollection',
@@ -311,6 +312,7 @@
                                     textAlign="Begin"
                                     placeholder="Keywords"
                                     tooltip="Add Keywords"
+                                    autocomplete="false"
                                     showSuggestion="true">
                                     <suggestionItems>
                                         <core:Item text="{keywords>keyword}"/>
