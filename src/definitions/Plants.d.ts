@@ -141,3 +141,7 @@ export interface FPlantsDeleteRequest {
 export interface FPlantsUpdateRequest {
   PlantsCollection: FPlant[];
 }
+export interface BResultsProposeSubsequentPlantName {
+  original_plant_name: string;
+  subsequent_plant_name: string;
+}

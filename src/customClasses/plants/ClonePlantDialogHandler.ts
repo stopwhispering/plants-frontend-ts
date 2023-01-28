@@ -54,16 +54,14 @@ export default class ClonePlantDialogHandler extends ManagedObject {
             this._oClonePlantDialog = <Dialog>oControl;
 			oViewAttachTo.addDependent(this._oClonePlantDialog);
 
-			const oPlantNameGenerator = new PlantNameGenerator(this._oPlantLookup);
-			const sClonePlantName = oPlantNameGenerator.generatePlantNameWithRomanizedSuffix(this._oPlant.plant_name, 2);
-			// const oInput = <Input>this.byId('inputClonedPlantName');
-			// oInput.setValue(sClonePlantName);
-
             const oClonePlantInputData: LClonePlantInputData = {
-                plantName: sClonePlantName
+                plantName: '',
             }
             const oClonePlantInputModel = new JSONModel(oClonePlantInputData);
             this._oClonePlantDialog.setModel(oClonePlantInputModel, "clonePlant");
+
+			const oPlantNameGenerator = new PlantNameGenerator(this._oPlantLookup);
+			oPlantNameGenerator.requestClonePlantName(this._oPlant, oClonePlantInputModel);
 
             this._oClonePlantDialog.open();
         });
@@ -83,16 +81,7 @@ export default class ClonePlantDialogHandler extends ManagedObject {
 		const oClonePlantInputModel = <JSONModel>this._oClonePlantDialog.getModel("clonePlant");
         const oClonePlantInputData: LClonePlantInputData = oClonePlantInputModel.getData();
 		const sClonedPlantName = oClonePlantInputData.plantName.trim();
-		// const sClonedPlantName = (<Input>this.byId('inputClonedPlantName')).getValue().trim();
-		// const oPlantCloner = new PlantCloner(this.oComponent.getModel('plants'), this.oPlantLookup)
-		// const oDialogClonePlant = <Dialog>this.byId('dialogClonePlant');
 		this._oPlantCloner.clonePlant(this._oPlant, sClonedPlantName, this._oClonePlantDialog);
 	}
-
-	// onLiveChangeNewPlantName(oEvent: Event, type: 'clone' | 'rename' | 'descendant') {
-	// 	// called from either rename or clone fragment
-	// 	var sText = oEvent.getParameter('value');
-	// 		(<Button>this.byId('btnClonePlantSubmit')).setEnabled(sText.length > 0);
-	// }    
 
 }
