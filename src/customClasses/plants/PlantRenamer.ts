@@ -9,7 +9,7 @@ import Dialog from "sap/m/Dialog";
 import { BConfirmation } from "plants/ui/definitions/Messages";
 import PlantLookup from "./PlantLookup";
 import PlantImagesLoader from "./PlantImagesLoader";
-import PlantsLoader from "./PlantsLoader";
+import PlantsLoader from "plants/ui/customClasses/singleton/PlantsLoader"
 import JSONModel from "sap/ui/model/json/JSONModel";
 import ImageResetter from "../images/ImageResetter";
 
@@ -32,7 +32,7 @@ export default class PlantRenamer extends ManagedObject {
 		this._oUntaggedImagesModel = oUntaggedImagesModel;
 	}
 
-	public renamePlant(oPlant: BPlant, sNewPlantName: string, oDialogRenamePlant: Dialog): void {
+	public renamePlant(oPlant: BPlant, sNewPlantName: string, closeDialogFn: Function): void {
 		// use ajax to rename plant in backend
 
 		// check if duplicate
@@ -50,8 +50,9 @@ export default class PlantRenamer extends ManagedObject {
 		// ajax call
 		Util.startBusyDialog("Renaming...", '"' + oPlant.plant_name + '" to "' + sNewPlantName + '"');
 		var dPayload = {
-			'OldPlantName': oPlant.plant_name,
-			'NewPlantName': sNewPlantName
+			'plant_id': oPlant.id,
+			'old_plant_name': oPlant.plant_name,
+			'new_plant_name': sNewPlantName
 		};
 		$.ajax({
 			url: Util.getServiceUrl('plants/'),
@@ -60,11 +61,11 @@ export default class PlantRenamer extends ManagedObject {
 			data: JSON.stringify(dPayload),
 			context: this
 		})
-			.done(this._onReceivingPlantNameRenamed.bind(this, oPlant, oDialogRenamePlant))
+			.done(this._onReceivingPlantNameRenamed.bind(this, oPlant, closeDialogFn))
 			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (PUT)'));
 	}
 
-	private _onReceivingPlantNameRenamed(oPlant: BPlant, oDialogRenamePlant: Dialog, oMsg: BConfirmation): void {
+	private _onReceivingPlantNameRenamed(oPlant: BPlant, closeDialogFn: Function, oMsg: BConfirmation): void {
 		//plant was renamed in backend
 		Util.stopBusyDialog();
 		MessageToast.show(oMsg.message.message);
@@ -72,16 +73,13 @@ export default class PlantRenamer extends ManagedObject {
 
 		Util.startBusyDialog('Loading...', 'Loading plants and images data');
 
-		const oPlantsLoader = new PlantsLoader(this._oPlantsModel);
-		oPlantsLoader.loadPlants();
-		
-		// this.modelsHelper.reloadPlantsFromBackend();
-		new ImageResetter(this._oImagesModel, this._oUntaggedImagesModel).resetImages();
-		// this.modelsHelper.resetImages();
+		// const oPlantsLoader = new PlantsLoader(this._oPlantsModel);
+		PlantsLoader.getInstance().loadPlants(oPlant.id);
 
-		// _fnRequestImagesForPlant(oPlant.id!);  // todo do this in a better way
-		this._oPlantImagesLoader.requestImagesForPlant(oPlant.id);
-		oDialogRenamePlant.close();
+		// new ImageResetter(this._oImagesModel, this._oUntaggedImagesModel).resetImages();
+		// this._oPlantImagesLoader.requestImagesForPlant(oPlant.id);
+		
+		closeDialogFn();
 	}
 
 }

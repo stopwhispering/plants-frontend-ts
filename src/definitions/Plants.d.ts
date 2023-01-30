@@ -90,8 +90,9 @@ export interface FBPlantTag {
   plant_id: number;
 }
 export interface BPlantsRenameRequest {
-  OldPlantName: string;
-  NewPlantName: string;
+  plant_id: int;
+  old_plant_name: string;
+  new_plant_name: string;
 }
 export interface BResultsPlantCloned {
   action: string;

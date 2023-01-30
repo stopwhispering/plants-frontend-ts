@@ -79,6 +79,31 @@ export default class ChangeTracker extends ManagedObject {
 		this._oTaxonPropertiesDataClone = <LCategoryToPropertiesInCategoryMap>{};
 	}
 
+	public hasUnsavedChanges(): boolean {
+		return this._hasUnsavedPlants() || this._hasUnsavedTaxa() || this._hasUnsavedImages() || this._hasUnsavedEvents() || this._hasUnsavedProperties();
+	}
+
+	private _hasUnsavedPlants(): boolean {
+		return !!this.getModifiedPlants().length;
+	}
+
+	private _hasUnsavedTaxa(): boolean {
+		return !!this.getModifiedTaxa().length;
+	}
+
+	private _hasUnsavedImages(): boolean {
+		return !!this.getModifiedImages().length;
+	}
+
+	private _hasUnsavedEvents(): boolean {
+		return !!Object.keys(this.getModifiedEvents()).length;
+	}
+
+	private _hasUnsavedProperties(): boolean {
+		return !!Object.keys(this.getModifiedPlantProperties()).length || !!Object.keys(this.getModifiedTaxonProperties()).length
+	}
+
+
 	public getModifiedPlants(): BPlant[] {
 		// get plants model and identify modified items
 		var dDataPlants = this._oPlantsModel.getData();

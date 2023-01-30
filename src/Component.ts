@@ -8,7 +8,7 @@ import ImageRegistryHandler from "./customClasses/singleton/ImageRegistryHandler
 import ChangeTracker from "./customClasses/singleton/ChangeTracker"
 import UntaggedImagesHandler from "./customClasses/images/UntaggedImagesHandler"
 import Saver from "./customClasses/singleton/Saver"
-import PlantsLoader from "./customClasses/plants/PlantsLoader"
+import PlantsLoader from "./customClasses/singleton/PlantsLoader"
 
 /**
  * @namespace plants.ui
@@ -80,12 +80,14 @@ export default class Component extends UIComponent {
 			oTaxonModel
 		);
 
+		PlantsLoader.createInstance(oPlantsModel);
+
 
 		///////////////////////////////////////////////////////////////////////////////	
 		// Trigger loading of data from backend required from the beginning
 		///////////////////////////////////////////////////////////////////////////////	
 		new UntaggedImagesHandler(oUntaggedImagesModel).requestUntaggedImages();
-		new PlantsLoader(oPlantsModel).loadPlants();;
+		PlantsLoader.getInstance().loadPlants();;
 	}
 
 	///////////////////////////////////////////////////////////////////////////////	

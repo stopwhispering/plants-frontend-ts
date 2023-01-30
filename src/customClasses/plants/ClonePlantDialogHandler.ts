@@ -37,10 +37,12 @@ export default class ClonePlantDialogHandler extends ManagedObject {
 
 		// check if there are any unsaved changes
 		const oChangeTracker = ChangeTracker.getInstance();
-		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
-		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
-		if (!!aModifiedPlants.length || !!aModifiedImages.length || !!aModifiedTaxa.length ) {
+		// const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
+		// const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+		// const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
+        
+		if (oChangeTracker.hasUnsavedChanges()) {
+		// if (!!aModifiedPlants.length || !!aModifiedImages.length || !!aModifiedTaxa.length ) {
 			MessageToast.show('There are unsaved changes. Save modified data or reload data first.');
 			return;
 		}

@@ -2,19 +2,34 @@ import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import Util from "plants/ui/customClasses/shared/Util";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
-import ChangeTracker from "../singleton/ChangeTracker";
-import MessageHandler from "../singleton/MessageHandler";
+import ChangeTracker from "./ChangeTracker";
+import MessageHandler from "./MessageHandler";
 import { FPlantsUpdateRequest } from "plants/ui/definitions/Plants";
 import Event from "sap/ui/base/Event";
 import { MessageType } from "sap/ui/core/library";
+import Navigation from "./Navigation";
 
 /**
- * @namespace plants.ui.customClasses.plants
+ * @namespace plants.ui.customClasses.singleton
  */
 export default class PlantsLoader extends ManagedObject {
+	private static _instance: PlantsLoader;
     private _oPlantsModel: JSONModel;
+	private _iNavToPlantId: int | undefined;
 
-    public constructor(oPlantsModel: JSONModel) {
+	public static createInstance(oPlantsModel: JSONModel): void {
+		if (PlantsLoader._instance)
+			throw new Error("PlantsLoader already initialized");
+		PlantsLoader._instance = new PlantsLoader(oPlantsModel);
+	}	
+
+	public static getInstance(): PlantsLoader {
+		if (!PlantsLoader._instance) 
+			throw new Error("PlantsLoader not initialized.");
+		return PlantsLoader._instance;
+	}	
+
+    private constructor(oPlantsModel: JSONModel) {
 		super();
 		this._oPlantsModel = oPlantsModel;
 
@@ -25,8 +40,9 @@ export default class PlantsLoader extends ManagedObject {
 		this._oPlantsModel.attachRequestFailed(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plants Model'));
 	}
 
-    loadPlants() {
+    public loadPlants(iNavToPlantId: int = undefined): void {
 		var sUrl = Util.getServiceUrl('plants/');
+		this._iNavToPlantId = iNavToPlantId;
 		this._oPlantsModel.loadData(sUrl);
 		Util.stopBusyDialog();  // todo: should be stopped only when everything has been reloaded, not only plants
 	}
@@ -40,6 +56,10 @@ export default class PlantsLoader extends ManagedObject {
 		var sresource = Util.parse_resource_from_url(oRequestInfo.getParameter('url'));
 		MessageHandler.getInstance().addMessage(MessageType.Information, 'Loaded Plants from backend', undefined,
 			'Resource: ' + sresource);
+		console.log('Received plants from backend.')
+		if (this._iNavToPlantId) {
+			console.log('Navigating to ' + this._iNavToPlantId);
+			Navigation.getInstance().navToPlantDetails(this._iNavToPlantId);
+		}
 	}
-
 }

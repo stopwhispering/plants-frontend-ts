@@ -12,6 +12,7 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import ChangeTracker from "../singleton/ChangeTracker";
 import Event from "sap/ui/base/Event";
 import PlantRenamer from "./PlantRenamer";
+import Navigation from "../singleton/Navigation";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -33,10 +34,11 @@ export default class RenamePlantDialogHandler extends ManagedObject {
 
         // check if there are any unsaved changes
         const oChangeTracker = ChangeTracker.getInstance();
-        const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-        const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
-        const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
-        if (!!aModifiedPlants.length || !!aModifiedImages.length || !!aModifiedTaxa.length) {
+        // const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
+        // const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+        // const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
+		if (oChangeTracker.hasUnsavedChanges()) {
+        // if (!!aModifiedPlants.length || !!aModifiedImages.length || !!aModifiedTaxa.length) {
             MessageToast.show('There are unsaved changes. Save modified data or reload data first.');
             return;
         }
@@ -71,20 +73,10 @@ export default class RenamePlantDialogHandler extends ManagedObject {
 	}
 
 	public onPressButtonSubmitRenamePlant(oEvent: Event): void {
-        
         const oRenamePlantModel = <JSONModel>this._oRenamePlantDialog.getModel('renamePlant');
 		const oRenamePlantInputData: LRenamePlantInputData = oRenamePlantModel.getData();
 
-        const sNewPlantName = oRenamePlantInputData.newPlantName;
-		// const sNewPlantName = (<Input>this.byId('inputNewPlantName')).getValue().trim();
-		// const oDialogRenamePlant = <Dialog>this.byId('dialogRenamePlant');
-		// const oPlantImagesLoader = new PlantImagesLoader(this.oComponent.getModel('images'));
-
-
-
-		// const oPlantRenamer = new PlantRenamer(this.oPlantLookup, oPlantImagesLoader, this.oComponent.getModel('plants'), this.oComponent.getModel('images'), this.oComponent.getModel('untaggedImages'));
-		// oPlantRenamer.renamePlant(this.mCurrentPlant.plant, sNewPlantName, this._requestImagesForPlant.bind(this), oDialogRenamePlant);
-		this._oPlantRenamer.renamePlant(this._oPlant, sNewPlantName, this._oRenamePlantDialog);
+		this._oPlantRenamer.renamePlant(this._oPlant, oRenamePlantInputData.newPlantName, () => {this._oRenamePlantDialog.close()});
 	}
 
 }

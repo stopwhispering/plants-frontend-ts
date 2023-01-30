@@ -19,7 +19,7 @@ import { BTaxon } from "plants/ui/definitions/Taxon"
 import ChangeTracker from "../customClasses/singleton/ChangeTracker"
 import Saver from "../customClasses/singleton/Saver"
 import TaxonRegistryHandler from "../customClasses/taxonomy/TaxonRegistryHandler"
-import PlantsLoader from "../customClasses/plants/PlantsLoader"
+import PlantsLoader from "../customClasses/singleton/PlantsLoader"
 import ImageResetter from "../customClasses/images/ImageResetter"
 import UploadImagesDialogHandler from "../customClasses/images/UploadImagesDialogHandler"
 import ShellBarMenuHandler from "../customClasses/shared/ShellBarMenuHandler"
@@ -148,33 +148,34 @@ export default class FlexibleColumnLayout extends BaseController {
 
 		// check if there are any unsaved changes
 		const oChangeTracker = ChangeTracker.getInstance();
-		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
-		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
+		// const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
+		// const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+		// const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
 
-		// if modified data exists, ask for confirmation if all changes should be undone
-		if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
+		// // if modified data exists, ask for confirmation if all changes should be undone
+		// if ((aModifiedPlants.length !== 0) || (aModifiedImages.length !== 0) || (aModifiedTaxa.length !== 0)) {
+		if (oChangeTracker.hasUnsavedChanges()) {
 			var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
 			MessageBox.confirm(
 				"Revert all changes?", {
-				onClose: this._cbCloseRefreshConfirmationMessageBox.bind(this),
+				onClose: this._cbRefreshConfirmed.bind(this),
 				styleClass: bCompact ? "sapUiSizeCompact" : ""
 			}
 			);
 		} else {
 			//no modified data, therefore call handler directly with 'OK'
-			this._cbCloseRefreshConfirmationMessageBox(Action.OK);
+			this._cbRefreshConfirmed(Action.OK);
 		}
 	}
 
-	private _cbCloseRefreshConfirmationMessageBox(eAction: Action) {
+	private _cbRefreshConfirmed(eAction: Action) {
 		//callback for onPressButtonUndo's confirmation dialog
 		//revert all changes and return to data since last save or loading of site
 		if (eAction === Action.OK) {
 			Util.startBusyDialog('Loading...', 'Loading plants, taxa, and images');
 
-			const oPlantsLoader = new PlantsLoader(this.oComponent.getModel('plants'));
-			oPlantsLoader.loadPlants();
+			// const oPlantsLoader = new PlantsLoader(this.oComponent.getModel('plants'));
+			PlantsLoader.getInstance().loadPlants();
 
 			const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
 			new UntaggedImagesHandler(oUntaggedImagesModel).requestUntaggedImages();
