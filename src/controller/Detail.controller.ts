@@ -73,7 +73,7 @@ export default class Detail extends BaseController {
 	private eventCRUD: EventCRUD;
 	private oEventDialogHandler: EventDialogHandler;
 	private oPlantLookup: PlantLookup;
-	public suggestionService: SuggestionService; // public because used in formatter
+	// public suggestionService: SuggestionService; // public because used in formatter
 	private mCurrentPlant: LCurrentPlant;  // container currentPlantId, currentPlantIndex, currentPlant
 	private oLayoutModel: JSONModel;
 	private oEventsListHandler: EventsListHandler;
@@ -90,8 +90,8 @@ export default class Detail extends BaseController {
 		super.onInit();
 
 		const oSuggestionsModel = <JSONModel>this.oComponent.getModel('suggestions');
-		SuggestionService.createInstance(oSuggestionsModel);
-		this.suggestionService = SuggestionService.getInstance();
+		SuggestionService.createInstance(oSuggestionsModel);  // required in NewDescendantPlantDialogHandler
+		// this.suggestionService = SuggestionService.getInstance();
 
 		this.mCurrentPlant = <LCurrentPlant>{
 			plant_id: undefined,
@@ -263,13 +263,27 @@ export default class Detail extends BaseController {
 
 	onChangeActiveSwitch(oEvent: Event) {
 		// open dialog to choose reason for plant deactivation
-		var oSwitch = oEvent.getSource();
+		const oSwitch = oEvent.getSource();
 		if (oEvent.getParameter('state')) {
 			return;
 		}
 
 		const oCancelPlantPopverHandler = new CancelPlantPopverHandler(this.oComponent.getModel('suggestions'), this.oComponent.getModel('plants'));
-		oCancelPlantPopverHandler.openCancelPlantPopover(this.getView(), this.mCurrentPlant.plant);
+		oCancelPlantPopverHandler.openCancelPlantPopover(this.getView(), this.mCurrentPlant.plant, oSwitch);
+	}
+
+	onSwitchActive(oEvent: Event) {
+		// open dialog to choose reason for plant deactivation
+		if (!this.mCurrentPlant.plant.active){
+			this.mCurrentPlant.plant.active = true;
+			this.oComponent.getModel('plants').updateBindings(false);
+			return;
+		}
+
+		const oSource = <Control>oEvent.getSource();
+		const oCancelPlantPopverHandler = new CancelPlantPopverHandler(this.oComponent.getModel('suggestions'), 
+																	   this.oComponent.getModel('plants'));
+		oCancelPlantPopverHandler.openCancelPlantPopover(this.getView(), this.mCurrentPlant.plant, oSource);
 	}
 
 	onChangeParent(oEvent: Event) {
@@ -326,7 +340,7 @@ export default class Detail extends BaseController {
 		// triggered by button in details upper menu
 		// opens dialog to create descendant plant with current plant as mother plant
 
-		const oNewDescendantPlantDialogHandler = new NewDescendantPlantDialogHandler(this.oPlantLookup, this.oComponent.getModel('plants'));
+		const oNewDescendantPlantDialogHandler = new NewDescendantPlantDialogHandler(this.oPlantLookup, this.oComponent.getModel('plants'), this.oComponent.getModel('suggestions'));
 		oNewDescendantPlantDialogHandler.openNewDescendantPlantDialog(this.getView(), this.mCurrentPlant.plant);
 
 	}

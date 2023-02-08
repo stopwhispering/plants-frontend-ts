@@ -6,16 +6,15 @@ import Fragment from "sap/ui/core/Fragment";
 import Control from "sap/ui/core/Control";
 import ChangeTracker from "../singleton/ChangeTracker";
 import { BPlant, FBPropagationType } from "plants/ui/definitions/Plants";
-import { FBImage } from "plants/ui/definitions/Images";
-import { BTaxon } from "plants/ui/definitions/Taxon";
 import MessageToast from "sap/m/MessageToast";
 import { LDescendantPlantInput } from "plants/ui/definitions/PlantsLocal";
 import PlantLookup from "./PlantLookup";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import PlantNameGenerator from "./PlantNameGenerator";
-import Toast from "sap/ui/webc/main/Toast";
 import PlantCreator from "./PlantCreator";
 import Input from "sap/m/Input";
+import formatter from "plants/ui/model/formatter";
+import SuggestionService from "../shared/SuggestionService";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -27,11 +26,19 @@ export default class NewDescendantPlantDialogHandler extends ManagedObject {
     private _oNewDescendantPlantDialog: Dialog;  // "dialogCreateDescendant"
 
     private _oPlant: BPlant;
+    private _oSuggestionsModel: JSONModel;
+    private _oPlantsModel: JSONModel;
+    public formatter: formatter;
+    public suggestionService: SuggestionService;
 
-    public constructor(oPlantLookup: PlantLookup, oPlantsModel: JSONModel) {
+    public constructor(oPlantLookup: PlantLookup, oPlantsModel: JSONModel, oSuggestionsModel: JSONModel) {
         super();
+        this.formatter = new formatter();
         this._oPlantLookup = oPlantLookup;
         this._oPlantCreator = new PlantCreator(oPlantsModel, this._oPlantLookup);
+        this.suggestionService = SuggestionService.getInstance();
+        this._oSuggestionsModel = oSuggestionsModel;
+        this._oPlantsModel = oPlantsModel;
     }
 
     public openNewDescendantPlantDialog(oViewAttachTo: View, oPlant: BPlant): void {
@@ -62,11 +69,16 @@ export default class NewDescendantPlantDialogHandler extends ManagedObject {
                 parentPlant: this._oPlant.plant_name,
                 parentPlantPollen: undefined,
                 descendantPlantName: undefined,
-
                 autoNameDescendantPlantName: true,
             };
             const oModelDescendantPlantInputModel = new JSONModel(descendantPlantDataInit);
             this._oNewDescendantPlantDialog.setModel(oModelDescendantPlantInputModel, "descendant");
+
+            // todo why required here, not in other popups?
+            this._oNewDescendantPlantDialog.setModel(this._oSuggestionsModel, "suggestions");
+            // todo why required here, not in other popups?
+            this._oNewDescendantPlantDialog.setModel(this._oPlantsModel, "plants");
+
 
             this.onUpdatePlantNameSuggestion();
 

@@ -26,7 +26,7 @@ export default class CancelPlantPopverHandler extends ManagedObject {
 		this._oPlantsModel = oPlantsModel;
     }
 
-    public openCancelPlantPopover(oViewAttachTo: View, oPlant: BPlant): void {
+    public openCancelPlantPopover(oViewAttachTo: View, oPlant: BPlant, oOpenBy: Control): void {
 		this._oPlant = oPlant;
 
 		Fragment.load({
@@ -35,8 +35,6 @@ export default class CancelPlantPopverHandler extends ManagedObject {
 			controller: this
 		}).then((oControl: Control | Control[]) => {
 			this._oCancelPlantPopover = <Popover>oControl;
-			oViewAttachTo.addDependent(this._oCancelPlantPopover);
-			
 
 			const oCancelPlantInputData: LCancelPlantInputData = {
 				cancellationDate: new Date()
@@ -46,7 +44,8 @@ export default class CancelPlantPopverHandler extends ManagedObject {
 
 			// (<DatePicker>oView.byId("cancellationDate")).setDateValue(new Date());
 			
-			this._oCancelPlantPopover.openBy(oViewAttachTo, true);
+			oViewAttachTo.addDependent(this._oCancelPlantPopover);
+			this._oCancelPlantPopover.openBy(oOpenBy, true);
 		});
 
     }
@@ -81,6 +80,7 @@ export default class CancelPlantPopverHandler extends ManagedObject {
 		var sDateFormatted = Util.formatDate(oCancelPlantInputData.cancellationDate);
 		// this.getView().getBindingContext('plants').getObject().cancellation_date = sDateFormatted;
 		this._oPlant.cancellation_date = sDateFormatted;
+		this._oPlant.active = false;
 		this._oPlantsModel.updateBindings(false);
 
 		this._oCancelPlantPopover.close();

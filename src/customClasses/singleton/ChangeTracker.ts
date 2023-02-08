@@ -6,7 +6,7 @@ import { FBImage } from "plants/ui/definitions/Images";
 import { LImageMap } from "plants/ui/definitions/ImageLocal";
 import { FBPropertyCollectionPlant, LTaxonToPropertiesInCategoryMap } from "plants/ui/definitions/Properties";
 import { LTaxonToPropertyCategoryMap, LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap, LPropertiesTaxonModelData } from "plants/ui/definitions/PropertiesLocal";
-import { PlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
+import { LPlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
 import { BTaxon } from "plants/ui/definitions/Taxon";
 import { BPlant, FPlant, FPlantsUpdateRequest } from "plants/ui/definitions/Plants"
 import { BEvents } from "plants/ui/definitions/Events";
@@ -21,7 +21,7 @@ export default class ChangeTracker extends ManagedObject {
 	private _oPlantsModel: JSONModel;
 	private _oPlantsDataClone: FPlantsUpdateRequest;  // todo find other entity
 	private _oEventsModel: JSONModel;
-	private _oEventsDataClone: PlantIdToEventsMap;
+	private _oEventsDataClone: LPlantIdToEventsMap;
 	private _oPlantPropertiesModel: JSONModel;
 	private _oPlantPropertiesDataClone: LPlantIdToPropertyCollectionMap;
 	private _oTaxonPropertiesModel: JSONModel;
@@ -72,7 +72,7 @@ export default class ChangeTracker extends ManagedObject {
 		this._oTaxonModel = oTaxonModel;
 		
 		this._oPlantsDataClone = <FPlantsUpdateRequest>{};
-		this._oEventsDataClone = <PlantIdToEventsMap>{};
+		this._oEventsDataClone = <LPlantIdToEventsMap>{};
 		this._oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
 		this._oImageRegistryClone = <LImageMap>{};
 		this._oPlantPropertiesDataClone = <LPlantIdToPropertyCollectionMap>{};
@@ -158,13 +158,13 @@ export default class ChangeTracker extends ManagedObject {
 		return aModifiedTaxonList;
 	}
 
-	public getModifiedEvents(): PlantIdToEventsMap {
+	public getModifiedEvents(): LPlantIdToEventsMap {
 		// returns a dict with events for those plants where at least one event has been modified, added, or deleted
-		const oDataEvents: PlantIdToEventsMap = this._oEventsModel.getData().PlantsEventsDict;
+		const oDataEvents: LPlantIdToEventsMap = this._oEventsModel.getData().PlantsEventsDict;
 
 		//get plants for which we have events in the original dataset
 		//then, for each of them, check whether events have been changed
-		let oModifiedEventsDict: PlantIdToEventsMap = {};
+		let oModifiedEventsDict: LPlantIdToEventsMap = {};
 		const keys_clones = Object.keys(this._oEventsDataClone);
 		const keys_clone = <int[]>keys_clones.map(k => parseInt(k));
 		const that = this;
@@ -320,7 +320,7 @@ export default class ChangeTracker extends ManagedObject {
 		this._oEventsDataClone[iPlantId] = Util.getClonedObject(aEvents);
 	}
 
-	public setOriginalEvents(oPlantIdToEventsMap: PlantIdToEventsMap): void {
+	public setOriginalEvents(oPlantIdToEventsMap: LPlantIdToEventsMap): void {
 	// reset events clone completely to supplied events data
 		this._oEventsDataClone = Util.getClonedObject(oPlantIdToEventsMap);
 	}

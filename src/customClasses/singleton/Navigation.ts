@@ -18,13 +18,13 @@ export default class Navigation extends ManagedObject {
 
 	public static createInstance(oRootControl: View, oRouter: Router): void {
 		if (Navigation._instance)
-			throw new Error("MessageHandler already initialized");
+			throw new Error("Navigation already initialized");
 		Navigation._instance = new Navigation(oRootControl, oRouter);
 	}	
 
 	public static getInstance(): Navigation {
 		if (!Navigation._instance) 
-			throw new Error("MessageHandler not initialized.");
+			throw new Error("Navigation not initialized.");
 		return Navigation._instance;
 	}	
 

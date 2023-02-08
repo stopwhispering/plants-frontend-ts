@@ -122,23 +122,21 @@ export interface FPlant {
   cancellation_date?: string;
   generation_notes?: string;
   taxon_id?: number;
-  taxon_authors?: string;
-  botanical_name?: string;
+  // taxon_authors?: string;
+  // botanical_name?: string;
   parent_plant?: FBAssociatedPlantExtractForPlant;
   parent_plant_pollen?: FBAssociatedPlantExtractForPlant;
   plant_notes?: string;
   filename_previewimage?: string;
-  last_update?: string;
-  descendant_plants_all: FBAssociatedPlantExtractForPlant[];
-  sibling_plants: FBAssociatedPlantExtractForPlant[];
-  same_taxon_plants: FBAssociatedPlantExtractForPlant[];
-  current_soil?: FBPlantCurrentSoil;
-  latest_image?: FBPlantLatestImage;
+  // last_update?: string;
+  // descendant_plants_all: FBAssociatedPlantExtractForPlant[];
+  // sibling_plants: FBAssociatedPlantExtractForPlant[];
+  // same_taxon_plants: FBAssociatedPlantExtractForPlant[];
+  // current_soil?: FBPlantCurrentSoil;
+  // latest_image?: FBPlantLatestImage;
   tags: FBPlantTag[];
 }
-export interface FPlantsDeleteRequest {
-  plant_id: number;
-}
+
 export interface FPlantsUpdateRequest {
   PlantsCollection: FPlant[];
 }

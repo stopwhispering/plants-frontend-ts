@@ -46,11 +46,18 @@
 										alignItems="Center" justifyContent="SpaceBetween">
 										<Label text="{i18n>active}" class="sapUiTinyMarginBegin"/>
 										<Switch 
-											enabled='{status>/details_editable}'
+											visible="{= !${status>/details_editable} }"
+											enabled='false'
 											type="AcceptReject" 
-											state="{plants>active}"
-											change="onChangeActiveSwitch">
-										</Switch>
+											state="{plants>active}"/>
+											<!-- icon="{= ${plants>active} ? 'sap-icon://log' : 'sap-icon://positive' }" -->
+										<Button
+											visible="{status>/details_editable}"
+											type="{= ${plants>active} ? 'Attention' : 'Ghost' }"
+											text="{= ${plants>active} ? 'Set Inactive' : 'Set Active' }"
+											icon="sap-icon://log"
+											tooltip="Switch Active/Inactive"
+											press="onSwitchActive"/>
 									</HBox>
 								</CustomListItem>
 

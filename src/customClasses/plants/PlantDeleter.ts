@@ -44,10 +44,9 @@ export default class PlantDeleter extends ManagedObject {
 
 		Util.startBusyDialog('Deleting', 'Deleting ' + oPlant.plant_name);
 		$.ajax({
-			url: Util.getServiceUrl('plants/'),
+			url: Util.getServiceUrl('plants/' + oPlant.id),
 			type: 'DELETE',
 			contentType: "application/json",
-			data: JSON.stringify({ 'plant_id': oPlant.id }),
 			context: this
 		})
 			.done(this._onPlantDeleted.bind(this, oPlant))

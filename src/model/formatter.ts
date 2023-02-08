@@ -1,6 +1,7 @@
 import Util from "plants/ui/customClasses/shared/Util";
 import Constants from "../Constants";
 import Detail from "../controller/Detail.controller";
+import NewDescendantPlantDialogHandler from "../customClasses/plants/NewDescendantPlantDialogHandler";
 import SuggestionService from "../customClasses/shared/SuggestionService";
 import { FBEvent, FBImageAssignedToEvent } from "../definitions/Events";
 import { FBPropagationType } from "../definitions/Plants";
@@ -252,7 +253,7 @@ export default class formatter{
 			return false;
 		}
 
-		const that = <Detail><unknown>this;
+		const that = <NewDescendantPlantDialogHandler><unknown>this;
 		const suggestionService: SuggestionService = that.suggestionService;
 
 		const propagationType = <LPropagationTypeData>suggestionService.getSuggestionItem('propagationTypeCollection', ePropagationType);
