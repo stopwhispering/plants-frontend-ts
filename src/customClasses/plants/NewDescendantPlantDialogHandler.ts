@@ -79,15 +79,7 @@ export default class NewDescendantPlantDialogHandler extends ManagedObject {
             // todo why required here, not in other popups?
             this._oNewDescendantPlantDialog.setModel(this._oPlantsModel, "plants");
 
-
             this.onUpdatePlantNameSuggestion();
-
-            // const oNewPlantInputData: LNewPlantInputData = {
-            //     newPlantName: undefined
-            // };
-            // const oNewPlantModel = new JSONModel(oNewPlantInputData);
-            // this._oNewDescendantPlantDialog.setModel(oNewPlantModel, "newPlantInputData");
-
             this._oNewDescendantPlantDialog.open();
         });
     }
@@ -97,20 +89,9 @@ export default class NewDescendantPlantDialogHandler extends ManagedObject {
         const oDescendantPlantInputData = <LDescendantPlantInput>oModelDescendantPlantInputModel.getData();
         if (!oDescendantPlantInputData.autoNameDescendantPlantName)
             return
-
-        // const oCheckbox = <CheckBox>this.byId('autoNameDescendantPlantName');
-        // if (!oCheckbox.getSelected()) {
-        // 	return;
-        // }
-
-        // generate new plant name suggestion
-        // const oDescendantModel = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
-        // const oDescendantPlantInput = <LDescendantPlantInput>oDescendantModel.getData();
         const oPlantNameGenerator = new PlantNameGenerator(this._oPlantLookup);
         const sSuggestedName = oPlantNameGenerator.generateDescendantPlantName(oDescendantPlantInputData);
 
-        // const oModelDescendant = <JSONModel>this.byId('dialogCreateDescendant').getModel('descendant');
-        // oModelDescendant.setProperty('/descendantPlantName', sSuggestedName);
         oDescendantPlantInputData.descendantPlantName = sSuggestedName;
         oModelDescendantPlantInputModel.updateBindings(false);
     }

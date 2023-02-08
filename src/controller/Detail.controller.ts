@@ -261,17 +261,6 @@ export default class Detail extends BaseController {
 		oInput.setFilterSuggests(false);
 	}
 
-	onChangeActiveSwitch(oEvent: Event) {
-		// open dialog to choose reason for plant deactivation
-		const oSwitch = oEvent.getSource();
-		if (oEvent.getParameter('state')) {
-			return;
-		}
-
-		const oCancelPlantPopverHandler = new CancelPlantPopverHandler(this.oComponent.getModel('suggestions'), this.oComponent.getModel('plants'));
-		oCancelPlantPopverHandler.openCancelPlantPopover(this.getView(), this.mCurrentPlant.plant, oSwitch);
-	}
-
 	onSwitchActive(oEvent: Event) {
 		// open dialog to choose reason for plant deactivation
 		if (!this.mCurrentPlant.plant.active){
