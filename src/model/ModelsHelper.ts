@@ -4,7 +4,8 @@ import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import { MessageType } from "sap/ui/core/library";
 import Event from "sap/ui/base/Event";
-import { BConfirmation } from "../definitions/Messages";
+import { BConfirmation, BMessage } from "../definitions/Messages";
+import BusyDialog from "sap/m/BusyDialog";
 
 /**
  * @namespace plants.ui.model
@@ -29,9 +30,11 @@ export default class ModelsHelper extends ManagedObject {
 	
 		const _parseFastAPIHttpError = function(error: JQueryXHR): string | undefined {
 			// raise e.g. via raise HTTPException(status_code=404, detail="Item not found") or subclasses
-			console.log('fastapi http error');
-			return undefined //todo
-		}
+			if ((error) && (error.responseJSON) && (error.responseJSON.detail) && (!error.responseJSON.detail.type)){
+				console.log('fastapi http error');
+				return error.responseJSON.detail; 
+			}
+		}		
 	
 		const _parseServerNotReachableError = function(error: JQueryXHR): string | undefined {
 			//server not reachable
@@ -57,15 +60,14 @@ export default class ModelsHelper extends ManagedObject {
 				return 'Unexpected Python Error';
 			}
 		}
-		
-		//trying to catch different kinds of error callback returns
-		//always declare similar to: .fail(this.ModelsHelper.getInstance()._onReceiveErrorGeneric.bind(thisOrOtherContext,'EventsResource'));
-		Util.stopBusyDialog();
 
-		console.log(error);
 		const sMsg = (_parseFastAPILegacyError(error) || _parseFastAPIHttpError(error) || _parseServerNotReachableError(error) || 
 				_parsePydanticInputValidationError(error) || _anyPythonError(error) || 'Unknown Error. See onReceiveErrorGeneric and handle.');
 		MessageToast.show(sMsg);
+		
+		Util.stopBusyDialog();
+		console.log(error);
+		MessageHandler.getInstance().addMessageFromBackend(<BMessage>{type: "Error", message: sMsg});
 	}
 
 	public static onGenericSuccessWithMessage(oConfirmation: BConfirmation, sStatus: string, oReturnData: object): void {

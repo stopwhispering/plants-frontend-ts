@@ -89,5 +89,8 @@ export default class SoilDialogHandler extends ManagedObject {
 	onCancelEditSoil(oEvent: Event) {
 		this._oSoilDialog.close();
 	}
+	onAfterCloseEditSoil(oEvent: Event) {
+		this._oSoilDialog.destroy();
+	}
 
 }

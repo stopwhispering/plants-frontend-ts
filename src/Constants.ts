@@ -15,7 +15,9 @@ export default class Constants extends ManagedObject {
             return 'http://plants.localhost/api/';
         } else {
             // in prod environment, we usually run the backend on any-nonlocal-host:80/443
-            return 'https://plants.astroloba.net/api/';
+            const pollination_host = window.location.host;  // e.g. pollination.example.net
+            const domain = pollination_host.substring('pollination'.length + 1);  // e.g. example.net
+            return window.location.protocol + '//plants.' + domain + '/api/';  // e.g. https://plants.example.net/api/
         }
     })();
 
