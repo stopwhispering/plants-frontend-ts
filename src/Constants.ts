@@ -11,12 +11,12 @@ export default class Constants extends ManagedObject {
             // in dev environment (serving via ui5 cli as localhost:8080), we usually run the backend on localhost:5000 via pycharm
             return 'http://localhost:5000/api/';
         } else if (window.location.hostname.endsWith('localhost') && (window.location.port !== "8080")){
-            // in dev environment (testing dockerized backend as pollination.localhost:80), we usually run the backend on plants.localhost:80/api via traefik
+            // in dev environment (testing dockerized backend as plants.localhost:80), we usually run the backend on plants.localhost:80/api via traefik
             return 'http://plants.localhost/api/';
         } else {
             // in prod environment, we usually run the backend on any-nonlocal-host:80/443
-            const pollination_host = window.location.host;  // e.g. pollination.example.net
-            const domain = pollination_host.substring('pollination'.length + 1);  // e.g. example.net
+            const plants_host = window.location.host;  // e.g. plants.example.net
+            const domain = plants_host.substring('plants'.length + 1);  // e.g. example.net
             return window.location.protocol + '//plants.' + domain + '/api/';  // e.g. https://plants.example.net/api/
         }
     })();
