@@ -222,19 +222,6 @@
 					</ObjectPageSubSection>
 				</subSections>
 			</ObjectPageSection>
-			<!--Properties-->
-			<ObjectPageSection title="{i18n>properties}">
-				<subSections>
-					<ObjectPageSubSection>
-						<blocks>
-							<core:Fragment
-								fragmentName="plants.ui.view.embedded.DetailProperties"
-								type="XML"
-							/>
-						</blocks>
-					</ObjectPageSubSection>
-				</subSections>
-			</ObjectPageSection>
 			<!--Events-->
 			<ObjectPageSection title="{i18n>events_title}">
 				<subSections>

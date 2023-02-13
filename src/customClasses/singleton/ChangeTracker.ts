@@ -4,8 +4,6 @@ import Util from "plants/ui/customClasses/shared/Util";
 import { LTaxonData, LTaxonMap } from "plants/ui/definitions/TaxonLocal";
 import { FBImage } from "plants/ui/definitions/Images";
 import { LImageMap } from "plants/ui/definitions/ImageLocal";
-import { FBPropertyCollectionPlant, LTaxonToPropertiesInCategoryMap } from "plants/ui/definitions/Properties";
-import { LTaxonToPropertyCategoryMap, LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap, LPropertiesTaxonModelData } from "plants/ui/definitions/PropertiesLocal";
 import { LPlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
 import { BTaxon } from "plants/ui/definitions/Taxon";
 import { BPlant, FPlant, FPlantsUpdateRequest } from "plants/ui/definitions/Plants"
@@ -22,10 +20,6 @@ export default class ChangeTracker extends ManagedObject {
 	private _oPlantsDataClone: FPlantsUpdateRequest;  // todo find other entity
 	private _oEventsModel: JSONModel;
 	private _oEventsDataClone: LPlantIdToEventsMap;
-	private _oPlantPropertiesModel: JSONModel;
-	private _oPlantPropertiesDataClone: LPlantIdToPropertyCollectionMap;
-	private _oTaxonPropertiesModel: JSONModel;
-	private _oTaxonPropertiesDataClone: LCategoryToPropertiesInCategoryMap;
 	private _oTaxonModel: JSONModel;
 	private _oTaxonDataClone: LTaxonData;  // todo create clone handler
 	private _oImageRegistryClone: LImageMap;  // todo use registry handler instead
@@ -34,8 +28,6 @@ export default class ChangeTracker extends ManagedObject {
 	public static createInstance(
 		oPlantsModel: JSONModel, 
 		oEventsModel: JSONModel, 
-		oPlantPropertiesModel: JSONModel, 
-		oTaxonPropertiesModel: JSONModel, 
 		oTaxonModel: JSONModel, 
 		): void {
 		if (ChangeTracker._instance)
@@ -43,8 +35,6 @@ export default class ChangeTracker extends ManagedObject {
 		ChangeTracker._instance = new ChangeTracker(
 			oPlantsModel, 
 			oEventsModel, 
-			oPlantPropertiesModel, 
-			oTaxonPropertiesModel, 
 			oTaxonModel, 
 			);
 	}
@@ -59,28 +49,22 @@ export default class ChangeTracker extends ManagedObject {
 	private constructor(
 		oPlantsModel: JSONModel, 
 		oEventsModel: JSONModel, 
-		oPlantPropertiesModel: JSONModel, 
-		oTaxonPropertiesModel: JSONModel, 
 		oTaxonModel: JSONModel, 
 		) {
 
 		super();
 		this._oPlantsModel = oPlantsModel;
 		this._oEventsModel = oEventsModel;;
-		this._oPlantPropertiesModel = oPlantPropertiesModel;
-		this._oTaxonPropertiesModel = oTaxonPropertiesModel;
 		this._oTaxonModel = oTaxonModel;
 		
 		this._oPlantsDataClone = <FPlantsUpdateRequest>{};
 		this._oEventsDataClone = <LPlantIdToEventsMap>{};
 		this._oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
 		this._oImageRegistryClone = <LImageMap>{};
-		this._oPlantPropertiesDataClone = <LPlantIdToPropertyCollectionMap>{};
-		this._oTaxonPropertiesDataClone = <LCategoryToPropertiesInCategoryMap>{};
 	}
 
 	public hasUnsavedChanges(): boolean {
-		return this._hasUnsavedPlants() || this._hasUnsavedTaxa() || this._hasUnsavedImages() || this._hasUnsavedEvents() || this._hasUnsavedProperties();
+		return this._hasUnsavedPlants() || this._hasUnsavedTaxa() || this._hasUnsavedImages() || this._hasUnsavedEvents();
 	}
 
 	private _hasUnsavedPlants(): boolean {
@@ -97,10 +81,6 @@ export default class ChangeTracker extends ManagedObject {
 
 	private _hasUnsavedEvents(): boolean {
 		return !!Object.keys(this.getModifiedEvents()).length;
-	}
-
-	private _hasUnsavedProperties(): boolean {
-		return !!Object.keys(this.getModifiedPlantProperties()).length || !!Object.keys(this.getModifiedTaxonProperties()).length
 	}
 
 
@@ -188,58 +168,6 @@ export default class ChangeTracker extends ManagedObject {
 		return oModifiedEventsDict;
 	}
 
-	public getModifiedPlantProperties(): LPlantIdToPropertyCollectionMap {
-		// returns a dict with properties for those plants where at least one property has been modified, added, or deleted
-		// for these plants, properties are supplied completely; modifications are then identified in backend
-		const dDataProperties: LPlantIdToPropertyCollectionMap = this._oPlantPropertiesModel.getData().propertiesPlants;
-		// clean up the properties model data (returns a clone, not the original object!)
-		const dDataPropertiesCleaned: LPlantIdToPropertyCollectionMap = this.getPropertiesSansTaxa(dDataProperties);
-		// const dDataPropertiesOriginal: LPlantIdToPropertyCollectionMap = this.oComponent.oPropertiesDataClone;
-
-		// get plants for which we have properties in the original dataset
-		// then, for each of them, check whether properties have been changed
-		let dModifiedPropertiesDict: LPlantIdToPropertyCollectionMap = {};
-		const keys_clone_s = Object.keys(this._oPlantPropertiesDataClone);
-		const keys_clone = <int[]>keys_clone_s.map(k => parseInt(k));
-		const that = this;
-		keys_clone.forEach(function (key) {
-			// loop at plants
-			if (!Util.objectsEqualManually(that._oPlantPropertiesDataClone[key],
-				dDataPropertiesCleaned[key])) {
-				dModifiedPropertiesDict[key] = dDataPropertiesCleaned[key];
-			}
-		}, this);
-
-		return dModifiedPropertiesDict;
-	}
-
-	public getModifiedTaxonProperties(): LTaxonToPropertyCategoryMap {
-		const oDataPropertiesTaxon: LPropertiesTaxonModelData = this._oTaxonPropertiesModel.getData();
-		const oPropertiesTaxon: LTaxonToPropertyCategoryMap = oDataPropertiesTaxon.propertiesTaxon;  // todo fix entity
-		// const oPropertiesTaxon: LCategoryToPropertiesInCategoryMap = oDataPropertiesTaxon.propertiesTaxon;  // todo fix entity
-		// const oPropertiesTaxonOriginal: LCategoryToPropertiesInCategoryMap = this.oComponent.oPropertiesTaxonDataClone;
-
-		if (!this._oTaxonPropertiesDataClone) {
-			return {};
-		}
-
-		// get taxa for which we have properties in the original dataset
-		// then, for each of them, check whether properties have been changed
-		var oModifiedPropertiesDict: LTaxonToPropertyCategoryMap = {};
-		const keys_clone_s = Object.keys(this._oTaxonPropertiesDataClone);
-		const keys_clone = keys_clone_s.map(key => parseInt(key));
-		const that = this;
-		keys_clone.forEach(function (key) {
-			// loop at plants
-			if (!Util.objectsEqualManually(that._oTaxonPropertiesDataClone[key],
-				oPropertiesTaxon[key])) {
-				oModifiedPropertiesDict[key] = oPropertiesTaxon[key];
-			}
-		}, this);
-
-		return oModifiedPropertiesDict;
-	}
-
 	public getModifiedImages(): FBImage[] {
 		// identify modified images by comparing images with their clones (created after loading)
 		// var oImages: LImageMap = this.oComponent.imagesRegistry;
@@ -259,36 +187,6 @@ export default class ChangeTracker extends ManagedObject {
 
 		return aModifiedImages;
 	}
-
-	public getPropertiesSansTaxa(dProperties_: LPlantIdToPropertyCollectionMap): LPlantIdToPropertyCollectionMap {
-		var dProperties: LPlantIdToPropertyCollectionMap = Util.getClonedObject(dProperties_);
-		for (var i = 0; i < Object.keys(dProperties).length; i++) {
-			const iPlantId: int = parseInt(Object.keys(dProperties)[i]);
-			var oTaxonPropertiesInCategories: FBPropertyCollectionPlant = dProperties[iPlantId] as unknown as FBPropertyCollectionPlant;
-
-			for (var j = 0; j < oTaxonPropertiesInCategories.categories.length; j++) {
-				var oCategory = oTaxonPropertiesInCategories.categories[j];
-
-				// reverse-loop as we might need to delete a property (name) node within the loop
-				for (var k = oCategory.properties.length - 1; k >= 0; k--) {
-					var oProperty = oCategory.properties[k];
-
-					// remove taxon property value
-					var foundTaxonProperty = oProperty.property_values.find(element => element["type"] === "taxon");
-					if (foundTaxonProperty) {
-						var iIndex = oProperty.property_values.indexOf(foundTaxonProperty);
-						oProperty.property_values.splice(iIndex, 1);
-					}
-
-					// if there's no plant property value, just remove the whole property name noe
-					var foundPlantProperty = oProperty.property_values.find(element => element["type"] === "plant");
-					if (!foundPlantProperty)
-						oCategory.properties.splice(k, 1);
-				}
-			}
-		}
-		return dProperties;
-	}	
 
 	public setOriginalPlants(oPlantsData: FPlantsUpdateRequest): void{
 		// reset plants clone completely to supplied plants data
@@ -366,27 +264,6 @@ export default class ChangeTracker extends ManagedObject {
 
 	public hasOriginalTaxon(iTaxonId: int): boolean {
 		return iTaxonId in this._oTaxonDataClone.TaxaDict;
-	}
-
-	public addPlantPropertyCollection(oPropertyCollectionForPlant: FBPropertyCollectionPlant, oPlant: BPlant): void {
-		// add/overwrite properties for a single plant
-		this._oPlantPropertiesDataClone[oPlant.id!] = Util.getClonedObject(oPropertyCollectionForPlant);
-	}
-
-	public setPlantPropertyCollections(oPlantIdToPropertyCollectionMap: LPlantIdToPropertyCollectionMap): void {
-		// set properties for all plants 
-		this._oPlantPropertiesDataClone = Util.getClonedObject(oPlantIdToPropertyCollectionMap);
-	}
-
-	public addTaxonPropertiesInCategory(oPropertiesInCategory: LTaxonToPropertiesInCategoryMap, iTaxonId: int): void  {
-		// add/overwrite properties for a single taxon
-		this._oTaxonPropertiesDataClone[iTaxonId] = Util.getClonedObject(oPropertiesInCategory);
-
-	}
-
-	public setTaxonProperties(oTaxonToPropertyCategoryMap: LTaxonToPropertyCategoryMap): void {
-		// set properties for all taxa
-		this._oTaxonPropertiesDataClone = Util.getClonedObject(oTaxonToPropertyCategoryMap);
 	}
 
 }

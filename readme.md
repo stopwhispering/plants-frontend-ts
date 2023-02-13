@@ -1,7 +1,7 @@
 # Plants Frontend TS
 Plants Library Frontend based on [Open UI5](https://openui5.hana.ondemand.com/), written in [TypeScript](https://sap.github.io/ui5-typescript/).
 
-For the corresponding backend, visit [Plants Backend](https://github.com/stopwhispering/plants-backend).
+For the corresponding backend, visit [plants-backend](https://github.com/stopwhispering/plants-backend).
 
 ## Deployment with Docker
 

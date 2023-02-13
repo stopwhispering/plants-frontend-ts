@@ -19,7 +19,6 @@ import Icon from "sap/ui/core/Icon"
 import ListBinding from "sap/ui/model/ListBinding"
 import MenuItem from "sap/m/MenuItem"
 import OverflowToolbarButton from "sap/m/OverflowToolbarButton"
-import ObjectStatus from "sap/m/ObjectStatus"
 import { MessageType } from "sap/ui/core/library"
 import FileUploader from "sap/ui/unified/FileUploader"
 import Button from "sap/m/Button"
@@ -43,15 +42,10 @@ import { BTaxon } from "plants/ui/definitions/Taxon"
 import ImageKeywordTagger from "plants/ui/customClasses/images/ImageKeywordTagger"
 import ImagePlantTagger from "plants/ui/customClasses/images/ImagePlantTagger"
 import EventListItemFactory from "plants/ui/customClasses/events/EventListItemFactory"
-import AssignPropertyNamePopoverHandler from "plants/ui/customClasses/properties/AssignPropertyNamePopoverHandler"
-import NewPropertyNamePopoverHandler from "plants/ui/customClasses/properties/NewPropertyNamePopoverHandler"
-import PropertyNameCRUD from "plants/ui/customClasses/properties/PropertyNameCRUD"
-import PropertyValueCRUD from "plants/ui/customClasses/properties/PropertyValueCRUD"
 import ModelsHelper from "../model/ModelsHelper"
 import OccurrenceImagesFetcher from "../customClasses/taxonomy/OccurrenceImagesFetcher"
 import EventDialogHandler from "../customClasses/events/EventDialogHandler"
 import EventsListHandler from "../customClasses/events/EventsListHandler"
-import PropertyValuePopoverHandler from "../customClasses/properties/PropertyValuePopoverHandler"
 import AssignImageToEventDialogHandler from "../view/fragments/events/AssignImageToEventDialogHandler"
 import RenamePlantDialogHandler from "../customClasses/plants/RenamePlantDialogHandler"
 import NewDescendantPlantDialogHandler from "../customClasses/plants/NewDescendantPlantDialogHandler"
@@ -150,8 +144,6 @@ export default class Detail extends BaseController {
 			this.oComponent.getModel('plants'),
 			this.oComponent.getModel('events'),
 			this.oComponent.getModel('images'),
-			this.oComponent.getModel('properties'),
-			this.oComponent.getModel('propertiesTaxa'),
 			this.oComponent.getModel('taxon'),
 			this.mCurrentPlant
 		);
@@ -382,43 +374,6 @@ export default class Detail extends BaseController {
 		const oSource = <Icon>oEvent.getSource();
 		const oTaxonModel = <JSONModel>this.oComponent.getModel('taxon')
 		new ImageToTaxonAssigner().assignImageToTaxon(oSource, oTaxonModel);
-	}
-
-	//////////////////////////////////////////////////////////
-	// Properties Handlers
-	//////////////////////////////////////////////////////////
-	onOpenDialogAddProperty(oEvent: Event) {
-		const oBtnAddProperty = <Button>oEvent.getSource();		const oPropertyNamesModel = <JSONModel>this.getView().getModel('propertyNames');
-		const oPlantPropertiesModel = <JSONModel>this.getView().getModel('properties');
-		const oTaxonPropertiesModel = <JSONModel>this.getView().getModel('propertiesTaxa');
-		const oPropertyNameCRUD = new PropertyNameCRUD(oPropertyNamesModel, oPlantPropertiesModel, oTaxonPropertiesModel)
-
-		const oAssignPropertyNamePopoverHandler = new AssignPropertyNamePopoverHandler(
-			this.mCurrentPlant.plant, oPropertyNameCRUD);
-		oAssignPropertyNamePopoverHandler.openPopupAddProperty(this.getView(), oBtnAddProperty);
-	}
-
-	onOpenDialogNewProperty(oEvent: Event) {
-		var oBtnNewProperty = <Button>oEvent.getSource();
-		const oPropertyNamesModel = <JSONModel>this.getView().getModel('propertyNames');
-		const oPlantPropertiesModel = <JSONModel>this.getView().getModel('properties');
-		const oTaxonPropertiesModel = <JSONModel>this.getView().getModel('propertiesTaxa');
-		const oPropertyNameCRUD = new PropertyNameCRUD(oPropertyNamesModel, oPlantPropertiesModel, oTaxonPropertiesModel)
-		const oNewPropertyNamePopoverHandler = new NewPropertyNamePopoverHandler(oPropertyNameCRUD, this.mCurrentPlant.plant)
-		oNewPropertyNamePopoverHandler.openPopupNewProperty(this.mCurrentPlant.plant, oBtnNewProperty, this.getView());
-
-	}
-	onEditPropertyValueTag(oEvent: Event) {
-		// open popover to edit or delete property value
-		const oPlantPropertiesModel = <JSONModel>this.oComponent.getModel('properties');
-		const oTaxonPropertiesModel = <JSONModel>this.oComponent.getModel('propertiesTaxa');
-		const oPropertyValueCRUD = new PropertyValueCRUD(oPlantPropertiesModel, oTaxonPropertiesModel);
-
-		var oSource = <ObjectStatus>oEvent.getSource();
-		var sPathPropertyValue = oSource.getBindingContext('properties')!.getPath();
-		const oPropertyValuePopoverHandler = new PropertyValuePopoverHandler(oPropertyValueCRUD, this.mCurrentPlant.plant);
-		oPropertyValuePopoverHandler.openPropertyValuePopover(this.getView(), oSource, sPathPropertyValue)
-
 	}
 
 	//////////////////////////////////////////////////////////

@@ -45,10 +45,6 @@ export default class Component extends UIComponent {
 		this.setModel(oPropertyNamesModel, "propertyNames");
 		const oEventsModel = models.createEventsModel();
 		this.setModel(oEventsModel, "events");
-		const oPlantPropertiesModel = models.createPlantPropertiesModel();
-		this.setModel(oPlantPropertiesModel, "properties");
-		const oTaxonPropertiesModel = models.createTaxonPropertiesModel();
-		this.setModel(oTaxonPropertiesModel, "propertiesTaxa");
 
 		this.setModel(models.createStatusModel(), "status");
 
@@ -67,16 +63,12 @@ export default class Component extends UIComponent {
 		ChangeTracker.createInstance(
 			oPlantsModel,
 			oEventsModel,
-			oPlantPropertiesModel,
-			oTaxonPropertiesModel,
 			oTaxonModel,
 		);
 
 		Saver.createInstance(
 			oPlantsModel,
 			oEventsModel,
-			oPlantPropertiesModel,
-			oTaxonPropertiesModel,
 			oTaxonModel
 		);
 

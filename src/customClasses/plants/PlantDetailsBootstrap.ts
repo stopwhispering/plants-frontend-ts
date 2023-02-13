@@ -6,7 +6,6 @@ import MessageToast from "sap/m/MessageToast";
 import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler";
 import { LCurrentPlant } from "plants/ui/definitions/PlantsLocal";
 import PlantImagesLoader from "./PlantImagesLoader";
-import PropertiesLoader from "plants/ui/customClasses/properties/PropertiesLoader";
 import TaxonLoader from "../taxonomy/TaxonLoader";
 import EventLoader from "../events/EventLoader";
 
@@ -17,8 +16,6 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 
 	private _oPlantsModel: JSONModel;
 	private _oEventsModel: JSONModel;
-	private _oPlantPropertiesModel: JSONModel;
-	private _oTaxonPropertiesModel: JSONModel;
 	private _oTaxonModel: JSONModel;
 	private _oDetailView: View;
 	private _mCurrentPlant: LCurrentPlant;
@@ -30,8 +27,6 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		oPlantsModel: JSONModel, 
 		oEventsModel: JSONModel, 
 		oImagesModel: JSONModel, 
-		oPlantPropertiesModel: JSONModel, 
-		oTaxonPropertiesModel: JSONModel, 
 		oTaxonModel: JSONModel, 
 		mCurrentPlant: LCurrentPlant,
 		) {
@@ -39,8 +34,6 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		super();
 		this._oPlantsModel = oPlantsModel;
 		this._oEventsModel = oEventsModel;
-		this._oPlantPropertiesModel = oPlantPropertiesModel;
-		this._oTaxonPropertiesModel = oTaxonPropertiesModel;
 		this._oTaxonModel = oTaxonModel;
 
 		this._oDetailView = oDetailView;
@@ -56,7 +49,6 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		// we can't request the plant's taxon details as we might not have the taxon id, yet
 		// (plants have not been loaded, yet, if site was opened with detail or untagged view)
 		// we need to wait for the plants model to be loaded, to be sure to have the taxon id
-		// the same applies to the properties - requesting requires the taxon id, too
 		var oPromise: Promise<any> = this._oPlantsModel.dataLoaded();
 		oPromise.then(this._cbPlantsLoaded.bind(this), this._cbPlantsLoaded.bind(this));
 
@@ -110,7 +102,6 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 			model: "plants"
 		});
 
-		// bind properties to view and have properties data loaded  
 		this._oDetailView.bindElement({
 			path: "/TaxaDict/" + this._mCurrentPlant.plant.taxon_id,
 			model: "taxon"
@@ -119,13 +110,6 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 			// ModelsHelper.getInstance().loadTaxon(this._mCurrentPlant.plant.taxon_id);
 			new TaxonLoader(this._oTaxonModel).loadTaxonIfRequired(this._mCurrentPlant.plant.taxon_id);
 
-		// bind taxon to view and have taxon data loaded
-		this._oDetailView.bindElement({
-			path: "/propertiesPlants/" + this._mCurrentPlant.plant.id,
-			model: "properties"
-		});
-		if (!this._oPlantPropertiesModel.getProperty('/propertiesPlants/' + this._mCurrentPlant.plant.id + '/')) {
-			new PropertiesLoader(this._oPlantPropertiesModel, this._oTaxonPropertiesModel).loadPropertiesForCurrentPlant(this._mCurrentPlant.plant);
-		}
+
 	}
 }

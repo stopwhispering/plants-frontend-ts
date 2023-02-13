@@ -5,12 +5,12 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import { FBImage } from "plants/ui/definitions/Images";
 import { BSaveConfirmation, FBMajorResource } from "plants/ui/definitions/Messages";
 import { BPlant, FPlantsUpdateRequest } from "plants/ui/definitions/Plants";
-import { LCategoryToPropertiesInCategoryMap, LPlantIdToPropertyCollectionMap, LPropertiesTaxonModelData, LTaxonToPropertyCategoryMap } from "../../definitions/PropertiesLocal";
 import { BTaxon, FTaxon } from "plants/ui/definitions/Taxon";
 import { LTaxonData } from "plants/ui/definitions/TaxonLocal";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "./ChangeTracker";
 import MessageHandler from "./MessageHandler";
+import { LEventsModelData, LPlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
 
 /**
  * @namespace plants.ui.customClasses.singleton
@@ -21,27 +21,21 @@ export default class Saver extends ManagedObject {
 
 	private _oPlantsModel: JSONModel;
 	private _oEventsModel: JSONModel;
-	private _oPlantPropertiesModel: JSONModel;
-	private _oTaxonPropertiesModel: JSONModel;
 	private _oTaxonModel: JSONModel;
 
 	private _bSavingPlants = false;
 	private _bSavingImages = false;
 	private _bSavingTaxa = false;
 	private _bSavingEvents = false;
-	private _bSavingPlantProperties = false;	
-	private _bSavingTaxonProperties = false;	
 
 	public static createInstance(
 		oPlantsModel: JSONModel, 
 		oEventsModel: JSONModel, 
-		oPlantPropertiesModel: JSONModel, 
-		oTaxonPropertiesModel: JSONModel, 
 		oTaxonModel: JSONModel
 		): void {
 		if (Saver._instance)
 			throw new Error('ChangeTracker instance already created');
-			Saver._instance = new Saver(oPlantsModel, oEventsModel, oPlantPropertiesModel, oTaxonPropertiesModel, oTaxonModel);
+			Saver._instance = new Saver(oPlantsModel, oEventsModel, oTaxonModel);
 	}
 
 	public static getInstance(): Saver {
@@ -54,16 +48,12 @@ export default class Saver extends ManagedObject {
 	private constructor(
 		oPlantsModel: JSONModel, 
 		oEventsModel: JSONModel, 
-		oPlantPropertiesModel: JSONModel, 
-		oTaxonPropertiesModel: JSONModel, 
 		oTaxonModel: JSONModel, 
 		) {
 
 		super();
 		this._oPlantsModel = oPlantsModel;
 		this._oEventsModel = oEventsModel;;
-		this._oPlantPropertiesModel = oPlantPropertiesModel;
-		this._oTaxonPropertiesModel = oTaxonPropertiesModel;
 		this._oTaxonModel = oTaxonModel;
 	}
 
@@ -73,20 +63,16 @@ export default class Saver extends ManagedObject {
 		this._bSavingImages = false;
 		this._bSavingTaxa = false;
 		this._bSavingEvents = false;
-		this._bSavingPlantProperties = false;
-		this._bSavingTaxonProperties = false;
 
 		const oChangeTracker = ChangeTracker.getInstance();
 		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
 		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
 		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
-		const dModifiedEvents: PlantIdToEventsMap = oChangeTracker.getModifiedEvents();
-		const dModifiedPropertiesPlants: LPlantIdToPropertyCollectionMap = oChangeTracker.getModifiedPlantProperties();
-		const dModifiedPropertiesTaxa: LTaxonToPropertyCategoryMap = oChangeTracker.getModifiedTaxonProperties();
+		const dModifiedEvents: LPlantIdToEventsMap = oChangeTracker.getModifiedEvents();
 
 		// cancel busydialog if nothing was modified (callbacks not triggered)
 		if ((aModifiedPlants.length === 0) && (aModifiedImages.length === 0) && (aModifiedTaxa.length === 0)
-			&& (Object.keys(dModifiedEvents).length === 0) && (Object.keys(dModifiedPropertiesPlants).length === 0) && (Object.keys(dModifiedPropertiesTaxa).length === 0)) {
+			&& (Object.keys(dModifiedEvents).length === 0)) {
 			MessageToast.show('Nothing to save.');
 			Util.stopBusyDialog();
 			return;
@@ -162,35 +148,6 @@ export default class Saver extends ManagedObject {
 				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Event (POST)'));
 		}
 
-		// save properties
-		if (Object.keys(dModifiedPropertiesPlants).length > 0) {
-			this._bSavingPlantProperties = true;
-			var dPayloadProperties = { 'modifiedPropertiesPlants': dModifiedPropertiesPlants };
-			$.ajax({
-				url: Util.getServiceUrl('plant_properties/'),
-				type: 'POST',
-				contentType: "application/json",
-				data: JSON.stringify(dPayloadProperties),
-				context: this
-			})
-				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'plant_properties (POST)'));
-		}
-
-		// save properties taxa
-		if (Object.keys(dModifiedPropertiesTaxa).length > 0 || Object.keys(dModifiedPropertiesTaxa).length > 0) {
-			this._bSavingTaxonProperties = true;
-			var dPayloadPropertiesTaxa = { 'modifiedPropertiesTaxa': dModifiedPropertiesTaxa };
-			$.ajax({
-				url: Util.getServiceUrl('taxon_properties/'),
-				type: 'POST',
-				contentType: "application/json",
-				data: JSON.stringify(dPayloadPropertiesTaxa),
-				context: this
-			})
-				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'taxon_properties (POST)'));
-		}
 	}
 
 	private _onAjaxSuccessSave(oMsg: BSaveConfirmation, sStatus: string, oReturnData: object) {
@@ -211,24 +168,12 @@ export default class Saver extends ManagedObject {
 			ChangeTracker.getInstance().setOriginalTaxa(dDataTaxon);
 		} else if (sResource === 'EventResource') {
 			this._bSavingEvents = false;
-			var dDataEvents: EventsModelData =this._oEventsModel.getData();
+			var dDataEvents: LEventsModelData =this._oEventsModel.getData();
 			ChangeTracker.getInstance().setOriginalEvents(dDataEvents.PlantsEventsDict);
-			MessageHandler.getInstance().addMessageFromBackend(oMsg.message);
-		} else if (sResource === 'PlantPropertyResource') {
-			this._bSavingPlantProperties = false;
-			var dDataProperties = this._oPlantPropertiesModel.getData();
-			const propertiesPlantsWithoutTaxa: LPlantIdToPropertyCollectionMap = ChangeTracker.getInstance().getPropertiesSansTaxa(dDataProperties.propertiesPlants);
-			ChangeTracker.getInstance().setPlantPropertyCollections(propertiesPlantsWithoutTaxa)
-			MessageHandler.getInstance().addMessageFromBackend(oMsg.message);
-		} else if (sResource === 'TaxonPropertyResource') {
-			this._bSavingTaxonProperties = false;
-			var dDataPropertiesTaxa: LPropertiesTaxonModelData = this._oTaxonPropertiesModel.getData();
-			const oTaxonToPropertyCategoryMap: LTaxonToPropertyCategoryMap = dDataPropertiesTaxa.propertiesTaxon;
-			ChangeTracker.getInstance().setTaxonProperties(oTaxonToPropertyCategoryMap);
 			MessageHandler.getInstance().addMessageFromBackend(oMsg.message);
 		}
 
-		if (!this._bSavingPlants && !this._bSavingImages && !this._bSavingTaxa && !this._bSavingEvents && !this._bSavingPlantProperties && !this._bSavingTaxonProperties) {
+		if (!this._bSavingPlants && !this._bSavingImages && !this._bSavingTaxa && !this._bSavingEvents) {
 			Util.stopBusyDialog();
 		}
 	}	
