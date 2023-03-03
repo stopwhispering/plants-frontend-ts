@@ -218,7 +218,7 @@
 							<HBox>
 								<ObjectIdentifier
 									text="{
-										path: 'plants>latest_image/date',
+										path: 'plants>latest_image/record_date_time',
 										formatter: '.formatter.timestampToDateShort'
 									}"
 									title="{
@@ -228,7 +228,7 @@
 								/>
 								<core:Icon
 									visible="{
-										path: 'plants>latest_image/date',
+										path: 'plants>latest_image/record_date_time',
 										formatter: '.formatter.last_image_warning'
 									}"
 									src="sap-icon://away"

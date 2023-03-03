@@ -79,8 +79,8 @@ export interface FBPlantCurrentSoil {
   date: string;
 }
 export interface FBPlantLatestImage {
-  path: string;
-  date: string;
+  filename: string;
+  record_date_time: string;
 }
 export interface FBPlantTag {
   id?: number;
