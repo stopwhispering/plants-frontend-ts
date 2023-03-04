@@ -32,7 +32,7 @@
 							<LightBoxItem 
 								imageSrc="{taxon>href}"
 								alt="{taxon>verbatimLocality}, {taxon>creatorIdentifier}"
-								title="{taxon>scientificName} ({taxon>date})"
+								title="{taxon>scientificName} ({taxon>created_on})"
 								tooltip="{taxon>verbatimLocality}, {taxon>creatorIdentifier}"
 								subtitle="{taxon>verbatimLocality}, {taxon>creatorIdentifier}">
 							</LightBoxItem>

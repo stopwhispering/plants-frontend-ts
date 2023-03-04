@@ -57,7 +57,7 @@ export interface BTaxonOccurrenceImage {
   scientific_name: string;
   basis_of_record: string;
   verbatim_locality?: string;
-  date: string;
+  created_on: string;
   creator_identifier: string;
   publisher_dataset?: string;
   references?: string;
@@ -117,14 +117,6 @@ export interface BResultsTaxonInfoRequest {
   message: BMessage;
   ResultsCollection: BKewSearchResultEntry[];
 }
-export interface FAssignTaxonRequest {
-  lsid?: string;
-  hasCustomName: boolean;
-  taxon_id?: number;
-  nameInclAddition: string;
-  plant_id: number;
-  source: string;
-}
 export interface FFetchTaxonOccurrenceImagesRequest {
   gbif_id: number;
 }
@@ -170,7 +162,7 @@ export interface FTaxonOccurrenceImage {
   scientific_name: string;
   basis_of_record: string;
   verbatim_locality?: string;
-  date: string;
+  created_on: string;
   creator_identifier: string;
   publisher_dataset?: string;
   references?: string;
