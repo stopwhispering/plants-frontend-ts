@@ -12,11 +12,6 @@ import BusyDialog from "sap/m/BusyDialog";
  */
 export default class ModelsHelper extends ManagedObject {
 
-
-
-
-
-
 	public static onReceiveErrorGeneric(sCaller: string, error: JQueryXHR, sTypeOfError: null|"timeout"|"error"|"abort"|"parsererror", oExceptionObject?: any): void {
 		
 		
