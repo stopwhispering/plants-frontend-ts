@@ -78,7 +78,6 @@ export interface FCreateOrUpdateEvent {
 }
 export interface FImageDelete {
   id: number;
-  filename: string;
 }
 export interface FImagesToDelete {
   images: FImageDelete[];

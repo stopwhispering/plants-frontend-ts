@@ -6,10 +6,10 @@
         items="{messages>/}"
         placement="Bottom">
         <items>
+	            <!-- subtitle="{messages>additionalText}" -->
 	        <MessageItem
 	            type="{messages>type}"
 	            title="{messages>message}"
-	            subtitle="{messages>additionalText}"
 	            description="{messages>description}"/>
     	</items>
     	<headerButton>

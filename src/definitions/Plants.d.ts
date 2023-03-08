@@ -39,7 +39,6 @@ export type FBMajorResource =
 export interface BMessage {
   type: BMessageType;
   message: string;
-  additionalText?: string;
   description?: string;
 }
 export interface BPlant {

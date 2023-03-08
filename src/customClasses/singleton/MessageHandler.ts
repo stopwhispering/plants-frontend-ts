@@ -41,7 +41,6 @@ export default class MessageHandler extends ManagedObject {
 			var oMessage = new Message({
 				type: backendMessage.type,
 				message: backendMessage.message,
-				additionalText: backendMessage.additionalText,
 				description: backendMessage.description
 			});
 			this._oMessageManager.addMessages(oMessage);
@@ -52,14 +51,13 @@ export default class MessageHandler extends ManagedObject {
 		console.log(backendMessage.message);
 	}
 
-	public addMessage(sType: MessageType, sMessage: string, sAdditionalText?: string, sDescription?: string) {
+	public addMessage(sType: MessageType, sMessage: string, sDescription?: string) {
 		if (sType === 'Error') {
 			sType = MessageType.Error;
 		}
 		var oMessage = new Message({
 			type: sType,
 			message: sMessage,
-			additionalText: sAdditionalText,
 			description: sDescription
 		});
 		this._oMessageManager.addMessages(oMessage);

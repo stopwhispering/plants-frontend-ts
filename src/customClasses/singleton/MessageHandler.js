@@ -51,7 +51,6 @@ var MessageHandler = /** @class */ (function (_super) {
             var oMessage = new Message_1["default"]({
                 type: backendMessage.type,
                 message: backendMessage.message,
-                additionalText: backendMessage.additionalText,
                 description: backendMessage.description
             });
             this._oMessageManager.addMessages(oMessage);
@@ -60,14 +59,13 @@ var MessageHandler = /** @class */ (function (_super) {
         // Log.debug(dictMessage.message);
         console.log(backendMessage.message);
     };
-    MessageHandler.prototype.addMessage = function (sType, sMessage, sAdditionalText, sDescription) {
+    MessageHandler.prototype.addMessage = function (sType, sMessage, sDescription) {
         if (sType === 'Error') {
             sType = library_1.MessageType.Error;
         }
         var oMessage = new Message_1["default"]({
             type: sType,
             message: sMessage,
-            additionalText: sAdditionalText,
             description: sDescription
         });
         this._oMessageManager.addMessages(oMessage);

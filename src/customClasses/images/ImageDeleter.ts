@@ -59,7 +59,6 @@ export default class ImageDeleter extends ManagedObject {
 		const oPayload = <FImagesToDelete>{
 			images: aImages.map((oImage) => (<FImageDelete>{
 				id: oImage.id,
-				filename: oImage.filename
 			}))
 		};
 
