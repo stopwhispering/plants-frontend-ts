@@ -56,7 +56,7 @@ export interface BTaxonOccurrenceImage {
   scientific_name: string;
   basis_of_record: string;
   verbatim_locality?: string;
-  created_on: string;
+  photographed_at: string;
   creator_identifier: string;
   publisher_dataset?: string;
   references?: string;
@@ -161,7 +161,7 @@ export interface FTaxonOccurrenceImage {
   scientific_name: string;
   basis_of_record: string;
   verbatim_locality?: string;
-  created_on: string;
+  photographed_at: string;
   creator_identifier: string;
   publisher_dataset?: string;
   references?: string;
