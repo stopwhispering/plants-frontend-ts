@@ -1,8 +1,8 @@
 import Util from "plants/ui/customClasses/shared/Util";
 import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
-import { FBImage } from "plants/ui/definitions/Images";
-import { LImageMap } from "plants/ui/definitions/ImageLocal";
+import { FBImage, ImageRead } from "plants/ui/definitions/Images";
+import { LImageIdMap } from "plants/ui/definitions/ImageLocal";
 
 /**
  * @namespace plants.ui.customClasses.singleton
@@ -12,7 +12,7 @@ export default class ImageRegistryHandler extends ManagedObject {
 
 	private static _instance: ImageRegistryHandler;
 	private _oImagesModel: JSONModel;
-	private _oImageRegistry: LImageMap;
+	private _oImageIdRegistry: LImageIdMap;
 	private _oSetImagesPlantsLoaded: Set<int>  // plant id's for which images have been loaded
 
 	public static createInstance(oImagesModel: JSONModel): void {
@@ -32,22 +32,21 @@ export default class ImageRegistryHandler extends ManagedObject {
 		super();
 		this._oImagesModel = oImagesModel;
 		
-		this._oImageRegistry = <LImageMap>{};
+		this._oImageIdRegistry = <LImageIdMap>{};
 		this._oSetImagesPlantsLoaded = <Set<int>>new Set();
 	}
 
 	public resetImagesForPlant(iPlantId: int): void {
 		// reset data in images model to image data in image registy for supplied plant
 		// @ts-ignore // typescript doesn't like Object.entries
-		const aPhotosArr = <[string, FBImage][]>Object.entries(this._oImageRegistry).filter(t => (t[1].plants.filter(p => p.plant_id === iPlantId)).length == 1);
-		var aPhotos = <FBImage[]>aPhotosArr.map(p => p[1]);
-		this._oImagesModel.setProperty('/ImagesCollection', aPhotos);
+		const aImagesArr = <[string, ImageRead][]>Object.entries(this._oImageIdRegistry).filter(t => (t[1].plants.filter(p => p.plant_id === iPlantId)).length == 1);
+		var aImages = <ImageRead[]>aImagesArr.map(p => p[1]);
+		this._oImagesModel.setProperty('/ImagesCollection', aImages);
 		Util.stopBusyDialog(); // had been started in details onPatternMatched
 	}
 
 	public resetImageRegistry(): void {
-		// Object.keys(this._component.imagesRegistry).forEach(key => delete this._component.imagesRegistry[key]);
-		this._oImageRegistry = {};
+		this._oImageIdRegistry = {};
 	}
 
 	public addImageToImagesRegistry(aImages: FBImage[]) {
@@ -55,40 +54,35 @@ export default class ImageRegistryHandler extends ManagedObject {
 		// note: to avoid cross dependency, we don't add a copy of the photo to a clone registry
 		//       caller needs to do that separately 
 		aImages.forEach(oImage => {
-			if (!(this.isImageInRegistry(oImage.filename))) {
-				this._oImageRegistry[oImage.filename] = oImage;
+			if (!(this.isImageIdInRegistry(oImage.id))) {
+				this._oImageIdRegistry[oImage.id] = oImage;
 			}
 		});
 	}
 
 	public addImageToRegistry(oImage: FBImage): void {
-		this._oImageRegistry[oImage.filename] = oImage;
+		this._oImageIdRegistry[oImage.id] = oImage;
 	}	
 
-	public removeImageFromRegistry(sFilename: string): void {
-		delete this._oImageRegistry[sFilename];
+	public removeImageIdFromRegistry(iImageId: int): void {
+		delete this._oImageIdRegistry[iImageId];
 	}
 
-	public getFilenamesInImageRegistry(): string[] {
-		return Object.keys(this._oImageRegistry);
+	public getIdsInImageRegistry(): int[] {
+		const sKeys = Object.keys(this._oImageIdRegistry);
+		return sKeys.map(s => parseInt(s));
 	}
 
-	public tempGetImagesRegistry(): LImageMap {
-		//TODO REMOVE THIS WHEN CODE IS UNDERSTOOD!
-		return this._oImageRegistry;
+	public getImageInRegistryById(iImageId: int): FBImage {
+		return this._oImageIdRegistry[iImageId];
 	}
 
-
-	public getImageInRegistry(sFilename: string): FBImage {
-		return this._oImageRegistry[sFilename];
+	public getImageIdRegistry(): LImageIdMap {
+		return this._oImageIdRegistry;
 	}
 
-	public getImageRegistry(): LImageMap {
-		return this._oImageRegistry;
-	}
-
-	public isImageInRegistry(sFilename: string): boolean {
-		return sFilename in this._oImageRegistry;
+	public isImageIdInRegistry(iImageId: int): boolean {
+		return iImageId in this._oImageIdRegistry;
 	}
 
 	public resetPlantsWithImagesLoaded(): void {

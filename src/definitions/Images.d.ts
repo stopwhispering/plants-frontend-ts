@@ -47,3 +47,12 @@ export interface FImageUploadedMetadata {
   plants: number[];
   keywords: string[];
 }
+
+export interface ImageRead {
+  id: number;
+  filename: string;
+  keywords: FBKeyword[];
+  plants: FBImagePlantTag[];
+  description?: string;
+  record_date_time?: string;
+}

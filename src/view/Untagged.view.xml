@@ -97,16 +97,16 @@
 
 						        	<m:VBox>
 							        	<m:Image 
-											src="{	path: 'untaggedImages>filename',
+											src="{	path: 'untaggedImages>id',
 												  	formatter: '.formatter.getSrcImageThumbnail' }"
-											tooltip="{untaggedImages>filename}"
+											tooltip="{untaggedImages>id}"
 											width="288px">
 								        	
 								        	<m:detailBox>
 												<m:LightBox>
 													<m:LightBoxItem
 														imageSrc="{
-																path: 'untaggedImages>filename',
+																path: 'untaggedImages>id',
 																formatter: '.formatter.getSrcImage'
 																}"
 														alt="{plants>plant_name}"

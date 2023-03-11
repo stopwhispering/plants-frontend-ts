@@ -59,7 +59,6 @@ export interface BPlant {
   parent_plant?: FBAssociatedPlantExtractForPlant;
   parent_plant_pollen?: FBAssociatedPlantExtractForPlant;
   plant_notes?: string;
-  filename_previewimage?: string;
   last_update?: string;
   descendant_plants_all: FBAssociatedPlantExtractForPlant[];
   sibling_plants: FBAssociatedPlantExtractForPlant[];
@@ -126,7 +125,6 @@ export interface FPlant {
   parent_plant?: FBAssociatedPlantExtractForPlant;
   parent_plant_pollen?: FBAssociatedPlantExtractForPlant;
   plant_notes?: string;
-  filename_previewimage?: string;
   // last_update?: string;
   // descendant_plants_all: FBAssociatedPlantExtractForPlant[];
   // sibling_plants: FBAssociatedPlantExtractForPlant[];
@@ -142,4 +140,32 @@ export interface FPlantsUpdateRequest {
 export interface BResultsProposeSubsequentPlantName {
   original_plant_name: string;
   subsequent_plant_name: string;
+}
+export interface PlantRead {
+  plant_name: string;
+  field_number?: string;
+  geographic_origin?: string;
+  nursery_source?: string;
+  propagation_type?: FBPropagationType;
+  active: boolean;
+  cancellation_reason?: FBCancellationReason;
+  cancellation_date?: string;
+  generation_notes?: string;
+  taxon_id?: number;
+  parent_plant?: ShortPlant;
+  parent_plant_pollen?: ShortPlant;
+  plant_notes?: string;
+  preview_image_id?: number;
+  tags: FBPlantTag[];
+  id: number;
+  taxon_authors?: string;
+  botanical_name?: string;
+  full_botanical_html_name?: string;
+  created_at: string;
+  last_update?: string;
+  descendant_plants_all: ShortPlant[];
+  sibling_plants: ShortPlant[];
+  same_taxon_plants: ShortPlant[];
+  current_soil?: PlantCurrentSoil;
+  latest_image?: PlantLatestImage;
 }

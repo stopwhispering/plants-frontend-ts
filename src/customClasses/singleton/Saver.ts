@@ -159,8 +159,6 @@ export default class Saver extends ManagedObject {
 			ChangeTracker.getInstance().setOriginalPlants(dDataPlants);
 		} else if (sResource === 'ImageResource') {
 			this._bSavingImages = false;
-			// var oImageMap: LImageMap = this.oComponent.imagesRegistry;
-			// ChangeTracker.getInstance().setOriginalImages(oImageMap);
 			ChangeTracker.getInstance().setOriginalImagesFromImageRegistry();
 		} else if (sResource === 'TaxonResource') {
 			this._bSavingTaxa = false;

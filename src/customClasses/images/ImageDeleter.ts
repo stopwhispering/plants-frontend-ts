@@ -94,8 +94,8 @@ export default class ImageDeleter extends ManagedObject {
 			}
 
 			//... and deleted image in images registry
-			ImageRegistryHandler.getInstance().removeImageFromRegistry(image.filename);
-			ChangeTracker.getInstance().removeOriginalImage(image.filename);
+			ImageRegistryHandler.getInstance().removeImageIdFromRegistry(image.id);
+			ChangeTracker.getInstance().removeOriginalImage(image.id);
 
 		});
 		this._oImagesModel.refresh();

@@ -9,7 +9,7 @@
 		
 	    <Image
 			src="{
-					path: 'events>filename',
+					path: 'events>id',
 					formatter: '.formatter.getSrcImage120px'
 					}"	
 	    	width="120px">
@@ -18,7 +18,7 @@
 				<LightBox>
 					<LightBoxItem 
 						imageSrc="{
-								path: 'events>filename',
+								path: 'events>id',
 								formatter: '.formatter.getSrcImage'
 								}"	
 						alt="{plants>plant_name}"

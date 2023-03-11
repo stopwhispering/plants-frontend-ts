@@ -8,7 +8,7 @@ import ColumnListItem from "sap/m/ColumnListItem"
 import Event from "sap/ui/base/Event"
 import ListBinding from "sap/ui/model/ListBinding"
 import Avatar from "sap/m/Avatar"
-import { BPlant } from "../definitions/Plants"
+import { BPlant, PlantRead } from "../definitions/Plants"
 import Label from "sap/m/Label"
 import PlantSearcher from "plants/ui/customClasses/filter/PlantSearcher"
 import NewPlantDialogHandler from "../customClasses/plants/NewPlantDialogHandler"
@@ -119,6 +119,9 @@ export default class Master extends BaseController {
 	public onHoverImage(oAvatar: Avatar, evtDelegate: JQuery.Event): void {
 		// apply _onHoverImageShow function to popover
 		var oPlantBindingContext = oAvatar.getBindingContext('plants')!;
+		const oPlant = <PlantRead>oPlantBindingContext.getObject();
+		if (!oPlant.preview_image_id)
+			return;
 
 		if (!this._oImagePreviewPopoverHandler)
 			this._oImagePreviewPopoverHandler = new ImagePreviewPopoverHandler()

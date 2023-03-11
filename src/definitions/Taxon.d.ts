@@ -93,16 +93,15 @@ export interface BTaxon {
   gbif_id?: int;
   custom_notes?: string;
   distribution: FBDistribution;
-  images: BTaxonImage[];
+  images: TaxonImageRead[];
   occurrence_images: BTaxonOccurrenceImage[];
 }
 export interface FBDistribution {
   native: string[];
   introduced: string[];
 }
-export interface BTaxonImage {
+export interface TaxonImageRead {
   id: number;
-  filename: string;
   description?: string;
 }
 export interface BResultsRetrieveTaxonDetailsRequest {
@@ -147,11 +146,10 @@ export interface FTaxon {
   gbif_id?: string;
   custom_notes?: string;
   distribution?: FBDistribution;
-  images?: FTaxonImage[];
+  images?: TaxonImageUpdate[];
 }
-export interface FTaxonImage {
+export interface TaxonImageUpdate {
   id: number;
-  filename: string;
   description?: string;
 }
 export interface FTaxonOccurrenceImage {

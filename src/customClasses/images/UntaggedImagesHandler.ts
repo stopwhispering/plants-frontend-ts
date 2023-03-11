@@ -41,11 +41,8 @@ export default class UntaggedImagesHandler extends ManagedObject {
 		// plus add a copy of the photo to a clone registry for getting changed photos when saving
 		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
 		aImages.forEach((oImage: FBImage) => {
-			// if (!(image.filename in this.imagesRegistry)){
-			if (!oImageRegistryHandler.isImageInRegistry(oImage.filename)){
-				// this.imagesRegistry[image.filename] = image;
+			if (!oImageRegistryHandler.isImageIdInRegistry(oImage.id)){
 				oImageRegistryHandler.addImageToRegistry(oImage);
-				// this.imagesRegistryClone[image.filename] = Util.getClonedObject(image);
 				ChangeTracker.getInstance().addOriginalImage(oImage);
 			}
 		});
@@ -53,13 +50,11 @@ export default class UntaggedImagesHandler extends ManagedObject {
 
 	public resetUntaggedImages(): void {
 		//(re-)set untagged photos in untagged images model
-		// @ts-ignore // works, but typescript doesn't like it
-		
 		//TODO REMOVE THIS WHEN CODE IS UNDERSTOOD!
-		const tempimagesRegistry = ImageRegistryHandler.getInstance().tempGetImagesRegistry();
-		// const aPhotoValues = <any[][]> Object.entries(this.imagesRegistry).filter(t => (!t[1].plants.length));
-		const aPhotoValues = <any[][]> Object.entries(tempimagesRegistry).filter(t => (!t[1].plants.length));
-		var aPhotos = aPhotoValues.map(p => p[1]);
-		this._oUntaggedImagesModel.setProperty('/ImagesCollection',aPhotos);
+		const tempImageIdRegistry = ImageRegistryHandler.getInstance().getImageIdRegistry();
+		const aImageValues = <any[][]> Object.entries(tempImageIdRegistry).filter(t => (!t[1].plants.length));
+		var aImages = aImageValues.map(p => p[1]);
+
+		this._oUntaggedImagesModel.setProperty('/ImagesCollection',aImages);
 	}
 }

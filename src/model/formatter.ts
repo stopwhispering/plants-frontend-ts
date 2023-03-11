@@ -3,7 +3,7 @@ import Constants from "../Constants";
 import Detail from "../controller/Detail.controller";
 import NewDescendantPlantDialogHandler from "../customClasses/plants/NewDescendantPlantDialogHandler";
 import SuggestionService from "../customClasses/shared/SuggestionService";
-import { FBEvent, FBImageAssignedToEvent } from "../definitions/Events";
+import { FBEvent, ImageAssignedToEvent } from "../definitions/Events";
 import { FBPropagationType } from "../definitions/Plants";
 import { LPropagationTypeData } from "../definitions/PlantsLocal";
 
@@ -53,17 +53,18 @@ export default class formatter{
 		}
 	}
 	
-	public colorByPreviewOrNot(sImageFilename: string, sPlantFilenamePreviewimage: string){
+	//todo repair this once we have id everywhere instead of tlienmae
+	public colorByPreviewOrNot(iImageId: int, iPlantPreviewImageId: int){
 		//return blue or orange, depending on whether supplied image is the preview image of the plant 
-		return (sImageFilename && sPlantFilenamePreviewimage && sImageFilename === sPlantFilenamePreviewimage) ? 'blue' : '#E69A17';
+		return (iImageId && iPlantPreviewImageId && iImageId === iPlantPreviewImageId) ? 'blue' : '#E69A17';
 	}
 
-	public colorByAssigedToEventOrNot(sImageFilename: string, aEvents: FBEvent[]){	
+	public colorByAssigedToEventOrNot(iImageId: int, aEvents: FBEvent[]){	
 		// flatten array of events' images 
-		if (!sImageFilename || !aEvents || !aEvents.length) return '#000000';
+		if (!iImageId || !aEvents || !aEvents.length) return '#000000';
 		let aEventsWithImages = aEvents.filter(event => event.images && event.images.length);
-		let aImages = <FBImageAssignedToEvent[]>aEventsWithImages.flatMap(event => event.images);
-		let oImageFound = aImages.find(image => image.filename === sImageFilename); 
+		let aImages = <ImageAssignedToEvent[]>aEventsWithImages.flatMap(event => event.images);
+		let oImageFound = aImages.find(image => image.id === iImageId); 
 		return !oImageFound ? '#000000' : 'blue';
 	}
 
@@ -261,32 +262,34 @@ export default class formatter{
 		return propagationType['hasParentPlantPollen'] === true;
 	}
 
-	public getSrcAvatarImageS(filename_previewimage: string): string|undefined{
+	public getSrcAvatarImageS(image_id: int): string|undefined{
 		// get url for image in avatar size s (default), i.e. 3 rem
-		if (filename_previewimage)
-			return Util.getImageUrl(filename_previewimage, 'rem', 3, 3);
+		if (image_id)
+			return Util.getImageIdUrl(image_id, 'rem', 3, 3);
 	}
 
-	public getSrcAvatarImageL(filename_previewimage: string): string|undefined{
+	public getSrcAvatarImageL(image_id: int): string|undefined{
 		// get url for image in avatar size l, i.e. 5 rem{
-		if (filename_previewimage)
-			return Util.getImageUrl(filename_previewimage, 'rem', 5, 5);
+		if (image_id)
+			return Util.getImageIdUrl(image_id, 'rem', 5, 5);
 	}
 
-	public getSrcImageThumbnail(filename: string){
+	public getSrcImageThumbnail(image_id: int){
 		// get url for image in thumbnail size for details images list
-		return Util.getImageUrl(filename, 'px', 288, 288);
+		if(image_id)
+			return Util.getImageIdUrl(image_id, 'px', 288, 288);
 	}
 
-	public getSrcImage(filename: string): string|undefined{
+	public getSrcImage(image_id: int): string|undefined{
 		// get url for image in full size
-		if (filename)
-			return Util.getImageUrl(filename);
+		if (image_id)
+			return Util.getImageIdUrl(image_id);
 	}
 
-	public getSrcImage120px(filename: string){
+	public getSrcImage120px(image_id: int){
 		// get url for thumbnail image in taxon images list
-		return Util.getImageUrl(filename, 'px', 120, 120);
+		if (image_id)
+			return Util.getImageIdUrl(image_id, 'px', 120, 120);
 	}
 
 	public getSrcImageOccurrenceThumbnail(gbif_id: int, occurrence_id: int, img_no: int){
@@ -295,9 +298,9 @@ export default class formatter{
 		return Util.getServiceUrl(path);
 	}
 
-	public getSrcMasterHoverImage(filename: string){
+	public getSrcMasterHoverImage(preview_image_id: int){
 		// get url for image in preview popup openened when hovering in master list
-		return Util.getImageUrl(filename, 'px', 1200, 800);
+		return Util.getImageIdUrl(preview_image_id, 'px', 1200, 800);
 	}
 
 }

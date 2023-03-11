@@ -2,7 +2,7 @@ import MessageToast from "sap/m/MessageToast"
 import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { FBImage } from "plants/ui/definitions/Images";
-import { FBEvent, FBImageAssignedToEvent } from "plants/ui/definitions/Events";
+import { FBEvent, ImageAssignedToEvent } from "plants/ui/definitions/Events";
 
 /**
  * @namespace plants.ui.customClasses.images
@@ -15,7 +15,7 @@ export default class ImageToEventAssigner extends ManagedObject {
 
 	assignImageToEvent(oImage: FBImage, oSelectedEvent: FBEvent, oEventsModel: JSONModel) {
 		// check if already assigned
-		const aSelectedEventImages = <FBImageAssignedToEvent[]>oSelectedEvent.images;
+		const aSelectedEventImages = <ImageAssignedToEvent[]>oSelectedEvent.images;
 		if (!!aSelectedEventImages && aSelectedEventImages.length > 0) {
 			var oImageAssignmentFound = aSelectedEventImages.find(function (oCurrentImageAssignment) {
 				return oCurrentImageAssignment.id === oImage.id;
@@ -32,12 +32,11 @@ export default class ImageToEventAssigner extends ManagedObject {
 		}
 
 		// assign and add assignment to end of list
-		const oNewImageAssignedToEvent: FBImageAssignedToEvent = {
+		const oNewImageAssignedToEvent: ImageAssignedToEvent = {
 			id: oImage.id,
-			filename: oImage.filename
 		};
 		if (!oSelectedEvent.images) {
-			oSelectedEvent.images = <FBImageAssignedToEvent[]>[oNewImageAssignedToEvent];
+			oSelectedEvent.images = <ImageAssignedToEvent[]>[oNewImageAssignedToEvent];
 		} else {
 			oSelectedEvent.images.push(oNewImageAssignedToEvent);
 		}

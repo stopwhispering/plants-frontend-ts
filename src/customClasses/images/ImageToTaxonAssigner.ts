@@ -3,7 +3,7 @@ import ManagedObject from "sap/ui/base/ManagedObject";
 import Icon from "sap/ui/core/Icon";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { FBImage } from "plants/ui/definitions/Images";
-import { BTaxon, FTaxonImage } from "plants/ui/definitions/Taxon";
+import { BTaxon, TaxonImageUpdate } from "plants/ui/definitions/Taxon";
 
 /**
  * @namespace plants.ui.customClasses.images
@@ -15,9 +15,8 @@ export default class ImageToTaxonAssigner extends ManagedObject {
 
 		// get image
 		const oImage = <FBImage>oSource.getBindingContext('images')!.getObject();
-		var oImageAssignment = <FTaxonImage>{
+		var oImageAssignment = <TaxonImageUpdate>{
 			id: oImage.id,
-			filename: oImage.filename,
 			description: oImage.description  // default description is image description, but may be altered later
 		};
 
@@ -49,13 +48,13 @@ export default class ImageToTaxonAssigner extends ManagedObject {
 	public unassignImageFromTaxon(oSource: Icon, oTaxonModel: JSONModel) {
 		// triggered by clicking delete icon next to image in taxon box
 		// unassigns the image from the taxon (without deleting any image)
-		const oImageAssignment = <FTaxonImage>oSource.getBindingContext('taxon')!.getObject();
+		const oImageAssignment = <TaxonImageUpdate>oSource.getBindingContext('taxon')!.getObject();
 		const sPathImageAssignmentToTaxon = oSource.getBindingContext('taxon')!.getPath();
 
 		// var sPathImageAssignment = evt.getSource().getBindingContext('taxon').getPath();
 		var sPathImages = sPathImageAssignmentToTaxon.substr(0, sPathImageAssignmentToTaxon.lastIndexOf('/'));
 
-		var aImageAssignments = <FTaxonImage[]>oTaxonModel.getProperty(sPathImages);
+		var aImageAssignments = <TaxonImageUpdate[]>oTaxonModel.getProperty(sPathImages);
 		var iPosition = aImageAssignments.indexOf(oImageAssignment);
 		if (iPosition === -1) {
 			MessageToast.show("Can't find image.");

@@ -22,7 +22,7 @@ export interface FBEvent {
   observation?: FBObservation;
   soil?: FBSoil;
   pot?: FBPot;
-  images?: FBImageAssignedToEvent[];
+  images?: ImageAssignedToEvent[];
 }
 export interface FBObservation {
   id?: number;
@@ -44,9 +44,8 @@ export interface FBPot {
   shape_side: FBShapeSide;
   diameter_width: number;  // in cm (decimal) 
 }
-export interface FBImageAssignedToEvent {
+export interface ImageAssignedToEvent {
   id: number;
-  filename: string;
 }
 export interface BPResultsUpdateCreateSoil {
   soil: FBSoil;

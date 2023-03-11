@@ -246,11 +246,11 @@
 								showBorder="true"
 								initials="{= ${plants>plant_name}.substr(0,2) }"
 								tooltip="{
-									path: 'plants>filename_previewimage',
+									path: 'plants>preview_image_id',
 									formatter: 'addMouseOverDelegate'
 								}"
 								src="{
-									path: 'plants>filename_previewimage',
+									path: 'plants>preview_image_id',
 									formatter: '.formatter.getSrcAvatarImageS'
 								}"
 								displayShape="Square"

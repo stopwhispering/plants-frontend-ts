@@ -9,7 +9,7 @@
 			class="sapUiTinyMarginEnd">
 		    <Image
 				src="{
-						path: 'taxon>filename',
+						path: 'taxon>id',
 						formatter: '.formatter.getSrcImage120px'
 						}"	
 		    	width="120px">
@@ -18,7 +18,7 @@
 					<LightBox>
 						<LightBoxItem 
 							imageSrc="{
-									path: 'taxon>filename',
+									path: 'taxon>id',
 									formatter: '.formatter.getSrcImage'
 									}"
 							alt="{taxon>name}"

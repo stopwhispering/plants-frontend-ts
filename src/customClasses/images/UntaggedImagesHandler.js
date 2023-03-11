@@ -51,10 +51,9 @@ var UntaggedImagesHandler = /** @class */ (function (_super) {
         var oImageRegistryHandler = ImageRegistryHandler_1["default"].getInstance();
         aImages.forEach(function (oImage) {
             // if (!(image.filename in this.imagesRegistry)){
+                //todo replace with id
             if (!oImageRegistryHandler.isImageInRegistry(oImage.filename)) {
-                // this.imagesRegistry[image.filename] = image;
                 oImageRegistryHandler.addImageToRegistry(oImage);
-                // this.imagesRegistryClone[image.filename] = Util.getClonedObject(image);
                 ChangeTracker_1["default"].getInstance().addOriginalImage(oImage);
             }
         });

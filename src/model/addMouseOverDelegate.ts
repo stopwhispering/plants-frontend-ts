@@ -8,7 +8,7 @@ import Master from "../controller/Master.controller";
 /**
  * @namespace plants.ui.model
  */
-export default function addMouseOverDelegate(_: string) {
+export default function addMouseOverDelegate(_: int) {
         // with javascript ui5, one can get the control itself as <<this>> by simply doing "...formatter=myFunction..." in XML
         // instead of "...formatter=.formatter.myFunction..."
         // with typescript, it does not work like this as that "special" formatter function seems not to be recognized

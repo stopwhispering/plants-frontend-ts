@@ -25,7 +25,7 @@ import Button from "sap/m/Button"
 import Context from "sap/ui/model/Context"
 import { FBImage, FBImagePlantTag, FBKeyword } from "plants/ui/definitions/Images"
 import Token from "sap/m/Token"
-import { FBAssociatedPlantExtractForPlant, BPlant } from "plants/ui/definitions/Plants"
+import { FBAssociatedPlantExtractForPlant, BPlant, PlantRead } from "plants/ui/definitions/Plants"
 import { LCurrentPlant } from "plants/ui/definitions/PlantsLocal"
 import Tokenizer from "sap/m/Tokenizer"
 import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
@@ -57,6 +57,7 @@ import DeletePlantTagMenuHandler from "../customClasses/plants/DeletePlantTagMen
 import LeafletMapHandler from "../customClasses/taxonomy/LeafletMapHandler"
 import SearchField from "sap/m/SearchField"
 import GridList from "sap/f/GridList"
+import {ImageRead} from "plants/ui/definitions/Images"
 
 /**
  * @namespace plants.ui.controller
@@ -420,18 +421,11 @@ export default class Detail extends BaseController {
 		// get selected image and current plant in model
 		var oSource = <Icon>oEvent.getSource();
 		var sPathCurrentImage = oSource.getBindingContext("images")!.getPath();
-		var oCurrentImage = this.oComponent.getModel('images').getProperty(sPathCurrentImage);
+		var oCurrentImage = <ImageRead>this.oComponent.getModel('images').getProperty(sPathCurrentImage);
 		var sPathCurrentPlant = oSource.getBindingContext("plants")!.getPath();
-		var oCurrentPlant = <BPlant>this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
+		var oCurrentPlant = <PlantRead>this.oComponent.getModel('plants').getProperty(sPathCurrentPlant);
 
-		// temporarily set original image as preview image
-		// upon reloading plants model, a specific preview image will be generated 
-		var sUrlOriginal = oCurrentImage['filename'];
-		var s = JSON.stringify(sUrlOriginal); // model stores backslash unescaped, so we need a workaround
-		// var s2 = s.substring(1, s.length - 1);
-		// oCurrentPlant['url_preview'] = s2;
-		oCurrentPlant['filename_previewimage'] = oCurrentImage['filename'];
-
+		oCurrentPlant.preview_image_id = oCurrentImage.id;
 		this.oComponent.getModel('plants').updateBindings(false);
 	}
 

@@ -14,7 +14,7 @@
 			id="idHoverImage"
     		press=".onClickImagePopupImage"
 			src="{
-					path: 'plants>filename_previewimage',
+					path: 'plants>preview_image_id',
 					formatter: '.formatter.getSrcMasterHoverImage'
 					}"
 			/>

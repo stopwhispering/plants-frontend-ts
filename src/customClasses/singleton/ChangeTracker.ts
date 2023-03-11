@@ -3,7 +3,7 @@ import ManagedObject from "sap/ui/base/ManagedObject"
 import Util from "plants/ui/customClasses/shared/Util";
 import { LTaxonData, LTaxonMap } from "plants/ui/definitions/TaxonLocal";
 import { FBImage } from "plants/ui/definitions/Images";
-import { LImageMap } from "plants/ui/definitions/ImageLocal";
+import { LImageIdMap } from "plants/ui/definitions/ImageLocal";
 import { LPlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
 import { BTaxon } from "plants/ui/definitions/Taxon";
 import { BPlant, FPlant, FPlantsUpdateRequest } from "plants/ui/definitions/Plants"
@@ -22,7 +22,7 @@ export default class ChangeTracker extends ManagedObject {
 	private _oEventsDataClone: LPlantIdToEventsMap;
 	private _oTaxonModel: JSONModel;
 	private _oTaxonDataClone: LTaxonData;  // todo create clone handler
-	private _oImageRegistryClone: LImageMap;  // todo use registry handler instead
+	private _oImageIdRegistryClone: LImageIdMap;  // todo use registry handler instead
 
 
 	public static createInstance(
@@ -60,7 +60,7 @@ export default class ChangeTracker extends ManagedObject {
 		this._oPlantsDataClone = <FPlantsUpdateRequest>{};
 		this._oEventsDataClone = <LPlantIdToEventsMap>{};
 		this._oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
-		this._oImageRegistryClone = <LImageMap>{};
+		this._oImageIdRegistryClone = <LImageIdMap>{};
 	}
 
 	public hasUnsavedChanges(): boolean {
@@ -149,7 +149,6 @@ export default class ChangeTracker extends ManagedObject {
 		const keys_clone = <int[]>keys_clones.map(k => parseInt(k));
 		const that = this;
 		keys_clone.forEach(function (key) {
-			// if(!Util.arraysAreEqual(dDataEventsClone[key],
 			if (!Util.objectsEqualManually(that._oEventsDataClone[key],
 				oDataEvents[key])) {
 				oModifiedEventsDict[key] = oDataEvents[key];
@@ -170,16 +169,12 @@ export default class ChangeTracker extends ManagedObject {
 
 	public getModifiedImages(): FBImage[] {
 		// identify modified images by comparing images with their clones (created after loading)
-		// var oImages: LImageMap = this.oComponent.imagesRegistry;
-		// var oImagesClone: LImageMap = this.oComponent.imagesRegistryClone;
-
 		var aModifiedImages: FBImage[] = [];
 		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
-		const aImageFilenames = oImageRegistryHandler.getFilenamesInImageRegistry();
-		aImageFilenames.forEach(sFilename => {
-			// if (!(path in this._oImageRegistryClone) || !Util.dictsAreEqual(this._oImageRegistry[path], this._oImageRegistryClone[path])) {
-			const oImage: FBImage = oImageRegistryHandler.getImageInRegistry(sFilename);
-			const oImageOriginal: FBImage = this._oImageRegistryClone[sFilename];
+		const aImageIds = oImageRegistryHandler.getIdsInImageRegistry();
+		aImageIds.forEach(iImageId => {
+			const oImage: FBImage = oImageRegistryHandler.getImageInRegistryById(iImageId);
+			const oImageOriginal: FBImage = this._oImageIdRegistryClone[iImageId];
 			if (!oImageOriginal || !Util.dictsAreEqual(oImage, oImageOriginal)) {
 				aModifiedImages.push(oImage);
 			}
@@ -223,28 +218,28 @@ export default class ChangeTracker extends ManagedObject {
 		this._oEventsDataClone = Util.getClonedObject(oPlantIdToEventsMap);
 	}
 
-	public removeOriginalImage(filename: string): void {
+	public removeOriginalImage(iImageId: int): void {
 		// delete image from images model clone
-		delete this._oImageRegistryClone[filename];
+		delete this._oImageIdRegistryClone[iImageId];
 	}
 
 	public setOriginalImagesFromImageRegistry(): void {
-		const oImageMap: LImageMap = ImageRegistryHandler.getInstance().getImageRegistry()
-		this._oImageRegistryClone = Util.getClonedObject(oImageMap);
+		const oImageIdMap: LImageIdMap = ImageRegistryHandler.getInstance().getImageIdRegistry()
+		this._oImageIdRegistryClone = Util.getClonedObject(oImageIdMap);
 	}
 
 	public addOriginalImage(oImage: FBImage): void {
-		this._oImageRegistryClone[oImage.filename] = Util.getClonedObject(oImage);
+		this._oImageIdRegistryClone[oImage.id] = Util.getClonedObject(oImage);
 	}
 
 	public addOriginalImages(aImages: FBImage[]): void {
 		aImages.forEach((oImage: FBImage) => {
-			this._oImageRegistryClone[oImage.filename] = Util.getClonedObject(oImage);
+			this._oImageIdRegistryClone[oImage.id] = Util.getClonedObject(oImage);
 		});
 	}
 
 	public resetOriginalImages(): void {
-		this._oImageRegistryClone = <LImageMap>{};
+		this._oImageIdRegistryClone = <LImageIdMap>{};
 	}
 
 	public resetOriginalTaxa(): void {
