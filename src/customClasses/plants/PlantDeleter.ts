@@ -5,6 +5,7 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import { BPlant } from "plants/ui/definitions/Plants";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -50,7 +51,7 @@ export default class PlantDeleter extends ManagedObject {
 			context: this
 		})
 			.done(this._onPlantDeleted.bind(this, oPlant))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (DELETE)'));
+			.fail(ErrorHandling.onFail.bind(this, 'Plant (DELETE)'));
 	}
 
 	private _onPlantDeleted(oPlantDeleted: BPlant, oMsg: any, sStatus: string, oReturnData: any): void {

@@ -6,6 +6,7 @@ import { BPlant } from "plants/ui/definitions/Plants";
 import { ResponseStatus } from "plants/ui/definitions/SharedLocal";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import MessageHandler from "../singleton/MessageHandler";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.taxonomy
@@ -31,7 +32,7 @@ export default class OccurrenceImagesFetcher extends ManagedObject {
 			context: this,
 		})
 			.done(this._cbReceivingOccurrenceImages.bind(this, oCurrentPlant))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'fetch_taxon_occurrence_images (POST)'));
+			.fail(ErrorHandling.onFail.bind(this, 'fetch_taxon_occurrence_images (POST)'));
 	}
 
 	private _cbReceivingOccurrenceImages(oCurrentPlant: BPlant, data: BResultsFetchTaxonImages, sStatus: ResponseStatus, oResponse: JQueryXHR): void {

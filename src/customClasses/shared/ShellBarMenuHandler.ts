@@ -4,6 +4,7 @@ import ManagedObject from "sap/ui/base/ManagedObject";
 import Control from "sap/ui/core/Control";
 import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
+import ErrorHandling from "./ErrorHandling";
 import Util from "./Util";
 
 /**
@@ -43,7 +44,7 @@ export default class ShellBarMenuHandler extends ManagedObject {
 			context: this
 		})
 			.done(ModelsHelper.onGenericSuccessWithMessage)
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Generate Missing Thumbnails (POST)'));
+			.fail(ErrorHandling.onFail.bind(this, 'Generate Missing Thumbnails (POST)'));
 	}
 
 

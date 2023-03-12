@@ -5,6 +5,7 @@ import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import { BResultsGetTaxon, BTaxon } from "plants/ui/definitions/Taxon";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.taxonomy
@@ -35,7 +36,7 @@ export default class TaxonLoader extends ManagedObject {
 			async: true
 		})
 			.done(this._onReceivingTaxonDetailsForPlant.bind(this, taxon_id!))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Event (GET)'))
+			.fail(ErrorHandling.onFail.bind(this, 'Event (GET)'))
 	}
 
 	private _onReceivingTaxonDetailsForPlant(taxonId: int, oData: BResultsGetTaxon): void {

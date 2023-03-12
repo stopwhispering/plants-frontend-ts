@@ -7,6 +7,7 @@ import { BPResultsUpdateCreateSoil, BResultsSoilsResource, FBSoil, FSoil, FSoilC
 import { LSoilEditData } from "plants/ui/definitions/EventsLocal";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import Control from "sap/ui/core/Control";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -67,7 +68,7 @@ export default class SoilCRUD extends ManagedObject {
 			context: this
 		})
 			.done(this._cbSavedNewSoil.bind(this, oDialogToCloseAfter))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Save New Soil'));
+			.fail(ErrorHandling.onFail.bind(this, 'Save New Soil'));
 	}
 
 	private _cbSavedNewSoil(oDialogToCloseAfter: Dialog, data: BPResultsUpdateCreateSoil): void {
@@ -109,7 +110,7 @@ export default class SoilCRUD extends ManagedObject {
 			context: this
 		})
 			.done(this._cbUpdatedExistingSoil.bind(this, oDialogToCloseAfter))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Save New Soil'));
+			.fail(ErrorHandling.onFail.bind(this, 'Save New Soil'));
 	}
 
 	private _cbUpdatedExistingSoil(oDialogToCloseAfter: Dialog, data: BPResultsUpdateCreateSoil): void {
@@ -150,7 +151,7 @@ export default class SoilCRUD extends ManagedObject {
 			context: this
 		})
 			.done(this._cbSoilLoaded.bind(this, oSetModelFor))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Get Soils'));
+			.fail(ErrorHandling.onFail.bind(this, 'Get Soils'));
 	}	
 
 	private _cbSoilLoaded(oSetModelFor: Control, results: BResultsSoilsResource): void{

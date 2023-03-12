@@ -8,6 +8,7 @@ import { BConfirmation } from "plants/ui/definitions/Messages";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.images
@@ -70,7 +71,7 @@ export default class ImageDeleter extends ManagedObject {
 			context: this
 		})
 			.done(this._onAjaxDeletedImagesSuccess.bind(this, aImages, cbCallback))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Image(s) (DELETE)'));
+			.fail(ErrorHandling.onFail.bind(this, 'Image(s) (DELETE)'));
 	}
 
 	private _onAjaxDeletedImagesSuccess(aDeletedImages: FBImage[], cbCallback: Function | undefined, data: BConfirmation, textStats: any, jqXHR: any): void {

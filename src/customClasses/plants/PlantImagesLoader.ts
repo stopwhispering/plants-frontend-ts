@@ -5,6 +5,7 @@ import { FBImage } from "plants/ui/definitions/Images";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -33,7 +34,7 @@ export default class PlantImagesLoader extends ManagedObject {
 			async: true
 		})
 			.done(this._onReceivingImagesForPlant.bind(this, iPlantId))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant Images (GET)'));
+			.fail(ErrorHandling.onFail.bind(this, 'Plant Images (GET)'));
 	}
 
 	private _onReceivingImagesForPlant(iPlantId: int, aImages: FBImage[]): void {

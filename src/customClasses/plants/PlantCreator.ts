@@ -10,6 +10,7 @@ import SuggestionService from "plants/ui/customClasses/shared/SuggestionService"
 import Navigation from "plants/ui/customClasses/singleton/Navigation";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -148,7 +149,7 @@ export default class PlantCreator extends ManagedObject {
 			context: this
 		})
 			.done(this._cbSavedPlant.bind(this, cbCloseDialog))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (POST)'))
+			.fail(ErrorHandling.onFail.bind(this, 'Plant (POST)'))
 			.always(function () {
 				Util.stopBusyDialog();
 			});

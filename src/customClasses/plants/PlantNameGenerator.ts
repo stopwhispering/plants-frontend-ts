@@ -7,6 +7,7 @@ import SuggestionService from "plants/ui/customClasses/shared/SuggestionService"
 import { ResponseStatus } from "plants/ui/definitions/SharedLocal";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import JSONModel from "sap/ui/model/json/JSONModel";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -94,7 +95,7 @@ export default class PlantNameGenerator extends ManagedObject {
 			context: this,
 		})
 			.done(this._onReceivingClonePlantName.bind(this, oClonePlantInputModel))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Generate Cloned Plant Name Proposal (POST)'));
+			.fail(ErrorHandling.onFail.bind(this, 'Generate Cloned Plant Name Proposal (POST)'));
 	}
 
 	private _onReceivingClonePlantName(oClonePlantInputModel: JSONModel, 

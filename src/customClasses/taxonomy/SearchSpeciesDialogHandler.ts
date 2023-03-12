@@ -23,6 +23,7 @@ import VBox from "sap/m/VBox";
 import formatter from "plants/ui/model/formatter";
 import Switch from "sap/m/Switch";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.taxonomy
@@ -232,7 +233,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
 			context: this,
 		})
 			.done(this._onReceivingBotanicalName)
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Create Botanical Name (POST)'));
+			.fail(ErrorHandling.onFail.bind(this, 'Create Botanical Name (POST)'));
 	}
 
 	private _onReceivingBotanicalName(data: BResultsGetBotanicalName, sStatus: ResponseStatus, oResponse: JQueryXHR): void {

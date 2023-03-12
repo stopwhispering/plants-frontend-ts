@@ -12,6 +12,7 @@ import PlantImagesLoader from "./PlantImagesLoader";
 import PlantsLoader from "plants/ui/customClasses/singleton/PlantsLoader"
 import JSONModel from "sap/ui/model/json/JSONModel";
 import ImageResetter from "../images/ImageResetter";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -62,7 +63,7 @@ export default class PlantRenamer extends ManagedObject {
 			context: this
 		})
 			.done(this._onReceivingPlantNameRenamed.bind(this, oPlant, closeDialogFn))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (PUT)'));
+			.fail(ErrorHandling.onFail.bind(this, 'Plant (PUT)'));
 	}
 
 	private _onReceivingPlantNameRenamed(oPlant: BPlant, closeDialogFn: Function, oMsg: BConfirmation): void {

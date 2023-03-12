@@ -10,6 +10,7 @@ import ModelsHelper from "plants/ui/model/ModelsHelper";
 import Dialog from "sap/m/Dialog";
 import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -50,7 +51,7 @@ export default class PlantCloner extends ManagedObject {
 			context: this
 		})
 			.done(this._onReceivingPlantCloned.bind(this, oDialogClonePlant))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Clone Plant (POST)'));
+			.fail(ErrorHandling.onFail.bind(this, 'Clone Plant (POST)'));
 	}
 
 	private _onReceivingPlantCloned(oDialogClonePlant: Dialog, oBackendResultPlantCloned: BResultsPlantCloned): void {

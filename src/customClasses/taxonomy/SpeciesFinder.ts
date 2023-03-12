@@ -10,6 +10,7 @@ import { BPlant } from "plants/ui/definitions/Plants";
 import ColumnListItem from "sap/m/ColumnListItem";
 import { LAjaxLoadDetailsForSpeciesDoneCallback } from "plants/ui/definitions/TaxonLocal";
 import { SearchSpeciesCustomTaxonInputData } from "plants/ui/definitions/PlantsLocal";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.taxonomy
@@ -42,7 +43,7 @@ export default class SpeciesFinder extends ManagedObject {
 			// async: true
 		})
 			.done(this._onReceivingSpeciesSearchResult)
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Search Taxa by Name (POST)'));
+			.fail(ErrorHandling.onFail.bind(this, 'Search Taxa by Name (POST)'));
 	}
 
 	private _onReceivingSpeciesSearchResult(data: BResultsTaxonInfoRequest, sStatus: ResponseStatus, oResponse: JQueryXHR): void {
@@ -98,7 +99,7 @@ export default class SpeciesFinder extends ManagedObject {
 			data: JSON.stringify(oNewTaxon)
 		})
 			.done(cbReceivingAdditionalSpeciesInformation)
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Retrieve Details for selected Taxon (POST)'));
+			.fail(ErrorHandling.onFail.bind(this, 'Retrieve Details for selected Taxon (POST)'));
 	}
 
 

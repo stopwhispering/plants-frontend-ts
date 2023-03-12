@@ -5,6 +5,7 @@ import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import { BEvents, BResultsEventResource } from "plants/ui/definitions/Events";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -29,7 +30,7 @@ export default class EventLoader extends ManagedObject {
 			async: true
 		})
 			.done(this._cbReceivingEventsForPlant.bind(this, iPlantId))
-			.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Event (GET)'))
+			.fail(ErrorHandling.onFail.bind(this, 'Event (GET)'))
 	}
 
 	private _cbReceivingEventsForPlant(plantId: int, oData: BResultsEventResource): void {

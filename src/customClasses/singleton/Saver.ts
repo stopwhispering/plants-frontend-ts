@@ -11,6 +11,7 @@ import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "./ChangeTracker";
 import MessageHandler from "./MessageHandler";
 import { LEventsModelData, LPlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
+import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.singleton
@@ -90,7 +91,7 @@ export default class Saver extends ManagedObject {
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Plant (POST)'));
+				.fail(ErrorHandling.onFail.bind(this, 'Plant (POST)'));
 		}
 
 		// save images
@@ -105,7 +106,7 @@ export default class Saver extends ManagedObject {
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Image (PUT)'));
+				.fail(ErrorHandling.onFail.bind(this, 'Image (PUT)'));
 		}
 
 		// save taxa
@@ -130,7 +131,7 @@ export default class Saver extends ManagedObject {
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Taxon (POST)'));
+				.fail(ErrorHandling.onFail.bind(this, 'Taxon (POST)'));
 		}
 
 		// save events
@@ -145,7 +146,7 @@ export default class Saver extends ManagedObject {
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ModelsHelper.onReceiveErrorGeneric.bind(this, 'Event (POST)'));
+				.fail(ErrorHandling.onFail.bind(this, 'Event (POST)'));
 		}
 
 	}
