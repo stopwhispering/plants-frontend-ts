@@ -13,7 +13,7 @@ enum ErrorType {
     PYDANTICINPUTVALIDATIONERROR = 'PydanticInputValidationError',
     ANYPYTHONERROR = 'AnyPythonError',
     UNKNOWN = 'Unknown',
-  }
+}
 
 export default class ErrorHandling extends ManagedObject {
 
@@ -22,21 +22,21 @@ export default class ErrorHandling extends ManagedObject {
         return error.responseJSON.detail.type + ': ' + error.responseJSON.detail.message;
     }
 
-    private static _parseFastAPIHttpError = function (error: JQueryXHR): string {
+    private static _parseFastAPIHttpError(error: JQueryXHR): string {
         // raise e.g. via raise HTTPException(status_code=404, detail="Item not found") or subclasses
-        return error.responseJSON.detail; 
+        return error.responseJSON.detail;
     }
 
-    private static _parseServerNotReachableError = function (error: JQueryXHR): string {
+    private static _parseServerNotReachableError(error: JQueryXHR): string {
         return 'Could not reach Server (Error: ' + error.status + ' ' + error.statusText + ')'
     }
 
-    private static _parsePydanticInputValidationError = function (error: JQueryXHR): string {
+    private static _parsePydanticInputValidationError(error: JQueryXHR): string {
         //422 pydantic input validation error
         return JSON.stringify(error.responseJSON.detail);
     }
 
-    private static _parseAnyPythonError = function (error: JQueryXHR): string {
+    private static _parseAnyPythonError(error: JQueryXHR): string {
         //e.g. unexpected ValueError, TypeError, etc.
         return 'Unexpected Python Error';
     }
@@ -58,43 +58,45 @@ export default class ErrorHandling extends ManagedObject {
 
     public static onFail(
         sCaller: string,
-        error: JQueryXHR, 
-        sTypeOfError: null | "timeout" | "error" | "abort" | "parsererror", 
+        error: JQueryXHR,
+        sTypeOfError: null | "timeout" | "error" | "abort" | "parsererror",
         oExceptionObject?: any): void {
 
-            const eErrorType: ErrorType = this._getErrorType(error);
-            console.log(error);
+        // onFail is called with bind() to supply sCaller, so we can't access 
+        // methods with this.
+        const eErrorType: ErrorType = ErrorHandling._getErrorType(error);
+        console.log(error);
 
-            let sMsg: string;
-            switch(eErrorType) { 
-                case ErrorType.FASTAPILEGACYERROR: { 
-                   sMsg = this._parseFastAPILegacyError(error);
-                   break; 
-                } 
-                case ErrorType.FASTAPIHTTPERROR: { 
-                   sMsg = this._parseFastAPIHttpError(error);
-                   break; 
-                } 
-                case ErrorType.SERVERNOTREACHABLEERROR: {
-                     sMsg = this._parseServerNotReachableError(error);
-                        break;
-                }
-                case ErrorType.PYDANTICINPUTVALIDATIONERROR: {
-                    sMsg = this._parsePydanticInputValidationError(error);
-                    break;
-                }
-                case ErrorType.ANYPYTHONERROR: {
-                    sMsg = this._parseAnyPythonError(error);
-                    break;
-                }
-                case ErrorType.UNKNOWN: { 
-                   sMsg = 'Unknown Error. See onFail in ErrorHandling.'; 
-                   break; 
-                } 
-             } 
-
-             MessageToast.show(eErrorType + ' at ' + sCaller + ': ' + sMsg);
-
+        let sMsg: string;
+        switch (eErrorType) {
+            case ErrorType.FASTAPILEGACYERROR: {
+                sMsg = ErrorHandling._parseFastAPILegacyError(error);
+                break;
+            }
+            case ErrorType.FASTAPIHTTPERROR: {
+                sMsg = ErrorHandling._parseFastAPIHttpError(error);
+                break;
+            }
+            case ErrorType.SERVERNOTREACHABLEERROR: {
+                sMsg = ErrorHandling._parseServerNotReachableError(error);
+                break;
+            }
+            case ErrorType.PYDANTICINPUTVALIDATIONERROR: {
+                sMsg = ErrorHandling._parsePydanticInputValidationError(error);
+                break;
+            }
+            case ErrorType.ANYPYTHONERROR: {
+                sMsg = ErrorHandling._parseAnyPythonError(error);
+                break;
+            }
+            case ErrorType.UNKNOWN: {
+                sMsg = 'Unknown Error. See onFail in ErrorHandling.';
+                break;
+            }
         }
+
+        MessageToast.show(eErrorType + ' at ' + sCaller + ': ' + sMsg);
+
+    }
 
 }

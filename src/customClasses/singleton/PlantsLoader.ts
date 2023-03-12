@@ -1,7 +1,6 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import Util from "plants/ui/customClasses/shared/Util";
-import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "./ChangeTracker";
 import MessageHandler from "./MessageHandler";
 import { FPlantsUpdateRequest } from "plants/ui/definitions/Plants";
@@ -54,7 +53,7 @@ export default class PlantsLoader extends ManagedObject {
 
 		//create message
 		var sresource = Util.parse_resource_from_url(oRequestInfo.getParameter('url'));
-		MessageHandler.getInstance().addMessage(MessageType.Information, 'Loaded Plants from backend', undefined,
+		MessageHandler.getInstance().addMessage(MessageType.Information, 'Loaded Plants from backend',
 			'Resource: ' + sresource);
 		console.log('Received plants from backend.')
 		if (this._iNavToPlantId) {
