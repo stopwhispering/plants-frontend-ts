@@ -216,7 +216,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
             hybrid: oSelectedSearchResult.hybrid,
             hybridgenus: oSelectedSearchResult.hybridgenus,
             authors: oSelectedSearchResult.authors,
-            name_published_in_year: oSelectedSearchResult.namePublishedInYear,
+            name_published_in_year: oSelectedSearchResult.name_published_in_year,
 
             is_custom: oCustomTaxonInputData.newCustomTaxon,
             cultivar: oCustomTaxonInputData.cultivar,

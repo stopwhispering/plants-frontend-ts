@@ -1,6 +1,7 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Event from "sap/ui/base/Event";
 import MessageToast from "sap/m/MessageToast";
+import Util from "./Util";
 
 /**
  * @namespace pollination.ui.controller.custom
@@ -42,11 +43,13 @@ export default class ErrorHandling extends ManagedObject {
     }
 
     private static _getErrorType(error: JQueryXHR): ErrorType {
-        if ((!!error) && (!!error.responseJSON) && (!!error.responseJSON.detail) && (!!error.responseJSON.detail.type))
+        if ((error) && (!!error.responseJSON) && (error.responseJSON.detail) && (error.responseJSON.detail.type))
             return ErrorType.FASTAPILEGACYERROR;
-        else if ((!!error) && (error.responseJSON) && (error.responseJSON.detail) && (!error.responseJSON.detail.type))
+        else if ((error) && (error.responseJSON) && (error.responseJSON.detail) && (!error.responseJSON.detail.type) && !Array.isArray(error.responseJSON.detail))
             return ErrorType.FASTAPIHTTPERROR;
-        else if (!!(<Event><unknown>error).getParameter && (<Event><unknown>error).getParameter('message'))
+        else if ((<Event><unknown>error).getParameter && (<Event><unknown>error).getParameter('message'))
+            return ErrorType.SERVERNOTREACHABLEERROR;
+        else if (!error.responseJSON)
             return ErrorType.SERVERNOTREACHABLEERROR;
         else if (error && error.responseJSON && error.responseJSON.detail && Array.isArray(error.responseJSON.detail))
             return ErrorType.PYDANTICINPUTVALIDATIONERROR;
@@ -95,6 +98,7 @@ export default class ErrorHandling extends ManagedObject {
             }
         }
 
+        Util.stopBusyDialog();
         MessageToast.show(eErrorType + ' at ' + sCaller + ': ' + sMsg);
 
     }

@@ -1,4 +1,4 @@
-import { BKewSearchResultEntry, BResultsTaxonInfoRequest, FAssignTaxonRequest, FNewTaxon, FTaxonInfoRequest } from "plants/ui/definitions/Taxon";
+import { BKewSearchResultEntry, ResultsTaxonInfoRequest, FAssignTaxonRequest, FNewTaxon, FTaxonInfoRequest } from "plants/ui/definitions/Taxon";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Util from "plants/ui/customClasses/shared/Util";
@@ -46,7 +46,7 @@ export default class SpeciesFinder extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Search Taxa by Name (POST)'));
 	}
 
-	private _onReceivingSpeciesSearchResult(data: BResultsTaxonInfoRequest, sStatus: ResponseStatus, oResponse: JQueryXHR): void {
+	private _onReceivingSpeciesSearchResult(data: ResultsTaxonInfoRequest, sStatus: ResponseStatus, oResponse: JQueryXHR): void {
 		Util.stopBusyDialog();
 		this._oModelKewSearchResults.setData(data);
 		MessageHandler.getInstance().addMessageFromBackend(data.message);
@@ -73,7 +73,7 @@ export default class SpeciesFinder extends ManagedObject {
 			taxonomic_status: oSelectedSearchResult.taxonomic_status,
 			synonym: oSelectedSearchResult.synonym,
 			authors: oSelectedSearchResult.authors,
-			namePublishedInYear: oSelectedSearchResult.namePublishedInYear,
+			name_published_in_year: oSelectedSearchResult.name_published_in_year,
 			basionym: oSelectedSearchResult.basionym,
 			hybrid: oSelectedSearchResult.hybrid,
 			hybridgenus: oSelectedSearchResult.hybridgenus,

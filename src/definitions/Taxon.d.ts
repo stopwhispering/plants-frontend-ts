@@ -32,7 +32,7 @@ export type BSearchResultSource =
     custom_suffix?: string;
     hybrid: boolean;
     hybridgenus: boolean;
-    namePublishedInYear?: number;
+    name_published_in_year: number;
     basionym?: string;
     // phylum: string;
     synonyms_concat?: string;
@@ -61,7 +61,6 @@ export interface BTaxonOccurrenceImage {
   publisher_dataset?: string;
   references?: string;
   href: string;
-  filename_thumbnail: string;
 }
 export interface BResultsGetTaxon {
   action: string;
@@ -110,7 +109,7 @@ export interface BResultsRetrieveTaxonDetailsRequest {
   botanical_name: string;
   taxon_data: BTaxon;
 }
-export interface BResultsTaxonInfoRequest {
+export interface ResultsTaxonInfoRequest {
   action: string;
   message: BMessage;
   ResultsCollection: BKewSearchResultEntry[];
@@ -164,7 +163,6 @@ export interface FTaxonOccurrenceImage {
   publisher_dataset?: string;
   references?: string;
   href: string;
-  filename_thumbnail: string;
 }
 export interface FTaxonInfoRequest {
   include_external_apis: boolean;
@@ -212,7 +210,7 @@ export interface FNewTaxon {
   taxonomic_status: string;
   synonym: boolean;
   authors: string;
-  namePublishedInYear?: number;
+  name_published_in_year?: number;
   basionym?: string;
   hybrid: boolean;
   hybridgenus: boolean;

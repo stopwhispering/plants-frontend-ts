@@ -142,7 +142,7 @@
 								/>
 								<ObjectIdentifier
 									title="{kewSearchResults>family}"
-									text="{kewSearchResults>authors} ({kewSearchResults>namePublishedInYear})"
+									text="{kewSearchResults>authors} ({kewSearchResults>name_published_in_year})"
 								/>
 								<!-- <ObjectIdentifier
 									title="{kewSearchResults>authors}"
