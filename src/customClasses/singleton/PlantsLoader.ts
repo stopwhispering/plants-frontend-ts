@@ -3,7 +3,7 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import Util from "plants/ui/customClasses/shared/Util";
 import ChangeTracker from "./ChangeTracker";
 import MessageHandler from "./MessageHandler";
-import { FPlantsUpdateRequest } from "plants/ui/definitions/Plants";
+import { PlantsUpdateRequest } from "plants/ui/definitions/Plants";
 import Event from "sap/ui/base/Event";
 import { MessageType } from "sap/ui/core/library";
 import Navigation from "./Navigation";
@@ -49,7 +49,7 @@ export default class PlantsLoader extends ManagedObject {
 	private _onReceivingPlantsFromBackend(oRequestInfo: Event) {
 		// create new clone objects to track changes
 		const oPlantsModel = <JSONModel>oRequestInfo.getSource();
-		ChangeTracker.getInstance().setOriginalPlants(<FPlantsUpdateRequest>oPlantsModel.getData());
+		ChangeTracker.getInstance().setOriginalPlants(<PlantsUpdateRequest>oPlantsModel.getData());
 
 		//create message
 		var sresource = Util.parse_resource_from_url(oRequestInfo.getParameter('url'));

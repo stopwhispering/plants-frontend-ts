@@ -4,7 +4,7 @@ import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { FBImage } from "plants/ui/definitions/Images";
 import { BSaveConfirmation, FBMajorResource } from "plants/ui/definitions/Messages";
-import { BPlant, FPlantsUpdateRequest } from "plants/ui/definitions/Plants";
+import { BPlant, PlantsUpdateRequest } from "plants/ui/definitions/Plants";
 import { BTaxon, FTaxon } from "plants/ui/definitions/Taxon";
 import { LTaxonData } from "plants/ui/definitions/TaxonLocal";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
@@ -82,16 +82,16 @@ export default class Saver extends ManagedObject {
 		// save plants
 		if (aModifiedPlants.length > 0) {
 			this._bSavingPlants = true;  // required in callback function  to find out if both savings are finished
-			var dPayloadPlants = { 'PlantsCollection': aModifiedPlants };
+			var dPayloadPlants: PlantsUpdateRequest = { 'PlantsCollection': aModifiedPlants };
 			$.ajax({
 				url: Util.getServiceUrl('plants/'),
-				type: 'POST',
+				type: 'PUT',
 				contentType: "application/json",
 				data: JSON.stringify(dPayloadPlants),
 				context: this
 			})
 				.done(this._onAjaxSuccessSave)
-				.fail(ErrorHandling.onFail.bind(this, 'Plant (POST)'));
+				.fail(ErrorHandling.onFail.bind(this, 'Plant (PUT)'));
 		}
 
 		// save images
@@ -156,7 +156,7 @@ export default class Saver extends ManagedObject {
 		const sResource: FBMajorResource = oMsg.resource;
 		if (sResource === 'PlantResource') {
 			this._bSavingPlants = false;
-			var dDataPlants: FPlantsUpdateRequest = this._oPlantsModel.getData();
+			var dDataPlants: PlantsUpdateRequest = this._oPlantsModel.getData();
 			ChangeTracker.getInstance().setOriginalPlants(dDataPlants);
 		} else if (sResource === 'ImageResource') {
 			this._bSavingImages = false;

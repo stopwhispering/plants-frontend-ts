@@ -2,13 +2,12 @@ import MessageToast from "sap/m/MessageToast";
 import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { BResultsPlantsUpdate, FPlant } from "plants/ui/definitions/Plants";
+import { PlantCreate, PlantRead, ResultsPlantCreated } from "plants/ui/definitions/Plants";
 import PlantLookup from "plants/ui//customClasses/plants/PlantLookup";
 import { BPlant, FBAssociatedPlantExtractForPlant } from "plants/ui/definitions/Plants";
 import { LDescendantPlantInput, LPropagationTypeData } from "plants/ui/definitions/PlantsLocal";
 import SuggestionService from "plants/ui/customClasses/shared/SuggestionService";
 import Navigation from "plants/ui/customClasses/singleton/Navigation";
-import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import ErrorHandling from "../shared/ErrorHandling";
 
@@ -139,7 +138,7 @@ export default class PlantCreator extends ManagedObject {
 
 	private _saveNewPlant(oPlant: FPlant, cbCloseDialog?: Function): void {
 		// save plant to backend to receive plant id
-		var dPayloadPlants = { 'PlantsCollection': [oPlant] };
+		var dPayloadPlants: PlantCreate = oPlant;
 		Util.startBusyDialog('Creating...', 'new plant ' + oPlant.plant_name);
 		$.ajax({
 			url: Util.getServiceUrl('plants/'),
@@ -155,9 +154,9 @@ export default class PlantCreator extends ManagedObject {
 			});
 	}	
 	
-	private _cbSavedPlant(cbCloseDialog: Function|undefined, oData: BResultsPlantsUpdate, sStatus: string, oReturnData: any): void {
+	private _cbSavedPlant(cbCloseDialog: Function|undefined, oData: ResultsPlantCreated, sStatus: string, oReturnData: any): void {
 				// add new plant to model
-				var oPlantSaved = oData.plants[0];
+				var oPlantSaved: PlantRead = oData.plant;
 				var aPlants = this._oPlantsModel.getProperty('/PlantsCollection');
 				aPlants.push(oPlantSaved);  // append at end to preserve change tracking with clone 
 				this._oPlantsModel.updateBindings(false);

@@ -87,9 +87,7 @@ export interface FBPlantTag {
   last_update?: string;
   plant_id: number;
 }
-export interface BPlantsRenameRequest {
-  plant_id: int;
-  old_plant_name: string;
+export interface PlantRenameRequest {
   new_plant_name: string;
 }
 export interface BResultsPlantCloned {
@@ -97,7 +95,13 @@ export interface BResultsPlantCloned {
   message: BMessage;
   plant: BPlant;
 }
-export interface BResultsPlants {
+export interface ResultsPlantCreated {
+  action?: string;
+  message: BMessage;
+  resource: FBMajorResource;
+  plant: PlantRead;
+}
+export interface ResultsPlantCreated {
   action: string;
   message: BMessage;
   PlantsCollection: BPlant[];
@@ -108,8 +112,24 @@ export interface BResultsPlantsUpdate {
   message: BMessage;
   plants: BPlant[];
 }
-export interface FPlant {
-  id?: number;
+export interface PlantCreate {
+  plant_name: string;
+  field_number?: string;
+  geographic_origin?: string;
+  nursery_source?: string;
+  propagation_type?: FBPropagationType;
+  active: boolean;
+  cancellation_reason?: FBCancellationReason;
+  cancellation_date?: string;
+  generation_notes?: string;
+  taxon_id?: number;
+  parent_plant?: FBAssociatedPlantExtractForPlant;
+  parent_plant_pollen?: FBAssociatedPlantExtractForPlant;
+  plant_notes?: string;
+  tags: FBPlantTag[];
+}
+export interface PlantUpdate {
+  id: number;
   plant_name: string;
   field_number?: string;
   geographic_origin?: string;
@@ -134,8 +154,8 @@ export interface FPlant {
   tags: FBPlantTag[];
 }
 
-export interface FPlantsUpdateRequest {
-  PlantsCollection: FPlant[];
+export interface PlantsUpdateRequest {
+  PlantsCollection: PlantUpdate[];
 }
 export interface BResultsProposeSubsequentPlantName {
   original_plant_name: string;

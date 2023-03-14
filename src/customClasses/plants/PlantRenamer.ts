@@ -2,7 +2,7 @@
 import MessageToast from "sap/m/MessageToast";
 import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
-import { BPlant } from "plants/ui/definitions/Plants";
+import { BPlant, PlantRenameRequest } from "plants/ui/definitions/Plants";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler";
 import Dialog from "sap/m/Dialog";
@@ -50,13 +50,11 @@ export default class PlantRenamer extends ManagedObject {
 
 		// ajax call
 		Util.startBusyDialog("Renaming...", '"' + oPlant.plant_name + '" to "' + sNewPlantName + '"');
-		var dPayload = {
-			'plant_id': oPlant.id,
-			'old_plant_name': oPlant.plant_name,
+		var dPayload: PlantRenameRequest = {
 			'new_plant_name': sNewPlantName
 		};
 		$.ajax({
-			url: Util.getServiceUrl('plants/'),
+			url: Util.getServiceUrl('plants/' + oPlant.id.toString() + '/rename'),
 			type: 'PUT',
 			contentType: "application/json",
 			data: JSON.stringify(dPayload),

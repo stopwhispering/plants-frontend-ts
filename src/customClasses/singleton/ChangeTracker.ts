@@ -6,7 +6,7 @@ import { FBImage } from "plants/ui/definitions/Images";
 import { LImageIdMap } from "plants/ui/definitions/ImageLocal";
 import { LPlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
 import { BTaxon } from "plants/ui/definitions/Taxon";
-import { BPlant, FPlant, FPlantsUpdateRequest } from "plants/ui/definitions/Plants"
+import { BPlant, FPlant, PlantsUpdateRequest } from "plants/ui/definitions/Plants"
 import { BEvents } from "plants/ui/definitions/Events";
 import ImageRegistryHandler from "./ImageRegistryHandler";
 
@@ -17,7 +17,7 @@ export default class ChangeTracker extends ManagedObject {
 
 	private static _instance: ChangeTracker;
 	private _oPlantsModel: JSONModel;
-	private _oPlantsDataClone: FPlantsUpdateRequest;  // todo find other entity
+	private _oPlantsDataClone: PlantsUpdateRequest;  // todo find other entity
 	private _oEventsModel: JSONModel;
 	private _oEventsDataClone: LPlantIdToEventsMap;
 	private _oTaxonModel: JSONModel;
@@ -57,7 +57,7 @@ export default class ChangeTracker extends ManagedObject {
 		this._oEventsModel = oEventsModel;;
 		this._oTaxonModel = oTaxonModel;
 		
-		this._oPlantsDataClone = <FPlantsUpdateRequest>{};
+		this._oPlantsDataClone = <PlantsUpdateRequest>{};
 		this._oEventsDataClone = <LPlantIdToEventsMap>{};
 		this._oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
 		this._oImageIdRegistryClone = <LImageIdMap>{};
@@ -183,7 +183,7 @@ export default class ChangeTracker extends ManagedObject {
 		return aModifiedImages;
 	}
 
-	public setOriginalPlants(oPlantsData: FPlantsUpdateRequest): void{
+	public setOriginalPlants(oPlantsData: PlantsUpdateRequest): void{
 		// reset plants clone completely to supplied plants data
 		this._oPlantsDataClone = Util.getClonedObject(oPlantsData);
 	}
