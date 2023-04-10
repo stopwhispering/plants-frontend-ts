@@ -35,12 +35,8 @@ export interface LPotShapeOptions{
     hexagonal: boolean;
 }
 
-export interface LEventEditData{
+export interface LEventData{
     // for new event or editing existing event
-    // might have no id, yet; has additional fields for dialog control
-    // missing fields: observation_id, pot_id
-    id?: number;  // undefined for new event, exists for edited plant
-
     date: string;
     event_notes?: string;
     observation?: FBObservation;
@@ -51,8 +47,20 @@ export interface LEventEditData{
     potHeightOptions: LPotHeightOptions;
     potShapeOptions: LPotShapeOptions;
     segments: EventEditDataSegments;
-    mode: 'new' | 'edit'
-    oldEvent?: FBEvent;
+}
+
+export interface LEventEditData extends LEventData{
+    // for new event or editing existing event
+    // might have no id, yet; has additional fields for dialog control
+    // missing fields: observation_id, pot_id
+    id?: number;  // undefined for unsaved event
+    oldEvent: FBEvent;
+}
+
+export interface LNewEventData extends LEventData{
+    // for new event
+    // has no id, yet; has additional fields for dialog control
+    // missing fields: observation_id, pot_id
 }
 
 

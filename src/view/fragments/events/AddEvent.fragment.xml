@@ -4,18 +4,16 @@
 	xmlns:app="http://schemas.sap.com/sapui5/extension/sap.ui.core.CustomData/1"
 	>
 	<Dialog
-		title="{i18n>header_event}"
-		id="dialogEvent">
+		title="{i18n>header_event} ({plants>plant_name})"
+		>
 		<content>
 			<IconTabBar
-				id="idIconTabBarNoIcons"
 				expanded="{device>/isNoPhone}"
 				class="sapUiResponsiveContentPadding"
 				backgroundDesign="Transparent"
 			>
 				<items>
 					<IconTabFilter
-						id="tabGeneral"
 						text="General"
 					>
 						<VBox class="sapUiTinyMarginBottom">
@@ -65,13 +63,11 @@
 							<Label
 								text="Date (YYYY-MM-DD)"
 								wrapping="true"
-								labelFor="maskDate"
 								width="14em"
 								required="true"
 							/>
 							<MaskInput
 								required="true"
-								id="maskDate"
 								mask="9999-99-99"
 								value="{editOrNewEvent>/date}"
 								placeholder="Date"
@@ -87,7 +83,6 @@
 						</VBox>
 					</IconTabFilter>
 					<IconTabFilter
-						id="tabObservation"
 						enabled="{= ${editOrNewEvent>/segments/observation}}"
 						text="Observation"
 					>
@@ -133,7 +128,6 @@
 						</VBox>
 					</IconTabFilter>
 					<IconTabFilter
-						id="tabPot"
 						enabled="{= ${editOrNewEvent>/segments/pot}}"
 						text="Pot"
 					>
@@ -314,13 +308,11 @@
 						</VBox>
 					</IconTabFilter>
 					<IconTabFilter
-						id="tabSoil"
 						text="Soil"
 						enabled="{= ${editOrNewEvent>/segments/soil}}"
 					>
 						<List
 							backgroundDesign="Transparent"
-							id="soilList"
 							items="{soils>/SoilsCollection}"
 							mode="SingleSelectMaster"
 							includeItemInSelection="true"
@@ -358,7 +350,6 @@
 							</items>
 						</List>
 						<Button
-							id="btnNewSoil"
 							text="New Soil"
 							press=".onOpenDialogNewSoil"
 							type="Accept"
@@ -368,10 +359,10 @@
 			</IconTabBar>
 		</content>
 		<buttons>
-			<!--text of add button is switched to "Edit" in controller if editing-->
+
+				<!-- id="btnEventUpdateSave" -->
 			<Button
-				id="btnEventUpdateSave"
-				text="{i18n>add}"
+				text="Save"
 				press=".onAddOrEditEvent"
 				type="Accept"
 			/>

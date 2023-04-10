@@ -58,6 +58,8 @@ import LeafletMapHandler from "../customClasses/taxonomy/LeafletMapHandler"
 import SearchField from "sap/m/SearchField"
 import GridList from "sap/f/GridList"
 import {ImageRead} from "plants/ui/definitions/Images"
+import NewEventDialogHandler from "../customClasses/events/NewEventDialogHandler"
+import EditEventDialogHandler from "../customClasses/events/EditEventDialogHandler"
 
 /**
  * @namespace plants.ui.controller
@@ -66,7 +68,8 @@ export default class Detail extends BaseController {
 	// container for xml view control event handlers
 	public formatter = new formatter();
 	private eventCRUD: EventCRUD;
-	private oEventDialogHandler: EventDialogHandler;
+	private oNewEventDialogHandler: NewEventDialogHandler;
+	private oEditEventDialogHandler: EditEventDialogHandler;
 	private oPlantLookup: PlantLookup;
 	// public suggestionService: SuggestionService; // public because used in formatter
 	private mCurrentPlant: LCurrentPlant;  // container currentPlantId, currentPlantIndex, currentPlant
@@ -100,7 +103,9 @@ export default class Detail extends BaseController {
 
 		this.oLayoutModel = this.oComponent.getModel();
 
-		this.oEventDialogHandler = new EventDialogHandler(this.eventCRUD, 
+		this.oNewEventDialogHandler = new NewEventDialogHandler(this.eventCRUD, 
+			this.getView(), oSuggestionsModel.getData());
+		this.oEditEventDialogHandler = new EditEventDialogHandler(this.eventCRUD, 
 			this.getView(), oSuggestionsModel.getData());
 
 		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
@@ -381,14 +386,14 @@ export default class Detail extends BaseController {
 	// Event Handlers
 	//////////////////////////////////////////////////////////
 	onOpenDialogAddEvent(oEvent: Event) {
-		this.oEventDialogHandler.openDialogNewEvent(this.getView(), this.mCurrentPlant.plant);
+		this.oNewEventDialogHandler.openDialogNewEvent(this.getView(), this.mCurrentPlant.plant);
 	}
 
 	onEditEvent(oEvent: Event) {
 		// triggered by edit button in a custom list item header in events list
 		const oSource = <Button>oEvent.getSource();
 		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
-		this.oEventDialogHandler.openDialogEditEvent(this.getView(), oSelectedEvent)
+		this.oEditEventDialogHandler.openDialogEditEvent(this.getView(), oSelectedEvent)
 	}
 
 	onDeleteEventsTableRow(oEvent: Event) {

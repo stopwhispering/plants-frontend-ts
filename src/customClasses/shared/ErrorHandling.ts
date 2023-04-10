@@ -49,12 +49,12 @@ export default class ErrorHandling extends ManagedObject {
             return ErrorType.FASTAPIHTTPERROR;
         else if ((<Event><unknown>error).getParameter && (<Event><unknown>error).getParameter('message'))
             return ErrorType.SERVERNOTREACHABLEERROR;
-        else if (!error.responseJSON)
-            return ErrorType.SERVERNOTREACHABLEERROR;
         else if (error && error.responseJSON && error.responseJSON.detail && Array.isArray(error.responseJSON.detail))
             return ErrorType.PYDANTICINPUTVALIDATIONERROR;
         else if (error && !error.responseJSON && error.statusText === 'error')
             return ErrorType.ANYPYTHONERROR;
+        else if (!error.responseJSON)
+            return ErrorType.SERVERNOTREACHABLEERROR;
         return ErrorType.UNKNOWN;
     }
 
