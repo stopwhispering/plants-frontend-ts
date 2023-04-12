@@ -99,7 +99,7 @@
 							        	<m:Image 
 											src="{	path: 'untaggedImages>id',
 												  	formatter: '.formatter.getSrcImageThumbnail' }"
-											tooltip="{untaggedImages>id}"
+											tooltip="{= ${untaggedImages>id}.toString() }"
 											width="288px">
 								        	
 								        	<m:detailBox>
