@@ -24,7 +24,6 @@
 					maxLength="100"
 					required="true"
 					placeholder="New plant name"/>
-					<!-- liveChange=".onLiveChangeNewPlantName($event, 'clone')" -->
 			</VBox>
 		</content>
 

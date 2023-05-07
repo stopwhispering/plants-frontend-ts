@@ -95,7 +95,6 @@
 						id="tableFilterBar"
 						visible="{status>/filterBarVisible}"
 					>
-						<!-- <Text id="tableFilterLabel"/> -->
 						<Text id="tableFilterLabel"
 							text="{status>/filterBarLabel}"/>
 					</OverflowToolbar>
@@ -107,7 +106,6 @@
 					>
 						<Text text="{i18n>plants_table_header_name}"/>
 					</Column>
-					<!--width="9em"-->
 					<Column
 						width="{= (${device>/system/phone}) ? 7 : 8 }em"
 						minScreenWidth="Phone"
@@ -159,11 +157,6 @@
 										tooltip="{plants>id} - {plants>plant_name}"
 										/>
 								</VBox>
-								<!-- <ObjectIdentifier
-									class="textAlignLeft"
-									title="[{plants>id}] {plants>plant_name}"
-									text="{plants>botanical_name}"
-								/> -->
 								<VBox>
 									<Image
 										src="css/seed.png"

@@ -15,6 +15,7 @@ import { FBObservation, FBPot, FBSoil, FCreateOrUpdateEvent } from "plants/ui/de
 import { FBImage } from "plants/ui/definitions/Images";
 import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
 import EventDialogHandler from "./EventDialogHandler";
+import RadioButton from "sap/m/RadioButton";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -169,6 +170,14 @@ export default class NewEventDialogHandler extends EventDialogHandler {
 		};
 		return oEventData;
 	}
+
+	// activateRadioButton(oEvent: Event): void {
+	// 	//todo refactor with input model
+	// 	const oSource = <Control>oEvent.getSource();
+	// 	const sRadioButtonId: string = oSource.data('radiobuttonId');
+	// 	const oRadioButton = <RadioButton>this._oView.byId(sRadioButtonId);
+	// 	oRadioButton.setSelected(true);
+	// }
 
 
 }

@@ -199,10 +199,6 @@
 						</m:items>
 					</m:HBox>
 				</m:VBox>
-				<!-- <m:VBox class="sapUiSmallMarginEnd">
-					<m:Label text="Notes"/>
-					<m:Text text="{taxon>custom_notes}"/>
-				</m:VBox> -->
 			</m:FlexBox>
 		</headerContent>
 		<sections>

@@ -44,6 +44,8 @@ export default class PlantNameGenerator extends ManagedObject {
 		// generate new plant name suggestion
 		// ... only if parent plant names are set
 
+		// todo: backend!
+
 		// hybrid of two parents
 		if (!!oParentPlantPollen) {
 			var suggestedName = (oParentPlant.botanical_name || oParentPlant.plant_name) + ' × ' +

@@ -42,7 +42,19 @@
   "ui5": {
     "dependencies": [
       "ui5-middleware-livereload"
-    ]
+    ],
+    "ui5parser": {
+			"ui5version": "1.104.0",
+			"excludeFolderPatterns": ["**/resources/**", "**/dist/**", "**/node_modules/**", "**/webapp/**"],
+			"dataSource": "https://ui5.sap.com/",
+			"rejectUnauthorized": false,
+      "libsToLoad": [
+				"sap.m",
+				"sap.f",
+				"sap.ui.core",
+				"sap.ui.layout"
+			]
+    }
   },
   "dependencies": {
     "@types/estree": "^1.0.0"

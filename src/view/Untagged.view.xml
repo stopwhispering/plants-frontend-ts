@@ -122,19 +122,12 @@
 										
 										</m:Image>
 										 
-											<!-- alignItems="Stretch" -->
 						            	<m:VBox 
 											width="100%"
 											>
 				            
-							        		<!-- <m:VBox justifyContent="Center" class="sapUiMediumMarginEnd"> -->
-									            
-													<!-- justifyContent="Begin" -->
 									            <m:HBox 
 													width="15rem">
-										            <!-- <m:Label
-										            	width="12rem"
-										            	text='{i18n>desc}'/> -->
 										            	
 													<core:Icon 
 														src="sap-icon://delete"
@@ -164,22 +157,11 @@
 													cols="40"
 													value="{untaggedImages>description}" 
 													textAlign="Left"/>  
-							            	<!-- </m:VBox> -->
-	
-											<!-- <m:HBox> -->
-												<!-- <m:Label
-													text='{i18n>rec_date}'/> -->
-									        <!-- </m:HBox> -->
 					        
 								        	<m:FlexBox 
 								        		alignItems="Start"  
 												>	
 					        	
-									        	<!-- <m:HBox> -->
-											            <!-- <m:Label
-											        		text="{i18n>plants}"
-											        		labelFor="inputImageNewPlantNameUntagged"/> -->
-
 												<m:HBox>
 													<m:Button
 														icon="sap-icon://navigation-left-arrow"
@@ -259,14 +241,7 @@
 														selected="{= ${untaggedImages>plant_id} === ${plants>id} }"
 														press=".onPressImagePlantToken"
 															/> 
-														<!-- "{
-															parts: [
-																{path:'untaggedImages>plant_id'},
-																{path:'plants>id'}],
-															formatter: '.formatter.tokenFormat'
-															}" -->
 												</m:Tokenizer>
-												<!-- </m:HBox> -->
 
 											</m:FlexBox>
 									
@@ -292,11 +267,6 @@
 														<core:Item text="{keywords>keyword}"/>
 													</m:suggestionItems>
 												</m:Input>	
-									
-												<!-- <m:HBox>
-													<m:Label
-										        		text="{i18n>keywords}"
-										        		labelFor="inputImageNewKeywordUntagged"/> -->
 								        		
 									        		<m:Tokenizer 
 									        			class="sapUiSizeCompact"
@@ -313,8 +283,6 @@
 													
 													</m:Tokenizer>
 											
-												<!-- </m:HBox> -->
-													
 					        				</m:FlexBox>
 		
 					        			</m:VBox>

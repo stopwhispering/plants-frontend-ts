@@ -66,6 +66,7 @@ export interface BPlant {
   current_soil?: FBPlantCurrentSoil;
   latest_image?: FBPlantLatestImage;
   tags: FBPlantTag[];
+  seed_planting_id?: number;
 }
 export interface FBAssociatedPlantExtractForPlant {
   id: number;
@@ -90,7 +91,7 @@ export interface FBPlantTag {
 export interface PlantRenameRequest {
   new_plant_name: string;
 }
-export interface BResultsPlantCloned {
+export interface ResultsPlantCloned {
   action: string;
   message: BMessage;
   plant: BPlant;
@@ -127,6 +128,7 @@ export interface PlantCreate {
   parent_plant_pollen?: FBAssociatedPlantExtractForPlant;
   plant_notes?: string;
   tags: FBPlantTag[];
+  seed_planting_id?: number;
 }
 export interface PlantUpdate {
   id: number;
@@ -152,6 +154,7 @@ export interface PlantUpdate {
   // current_soil?: FBPlantCurrentSoil;
   // latest_image?: FBPlantLatestImage;
   tags: FBPlantTag[];
+  seed_planting_id?: number;
 }
 
 export interface PlantsUpdateRequest {
@@ -188,4 +191,5 @@ export interface PlantRead {
   same_taxon_plants: ShortPlant[];
   current_soil?: PlantCurrentSoil;
   latest_image?: PlantLatestImage;
+  seed_planting_id?: number;
 }

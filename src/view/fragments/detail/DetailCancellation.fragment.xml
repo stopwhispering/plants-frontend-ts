@@ -15,7 +15,6 @@
 			<HBox>
         		<VBox>
 
-						<!-- id="cancellationDate" -->
 					<DatePicker
 						dateValue="{cancelPlant>/cancellationDate}"
 						class="sapUiSmallMarginBottom"/>

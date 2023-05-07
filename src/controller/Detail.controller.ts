@@ -44,7 +44,6 @@ import ImagePlantTagger from "plants/ui/customClasses/images/ImagePlantTagger"
 import EventListItemFactory from "plants/ui/customClasses/events/EventListItemFactory"
 import ModelsHelper from "../model/ModelsHelper"
 import OccurrenceImagesFetcher from "../customClasses/taxonomy/OccurrenceImagesFetcher"
-import EventDialogHandler from "../customClasses/events/EventDialogHandler"
 import EventsListHandler from "../customClasses/events/EventsListHandler"
 import AssignImageToEventDialogHandler from "../view/fragments/events/AssignImageToEventDialogHandler"
 import RenamePlantDialogHandler from "../customClasses/plants/RenamePlantDialogHandler"
@@ -60,6 +59,7 @@ import GridList from "sap/f/GridList"
 import {ImageRead} from "plants/ui/definitions/Images"
 import NewEventDialogHandler from "../customClasses/events/NewEventDialogHandler"
 import EditEventDialogHandler from "../customClasses/events/EditEventDialogHandler"
+
 
 /**
  * @namespace plants.ui.controller

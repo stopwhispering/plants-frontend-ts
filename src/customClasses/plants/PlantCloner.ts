@@ -2,7 +2,7 @@ import MessageToast from "sap/m/MessageToast";
 import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { BResultsPlantCloned } from "plants/ui/definitions/Plants";
+import { ResultsPlantCloned } from "plants/ui/definitions/Plants";
 import PlantLookup from "./PlantLookup"
 import { BPlant} from "plants/ui/definitions/Plants";
 import Navigation from "plants/ui/customClasses/singleton/Navigation";
@@ -54,7 +54,7 @@ export default class PlantCloner extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Clone Plant (POST)'));
 	}
 
-	private _onReceivingPlantCloned(oDialogClonePlant: Dialog, oBackendResultPlantCloned: BResultsPlantCloned): void {
+	private _onReceivingPlantCloned(oDialogClonePlant: Dialog, oBackendResultPlantCloned: ResultsPlantCloned): void {
 		// Cloning plant was successful; add clone to model and open in details view
 		oDialogClonePlant.close();
 		MessageHandler.getInstance().addMessageFromBackend(oBackendResultPlantCloned.message);

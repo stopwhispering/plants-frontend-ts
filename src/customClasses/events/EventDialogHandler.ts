@@ -1,6 +1,5 @@
 // Handler for Dialog to edit an event or create a new one.
-
-import { LEventData, LEventEditData, LEventEditDataSegments, LInitialSoil, LPotHeightOptions, LPotShapeOptions } from "plants/ui/definitions/EventsLocal";
+import { LEventEditData } from "plants/ui/definitions/EventsLocal";
 import Button from "sap/m/Button";
 import Dialog from "sap/m/Dialog";
 import List from "sap/m/List";

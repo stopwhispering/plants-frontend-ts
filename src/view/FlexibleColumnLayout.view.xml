@@ -22,10 +22,6 @@
 					menuButtonPressed="onShellBarMenuButtonPressed"
 					notificationsNumber="{= String(${messages>/}.length) }"
 				>
-					<!-- notificationsNumber="{ path: 'messages>/',
-										formatter: '.formatter.messageCount' }" -->
-					<!--bad problems with...-->
-					<!--notificationsNumber="{= ${messages>/}.length }">-->
 					<searchManager>
 						<SearchManager
 							id="searchField"
@@ -54,12 +50,10 @@
 										path: 'plants>id'
 									} ]"
 								/>
-								<!--{path:'plants>botanical_name'}-->
 							</suggestionItems>
 						</SearchManager>
 					</searchManager>
 					<additionalContent>
-						<!-- <m:ToolbarSpacer/>  -->
 						<m:OverflowToolbarButton
 							text="{i18n>save}"
 							icon="sap-icon://save"
