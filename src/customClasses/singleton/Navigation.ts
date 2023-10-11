@@ -20,7 +20,7 @@ export default class Navigation extends ManagedObject {
 		if (Navigation._instance)
 			throw new Error("Navigation already initialized");
 		Navigation._instance = new Navigation(oRootControl, oRouter);
-	}	
+	}
 
 	public static getInstance(): Navigation {
 		if (!Navigation._instance) 

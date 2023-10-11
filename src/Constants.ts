@@ -7,7 +7,7 @@ export default class Constants extends ManagedObject {
 
     public static base_url = (() => {
         // we want to make this work both in dev environment and in production
-        if ((window.location.hostname === "localhost") && (window.location.port === "8080")){
+        if ((window.location.hostname === "localhost") && (["8080", "8085"].includes(window.location.port))){
             // in dev environment (serving via ui5 cli as localhost:8080), we usually run the backend on localhost:5000 via pycharm
             return 'http://localhost:5000/api/';
         } else if (window.location.hostname.endsWith('localhost') && (window.location.port !== "8080")){

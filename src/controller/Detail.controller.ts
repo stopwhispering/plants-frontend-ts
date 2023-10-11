@@ -108,7 +108,7 @@ export default class Detail extends BaseController {
 		this.oEditEventDialogHandler = new EditEventDialogHandler(this.eventCRUD, 
 			this.getView(), oSuggestionsModel.getData());
 
-		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
+		// const oEventsModel = <JSONModel>this.oComponent.getModel('events');
 		this.oEventsListHandler = new EventsListHandler(this.eventCRUD);
 
 		// default: view mode for plants information
@@ -149,6 +149,7 @@ export default class Detail extends BaseController {
 			this.getView(),
 			this.oComponent.getModel('plants'),
 			this.oComponent.getModel('events'),
+			this.oComponent.getModel('flower_history'),
 			this.oComponent.getModel('images'),
 			this.oComponent.getModel('taxon'),
 			this.mCurrentPlant

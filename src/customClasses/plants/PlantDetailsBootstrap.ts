@@ -16,6 +16,7 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 
 	private _oPlantsModel: JSONModel;
 	private _oEventsModel: JSONModel;
+	private _oFlowerHistoryModel: JSONModel;
 	private _oTaxonModel: JSONModel;
 	private _oDetailView: View;
 	private _mCurrentPlant: LCurrentPlant;
@@ -26,6 +27,7 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		oDetailView: View, 
 		oPlantsModel: JSONModel, 
 		oEventsModel: JSONModel, 
+		oFlowerHistoryModel: JSONModel,
 		oImagesModel: JSONModel, 
 		oTaxonModel: JSONModel, 
 		mCurrentPlant: LCurrentPlant,
@@ -34,6 +36,7 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		super();
 		this._oPlantsModel = oPlantsModel;
 		this._oEventsModel = oEventsModel;
+		this._oFlowerHistoryModel = oFlowerHistoryModel;
 		this._oTaxonModel = oTaxonModel;
 
 		this._oDetailView = oDetailView;
@@ -71,12 +74,18 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 			path: "/PlantsEventsDict/" + iPlantId.toString(),
 			model: "events"
 		});
+		
+		// bind the plant's flower history (read only, loaded with events) to the current view
+		this._oDetailView.bindElement({
+			path: "/PlantsFlowerHistoryDict/" + iPlantId.toString(),
+			model: "flower_history"
+		});
 
 		//load only on first load of that plant, otherwise we would overwrite modifications
 		//to the plant's events
 		if (!this._oEventsModel.getProperty('/PlantsEventsDict/' + iPlantId.toString() + '/')) {
 			// this._loadEventsForCurrentPlant(iPlantId);
-			new EventLoader(this._oEventsModel).loadEventsForPlant(iPlantId);
+			new EventLoader(this._oEventsModel, this._oFlowerHistoryModel).loadEventsForPlant(iPlantId);
 		}
 	}
 

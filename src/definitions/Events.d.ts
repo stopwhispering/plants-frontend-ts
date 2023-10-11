@@ -12,7 +12,29 @@ import { BMessage } from "./Messages";
 export type FBShapeTop = "square" | "round" | "oval" | "hexagonal";
 export type FBShapeSide = "very flat" | "flat" | "high" | "very high";
 export type BEvents = FBEvent[];
+// export type FlowerHistoryRead = FBEvent[];
 export type BMessageType = "Information" | "None" | "Success" | "Warning" | "Error" | "Debug";
+export type BFloweringState = "inflorescence_growing" | "flowering" | "seeds_ripening" | "not_flowering"
+
+export type PlantFlowerMonthRead = {
+  flowering_state: BFloweringState;
+}
+
+export type PlantFlowerYearRead = {
+  year: number;
+  month_01: PlantFlowerMonthRead;
+  month_02: PlantFlowerMonthRead;
+  month_03: PlantFlowerMonthRead;
+  month_04: PlantFlowerMonthRead;
+  month_05: PlantFlowerMonthRead;
+  month_06: PlantFlowerMonthRead;
+  month_07: PlantFlowerMonthRead;
+  month_08: PlantFlowerMonthRead;
+  month_09: PlantFlowerMonthRead;
+  month_10: PlantFlowerMonthRead;
+  month_11: PlantFlowerMonthRead;
+  month_12: PlantFlowerMonthRead;
+}
 
 export interface FBEvent {
   id: number;
@@ -53,6 +75,7 @@ export interface BPResultsUpdateCreateSoil {
 }
 export interface BResultsEventResource {
   events: BEvents;
+  flower_history: PlantFlowerYearRead[];
   message: BMessage;
 }
 export interface BResultsSoilsResource {

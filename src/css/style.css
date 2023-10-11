@@ -49,3 +49,39 @@
 .unobtrusiveText {
   color: #6a6d70; 
 }
+
+.inflorescenceColor {
+  background-color: #fde9d9;
+}
+
+.floweringColor {
+  background-color: #e26b0a;
+}
+
+.seedsRipeningColor {
+  background-color: #f1c232;
+}
+
+.customFlowerHistoryColor[data-nodecolor='not_flowering'] {
+  /* color: #ff5c00;
+  font-weight: bold; */
+  /* background-color: #fde9d9; */
+}
+
+.customFlowerHistoryColor[data-nodecolor='inflorescence_growing'] {
+  /* color: #009db8;
+  font-weight: bold; */
+  background-color: #fde9d9;
+}
+
+.customFlowerHistoryColor[data-nodecolor='flowering'] {
+  /* color: #009db8;
+  font-weight: bold; */
+  background-color: #e26b0a;
+}
+
+.customFlowerHistoryColor[data-nodecolor='seeds_ripening'] {
+  /* color: #009db8;
+  font-weight: bold; */
+  background-color: #f1c232;
+}

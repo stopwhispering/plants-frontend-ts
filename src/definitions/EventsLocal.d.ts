@@ -79,8 +79,16 @@ export interface LPlantsEventsDict{
     [key: int]: FBEvent[];
 }
 
+export interface PlantsFlowerHistoryDict{
+    [key: int]: PlantFlowerYearReadFBEvent[];
+}
+
 export interface LEventsModelData {
     PlantsEventsDict: PlantsEventsDict;
+}
+
+export interface FlowerHistoryModelData {
+    PlantsFlowerHistoryDict: PlantsFlowerHistoryDict;
 }
 
 export interface LInitialSoil extends Omit<FBSoil, "id" | "soil_name">{

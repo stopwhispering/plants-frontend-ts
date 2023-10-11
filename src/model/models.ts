@@ -1,7 +1,7 @@
 import JSONModel from "sap/ui/model/json/JSONModel"
 import Device from "sap/ui/Device"
 import { LTaxonData, LTaxonMap } from "plants/ui/definitions/TaxonLocal";
-import { LEventsModelData } from "plants/ui/definitions/EventsLocal";
+import { FlowerHistoryModelData, LEventsModelData } from "plants/ui/definitions/EventsLocal";
 import Util from "plants/ui/customClasses/shared/Util";
 import { LStatusModelData } from "../definitions/SharedLocal";
 
@@ -68,6 +68,14 @@ export function createProposalKeywordsModel(): JSONModel {
 export function createEventsModel(): JSONModel {
 	const oInitialData: LEventsModelData = {
 		PlantsEventsDict: {}
+	}
+	const oModel = new JSONModel(oInitialData);
+	return oModel;
+}
+
+export function createFlowerHistoryModel(): JSONModel {
+	const oInitialData: FlowerHistoryModelData = {
+		PlantsFlowerHistoryDict: {}
 	}
 	const oModel = new JSONModel(oInitialData);
 	return oModel;

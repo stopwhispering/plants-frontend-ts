@@ -20,5 +20,5 @@ server:
     configuration:
       debug: true
       extraExts: "xml,json,properties"
-      port: 35729
+      port: 35730
       path: "webapp"

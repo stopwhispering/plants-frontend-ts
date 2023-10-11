@@ -208,6 +208,17 @@
 				id="objPageSectionGeneral"
 			>
 				<subSections>
+					<ObjectPageSubSection
+						title="Flowering"
+						visible="{= !!${flower_history>} &amp;&amp; ${flower_history>}.length > 0 }"
+					>
+						<blocks>
+							<core:Fragment
+								fragmentName="plants.ui.view.embedded.DetailFlowerHistory"
+								type="XML"
+							/>
+						</blocks>
+					</ObjectPageSubSection>
 					<ObjectPageSubSection id="objPageSubSection">
 						<blocks>
 							<core:Fragment
