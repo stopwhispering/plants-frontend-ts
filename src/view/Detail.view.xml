@@ -208,6 +208,7 @@
 			>
 				<subSections>
 					<ObjectPageSubSection
+						id="flowerHistorySection"
 						title="Flowering"
 						visible="{= !!${flower_history>} &amp;&amp; ${flower_history>}.length > 0 }"
 					>
@@ -232,6 +233,7 @@
 			<ObjectPageSection title="{i18n>events_title}">
 				<subSections>
 					<ObjectPageSubSection 
+						id="eventsSection"
 						showTitle="false">
 						<blocks>
 							<!--list is filled by generator function, see onInit()-->
@@ -325,7 +327,8 @@
 					</ObjectPageSubSection>
 				</subSections>
 			</ObjectPageSection>
-			<ObjectPageSection title="Images">
+			<ObjectPageSection title="Images"
+				id="imagesSection">
 				<subSections>
 					<ObjectPageSubSection>
 						<blocks>

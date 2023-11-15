@@ -8,6 +8,7 @@ import { LCurrentPlant } from "plants/ui/definitions/PlantsLocal";
 import PlantImagesLoader from "./PlantImagesLoader";
 import TaxonLoader from "../taxonomy/TaxonLoader";
 import EventLoader from "../events/EventLoader";
+import Control from "sap/ui/core/Control";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -21,6 +22,10 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 	private _oDetailView: View;
 	private _mCurrentPlant: LCurrentPlant;
 	private _oPlantImagesLoader: PlantImagesLoader;
+
+	// controls to be set busy while loading corresponding data
+	private _oBusyControlsEvents: Control[];
+	private _oBusyControlsImages: Control[];
 		
 
 	public constructor(
@@ -31,6 +36,8 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		oImagesModel: JSONModel, 
 		oTaxonModel: JSONModel, 
 		mCurrentPlant: LCurrentPlant,
+		oBusyControlsEvents: Control[],
+		oBusyControlsImages: Control[],
 		) {
 
 		super();
@@ -43,10 +50,13 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		this._mCurrentPlant = mCurrentPlant;
 
 		this._oPlantImagesLoader = new PlantImagesLoader(oImagesModel);
+
+		this._oBusyControlsEvents = oBusyControlsEvents;
+		this._oBusyControlsImages = oBusyControlsImages;
 	}
 
 	
-	public load(iPlantId: int): void {
+	public async load(iPlantId: int) {
 		// triggered in _onPatternMatched of details controller
 
 		// we can't request the plant's taxon details as we might not have the taxon id, yet
@@ -61,14 +71,17 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		// ... so does requesting images
 		// if we haven't loaded images for this plant, yet, we do so before generating the images model
 		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
-		if (!oImageRegistryHandler.isPlantInPlantsWithImagesLoaded(iPlantId))
-			this._oPlantImagesLoader.requestImagesForPlant(iPlantId);
+		if (!oImageRegistryHandler.isPlantInPlantsWithImagesLoaded(iPlantId)){
+			this._oBusyControlsImages.forEach(c => c.setBusy(true));
+			await this._oPlantImagesLoader.requestImagesForPlant(iPlantId);
+			this._oBusyControlsImages.forEach(c => c.setBusy(false));
+		}
 		else
 			oImageRegistryHandler.resetImagesForPlant(iPlantId);
 		
 	}
 
-	private _bindAndRequestEventsForPlant(iPlantId: int): void {
+	private async _bindAndRequestEventsForPlant(iPlantId: int) {
 		// bind the plant's events to the current view
 		this._oDetailView.bindElement({
 			path: "/PlantsEventsDict/" + iPlantId.toString(),
@@ -84,8 +97,9 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		//load only on first load of that plant, otherwise we would overwrite modifications
 		//to the plant's events
 		if (!this._oEventsModel.getProperty('/PlantsEventsDict/' + iPlantId.toString() + '/')) {
-			// this._loadEventsForCurrentPlant(iPlantId);
-			new EventLoader(this._oEventsModel, this._oFlowerHistoryModel).loadEventsForPlant(iPlantId);
+			this._oBusyControlsEvents.forEach(c => c.setBusy(true));
+			await new EventLoader(this._oEventsModel, this._oFlowerHistoryModel).loadEventsForPlant(iPlantId);
+			this._oBusyControlsEvents.forEach(c => c.setBusy(false));
 		}
 	}
 
@@ -116,9 +130,6 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 			model: "taxon"
 		});
 		if (this._mCurrentPlant.plant.taxon_id)
-			// ModelsHelper.getInstance().loadTaxon(this._mCurrentPlant.plant.taxon_id);
 			new TaxonLoader(this._oTaxonModel).loadTaxonIfRequired(this._mCurrentPlant.plant.taxon_id);
-
-
 	}
 }

@@ -20,3 +20,11 @@ export interface LTagInput {
     TagStatusCollection: LTagInputStatus[];
     Value: string;
 }
+
+export interface LRouteMatchedArguments{
+    plant_id: number;
+}
+
+export interface LBeforeRouteMatchedArguments{
+    layout: string;
+}

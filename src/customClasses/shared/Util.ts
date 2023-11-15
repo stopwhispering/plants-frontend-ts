@@ -11,6 +11,56 @@ import { SearchSpeciesCustomTaxonInputData } from "plants/ui/definitions/PlantsL
  */
 export default class Util extends ManagedObject {
 
+
+	private async http<T>(
+		request: RequestInfo
+	): Promise<Response> {
+		let response: Response;
+		try {
+			response = await fetch(
+				request
+			);
+		} catch (error) {
+			// unexpected python error
+			// e.g. 500 division by zero; no further information available
+			console.log(error)
+			let sMsg = JSON.stringify(error);
+			MessageToast.show(sMsg);
+			throw error;
+		}
+
+		if (!response.ok) {
+			// todo use ErrorHandling.onFail()
+			
+			const err_body = await response.json();
+			let sMsg: string;
+
+			// pydantic validation error
+			if (err_body.detail && Array.isArray(err_body.detail))
+				sMsg = JSON.stringify(err_body.detail);
+
+			// starlette httperror 
+			// raise e.g. via raise HTTPException(status_code=404, detail="Item not found") or subclasses
+			else if (err_body.detail && typeof err_body.detail === "string")
+				sMsg = err_body.detail;
+			
+			else
+				sMsg = JSON.stringify(err_body);
+
+			console.log(err_body);
+			MessageToast.show(sMsg);
+			throw new Error(sMsg);
+		}
+		return await response.json();
+	}
+
+	public static async get<T>(
+		path: string,
+		args: RequestInit = { method: "GET" }
+	): Promise<any> {
+		return await Util.prototype.http<T>(new Request(path, args));
+	}
+
 	public static parse_resource_from_url(sUrl: string) {
 		var aItems = sUrl.split('/');
 		var iIndex = aItems.indexOf('backend');

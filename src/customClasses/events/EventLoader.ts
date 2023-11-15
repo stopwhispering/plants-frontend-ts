@@ -22,17 +22,21 @@ export default class EventLoader extends ManagedObject {
 		this._oFlowerHistoryModel = oFlowerHistoryModel; 
 	}
 
-	public loadEventsForPlant(iPlantId: int): void {
+	public async loadEventsForPlant(iPlantId: int) {
 		// request plant's events (incl flower history) from backend
 		// data is added to local events model and bound to current view upon receivement
-		const uri = 'events/' + iPlantId;
-		$.ajax({
-			url: Util.getServiceUrl(uri),
-			context: this,
-			async: true
-		})
-			.done(this._cbReceivingEventsForPlant.bind(this, iPlantId))
-			.fail(ErrorHandling.onFail.bind(this, 'Event (GET)'))
+
+		const oResult: BResultsEventResource = await Util.get(Util.getServiceUrl('events/' + iPlantId));
+		this._cbReceivingEventsForPlant(iPlantId, oResult);
+		// todo error handling
+		// const uri = 'events/' + iPlantId;
+		// $.ajax({
+		// 	url: Util.getServiceUrl(uri),
+		// 	context: this,
+		// 	async: true
+		// })
+		// 	.done(this._cbReceivingEventsForPlant.bind(this, iPlantId))
+		// 	.fail(ErrorHandling.onFail.bind(this, 'Event (GET)'))
 	}
 
 	private _cbReceivingEventsForPlant(plantId: int, oData: BResultsEventResource): void {

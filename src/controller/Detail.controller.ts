@@ -12,22 +12,21 @@ import FilterOperator from "sap/ui/model/FilterOperator"
 import ImageToTaxonAssigner from "plants/ui/customClasses/images/ImageToTaxonAssigner"
 import ImageToEventAssigner from "plants/ui/customClasses/images/ImageToEventAssigner"
 import { FBEvent } from "plants/ui/definitions/Events"
-import Event from "sap/ui/base/Event"
 import Control from "sap/ui/core/Control"
-import Input from "sap/m/Input"
-import Icon from "sap/ui/core/Icon"
+import Input, { Input$SubmitEvent, Input$SuggestEvent, Input$SuggestionItemSelectedEvent } from "sap/m/Input"
+import Icon, { Icon$PressEvent } from "sap/ui/core/Icon"
 import ListBinding from "sap/ui/model/ListBinding"
-import MenuItem from "sap/m/MenuItem"
+import MenuItem, { MenuItem$PressEvent } from "sap/m/MenuItem"
 import OverflowToolbarButton from "sap/m/OverflowToolbarButton"
 import { MessageType } from "sap/ui/core/library"
-import FileUploader from "sap/ui/unified/FileUploader"
-import Button from "sap/m/Button"
+import FileUploader, { FileUploader$ChangeEvent, FileUploader$TypeMissmatchEvent, FileUploader$UploadAbortedEvent, FileUploader$UploadCompleteEvent } from "sap/ui/unified/FileUploader"
+import Button, { Button$PressEvent } from "sap/m/Button"
 import Context from "sap/ui/model/Context"
 import { FBImage, FBImagePlantTag, FBKeyword } from "plants/ui/definitions/Images"
-import Token from "sap/m/Token"
+import Token, { Token$PressEvent } from "sap/m/Token"
 import { FBAssociatedPlantExtractForPlant, BPlant, PlantRead } from "plants/ui/definitions/Plants"
 import { LCurrentPlant } from "plants/ui/definitions/PlantsLocal"
-import Tokenizer from "sap/m/Tokenizer"
+import Tokenizer, { Tokenizer$TokenDeleteEvent } from "sap/m/Tokenizer"
 import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
 import SuggestionService from "plants/ui/customClasses/shared/SuggestionService"
 import PlantRenamer from "plants/ui/customClasses/plants/PlantRenamer"
@@ -54,11 +53,17 @@ import SearchSpeciesDialogHandler from "../customClasses/taxonomy/SearchSpeciesD
 import NewPlantTagPopoverHandler from "../customClasses/plants/NewPlantTagPopoverHandler"
 import DeletePlantTagMenuHandler from "../customClasses/plants/DeletePlantTagMenuHandler"
 import LeafletMapHandler from "../customClasses/taxonomy/LeafletMapHandler"
-import SearchField from "sap/m/SearchField"
+import SearchField, { SearchField$LiveChangeEvent } from "sap/m/SearchField"
 import GridList from "sap/f/GridList"
 import {ImageRead} from "plants/ui/definitions/Images"
 import NewEventDialogHandler from "../customClasses/events/NewEventDialogHandler"
 import EditEventDialogHandler from "../customClasses/events/EditEventDialogHandler"
+import { ListBase$DeleteEvent } from "sap/m/ListBase"
+import GridListItem from "sap/f/GridListItem"
+import { InputBase$ChangeEvent } from "sap/m/InputBase"
+import { ObjectStatus$PressEvent } from "sap/m/ObjectStatus"
+import Route, { Route$PatternMatchedEvent } from "sap/ui/core/routing/Route"
+import { LRouteMatchedArguments } from "../definitions/entities"
 
 
 /**
@@ -71,7 +76,6 @@ export default class Detail extends BaseController {
 	private oNewEventDialogHandler: NewEventDialogHandler;
 	private oEditEventDialogHandler: EditEventDialogHandler;
 	private oPlantLookup: PlantLookup;
-	// public suggestionService: SuggestionService; // public because used in formatter
 	private mCurrentPlant: LCurrentPlant;  // container currentPlantId, currentPlantIndex, currentPlant
 	private oLayoutModel: JSONModel;
 	private oEventsListHandler: EventsListHandler;
@@ -114,7 +118,7 @@ export default class Detail extends BaseController {
 		// default: view mode for plants information
 		this.oComponent.getModel('status').setProperty('/details_editable', false);
 
-		this.oRouter.getRoute("detail").attachPatternMatched(this._onPatternMatched, this);
+		(<Route>this.oRouter.getRoute("detail")).attachPatternMatched(this._onPatternMatched, this);
 		this.oRouter.getRoute("untagged").attachPatternMatched(this._onPatternMatched, this);
 
 		// bind factory function to events list aggregation binding
@@ -134,15 +138,18 @@ export default class Detail extends BaseController {
 		this.oComponent.getModel('status').setProperty('/images_editable', false);
 	}
 
-	private _onPatternMatched(oEvent: Event) {
+	private _onPatternMatched(oEvent: Route$PatternMatchedEvent) {
 		// if accessed directly, we might not have loaded the plants model, yet
 		// in that case, we have only the plant_id (from the url's hash), but not the position of that plant
 		// in the plants model index. so we must defer binding the plant to the view
 
-		Util.startBusyDialog();
+		// todo still required?
+		// Util.startBusyDialog();
 
 		// bind taxon of current plant and events to view (deferred as we may not know the plant name here, yet)
-		this.mCurrentPlant.plant_id = parseInt(oEvent.getParameter("arguments").plant_id || this.mCurrentPlant.plant_id || "0");
+		const oArguments = <LRouteMatchedArguments>oEvent.getParameter("arguments");
+		// this.mCurrentPlant.plant_id = parseInt(oArguments.plant_id) || this.mCurrentPlant.plant_id || 0;
+		this.mCurrentPlant.plant_id = oArguments.plant_id || this.mCurrentPlant.plant_id || 0;
 
 
 		const oPlantDetailsBootstrap = new PlantDetailsBootstrap(
@@ -152,9 +159,11 @@ export default class Detail extends BaseController {
 			this.oComponent.getModel('flower_history'),
 			this.oComponent.getModel('images'),
 			this.oComponent.getModel('taxon'),
-			this.mCurrentPlant
+			this.mCurrentPlant,
+			[<Control>this.byId('eventsSection'), <Control>this.byId('flowerHistorySection')],
+			[<Control>this.byId('imagesSection')]
 		);
-		oPlantDetailsBootstrap.load(this.mCurrentPlant.plant_id)
+		oPlantDetailsBootstrap.load(this.mCurrentPlant.plant_id);
 	}
 
 	//////////////////////////////////////////////////////////
@@ -175,7 +184,7 @@ export default class Detail extends BaseController {
 		this.oRouter.navTo("master", { layout: sNextLayout });
 	}
 
-	public onToggleEditMode(oEvent: Event) {
+	public onToggleEditMode(oEvent: Button$PressEvent) {
 		// toggle edit mode for some of the input controls (actually hide the read-only ones and 
 		// unhide the others)
 		var oSource = <OverflowToolbarButton>oEvent.getSource();
@@ -194,7 +203,7 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Rename Plant Handler
 	//////////////////////////////////////////////////////////
-	onPressButtonRenamePlant(oEvent: Event) {
+	onPressButtonRenamePlant(oEvent: MenuItem$PressEvent) {
 		// triggered by button in details upper menu
 		// opens dialog to rename current plant
 		if (!this._oPlantRenamer){
@@ -213,7 +222,7 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Plant Tag Handlers
 	//////////////////////////////////////////////////////////
-	public onPressTag(oEvent: Event) {
+	public onPressTag(oEvent: ObjectStatus$PressEvent) {
 		if (!this.oDeletePlantTagMenuHandler)
 			this.oDeletePlantTagMenuHandler = new DeletePlantTagMenuHandler(this.oComponent.getModel('plants'));
 		
@@ -222,7 +231,7 @@ export default class Detail extends BaseController {
 	this.oDeletePlantTagMenuHandler.openDeletePlantTagMenu(this.mCurrentPlant.plant, sPathTag, this.getView(), oSource);
 	}
 
-	onOpenAddTagDialog(oEvent: Event) {
+	onOpenAddTagDialog(oEvent: Button$PressEvent) {
 		// create add tag dialog
 		if (!this.oNewPlantTagPopoverHandler)
 			this.oNewPlantTagPopoverHandler = new NewPlantTagPopoverHandler(this.oComponent.getModel('plants'));
@@ -246,7 +255,7 @@ export default class Detail extends BaseController {
 		}
 	}
 
-	onSuggestNursery(oEvent: Event) {
+	onSuggestNursery(oEvent: Input$SuggestEvent) {
 		// overwrite default suggestions (only beginsWith term) with custom one (contains term))
 		var aFilters = [];
 		var sTerm = oEvent.getParameter("suggestValue");
@@ -260,7 +269,7 @@ export default class Detail extends BaseController {
 		oInput.setFilterSuggests(false);
 	}
 
-	onSwitchActive(oEvent: Event) {
+	onSwitchActive(oEvent: Button$PressEvent) {
 		// open dialog to choose reason for plant deactivation
 		if (!this.mCurrentPlant.plant.active){
 			this.mCurrentPlant.plant.active = true;
@@ -274,12 +283,13 @@ export default class Detail extends BaseController {
 		oCancelPlantPopverHandler.openCancelPlantPopover(this.getView(), this.mCurrentPlant.plant, oSource);
 	}
 
-	onChangeParent(oEvent: Event) {
+	onChangeParent(oEvent: InputBase$ChangeEvent) {
 		// verify entered parent and set parent plant id
 		var aPlants = <BPlant[]>this.getView().getModel('plants').getProperty('/PlantsCollection');
-		var parentPlant = aPlants.find(plant => plant.plant_name === oEvent.getParameter('newValue').trim());
+		var parentPlant = aPlants.find(plant => plant.plant_name === oEvent.getParameter('value').trim());
 
-		if (!oEvent.getParameter('newValue').trim() || !parentPlant) {
+		// if (!oEvent.getParameter('newValue').trim() || !parentPlant) {
+		if (!oEvent.getParameter('value').trim() || !parentPlant) {
 			var parentalPlant = undefined;
 
 		} else {
@@ -302,7 +312,7 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Delete Plant Handler
 	//////////////////////////////////////////////////////////	
-	onPressButtonDeletePlant(oEvent: Event) {
+	onPressButtonDeletePlant(oEvent: MenuItem$PressEvent) {
 		//confirm dialog
 		var oMenuItem = <MenuItem>oEvent.getSource();
 		var oPlant = <BPlant>oMenuItem.getBindingContext('plants')!.getObject();
@@ -315,7 +325,7 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Clone Plant Handlers
 	//////////////////////////////////////////////////////////
-	onPressButtonClonePlant(oEvent: Event) {
+	onPressButtonClonePlant(oEvent: MenuItem$PressEvent) {
 		// triggered by button in details upper menu
 		// opens dialog to clone current plant
 		const oPlantsModel = this.oComponent.getModel('plants');
@@ -324,7 +334,7 @@ export default class Detail extends BaseController {
 	}
 
 
-	onPressButtonCreateDescendantPlant(oEvent: Event) {
+	onPressButtonCreateDescendantPlant(oEvent: MenuItem$PressEvent) {
 		// triggered by button in details upper menu
 		// opens dialog to create descendant plant with current plant as mother plant
 
@@ -355,7 +365,7 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Leaflet Map Handler
 	//////////////////////////////////////////////////////////	
-	onShowMap(oEvent: Event) {
+	onShowMap(oEvent: Button$PressEvent) {
 		if (!this._oLeafletMapHandler)
 			this._oLeafletMapHandler = new LeafletMapHandler();
 			this._oLeafletMapHandler.openLeafletMapDialog(this.getView());
@@ -364,20 +374,20 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Taxonomy Handlers
 	//////////////////////////////////////////////////////////	
-	onRefetchGbifImages(oEvent: Event) {
+	onRefetchGbifImages(oEvent: Button$PressEvent) {
 		const oTaxon = <BTaxon>(<Control>oEvent.getSource()).getBindingContext('taxon')!.getObject()
 		if (!oTaxon.gbif_id)
 			throw new Error('No gbif_id found for taxon ' + oTaxon.name);
 		new OccurrenceImagesFetcher(this.oComponent.getModel('taxon')).fetchOccurrenceImages(oTaxon.gbif_id, this.mCurrentPlant.plant);
 	}
 
-	onIconPressUnassignImageFromTaxon(oEvent: Event) {
+	onIconPressUnassignImageFromTaxon(oEvent: Icon$PressEvent) {
 		const oSource = <Icon>oEvent.getSource();
 		const oTaxonModel = <JSONModel>this.oComponent.getModel('taxon')
 		new ImageToTaxonAssigner().unassignImageFromTaxon(oSource, oTaxonModel);
 	}
 
-	onIconPressAssignImageToTaxon(oEvent: Event) {
+	onIconPressAssignImageToTaxon(oEvent: Icon$PressEvent) {
 		const oSource = <Icon>oEvent.getSource();
 		const oTaxonModel = <JSONModel>this.oComponent.getModel('taxon')
 		new ImageToTaxonAssigner().assignImageToTaxon(oSource, oTaxonModel);
@@ -386,29 +396,30 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Event Handlers
 	//////////////////////////////////////////////////////////
-	onOpenDialogAddEvent(oEvent: Event) {
+	onOpenDialogAddEvent(oEvent: Button$PressEvent) {
 		this.oNewEventDialogHandler.openDialogNewEvent(this.getView(), this.mCurrentPlant.plant);
 	}
 
-	onEditEvent(oEvent: Event) {
+	onEditEvent(oEvent: Button$PressEvent) {
 		// triggered by edit button in a custom list item header in events list
 		const oSource = <Button>oEvent.getSource();
 		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
 		this.oEditEventDialogHandler.openDialogEditEvent(this.getView(), oSelectedEvent)
 	}
 
-	onDeleteEventsTableRow(oEvent: Event) {
+	onDeleteEventsTableRow(oEvent: ListBase$DeleteEvent) {
 		const oSelectedEvent = <FBEvent>oEvent.getParameter('listItem').getBindingContext('events').getObject();
 		this.oEventsListHandler.deleteRow(oSelectedEvent);
 	}
 
-	onIconPressUnassignImageFromEvent(oEvent: Event) {
-		const sEventsBindingPath = oEvent.getParameter('listItem').getBindingContextPath('events');
+	onIconPressUnassignImageFromEvent(oEvent: ListBase$DeleteEvent) {
+		//@ts-ignore
+		const sEventsBindingPath = (<GridListItem>oEvent.getParameter('listItem')).getBindingContextPath('events');
 		const oEventsModel = <JSONModel>this.oComponent.getModel('events');
 		new ImageToEventAssigner().unassignImageFromEvent(sEventsBindingPath, oEventsModel);
 	}
 
-	onIconPressAssignImageToEvent(oEvent: Event) {
+	onIconPressAssignImageToEvent(oEvent: Icon$PressEvent) {
 		// triggered by icon beside image; assign that image to one of the plant's events
 		const oSource = <Icon>oEvent.getSource();
 		var sPathCurrentImage = oSource.getBindingContext("images")!.getPath();
@@ -423,7 +434,7 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Image Handlers
 	//////////////////////////////////////////////////////////
-	onIconPressSetPreview(oEvent: Event) {
+	onIconPressSetPreview(oEvent: Icon$PressEvent) {
 		// get selected image and current plant in model
 		var oSource = <Icon>oEvent.getSource();
 		var sPathCurrentImage = oSource.getBindingContext("images")!.getPath();
@@ -435,7 +446,7 @@ export default class Detail extends BaseController {
 		this.oComponent.getModel('plants').updateBindings(false);
 	}
 
-	onAddPlantNameToUntaggedImage(oEvent: Event) {
+	onAddPlantNameToUntaggedImage(oEvent: Input$SuggestionItemSelectedEvent) {
 		//adds selected plant in input field (via suggestions) to an image in (details view)
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Input>oEvent.getSource();
@@ -449,7 +460,7 @@ export default class Detail extends BaseController {
 		oImagesModel.updateBindings(true);
 		oSource.setValue('');
 	}
-	onPressImagePlantToken(oEvent: Event) {
+	onPressImagePlantToken(oEvent: Token$PressEvent) {
 		//navigate to chosen plant in plant details view when clicking on plant token in untagged images view
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Token>oEvent.getSource();
@@ -462,7 +473,7 @@ export default class Detail extends BaseController {
 		Navigation.getInstance().navToPlant(this.oPlantLookup.getPlantById(oPlantTag.plant_id));
 	}
 
-	onIconPressDeleteImage(oEvent: Event) {
+	onIconPressDeleteImage(oEvent: Icon$PressEvent) {
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Icon>oEvent.getSource();
 		const oImage = <FBImage>oSource.getBindingContext("images")!.getObject()
@@ -475,7 +486,7 @@ export default class Detail extends BaseController {
 		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
 
-	onInputImageNewKeywordSubmit(oEvent: Event) {
+	onInputImageNewKeywordSubmit(oEvent: Input$SubmitEvent) {
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oInput = <Input>oEvent.getSource();
 		oInput.setValue('');
@@ -484,7 +495,7 @@ export default class Detail extends BaseController {
 		new ImageKeywordTagger(this.oComponent.getModel('images')).addKeywordToImage(sKeyword, oImage);
 	}
 
-	onSwitchImageEditDescription(oEvent: Event) {
+	onSwitchImageEditDescription(oEvent: Icon$PressEvent) {
 		// switch "editable" for plant image description fields
 		const oModelStatus = <JSONModel>this.getView().getModel('status');
 		if (oModelStatus.getProperty('/images_editable')) {
@@ -494,7 +505,7 @@ export default class Detail extends BaseController {
 		}
 	}
 
-	onTokenizerKeywordImageTokenDelete(oEvent: Event) {
+	onTokenizerKeywordImageTokenDelete(oEvent: Tokenizer$TokenDeleteEvent) {
 		// note: the token itself has already been deleted; here, we only delete the 
 		// 		 corresponding plant-to-image entry from the model
 		// note: there's a same-named function in untagged controller doing the same thing for untagged images
@@ -514,7 +525,7 @@ export default class Detail extends BaseController {
 		new ImageKeywordTagger(this.oComponent.getModel('images')).removeKeywordFromImage(sKeywordTokenKey, oImage);
 	}
 
-	onTokenizerPlantImageTokenDelete(oEvent: Event) {
+	onTokenizerPlantImageTokenDelete(oEvent: Tokenizer$TokenDeleteEvent) {
 		// note: the token itself has already been deleted; here, we only delete the 
 		// 		 corresponding keyword-to-image entry from the model
 		// note: there's a same-named function in untagged controller doing the same thing for untagged images
@@ -537,7 +548,7 @@ export default class Detail extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Upload Handlers
 	//////////////////////////////////////////////////////////
-	onUploadPlantPhotosToServer(oEvent: Event) {
+	onUploadPlantPhotosToServer(oEvent: FileUploader$ChangeEvent) {
 		//upload images and directly assign them to supplied plant; no keywords included
 		var oFileUploader = <FileUploader>this.byId("idPlantPhotoUpload");
 		if (!oFileUploader.getValue()) {
@@ -552,11 +563,11 @@ export default class Detail extends BaseController {
 		oFileUploader.upload();
 	}
 
-	handleUploadPlantImagesAborted(oEvent: Event) {
+	handleUploadPlantImagesAborted(oEvent: FileUploader$UploadAbortedEvent) {
 		// unfortunately never triggered at all by FileUploader
 	}
 
-	handleUploadPlantImagesComplete(oEvent: Event) {
+	handleUploadPlantImagesComplete(oEvent: FileUploader$UploadCompleteEvent) {
 		// handle message, show error if required
 		var oResponse = JSON.parse(oEvent.getParameter('responseRaw'));
 		if (!oResponse) {
@@ -581,7 +592,7 @@ export default class Detail extends BaseController {
 		MessageToast.show(oResponse.message.message);
 	}
 
-	onHandleTypeMissmatch(oEvent: Event) {
+	onHandleTypeMissmatch(oEvent: FileUploader$TypeMissmatchEvent) {
 		// handle file type missmatch for image upload
 		// note: there's a same-nemed method in flexible column layout controller handling uploads there
 		const oFileUpload = <FileUploader>oEvent.getSource();
@@ -594,7 +605,7 @@ export default class Detail extends BaseController {
 			" is not supported. Choose one of the following types: " +
 			sSupportedFileTypes);
 	}
-	onLiveChangeImageFilter(oEvent: Event) {
+	onLiveChangeImageFilter(oEvent: SearchField$LiveChangeEvent) {
 
 		// add filter to ongoing pollinations gridlist
 		var aFilters = [];

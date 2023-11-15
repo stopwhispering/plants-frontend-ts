@@ -18,6 +18,9 @@ import ImagePreviewPopoverHandler from "../customClasses/filter/ImagePreviewPopo
 import OverflowToolbarButton from "sap/m/OverflowToolbarButton"
 import MessageToast from "sap/m/MessageToast"
 import NewPlantTagPopoverHandler from "../customClasses/plants/NewPlantTagPopoverHandler"
+import { ListItemBase$PressEvent } from "sap/m/ListItemBase"
+import { Button$PressEvent } from "sap/m/Button"
+import { SearchField$SearchEvent } from "sap/m/SearchField"
 
 /**
  * @namespace plants.ui.controller
@@ -49,7 +52,7 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Other Handlers
 	//////////////////////////////////////////////////////////	
-	onListItemPress(oEvent: Event) {
+	onListItemPress(oEvent: ListItemBase$PressEvent) {
 		// get selected plant
 		var oPlant = <BPlant>(<ColumnListItem>oEvent.getSource()).getBindingContext("plants")!.getObject()
 		this.navigation.navToPlantDetails(oPlant.id!);
@@ -65,7 +68,7 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Search Handler
 	//////////////////////////////////////////////////////////	
-	onSearch(oEvent: Event) {
+	onSearch(oEvent: SearchField$SearchEvent) {
 		// filter logic: active AND (plant_name OR botanical_name)
 		// therefore, we are going to nest the filters:
 		// AND( filter_active, OR( filter_plant_name, filter_botanical_name))
@@ -81,7 +84,7 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Add Plant Handler
 	//////////////////////////////////////////////////////////	
-	onAddNewPlant(oEvent: Event) {
+	onAddNewPlant(oEvent: Button$PressEvent) {
 		//open dialog to create new plant
 		if (!this._oNewPlantDialogHandler)
 		 	this._oNewPlantDialogHandler = new NewPlantDialogHandler(this.oComponent.getModel('plants'));
@@ -91,7 +94,7 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Sort Handler
 	//////////////////////////////////////////////////////////
-	onShowSortDialog(oEvent: Event) {
+	onShowSortDialog(oEvent: Button$PressEvent) {
 		if (!this._oSortPlantsDialogHandler) {
 			const oTable = this.byId("plantsTable");
 			const oPlantsTableBinding = <ListBinding>oTable.getBinding("items");
@@ -103,7 +106,7 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Filter Handler
 	//////////////////////////////////////////////////////////
-	onShowFilterDialog(oEvent: Event): void {
+	onShowFilterDialog(oEvent: Button$PressEvent): void {
 		if (!this._oPlantFilterDialogHandler) {
 			const oPlantsTableBinding = <ListBinding>this.byId('plantsTable').getBinding('items');
 			const oPlantsModel = this.oComponent.getModel('plants');
@@ -137,7 +140,7 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Toggle multi-select mode for plants table
 	//////////////////////////////////////////////////////////
-	onToggleMultiSelectPlants(oEvent: Event) {
+	onToggleMultiSelectPlants(oEvent: Button$PressEvent) {
 		const oSource = <OverflowToolbarButton>oEvent.getSource();
 		const sCurrentType = oSource.getType();  // 'Ghost' or 'Emphasized'
 		const oPlantsTable = <Table>this.byId('plantsTable');
@@ -157,7 +160,7 @@ export default class Master extends BaseController {
 			oStatusModel.setProperty('/master_plants_selectable', false);
 		}
 	}
-	onAddTagToSelectedPlants(oEvent: Event) {
+	onAddTagToSelectedPlants(oEvent: Button$PressEvent) {
 		//open Popover to add tag to 1..n selected plants
 		const oSource = <OverflowToolbarButton>oEvent.getSource();
 		const oPlantsTable = <Table>this.byId('plantsTable');

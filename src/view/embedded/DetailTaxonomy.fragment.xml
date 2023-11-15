@@ -39,8 +39,6 @@
 			</m:VBox>
 		</VBox>
 	</HBox>
-
-	
 	<HBox>
 		<VBox width="50%">
 			<m:VBox class="sapUiSmallMarginBottom">
@@ -99,7 +97,6 @@
 			</m:VBox>
 		</VBox>
 	</HBox>
-
 	<m:VBox>
 		<m:Label
 			labelFor="textSynonyms"
@@ -117,8 +114,6 @@
 			visible="{= ${taxon>synonym} === true }"
 		/>
 	</m:VBox>
-	
-
 	<m:VBox class="">
 		<m:Label
 			labelFor="textDistribution"
@@ -137,58 +132,52 @@
 			press=".onShowMap"
 		/>
 	</m:VBox>
-
 	<VBox>
-	<!-- <VBox/> -->
-	<m:VBox class="taxonLinkBox">
-		<m:Label
-			labelFor="linkGBIF"
-			text="Global Biodiversity Information Facility (GBIF)"
-		/>
-		<!-- <m:HBox> -->
-		<Link
-			id="linkGBIF"
-			text="{taxon>gbif_id}"
-			target="_blank"
-			href="https://www.gbif.org/species/{taxon>gbif_id}"
-		/>
-		<Button
-			visible="{= !!${taxon>gbif_id} &amp;&amp; ${taxon>gbif_id}.length > 0}"
-			icon="sap-icon://refresh"
-			type="Emphasized"
-			tooltip="Refetch GBIF Images"
-			text="Refetch GBIF Images"
-			press=".onRefetchGbifImages"
-		/>
-		<!-- </m:HBox> -->
-	</m:VBox>
-
-	<m:VBox class="taxonLinkBox">
-		<m:Label
-			labelFor="linkIPNI"
-			text="International Plant Names Index (IPNI)"
-		/>
-		<Link
-			id="linkIPNI"
-			text="{taxon>lsid}"
-			target="_blank"
-			href="https://www.ipni.org/n/{taxon>lsid}"
-		/>
-	</m:VBox>
-	<m:VBox class="taxonLinkBox">
-		<m:Label
-			labelFor="linkPOWO"
-			text="Plants of the World (POWO)"
-		/>
-		<Link
-			id="linkPOWO"
-			text="{taxon>lsid}"
-			target="_blank"
-			href="http://powo.science.kew.org/taxon/{taxon>lsid}"
-		/>
-	</m:VBox>
+		<m:VBox class="taxonLinkBox">
+			<m:Label
+				labelFor="linkGBIF"
+				text="Global Biodiversity Information Facility (GBIF)"
+			/>
+			<Link
+				id="linkGBIF"
+				text="{taxon>gbif_id}"
+				target="_blank"
+				href="https://www.gbif.org/species/{taxon>gbif_id}"
+			/>
+			<Button
+				visible="{= (!!${taxon>gbif_id}) &amp;&amp; (${taxon>rank} !== 'gen.') }"
+				icon="sap-icon://refresh"
+				type="Emphasized"
+				tooltip="Refetch GBIF Images"
+				text="Refetch GBIF Images"
+				press=".onRefetchGbifImages"
+			/>
+		</m:VBox>
+		<m:VBox class="taxonLinkBox">
+			<m:Label
+				labelFor="linkIPNI"
+				text="International Plant Names Index (IPNI)"
+			/>
+			<Link
+				id="linkIPNI"
+				text="{taxon>lsid}"
+				target="_blank"
+				href="https://www.ipni.org/n/{taxon>lsid}"
+			/>
+		</m:VBox>
+		<m:VBox class="taxonLinkBox">
+			<m:Label
+				labelFor="linkPOWO"
+				text="Plants of the World (POWO)"
+			/>
+			<Link
+				id="linkPOWO"
+				text="{taxon>lsid}"
+				target="_blank"
+				href="http://powo.science.kew.org/taxon/{taxon>lsid}"
+			/>
+		</m:VBox>
 	</VBox>
-
 	<m:VBox class="taxonCustomNotesBox">
 		<m:Label
 			text="Custom Notes"
@@ -206,6 +195,4 @@
 			visible="{= !${status>/details_editable} }"
 		/>
 	</m:VBox>
-
-	
 </core:FragmentDefinition>

@@ -2,17 +2,16 @@ import BaseController from "plants/ui/controller/BaseController"
 import formatter from "plants/ui/model/formatter"
 import ModelsHelper from "plants/ui/model/ModelsHelper"
 import MessageToast from "sap/m/MessageToast"
-import Event from "sap/ui/base/Event";
-import Button from "sap/m/Button";
+import Button, { Button$PressEvent } from "sap/m/Button";
 import { FBImage, FBImagePlantTag } from "../definitions/Images";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import Input from "sap/m/Input";
-import Token from "sap/m/Token";
+import Input, { Input$SubmitEvent, Input$SuggestionItemSelectedEvent } from "sap/m/Input";
+import Token, { Token$PressEvent } from "sap/m/Token";
 import Navigation from "../customClasses/singleton/Navigation";
-import Icon from "sap/ui/core/Icon";
+import Icon, { Icon$PressEvent } from "sap/ui/core/Icon";
 import List from "sap/m/List";
 import OverflowToolbarButton from "sap/m/OverflowToolbarButton";
-import Tokenizer from "sap/m/Tokenizer";
+import Tokenizer, { Tokenizer$TokenDeleteEvent } from "sap/m/Tokenizer";
 import PlantLookup from "plants/ui/customClasses/plants/PlantLookup";
 import { BPlant } from "../definitions/Plants";
 import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler";
@@ -20,6 +19,8 @@ import ImageDeleter from "../customClasses/images/ImageDeleter";
 import UntaggedImagesHandler from "plants/ui/customClasses/images/UntaggedImagesHandler";
 import ImageKeywordTagger from "plants/ui/customClasses/images/ImageKeywordTagger";
 import ImagePlantTagger from "plants/ui/customClasses/images/ImagePlantTagger";
+import { LRouteMatchedArguments } from "../definitions/entities";
+import { Route$PatternMatchedEvent } from "sap/ui/core/routing/Route";
 
 /**
  * @namespace plants.ui.controller
@@ -43,9 +44,11 @@ export default class Untagged extends BaseController {
 		// this.oComponent.getModel('status').setProperty('/untagged_selectable', false);
 	}
 
-	private _onPatternMatched(oEvent: Event) {
+	private _onPatternMatched(oEvent: Route$PatternMatchedEvent) {
 		// get current plant id
-		this._currentPlantId = parseInt(oEvent.getParameter("arguments").plant_id || this._currentPlantId || "0");
+		const oArguments = <LRouteMatchedArguments>oEvent.getParameter("arguments");
+		// this._currentPlantId = parseInt(oEvent.getParameter("arguments").plant_id || this._currentPlantId || "0");
+		this._currentPlantId = oArguments.plant_id || this._currentPlantId || 0;
 
 		// this is called when closing untagged view as well
 		if (oEvent.getParameter('name') !== 'untagged') {
@@ -69,13 +72,13 @@ export default class Untagged extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Selection Handlers
 	//////////////////////////////////////////////////////////
-	public onSelectAll(oEvent: Event) {
+	public onSelectAll(oEvent: Button$PressEvent) {
 		(<List>this.byId('listImagesUntagged')).getItems().forEach(function (item) {
 			item.setSelected(true);
 		});
 	}
 
-	onSelectNone(oEvent: Event) {
+	onSelectNone(oEvent: Button$PressEvent) {
 		this._resetSelection(<List>this.byId('listImagesUntagged'));
 	}
 
@@ -85,7 +88,7 @@ export default class Untagged extends BaseController {
 		});
 	}
 
-	onToggleSelectManyListMode(oEvent: Event) {
+	onToggleSelectManyListMode(oEvent: Button$PressEvent) {
 		const oSource = <OverflowToolbarButton>oEvent.getSource();
 		const sCurrentType = oSource.getType();  // 'Transparent' or 'Emphasized'
 		const oUntaggedList = <List>this.byId('listImagesUntagged');
@@ -105,7 +108,7 @@ export default class Untagged extends BaseController {
 		}
 	}
 
-	public onDeleteSelected(oEvent: Event) {
+	public onDeleteSelected(oEvent: Button$PressEvent) {
 		//delete 1..n selected images
 		const oList = <List>this.byId('listImagesUntagged');
 		const aSelectedItems = oList.getSelectedItems();
@@ -134,7 +137,7 @@ export default class Untagged extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Image Event Handlers
 	//////////////////////////////////////////////////////////
-	public onAddDetailsPlantToUntaggedImage(oEvent: Event){
+	public onAddDetailsPlantToUntaggedImage(oEvent: Button$PressEvent){
 		//adds current plant in details view to the image in untagged view; triggered from "<-"" Button
 		const oPlant = <BPlant>this.oPlantLookup.getPlantById(this._currentPlantId);
 		const oBindingContextImage = (<Button> oEvent.getSource()).getParent().getBindingContext("untaggedImages");
@@ -148,7 +151,7 @@ export default class Untagged extends BaseController {
 		ImageRegistryHandler.getInstance().resetImagesForPlant(this._currentPlantId);
 	}
 
-	onAddPlantNameToUntaggedImage(oEvent: Event) {
+	onAddPlantNameToUntaggedImage(oEvent: Input$SuggestionItemSelectedEvent) {
 		//adds selected plant in input field (via suggestions) to an image (untagged view)
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oSource = <Input>oEvent.getSource();
@@ -163,7 +166,7 @@ export default class Untagged extends BaseController {
 		oSource.setValue('');
 	}
 
-	onPressImagePlantToken(oEvent: Event){
+	onPressImagePlantToken(oEvent: Token$PressEvent){
 		//navigate to chosen plant in plant details view when clicking on plant token in untagged images view
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oSource = <Token>oEvent.getSource();
@@ -174,7 +177,7 @@ export default class Untagged extends BaseController {
 		Navigation.getInstance().navToPlant(this.oPlantLookup.getPlantById(oPlantTag.plant_id));
 	}
 	
-	onIconPressDeleteImage(oEvent: Event){
+	onIconPressDeleteImage(oEvent: Icon$PressEvent){
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oSource = <Icon>oEvent.getSource();
 		const oImage = <FBImage>oSource.getBindingContext("untaggedImages")!.getObject()
@@ -187,7 +190,7 @@ export default class Untagged extends BaseController {
 		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
 	
-	onInputImageNewKeywordSubmit(oEvent: Event){
+	onInputImageNewKeywordSubmit(oEvent: Input$SubmitEvent){
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oInput = <Input>oEvent.getSource();
 		oInput.setValue('');
@@ -196,7 +199,7 @@ export default class Untagged extends BaseController {
 		new ImageKeywordTagger(this.oComponent.getModel('untaggedImages')).addKeywordToImage(sKeyword, oImage);
 	}
 
-	onTokenizerKeywordImageTokenDelete(oEvent: Event){
+	onTokenizerKeywordImageTokenDelete(oEvent: Tokenizer$TokenDeleteEvent){
 		// note: the token itself has already been deleted; here, we only delete the 
 		// 		 corresponding plant-to-image entry from the model
 		//note: there's a same-named function in details controller doing the same thing for already tagged images
@@ -216,7 +219,7 @@ export default class Untagged extends BaseController {
 		new ImageKeywordTagger(this.oComponent.getModel('untaggedImages')).removeKeywordFromImage(sKeywordTokenKey, oImage);
 	}
 
-	onTokenizerPlantImageTokenDelete(oEvent: Event){
+	onTokenizerPlantImageTokenDelete(oEvent: Tokenizer$TokenDeleteEvent){
 		// note: the token itself has already been deleted; here, we only delete the 
 		// 		 corresponding keyword-to-image entry from the model
 		//note: there's a same-named function in details controller doing the same thing for already tagged images

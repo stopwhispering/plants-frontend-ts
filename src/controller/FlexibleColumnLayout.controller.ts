@@ -1,14 +1,13 @@
 import BaseController from "plants/ui/controller/BaseController"
 import formatter from "plants/ui/model/formatter"
-import MessageBox, { Action } from "sap/m/MessageBox"
+import MessageBox from "sap/m/MessageBox"
 import Util from "plants/ui/customClasses/shared/Util";
 import Filter from "sap/ui/model/Filter"
 import FilterOperator from "sap/ui/model/FilterOperator"
 import Navigation from "plants/ui/customClasses/singleton/Navigation"
-import Router from "sap/ui/core/routing/Router"
-import SearchManager from "sap/f/SearchManager"
+import Router, { Router$BeforeRouteMatchedEvent, Router$RouteMatchedEvent } from "sap/ui/core/routing/Router"
+import SearchManager, { SearchManager$SearchEvent, SearchManager$SuggestEvent } from "sap/f/SearchManager"
 import ListBinding from "sap/ui/model/ListBinding"
-import Event from "sap/ui/base/Event"
 import { UIState } from "sap/f/FlexibleColumnLayoutSemanticHelper"
 import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
 import ChangeTracker from "../customClasses/singleton/ChangeTracker"
@@ -21,6 +20,10 @@ import ShellBarMenuHandler from "../customClasses/shared/ShellBarMenuHandler"
 import Control from "sap/ui/core/Control"
 import MessagePopoverHandler from "../customClasses/shared/MessagePopoverHandler"
 import UntaggedImagesHandler from "../customClasses/images/UntaggedImagesHandler";
+import { LBeforeRouteMatchedArguments, LRouteMatchedArguments } from "../definitions/entities";
+import { FlexibleColumnLayout$StateChangeEvent } from "sap/f/FlexibleColumnLayout";
+import { ShellBar$HomeIconPressedEvent, ShellBar$MenuButtonPressedEvent, ShellBar$NotificationsPressedEvent } from "sap/f/ShellBar";
+import { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace plants.ui.controller
@@ -48,11 +51,11 @@ export default class FlexibleColumnLayout extends BaseController {
 		this._oRouter.attachRouteMatched(this._onRouteMatched, this);
 	}
 
-	private _onBeforeRouteMatched(oEvent: Event) {
+	private _onBeforeRouteMatched(oEvent: Router$BeforeRouteMatchedEvent) {
 		// called each time any route is triggered, i.e. each time one of the views change
 		// updates the layout model: inserts the new layout into it
 		var oLayoutModel = this.oComponent.getModel();
-		var sLayout = oEvent.getParameter('arguments').layout; // e.g. "TwoColumnsMidExpanded"
+		var sLayout = (<LBeforeRouteMatchedArguments>oEvent.getParameter('arguments')).layout; // e.g. "TwoColumnsMidExpanded"
 
 		// If there is no layout parameter, query for the default level 0 layout (normally OneColumn)
 		if (!sLayout) {
@@ -67,9 +70,9 @@ export default class FlexibleColumnLayout extends BaseController {
 		}
 	}
 
-	private _onRouteMatched(oEvent: Event) {
-		var sRouteName = oEvent.getParameter("name"),
-			oArguments = oEvent.getParameter("arguments");
+	private _onRouteMatched(oEvent: Router$RouteMatchedEvent) {
+		const sRouteName = oEvent.getParameter("name")
+		const oArguments = <LRouteMatchedArguments>oEvent.getParameter("arguments");
 
 		this._updateUIElements();
 
@@ -82,7 +85,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	//////////////////////////////////////////////////////////
 	// GUI Handlers
 	//////////////////////////////////////////////////////////	
-	public onStateChanged(oEvent: Event) {
+	public onStateChanged(oEvent: FlexibleColumnLayout$StateChangeEvent) {
 		this._updateUIElements();
 
 		// Replace the URL with the new layout if a navigation arrow was used
@@ -125,7 +128,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Shellbar Handlers
 	//////////////////////////////////////////////////////////	
-	public onShellBarMenuButtonPressed(oEvent: Event) {
+	public onShellBarMenuButtonPressed(oEvent: ShellBar$MenuButtonPressedEvent) {
 		var oSource = <Control>oEvent.getSource();
 
 		if (!this._oShellBarMenuHandler) {
@@ -159,14 +162,14 @@ export default class FlexibleColumnLayout extends BaseController {
 			);
 		} else {
 			//no modified data, therefore call handler directly with 'OK'
-			this._cbRefreshConfirmed(Action.OK);
+			this._cbRefreshConfirmed(MessageBox.Action.OK);
 		}
 	}
 
-	private _cbRefreshConfirmed(eAction: Action) {
+	private _cbRefreshConfirmed(eAction: string) {
 		//callback for onPressButtonUndo's confirmation dialog
 		//revert all changes and return to data since last save or loading of site
-		if (eAction === Action.OK) {
+		if (eAction === MessageBox.Action.OK) {
 			Util.startBusyDialog('Loading...', 'Loading plants, taxa, and images');
 
 			// const oPlantsLoader = new PlantsLoader(this.oComponent.getModel('plants'));
@@ -182,7 +185,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		}
 	}
 
-	onShowUntagged(oEvent: Event) {
+	onShowUntagged(oEvent: Button$PressEvent) {
 		//we need the currently selected plant as untagged requires a middle column
 		//(button triggering this is only visible if middle column is visible)
 		//ex. detail/146/TwoColumnsMidExpanded" --> 146
@@ -195,13 +198,14 @@ export default class FlexibleColumnLayout extends BaseController {
 		});
 	}
 
-	onShellBarSearch(oEvent: Event) {
+	onShellBarSearch(oEvent: SearchManager$SearchEvent) {
 		// navigate to selected plant
+		//@ts-ignore
 		var plantId = oEvent.getParameter('suggestionItem').getBindingContext('plants').getObject().id;
 		Navigation.getInstance().navToPlantDetails(plantId);
 	}
 
-	onShellBarSuggest(oEvent: Event) {
+	onShellBarSuggest(oEvent: SearchManager$SuggestEvent) {
 		var sValue = oEvent.getParameter("suggestValue"),
 			aFilters = [];
 
@@ -239,7 +243,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		oSearchField.suggest();
 	}
 
-	onShellBarNotificationsPressed(oEvent: Event) {
+	onShellBarNotificationsPressed(oEvent: ShellBar$NotificationsPressedEvent) {
 		// open messages popover fragment, called by shellbar button in footer
 		const oSource = <Control>oEvent.getSource();
 
@@ -248,7 +252,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		this._oMessagePopoverHandler.toggleMessagePopover(this.getView(), oSource);
 	}
 
-	onHomeIconPressed(oEvent: Event) {
+	onHomeIconPressed(oEvent: ShellBar$HomeIconPressedEvent) {
 		// go to home site, i.e. master view in single column layout
 		// var oHelper = this.oComponent.getHelper();
 		var oHelper = Navigation.getInstance().getFCLHelper();
@@ -260,7 +264,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Upload Image Handler
 	//////////////////////////////////////////////////////////	
-	onOpenFragmentUploadPhotos(oEvent: Event) {
+	onOpenFragmentUploadPhotos(oEvent: Button$PressEvent) {
 
 		const oImagesModel = this.oComponent.getModel('images');
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');

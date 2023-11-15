@@ -20,21 +20,25 @@ export default class PlantImagesLoader extends ManagedObject {
 		this._oImagesModel = oImagesModel;
 	}
 	
-	public requestImagesForPlant(iPlantId: int): void {
+	public async requestImagesForPlant(iPlantId: int) {
 		// request data from backend
 		// note: unlike plants, properties, events, and taxon, we don't need to bind a path
 		// to the view for images as the image model contains only the current plant's images
 		var sId = encodeURIComponent(iPlantId);
-		var uri = 'plants/' + sId + '/images/';
-
-		$.ajax({
-			url: Util.getServiceUrl(uri),
-			// data: ,
-			context: this,
-			async: true
-		})
-			.done(this._onReceivingImagesForPlant.bind(this, iPlantId))
-			.fail(ErrorHandling.onFail.bind(this, 'Plant Images (GET)'));
+		
+		const oResult: FBImage[] = await Util.get(Util.getServiceUrl('plants/' + sId + '/images/'));
+		this._onReceivingImagesForPlant(iPlantId, oResult);
+		// todo: error handling
+		
+		// var uri = 'plants/' + sId + '/images/';
+		// $.ajax({
+		// 	url: Util.getServiceUrl(uri),
+		// 	// data: ,
+		// 	context: this,
+		// 	async: true
+		// })
+		// 	.done(this._onReceivingImagesForPlant.bind(this, iPlantId))
+		// 	.fail(ErrorHandling.onFail.bind(this, 'Plant Images (GET)'));
 	}
 
 	private _onReceivingImagesForPlant(iPlantId: int, aImages: FBImage[]): void {
