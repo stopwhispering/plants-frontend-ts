@@ -22,7 +22,7 @@ export interface LTagInput {
 }
 
 export interface LRouteMatchedArguments{
-    plant_id: number;
+    plant_id: string;
 }
 
 export interface LBeforeRouteMatchedArguments{

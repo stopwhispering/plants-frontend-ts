@@ -148,8 +148,7 @@ export default class Detail extends BaseController {
 
 		// bind taxon of current plant and events to view (deferred as we may not know the plant name here, yet)
 		const oArguments = <LRouteMatchedArguments>oEvent.getParameter("arguments");
-		// this.mCurrentPlant.plant_id = parseInt(oArguments.plant_id) || this.mCurrentPlant.plant_id || 0;
-		this.mCurrentPlant.plant_id = oArguments.plant_id || this.mCurrentPlant.plant_id || 0;
+		this.mCurrentPlant.plant_id = parseInt(oArguments.plant_id) || this.mCurrentPlant.plant_id || 0;
 
 
 		const oPlantDetailsBootstrap = new PlantDetailsBootstrap(

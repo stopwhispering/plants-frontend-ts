@@ -47,8 +47,7 @@ export default class Untagged extends BaseController {
 	private _onPatternMatched(oEvent: Route$PatternMatchedEvent) {
 		// get current plant id
 		const oArguments = <LRouteMatchedArguments>oEvent.getParameter("arguments");
-		// this._currentPlantId = parseInt(oEvent.getParameter("arguments").plant_id || this._currentPlantId || "0");
-		this._currentPlantId = oArguments.plant_id || this._currentPlantId || 0;
+		this._currentPlantId = parseInt(oArguments.plant_id) || this._currentPlantId || 0;
 
 		// this is called when closing untagged view as well
 		if (oEvent.getParameter('name') !== 'untagged') {

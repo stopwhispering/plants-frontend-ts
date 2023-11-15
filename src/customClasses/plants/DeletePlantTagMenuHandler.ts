@@ -8,6 +8,7 @@ import Event
 import Control from "sap/ui/core/Control";
 import ObjectStatus from "sap/m/ObjectStatus";
 import JSONModel from "sap/ui/model/json/JSONModel";
+import { MenuItem$PressEvent } from "sap/m/MenuItem";
 /**
  * @namespace plants.ui.customClasses.plants
  */
@@ -51,7 +52,7 @@ export default class DeletePlantTagMenuHandler extends ManagedObject {
         }
     }
 
-    pressDeleteTag(oEvent: Event) {
+    pressDeleteTag(oEvent: MenuItem$PressEvent) {
         var oSource = <ObjectStatus>oEvent.getSource();
         var oContext = oSource.getBindingContext('plants');
         // get position in tags array
