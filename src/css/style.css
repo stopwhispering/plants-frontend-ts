@@ -85,3 +85,19 @@
   font-weight: bold; */
   background-color: #f1c232;
 }
+
+.taxonCustomNotesBox{
+  background-color: rgb(254, 247, 227);
+  border-radius: 5px;
+  border: 2px solid #d3d3d3;
+  padding: 5px;
+  margin-block-end: 0.3rem;
+}
+
+.taxonLinkBox{
+  background-color: rgb(236, 254, 235);
+  border-radius: 5px;
+  border: 2px solid #d3d3d3;
+  padding: 5px;
+  margin-block-end: 0.3rem;
+}

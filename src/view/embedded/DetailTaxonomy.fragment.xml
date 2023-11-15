@@ -1,129 +1,211 @@
 <core:FragmentDefinition
 	xmlns="sap.m"
 	xmlns:m="sap.m"
-	xmlns:core="sap.ui.core">
+	xmlns:core="sap.ui.core"
+>
+	<HBox>
+		<VBox width="50%">
+			<m:VBox class="sapUiSmallMarginBottom">
+				<m:Label
+					text="Name"
+					labelFor="textName"
+				/>
+				<m:Text
+					id="textName"
+					text="{= (${taxon>is_custom}) ? (${taxon>name} + ' (Custom Name)' ) : (${taxon>name}) }"
+				/>
+			</m:VBox>
+		</VBox>
+		<VBox>
+			<m:VBox class="sapUiSmallMarginBottom">
+				<m:Label
+					text="{i18n>authors}"
+					labelFor="textAuthors"
+				/>
+				<m:Text
+					id="textAuthors"
+					text="{taxon>authors} ({taxon>name_published_in_year})"
+				/>
+			</m:VBox>
+			<m:VBox>
+				<m:Label
+					labelFor="textTaxonomicStatus"
+					text="{i18n>taxonomic_status}"
+				/>
+				<m:Text
+					id="textTaxonomicStatus"
+					text="{taxon>taxonomic_status}"
+				/>
+			</m:VBox>
+		</VBox>
+	</HBox>
+
 	
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label text="Name" labelFor="textName"/>
+	<HBox>
+		<VBox width="50%">
+			<m:VBox class="sapUiSmallMarginBottom">
+				<m:Label
+					text="{i18n>rank}"
+					labelFor="textRank"
+				/>
+				<m:Text
+					id="textRank"
+					text="{taxon>rank}"
+				/>
+			</m:VBox>
+			<m:VBox>
+				<m:Label
+					text="{i18n>familia}"
+					labelFor="textFamily"
+				/>
+				<m:Text
+					id="textFamily"
+					text="{taxon>family}"
+				/>
+			</m:VBox>
+		</VBox>
+		<VBox>
+			<m:VBox class="sapUiSmallMarginBottom">
+				<m:Label
+					text="{i18n>genus}"
+					labelFor="textGenus"
+				/>
+				<m:Text
+					id="textGenus"
+					text="{taxon>genus}"
+					visible="{= !${taxon>hybridgenus} }"
+				/>
+				<MessageStrip
+					text="Genus is a hybrid"
+					showIcon="true"
+					visible="{= ${taxon>hybridgenus} === true }"
+				/>
+			</m:VBox>
+			<m:VBox>
+				<m:Label
+					text="{i18n>species}"
+					labelFor="textSpecies"
+				/>
+				<m:Text
+					id="textSpecies"
+					text="{taxon>species}"
+					visible="{= !${taxon>hybrid} }"
+				/>
+				<MessageStrip
+					text="Species is a hybrid"
+					showIcon="true"
+					visible="{= ${taxon>hybrid} === true }"
+				/>
+			</m:VBox>
+		</VBox>
+	</HBox>
+
+	<m:VBox>
+		<m:Label
+			labelFor="textSynonyms"
+			text="Synonyms"
+		/>
 		<m:Text
-			id="textName"
-			text="{= (${taxon>is_custom}) ? (${taxon>name} + ' (Custom Name)' ) : (${taxon>name}) }"/>
-	</m:VBox>
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label text="{i18n>rank}" labelFor="textRank"/>
-		<m:Text id="textRank" text="{taxon>rank}"/>
-	</m:VBox>	
-
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label text="{i18n>familia}" labelFor="textFamily"/>
-		<m:Text id="textFamily" text="{taxon>family}"/>
-	</m:VBox>	
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label text="{i18n>genus}" labelFor="textGenus"/>
-		<m:Text id="textGenus" text="{taxon>genus}" visible="{= !${taxon>hybridgenus} }"/>
-		<MessageStrip
-			text="Genus is a hybrid"
-			showIcon="true"
-			visible="{= ${taxon>hybridgenus} === true }">
-		</MessageStrip>							
-	</m:VBox>
-
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label text="{i18n>species}" labelFor="textSpecies"/>
-		<m:Text id="textSpecies" text="{taxon>species}" visible="{= !${taxon>hybrid} }"/>
-		<MessageStrip
-			text="Species is a hybrid"
-			showIcon="true"
-			visible="{= ${taxon>hybrid} === true }">
-		</MessageStrip>			
-	</m:VBox>
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label text="{i18n>authors}" labelFor="textAuthors" />
-		<m:Text id="textAuthors" text="{taxon>authors} ({taxon>name_published_in_year})"/>
-	</m:VBox>		
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label labelFor="textTaxonomicStatus" text="{i18n>taxonomic_status}"/>
-		<m:Text id="textTaxonomicStatus" text="{taxon>taxonomic_status}"/>
-	</m:VBox>
-
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label labelFor="textBasionym" text="Basionym"/>
-		<m:Text id="textBasionym" text="{taxon>basionym}"/>
-	</m:VBox>		
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label labelFor="textSynonyms" text="Synonyms"/>
-		<m:Text id="textSynonyms" text="{taxon>synonyms_concat}" visible="{= (!${taxon>synonym}) }"/>
+			id="textSynonyms"
+			text="{taxon>synonyms_concat}"
+			visible="{= (!${taxon>synonym}) }"
+		/>
 		<MessageStrip
 			text="{taxon>synonyms_concat}"
 			type="Warning"
 			showIcon="true"
-			visible="{= ${taxon>synonym} === true }">
-		</MessageStrip>		
-	</m:VBox>	
+			visible="{= ${taxon>synonym} === true }"
+		/>
+	</m:VBox>
+	
 
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label text="Custom Notes" labelFor="textCustomNotes"/>
-		<m:TextArea
-			cols="35"
-			value="{taxon>custom_notes}" 
-			textAlign="Left"
-			visible="{status>/details_editable}"/>  		
-		<m:Text 
-			id="textCustomNotes"
-			text="{taxon>custom_notes}"
-			visible="{= !${status>/details_editable} }"/>
-	</m:VBox>
-	<VBox></VBox>
-	
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label labelFor="linkGBIF" text="Global Biodiversity Information Facility (GBIF)"/>
-		<!-- <m:HBox> -->
-			<Link
-				id="linkGBIF"
-				text="{taxon>gbif_id}"
-				target="_blank"
-				href="https://www.gbif.org/species/{taxon>gbif_id}"/>
-			<Button
-				visible="{= !!${taxon>gbif_id} &amp;&amp; ${taxon>gbif_id}.length > 0}"
-				icon="sap-icon://refresh"
-				type="Emphasized"
-				tooltip="Refetch GBIF Images"
-				text="Refetch GBIF Images"
-				press=".onRefetchGbifImages"/>
-		<!-- </m:HBox> -->
-	</m:VBox>
-	
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label labelFor="linkIPNI" text="International Plant Names Index (IPNI)"/>
-		<Link
-			id="linkIPNI"
-			text="{taxon>lsid}"
-			target="_blank"
-			href="https://www.ipni.org/n/{taxon>lsid}"/>
-	</m:VBox>	
-	
-	<m:VBox class="sapUiTinyMarginBottom" >
-		<m:Label labelFor="linkPOWO" text="Plants of the World (POWO)"/>
-		<Link
-			id="linkPOWO"
-			text="{taxon>lsid}"
-			target="_blank"
-			href="http://powo.science.kew.org/taxon/{taxon>lsid}"/>
-	</m:VBox>	
-	
-	
-	<m:VBox class="" >
-		<m:Label labelFor="textDistribution" text="Distribution"/>
-		<m:Text id="textDistribution" text="{taxon>distribution_concat}"/>
+	<m:VBox class="">
+		<m:Label
+			labelFor="textDistribution"
+			text="Distribution"
+		/>
+		<m:Text
+			id="textDistribution"
+			text="{taxon>distribution_concat}"
+		/>
 		<Button
 			visible="{= !!${taxon>distribution_concat} &amp;&amp; ${taxon>distribution_concat}.length > 0}"
 			icon="sap-icon://geographic-bubble-chart"
 			type="Emphasized"
 			tooltip="{i18n>show_map}"
 			text="{i18n>show_map}"
-			press=".onShowMap"/>
+			press=".onShowMap"
+		/>
 	</m:VBox>
 
+	<VBox>
+	<!-- <VBox/> -->
+	<m:VBox class="taxonLinkBox">
+		<m:Label
+			labelFor="linkGBIF"
+			text="Global Biodiversity Information Facility (GBIF)"
+		/>
+		<!-- <m:HBox> -->
+		<Link
+			id="linkGBIF"
+			text="{taxon>gbif_id}"
+			target="_blank"
+			href="https://www.gbif.org/species/{taxon>gbif_id}"
+		/>
+		<Button
+			visible="{= !!${taxon>gbif_id} &amp;&amp; ${taxon>gbif_id}.length > 0}"
+			icon="sap-icon://refresh"
+			type="Emphasized"
+			tooltip="Refetch GBIF Images"
+			text="Refetch GBIF Images"
+			press=".onRefetchGbifImages"
+		/>
+		<!-- </m:HBox> -->
+	</m:VBox>
+
+	<m:VBox class="taxonLinkBox">
+		<m:Label
+			labelFor="linkIPNI"
+			text="International Plant Names Index (IPNI)"
+		/>
+		<Link
+			id="linkIPNI"
+			text="{taxon>lsid}"
+			target="_blank"
+			href="https://www.ipni.org/n/{taxon>lsid}"
+		/>
+	</m:VBox>
+	<m:VBox class="taxonLinkBox">
+		<m:Label
+			labelFor="linkPOWO"
+			text="Plants of the World (POWO)"
+		/>
+		<Link
+			id="linkPOWO"
+			text="{taxon>lsid}"
+			target="_blank"
+			href="http://powo.science.kew.org/taxon/{taxon>lsid}"
+		/>
+	</m:VBox>
+	</VBox>
+
+	<m:VBox class="taxonCustomNotesBox">
+		<m:Label
+			text="Custom Notes"
+			labelFor="textCustomNotes"
+		/>
+		<m:TextArea
+			cols="35"
+			value="{taxon>custom_notes}"
+			textAlign="Left"
+			visible="{status>/details_editable}"
+		/>
+		<m:Text
+			id="textCustomNotes"
+			text="{taxon>custom_notes}"
+			visible="{= !${status>/details_editable} }"
+		/>
+	</m:VBox>
 
 	
 </core:FragmentDefinition>
