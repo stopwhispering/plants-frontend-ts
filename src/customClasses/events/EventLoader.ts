@@ -28,15 +28,6 @@ export default class EventLoader extends ManagedObject {
 
 		const oResult: BResultsEventResource = await Util.get(Util.getServiceUrl('events/' + iPlantId));
 		this._cbReceivingEventsForPlant(iPlantId, oResult);
-		// todo error handling
-		// const uri = 'events/' + iPlantId;
-		// $.ajax({
-		// 	url: Util.getServiceUrl(uri),
-		// 	context: this,
-		// 	async: true
-		// })
-		// 	.done(this._cbReceivingEventsForPlant.bind(this, iPlantId))
-		// 	.fail(ErrorHandling.onFail.bind(this, 'Event (GET)'))
 	}
 
 	private _cbReceivingEventsForPlant(plantId: int, oData: BResultsEventResource): void {
