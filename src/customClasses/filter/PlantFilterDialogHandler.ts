@@ -3,7 +3,7 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import Util from "../shared/Util";
 import ListBinding from "sap/ui/model/ListBinding";
 import View from "sap/ui/core/mvc/View";
-import ViewSettingsDialog from "sap/m/ViewSettingsDialog";
+import ViewSettingsDialog, { ViewSettingsDialog$ResetFiltersEvent } from "sap/m/ViewSettingsDialog";
 import Control from "sap/ui/core/Control";
 import { LFilterHiddenChoice } from "plants/ui/definitions/PlantsLocal";
 import SegmentedButton from "sap/m/SegmentedButton";
@@ -159,8 +159,8 @@ export default class PlantFilterDialogHandler extends ManagedObject {
         oStatusModelData.filterBarLabel = sFilterString;
 	}
 
-	public onResetFilters(oEvent: Event): void {
-		var sUrl = Util.getServiceUrl('selection_data');
+	public onResetFilters(oEvent: ViewSettingsDialog$ResetFiltersEvent): void {
+		var sUrl = Util.getServiceUrl('selection_data/');
 		this._oTaxonTreeModel.loadData(sUrl);
 	}
 
