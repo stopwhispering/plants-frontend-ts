@@ -134,6 +134,7 @@
 											width="130px"
 											class="sapUiTinyMargin"
 											value="{plants>field_number}" 
+											endButtonPress=".onEndButtonPressToDash"
 											visible="{status>/details_editable}"/> 
 										<ObjectStatus
 											class="sapUiTinyMargin"
@@ -149,6 +150,7 @@
 										<custom:InputWithIcon 
 											width="130px"
 											class="sapUiTinyMargin"
+											endButtonPress=".onEndButtonPressToDash"
 											value="{plants>geographic_origin}" 
 											visible="{status>/details_editable}"/> 
 										<ObjectStatus
@@ -169,6 +171,8 @@
 											value="{plants>nursery_source}"
 											visible="{status>/details_editable}"
 											
+											endButtonPress=".onEndButtonPressToDash"
+
 											showSuggestion="true"
 											showValueHelp="false"
 											suggest="onSuggestNursery"

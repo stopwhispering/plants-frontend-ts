@@ -10,7 +10,6 @@ declare module "./HoverImage" {
         hover?: (event: Event) => void;
     }
 
-
     export default interface HoverImage {
 
         // event: hover

@@ -1,6 +1,7 @@
 import Image from "sap/m/Image";
 import type { MetadataOptions } from "sap/ui/core/Element";
 import RenderManager from "sap/ui/core/RenderManager";
+import includeStylesheet from "sap/ui/dom/includeStylesheet";
 
 /**
  * @namespace plants.ui.control
@@ -16,6 +17,12 @@ export default class HoverImage extends Image {
       events: {
         hover: {},  // onmouseover, onmouseout; existing events are not overwritten
       }
+    }
+
+    init(){
+        super.init();
+        includeStylesheet('control/HoverImage.css');
+        // this.addStyleClass("hover-image");
     }
 
     onmouseover = () => {  
