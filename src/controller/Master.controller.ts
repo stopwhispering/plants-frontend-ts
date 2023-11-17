@@ -121,6 +121,11 @@ export default class Master extends BaseController {
 	// Preview Image Popup Handlers
 	//////////////////////////////////////////////////////////
 	public onHoverImage(oEvent: HoverImage$HoverEvent): void {
+		// only for non-touch devices
+		const is_touch = this.getOwnerComponent().getModel('device').getProperty('/support/touch')
+		if (is_touch)
+			return;
+
 		const sAction = oEvent.getParameter('action');
 		if (sAction === 'on') {
 			this._onHoverOnImage(<Image>oEvent.getSource());
