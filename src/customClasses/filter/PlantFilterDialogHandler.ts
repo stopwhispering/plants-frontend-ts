@@ -160,7 +160,7 @@ export default class PlantFilterDialogHandler extends ManagedObject {
 	}
 
 	public onResetFilters(oEvent: ViewSettingsDialog$ResetFiltersEvent): void {
-		var sUrl = Util.getServiceUrl('selection_data/');
+		var sUrl = Util.getServiceUrl('selection_data');
 		this._oTaxonTreeModel.loadData(sUrl);
 	}
 

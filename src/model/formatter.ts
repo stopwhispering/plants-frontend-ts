@@ -190,22 +190,6 @@ export default class formatter{
 		var iDaysSince = Util.getDaysFromToday(sLastImageDate);
 		return (iDaysSince > 380) ? true : false;
 	}
-
-	// // todo redo this functionality or remove it
-	// avatarSrc(oPlant, sPreviewImage){
-	// 	// updated when filter/settings confirmed, sets chosen preview image in plants table
-	// 	// default: favourite image; set in component
-	// 	switch (sPreviewImage){
-	// 		case 'favourite_image':
-	// 			return oPlant.url_preview;
-	// 		case 'latest_image':
-	// 			try{
-	// 				return oPlant.latest_image.path_thumb;
-	// 			} catch(e) {
-	// 				return undefined;	
-	// 			}
-	// 	}
-	// },
 	
 	public visibleByPropagationType(sPropagationType: string){
 		switch (sPropagationType){
@@ -300,7 +284,9 @@ export default class formatter{
 
 	public getSrcMasterHoverImage(preview_image_id: int){
 		// get url for image in preview popup openened when hovering in master list
-		return Util.getImageIdUrl(preview_image_id, 'px', 1200, 800);
+		if (!!preview_image_id){
+			return Util.getImageIdUrl(preview_image_id, 'px', 1200, 800);
+		}
 	}
 
 }

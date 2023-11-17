@@ -6,10 +6,10 @@
 	xmlns="sap.m"
 	xmlns:core="sap.ui.core"
 	xmlns:f="sap.f"
+	xmlns:custom="plants.ui.control"
 	class="sapUiSizeCompact"
-	core:require="{
-		addMouseOverDelegate: 'plants/ui/model/addMouseOverDelegate'
-	}"
+	
+	
 >
 	<f:DynamicPage
 		toggleHeaderOnTitleClick="false"
@@ -132,6 +132,7 @@
 					</Column>
 					<Column
 						hAlign="End"
+						width="4rem"
 						styleClass="myVeryCompact"
 					>
 						<Text text=""/>
@@ -234,20 +235,16 @@
 								title="{plants>current_soil/soil_name}"
 								text="{plants>current_soil/date}"
 							/>
-							<Avatar
-								id="idAvatar"
-								showBorder="true"
-								initials="{= ${plants>plant_name}.substr(0,2) }"
-								tooltip="{
-									path: 'plants>preview_image_id',
-									formatter: 'addMouseOverDelegate'
-								}"
+							<custom:HoverImage
+								width="48px"
+								height="48px"
+								visible="{= !!${plants>preview_image_id} }"
 								src="{
 									path: 'plants>preview_image_id',
 									formatter: '.formatter.getSrcAvatarImageS'
 								}"
-								displayShape="Square"
-							/>
+								hover=".onHoverImage"
+								/>
 						</cells>
 					</ColumnListItem>
 				</items>

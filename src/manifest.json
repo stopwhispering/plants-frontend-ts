@@ -52,6 +52,9 @@
 			"css": [
 				{
 					"uri": "css/style.css"
+				},
+				{
+					"uri": "control/HoverImage.css"
 				}
 			]
 		},

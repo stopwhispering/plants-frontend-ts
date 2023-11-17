@@ -5,9 +5,7 @@ import Navigation from "plants/ui/customClasses/singleton/Navigation"
 import Popover from "sap/m/Popover"
 import Table from "sap/m/Table"
 import ColumnListItem from "sap/m/ColumnListItem"
-import Event from "sap/ui/base/Event"
 import ListBinding from "sap/ui/model/ListBinding"
-import Avatar from "sap/m/Avatar"
 import { BPlant, PlantRead } from "../definitions/Plants"
 import Label from "sap/m/Label"
 import PlantSearcher from "plants/ui/customClasses/filter/PlantSearcher"
@@ -21,6 +19,9 @@ import NewPlantTagPopoverHandler from "../customClasses/plants/NewPlantTagPopove
 import { ListItemBase$PressEvent } from "sap/m/ListItemBase"
 import { Button$PressEvent } from "sap/m/Button"
 import { SearchField$SearchEvent } from "sap/m/SearchField"
+import Control from "sap/ui/core/Control"
+import Image from "sap/m/Image"
+import { HoverImage$HoverEvent, HoverImage$HoverEventParameters } from "../control/HoverImage"
 
 /**
  * @namespace plants.ui.controller
@@ -119,20 +120,29 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////
 	// Preview Image Popup Handlers
 	//////////////////////////////////////////////////////////
-	public onHoverImage(oAvatar: Avatar, evtDelegate: JQuery.Event): void {
-		// apply _onHoverImageShow function to popover
-		var oPlantBindingContext = oAvatar.getBindingContext('plants')!;
+	public onHoverImage(oEvent: HoverImage$HoverEvent): void {
+		const sAction = oEvent.getParameter('action');
+		if (sAction === 'on') {
+			this._onHoverOnImage(<Image>oEvent.getSource());
+			return;
+		} else if (sAction === 'out') {
+			this._onHoverAwayFromImage();
+			return;
+		}
+	}
+
+	private _onHoverOnImage(oSource: Control): void {
+		var oPlantBindingContext = oSource.getBindingContext('plants')!;
 		const oPlant = <PlantRead>oPlantBindingContext.getObject();
 		if (!oPlant.preview_image_id)
 			return;
 
 		if (!this._oImagePreviewPopoverHandler)
 			this._oImagePreviewPopoverHandler = new ImagePreviewPopoverHandler()
-		this._oImagePreviewPopoverHandler.openImagePreviewPopover(this.getView(), oAvatar, oPlantBindingContext );
+		this._oImagePreviewPopoverHandler.openImagePreviewPopover(this.getView(), oSource, oPlantBindingContext );
 	}
 
-	// todo get rid of this, move to ImagePreviewPopoverHandler
-	public onHoverAwayFromImage(oAvatar: Avatar, evtDelegate: JQuery.Event): void {
+	private _onHoverAwayFromImage(): void {
 		const oPopover = <Popover>this.byId('popoverPopupImage');
 		oPopover.close();
 	}
@@ -178,5 +188,4 @@ export default class Master extends BaseController {
 
 		this._oNewPlantTagPopoverHandler.openNewPlantTagPopover(aSelectedPlants, oSource, this.getView());
 	}
-
 }
