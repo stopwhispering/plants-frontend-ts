@@ -238,6 +238,7 @@
 							<custom:HoverImage
 								width="48px"
 								height="48px"
+								densityAware="true"
 								visible="{= !!${plants>preview_image_id} }"
 								src="{
 									path: 'plants>preview_image_id',
