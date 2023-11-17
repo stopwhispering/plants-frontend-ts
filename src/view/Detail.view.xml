@@ -30,13 +30,23 @@
 						alignItems="Center"
 						class="sapUiTinyMarginEnd"
 					>
-						<m:Avatar
+						<m:Image
+							width="48px"
+							densityAware="true"
+							visible="{= !!${plants>preview_image_id} }"
+							src="{
+								path: 'plants>preview_image_id',
+								formatter: '.formatter.getSrcAvatarImageS'
+							}"
+							class="roundedBorders"
+							/>
+						<!-- <m:Avatar
 							src="{
 								path: 'plants>preview_image_id',
 								formatter: '.formatter.getSrcAvatarImageS'
 							}"
 							displayShape="Square"
-						/>
+						/> -->
 						<m:Title
 							level="H3"
 							text="{plants>plant_name}"
@@ -147,7 +157,17 @@
 				wrap="Wrap"
 				fitContainer="true"
 			>
-				<m:Avatar
+				<m:Image
+					width="80px"
+					densityAware="true"
+					visible="{= !!${plants>preview_image_id} }"
+					src="{
+						path: 'plants>preview_image_id',
+						formatter: '.formatter.getSrcAvatarImageL'
+					}"
+					class="sapUiTinyMarginEnd roundedBorders"
+					/>
+				<!-- <m:Avatar
 					src="{
 						path: 'plants>preview_image_id',
 						formatter: '.formatter.getSrcAvatarImageL'
@@ -155,7 +175,7 @@
 					displaySize="L"
 					displayShape="Square"
 					class="sapUiTinyMarginEnd"
-				/>
+				/> -->
 				<m:VBox class="sapUiSmallMarginEnd">
 					<m:Label text="{i18n>Id}"/>
 					<m:Label text="{plants>id}"/>
