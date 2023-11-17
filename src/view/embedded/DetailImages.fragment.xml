@@ -65,6 +65,7 @@
                     <!-- image plus sideicons -->
                     <HBox>
                         <Image
+                            densityAware="true"
                             src="{
                                     path: 'images>id',
                                     formatter: '.formatter.getSrcImageThumbnail'
