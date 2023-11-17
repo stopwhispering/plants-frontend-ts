@@ -130,9 +130,12 @@
 					>
 						<Text text="Soil"/>
 					</Column>
+					<!-- todo
+					
+						width="4rem" -->
 					<Column
-						hAlign="End"
 						width="4rem"
+						hAlign="End"
 						styleClass="myVeryCompact"
 					>
 						<Text text=""/>
@@ -235,9 +238,22 @@
 								title="{plants>current_soil/soil_name}"
 								text="{plants>current_soil/date}"
 							/>
+							<!-- <HBox> -->
+							<!-- <Avatar
+								src="{
+									path: 'plants>preview_image_id',
+									formatter: '.formatter.getSrcAvatarImageS'
+								}"
+								displaySize="S"
+								displayShape="Square"
+								class="sapUiTinyMarginEnd"
+								/> -->
+								<!-- mode="Background"
+								backgroundSize="contain"
+								height="48px"
+								backgroundPosition="center center" -->
 							<custom:HoverImage
 								width="48px"
-								height="48px"
 								densityAware="true"
 								visible="{= !!${plants>preview_image_id} }"
 								src="{
@@ -246,6 +262,7 @@
 								}"
 								hover=".onHoverImage"
 								/>
+							<!-- </HBox> -->
 						</cells>
 					</ColumnListItem>
 				</items>
