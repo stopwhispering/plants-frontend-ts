@@ -24,4 +24,6 @@ declare module "./HoverImage" {
     export interface HoverImage$HoverEventParameters {
         action: LHoverAction;
     }
+
+    export type HoverImage$PressEvent = Event<PressEventParameters, HoverImage>; 
 }

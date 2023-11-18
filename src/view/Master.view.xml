@@ -238,31 +238,16 @@
 								title="{plants>current_soil/soil_name}"
 								text="{plants>current_soil/date}"
 							/>
-							<!-- <HBox> -->
-							<!-- <Avatar
-								src="{
-									path: 'plants>preview_image_id',
-									formatter: '.formatter.getSrcAvatarImageS'
-								}"
-								displaySize="S"
-								displayShape="Square"
-								class="sapUiTinyMarginEnd"
-								/> -->
-								<!-- mode="Background"
-								backgroundSize="contain"
-								height="48px"
-								backgroundPosition="center center" -->
 							<custom:HoverImage
-								width="48px"
+								width="80px"
 								densityAware="true"
 								visible="{= !!${plants>preview_image_id} }"
 								src="{
 									path: 'plants>preview_image_id',
-									formatter: '.formatter.getSrcAvatarImageS'
+									formatter: '.formatter.getSrcAvatarImageL'
 								}"
 								hover=".onHoverImage"
 								/>
-							<!-- </HBox> -->
 						</cells>
 					</ColumnListItem>
 				</items>

@@ -137,7 +137,7 @@ export default class Master extends BaseController {
 	}
 
 	private _onHoverOnImage(oSource: Control): void {
-		var oPlantBindingContext = oSource.getBindingContext('plants')!;
+		const oPlantBindingContext = oSource.getBindingContext('plants')!;
 		const oPlant = <PlantRead>oPlantBindingContext.getObject();
 		if (!oPlant.preview_image_id)
 			return;
