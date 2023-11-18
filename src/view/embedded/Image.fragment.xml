@@ -1,18 +1,16 @@
 <core:FragmentDefinition
 	xmlns="sap.m"
-	xmlns:f="sap.f"
 	xmlns:core="sap.ui.core">
 	
-	<f:GridListItem
-		id="eventImageListItem"
-		class="noBorder">
-		
+	<CustomListItem
+		class="sapUiTinyMarginEnd">
+			<!-- densityAware="true" todo asdf -->
 	    <Image
+			height="90px"
 			src="{
 					path: 'events>id',
 					formatter: '.formatter.getSrcImage120px'
-					}"	
-	    	width="120px">
+					}"	>
 	    	
 	    	<detailBox>
 				<LightBox>
@@ -30,10 +28,6 @@
 			
 		</Image>
 	
-		<f:layoutData>
-			<FlexItemData growFactor="1" shrinkFactor="0" />
-		</f:layoutData>
-	</f:GridListItem>
+	</CustomListItem>
 
-	
 </core:FragmentDefinition>

@@ -1,57 +1,23 @@
 <core:FragmentDefinition
 	xmlns="sap.m"
-	xmlns:f="sap.f"
-	xmlns:grid="sap.ui.layout.cssgrid"
 	xmlns:core="sap.ui.core">
 
-	<f:GridList
-			id="eventImageContainer"
-			items="{ path: 'events>images' }"
-			showNoData="false"
-			delete=".onIconPressUnassignImageFromEvent"
-			showSeparators="None"
-			mode="{= (${status>/details_editable}) ? 'Delete' : 'None' }">
-		
-		<!--aggregation binding in controller-->
+	<List
+		class="horizontalList"
+		id="eventImageContainer"
+		items="{ path: 'events>images' }"
+		showNoData="false"
+		delete=".onIconPressUnassignImageFromEvent"
+		showSeparators="None"
+		mode="{= (${status>/details_editable}) ? 'Delete' : 'None' }">
 
-		<!--no of columns set in controller-->
-
-		<f:customLayout>
-			<grid:GridResponsiveLayout>
-				<grid:layoutS>
-					<grid:GridSettings
-							gridTemplateColumns="repeat(auto-fit, 120px)"
-							gridGap="0.25rem 0.25rem">
-					</grid:GridSettings>
-				</grid:layoutS>
-				<grid:layoutM>
-					<grid:GridSettings
-							gridTemplateColumns="repeat(auto-fit, 120px)"
-							gridGap="0.25rem 0.25rem">
-					</grid:GridSettings>
-				</grid:layoutM>
-				<grid:layoutL>
-					<grid:GridSettings
-							gridTemplateColumns="repeat(auto-fit, 120px)"
-							gridGap="0.25rem 0.25rem">
-					</grid:GridSettings>
-				</grid:layoutL>
-				<grid:layoutXL>
-					<grid:GridSettings
-							gridTemplateColumns="repeat(auto-fit, 120px)"
-							gridGap="0.25rem 0.25rem">
-					</grid:GridSettings>
-				</grid:layoutXL>
-			</grid:GridResponsiveLayout>
-		</f:customLayout>
-
-		<f:items>
+		<items>
 			<core:Fragment
 				fragmentName="plants.ui.view.embedded.Image"
 				type="XML"
 			/>
-		</f:items>
-
-	</f:GridList>	
+		</items>
+		
+	</List>
 
 </core:FragmentDefinition>

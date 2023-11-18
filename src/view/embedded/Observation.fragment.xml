@@ -1,46 +1,43 @@
 <core:FragmentDefinition
 	xmlns="sap.m"
-	xmlns:core="sap.ui.core">
+	xmlns:core="sap.ui.core"
+>
 	<!--observation segment-->
-	<VBox 
-	wrap="Wrap">
-		
-        <VBox visible="{ path: 'events>observation/diseases',
-					     formatter: '.formatter.existsAndNotEmpty'
-						}">
-			<Label text="Diseases" class="sapUiTinyMarginEnd"
-				design="Bold" />
+	<VBox
+		width="10rem">
+		<VBox visible="{
+			path: 'events>observation/diseases',
+			formatter: '.formatter.existsAndNotEmpty'
+		}">
 			<Label
-				text="{path: 'events>observation/diseases'}"
-				wrapping="true"/>
+				text="Diseases"
+				class="sapUiTinyMarginEnd"
+				design="Bold"
+			/>
+			<Label
+				text="{
+					path: 'events>observation/diseases'
+				}"
+				wrapping="true"
+			/>
 		</VBox>
-		<VBox visible="{ path: 'events>observation/height',
-					     formatter: '.formatter.existsAndNotEmpty'
-						}"
-			 class="sapUiTinyMarginTop">
-			<Label text="Height (in cm)" class="sapUiTinyMarginEnd"/>
+		<VBox
+			visible="{
+				path: 'events>observation/observation_notes',
+				formatter: '.formatter.existsAndNotEmpty'
+			}"
+			class="sapUiTinyMarginTop"
+		>
 			<Label
-				text="{path: 'events>observation/height'}"
-				wrapping="true"/>
-		</VBox>
-		<VBox visible="{ path: 'events>observation/stem_max_diameter',
-					     formatter: '.formatter.existsAndNotEmpty'
-						}"
-			 class="sapUiTinyMarginTop">
-			<Label text="Diameter (max., in cm.)" class="sapUiTinyMarginEnd"/>
+				text="Notes"
+				class="sapUiTinyMarginEnd"
+			/>
 			<Label
-				text="{path: 'events>observation/stem_max_diameter'}"
-				wrapping="true"/>
-		</VBox>
-		<VBox visible="{ path: 'events>observation/observation_notes',
-					     formatter: '.formatter.existsAndNotEmpty'
-						}"
-			 class="sapUiTinyMarginTop">
-			<Label text="Notes" class="sapUiTinyMarginEnd"/>
-			<Label
-				text="{path: 'events>observation/observation_notes'}"
-				wrapping="true"/>
+				text="{
+					path: 'events>observation/observation_notes'
+				}"
+				wrapping="true"
+			/>
 		</VBox>
 	</VBox>
-	
 </core:FragmentDefinition>

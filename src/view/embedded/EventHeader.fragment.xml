@@ -3,16 +3,23 @@
 	xmlns:l="sap.ui.layout"
 	xmlns:core="sap.ui.core"
 >
-	<VBox>
+	<VBox width="10rem">
 		<!--date-->
-		<ObjectIdentifier
-			title="{
-				path: 'events>date'
-			}"
-			text="{
-				path: 'events>event_notes'
-			}"
-		/>
+		<VBox>
+			<Label
+				text="{
+					path: 'events>date'
+				}"
+				class="sapUiTinyMarginBottom"
+			/>
+			<Label
+				text="{
+					path: 'events>event_notes'
+				}"
+				wrappingType="Hyphenated"
+				wrapping="true"
+			/>
+		</VBox>
 		<Button
 			icon="sap-icon://write-new-document"
 			tooltip="Edit"

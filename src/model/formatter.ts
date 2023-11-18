@@ -33,26 +33,6 @@ export default class formatter{
 		}
 	}
 	
-	public addDummyIfEmpty(s: string): string{
-		if (s.length === 0){
-			return '_';
-		} else {
-			return s;
-		}
-	}
-	
-	public propertyStateByType(propertyType: string){
-		// returns an objecte status state (e.g. success for green) based on 
-		// the supplied trait status; used for traits display
-		if(propertyType === 'plant'){
-			return 'Success';  // green
-		} else if(propertyType === 'taxon'){
-			return 'None';
-		} else {
-			return 'Warning';  //orange
-		}
-	}
-	
 	//todo repair this once we have id everywhere instead of tlienmae
 	public colorByPreviewOrNot(iImageId: int, iPlantPreviewImageId: int){
 		//return blue or orange, depending on whether supplied image is the preview image of the plant 
@@ -99,37 +79,9 @@ export default class formatter{
 		}
 	}
 	
-	public messageCount(aMessages: []){
-		if(aMessages){
-			return aMessages.length;
-		} else {
-			return 0;
-		}
-	}
-	
 	public btnEnabledUntagged(midColumnVisible: boolean, endColumnVisible: boolean){
 		return (midColumnVisible && !endColumnVisible);
 	}
-	
-	public ipniOrCustomName(lsid: string, is_custom: boolean){
-		if(is_custom){
-			return 'Custom Entry';
-		} else {
-			return lsid;
-		}
-	}
-	
-	// public sourceAndCount(sSource: string, iCount: boolean, iCountInactive: boolean){
-	// 	if (!iCount && !iCountInactive){
-	// 		return sSource;
-	// 	} else if (!!iCount && !!iCountInactive){
-	// 		return sSource + ' (' +  iCount + ' +' + iCountInactive + ' inactive )';
-	// 	} else if (!!iCount){
-	// 		return sSource + ' (' + iCount + ')';
-	// 	} else if (!!iCountInactive){
-	// 		return sSource + ' (' + iCountInactive + ' inactive )';
-	// 	}
-	// }
 
 	public customAndCount(iCount: boolean, iCountInactive: boolean){
 		// const sResult = (is_custom) ? 'Custom' : 'IPNI';

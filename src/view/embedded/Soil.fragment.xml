@@ -3,7 +3,7 @@
 	xmlns:core="sap.ui.core"
 >
 	<VBox
-		wrap="Wrap"
+		width="10rem"
 	>
 		<VBox
 			visible="{

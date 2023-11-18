@@ -272,8 +272,7 @@
 								<m:CustomListItem class="sapUiTinyMarginBottom">
 									<m:HBox>
 										<m:FlexBox
-											width="10rem"
-											class="sapUiTinyMarginEnd"
+											class="sapUiTinyMarginEnd sapUiTinyMarginTop sapUiTinyMarginBegin"
 										>
 											<core:Fragment
 												fragmentName="plants.ui.view.embedded.EventHeader"
@@ -282,7 +281,6 @@
 										</m:FlexBox>
 										<m:FlexBox
 											visible="{= !!${events>observation} }"
-											width="10rem"
 											class="eventsListObservation sapUiTinyMarginEnd"
 										>
 											<core:Fragment
@@ -292,7 +290,6 @@
 										</m:FlexBox>
 										<m:FlexBox
 											visible="{= !!${events>pot} }"
-											width="10rem"
 											class="eventsListPot sapUiTinyMarginEnd"
 										>
 											<core:Fragment
@@ -302,7 +299,6 @@
 										</m:FlexBox>
 										<m:FlexBox
 											visible="{= !!${events>soil} }"
-											width="10rem"
 											class="eventsListSoil sapUiTinyMarginEnd"
 										>
 											<core:Fragment
@@ -310,10 +306,15 @@
 												type="XML"
 											/>
 										</m:FlexBox>
-										<core:Fragment
-											fragmentName="plants.ui.view.embedded.ImageContainer"
-											type="XML"
-										/>
+										<m:FlexBox
+											width="100%"
+											visible="{= !!${events>images} }"
+										>
+											<core:Fragment
+												fragmentName="plants.ui.view.embedded.ImageContainer"
+												type="XML"
+											/>
+										</m:FlexBox>
 									</m:HBox>
 								</m:CustomListItem>
 							</m:items>
