@@ -11,10 +11,29 @@
 
 }
 
+.eventsListObservation {
+  border-radius: 0.25rem;
+  /*border: 1px solid #e5e5e5;*/
+  /*border: 1px solid #73AD21;*/
+  background-color: rgb(246, 246, 219);
+  padding: 5px;
+  box-shadow: 0 0 0 0.0625rem rgba(0,0,0,0.1), 0 0.125rem 0.5rem 0 rgba(0,0,0,0.1);
+}
+
 .eventsListPot {
   border-radius: 0.25rem;
   /*border: 1px solid #e5e5e5;*/
   /*border: 1px solid #73AD21;*/
+  background-color: antiquewhite;
+  padding: 5px;
+  box-shadow: 0 0 0 0.0625rem rgba(0,0,0,0.1), 0 0.125rem 0.5rem 0 rgba(0,0,0,0.1);
+}
+
+.eventsListSoil {
+  border-radius: 0.25rem;
+  /*border: 1px solid #e5e5e5;*/
+  /*border: 1px solid #73AD21;*/
+  background-color: #f8caa5;
   padding: 5px;
   box-shadow: 0 0 0 0.0625rem rgba(0,0,0,0.1), 0 0.125rem 0.5rem 0 rgba(0,0,0,0.1);
 }
