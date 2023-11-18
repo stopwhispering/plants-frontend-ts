@@ -30,6 +30,7 @@
 		>
 			<Label
 				text="Notes"
+				design="Bold"
 				class="sapUiTinyMarginEnd"
 			/>
 			<Label

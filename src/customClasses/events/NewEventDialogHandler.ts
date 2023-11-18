@@ -121,8 +121,8 @@ export default class NewEventDialogHandler extends EventDialogHandler {
 		};
 
 		const oObservation: FBObservation = {
-			'height': 0.0,  // in cm (decimal)
-			'stem_max_diameter': 0.0,  // in cm (decimal)
+			// 'height': 0.0,  // in cm (decimal)
+			// 'stem_max_diameter': 0.0,  // in cm (decimal)
 			'diseases': '',
 			'observation_notes': ''
 		}

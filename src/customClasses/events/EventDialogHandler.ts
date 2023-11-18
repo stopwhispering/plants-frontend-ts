@@ -135,12 +135,12 @@ export default abstract class EventDialogHandler extends ManagedObject {
 
 		const oObservationDataClone = JSON.parse(JSON.stringify(oEventEditData.observation));
 		// if height or diameter are 0, reset them to undefined
-		if (oObservationDataClone.height === 0.0) {
-			oObservationDataClone.height = null;
-		}
-		if (oObservationDataClone.stem_max_diameter === 0.0) {
-			oObservationDataClone.stem_max_diameter = null;
-		}
+		// if (oObservationDataClone.height === 0.0) {
+		// 	oObservationDataClone.height = null;
+		// }
+		// if (oObservationDataClone.stem_max_diameter === 0.0) {
+		// 	oObservationDataClone.stem_max_diameter = null;
+		// }
 		if (!oObservationDataClone.diseases) {
 			oObservationDataClone.diseases = null;
 		} else {

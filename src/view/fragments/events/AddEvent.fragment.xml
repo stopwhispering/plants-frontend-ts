@@ -86,7 +86,7 @@
 						enabled="{= ${editOrNewEvent>/segments/observation}}"
 						text="Observation"
 					>
-						<VBox class="sapUiTinyMarginBottom">
+						<!-- <VBox class="sapUiTinyMarginBottom">
 							<Label text="Height"/>
 							<StepInput
 								value="{editOrNewEvent>/observation/height}"
@@ -111,7 +111,7 @@
 								largerStep="5"
 								description="cm"
 							/>
-						</VBox>
+						</VBox> -->
 						<VBox class="sapUiTinyMarginBottom">
 							<Label text="Diseases &amp; Treatments"/>
 							<TextArea

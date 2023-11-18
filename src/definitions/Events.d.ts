@@ -49,8 +49,8 @@ export interface FBEvent {
 export interface FBObservation {
   id?: number;
   diseases?: string;
-  stem_max_diameter?: number;  // in cm
-  height?: number;  // in cm
+  // stem_max_diameter?: number;  // in cm
+  // height?: number;  // in cm
   observation_notes?: string;
 }
 export interface FBSoil {
