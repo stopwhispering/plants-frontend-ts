@@ -3,10 +3,6 @@
 	xmlns:core="sap.ui.core"
 >
 	<VBox
-		visible="{= !!${events>pot} }"
-		width="10rem"
-		class="eventsListPot"
-		id="eventPot"
 	>
 		<VBox visible="{
 			path: 'events>pot',
@@ -25,11 +21,11 @@
 			class="sapUiTinyMarginTop"
 		>
 			<Label
+				design="Bold"
 				text="Material"
 				class="sapUiTinyMarginEnd"
 			/>
 			<Label
-				design="Bold"
 				text="{
 					path: 'events>pot/material'
 				}"
@@ -44,11 +40,11 @@
 			class="sapUiTinyMarginTop"
 		>
 			<Label
+				design="Bold"
 				text="Shape (top)"
 				class="sapUiTinyMarginEnd"
 			/>
 			<Label
-				design="Bold"
 				text="{
 					path: 'events>pot/shape_top'
 				}"
@@ -63,11 +59,11 @@
 			class="sapUiTinyMarginTop"
 		>
 			<Label
+				design="Bold"
 				text="Shape (Side)"
 				class="sapUiTinyMarginEnd"
 			/>
 			<Label
-				design="Bold"
 				text="{
 					path: 'events>pot/shape_side'
 				}"
@@ -82,11 +78,11 @@
 			class="sapUiTinyMarginTop"
 		>
 			<Label
+				design="Bold"
 				text="Diameter/Width (in cm)"
 				class="sapUiTinyMarginTop"
 			/>
 			<Label
-				design="Bold"
 				text="{
 					path: 'events>pot/diameter_width'
 				}"

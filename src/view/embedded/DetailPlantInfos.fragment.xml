@@ -170,15 +170,11 @@
 											class="sapUiTinyMargin"
 											value="{plants>nursery_source}"
 											visible="{status>/details_editable}"
-											
 											endButtonPress=".onEndButtonPressToDash"
-
 											showSuggestion="true"
-											showValueHelp="false"
 											suggest="onSuggestNursery"
 											startSuggestion="0"
-    										suggestionItems="{nurseries_sources>/NurseriesSourcesCollection}"
-											valueHelpOnly="true">
+    										suggestionItems="{nurseries_sources>/NurseriesSourcesCollection}">
 
 											<custom:suggestionItems>
 												<core:Item key="{nurseries_sources>name}" text="{nurseries_sources>name}" />

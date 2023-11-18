@@ -39,7 +39,7 @@
 								formatter: '.formatter.getSrcAvatarImageS'
 							}"
 							class="roundedBorders"
-							/>
+						/>
 						<!-- <m:Avatar
 							src="{
 								path: 'plants>preview_image_id',
@@ -166,7 +166,7 @@
 						formatter: '.formatter.getSrcAvatarImageL'
 					}"
 					class="sapUiTinyMarginEnd roundedBorders"
-					/>
+				/>
 				<!-- <m:Avatar
 					src="{
 						path: 'plants>preview_image_id',
@@ -177,21 +177,22 @@
 					class="sapUiTinyMarginEnd"
 				/> -->
 				<m:VBox class="sapUiSmallMarginEnd">
-					<m:Label text="{i18n>Id}"/>
-					<m:Label text="{plants>id}"/>
+					<m:Label text="{i18n>Id}" />
+					<m:Label text="{plants>id}" />
 				</m:VBox>
 				<m:VBox
 					class="sapUiSmallMarginEnd"
 					width="15rem"
 				>
-					<m:Label text="Botanical Name"/>
-					<m:FormattedText 
+					<m:Label text="Botanical Name" />
+					<m:FormattedText
 						visible="{= !!${plants>full_botanical_html_name} }"
-						htmlText="{plants>full_botanical_html_name}"/>
+						htmlText="{plants>full_botanical_html_name}"
+					/>
 				</m:VBox>
 				<m:VBox class="sapUiSmallMarginEnd">
 					<m:HBox alignItems="Start">
-						<m:Label text="{i18n>tags_label}"/>
+						<m:Label text="{i18n>tags_label}" />
 						<m:Button
 							icon="sap-icon://tag"
 							tooltip="{i18n>tags_add}"
@@ -223,9 +224,7 @@
 		</headerContent>
 		<sections>
 			<!--General-->
-			<ObjectPageSection
-				title="General"
-			>
+			<ObjectPageSection title="General">
 				<subSections>
 					<ObjectPageSubSection
 						id="flowerHistorySection"
@@ -252,45 +251,73 @@
 			<!--Events-->
 			<ObjectPageSection title="{i18n>events_title}">
 				<subSections>
-					<ObjectPageSubSection 
+					<ObjectPageSubSection
 						id="eventsSection"
-						showTitle="false">
-						<blocks>
-							<!--list is filled by generator function, see onInit()-->
-							<m:List
-								mode="{= (${status>/details_editable}) ? 'Delete' : 'None' }"
-								delete=".onDeleteEventsTableRow"
-								id="eventsList"
-							>
-								<!-- templates that are cloned in the factory function -->
-								<m:dependents>
-									<core:Fragment
-										fragmentName="plants.ui.view.embedded.EventHeader"
-										type="XML"
-									/>
-									<core:Fragment
-										fragmentName="plants.ui.view.embedded.Observation"
-										type="XML"
-									/>
-									<core:Fragment
-										fragmentName="plants.ui.view.embedded.Pot"
-										type="XML"
-									/>
-									<core:Fragment
-										fragmentName="plants.ui.view.embedded.Soil"
-										type="XML"
-									/>
-									<core:Fragment
-										fragmentName="plants.ui.view.embedded.Image"
-										type="XML"
-									/>
-									<core:Fragment
-										fragmentName="plants.ui.view.embedded.ImageContainer"
-										type="XML"
-									/>
-								</m:dependents>
-							</m:List>
-						</blocks>
+						showTitle="false"
+					>
+						<m:List
+							mode="{= (${status>/details_editable}) ? 'Delete' : 'None' }"
+							delete=".onDeleteEventsTableRow"
+							id="eventsList"
+							items="{
+								path: 'events>',
+								sorter: {
+									path: 'date',
+									descending: true
+								},
+								templateShareable: false
+							}"
+						>
+							<m:items>
+								<m:CustomListItem class="sapUiTinyMarginBottom">
+									<m:HBox>
+										<m:FlexBox
+											width="10rem"
+											class="sapUiTinyMarginEnd"
+										>
+											<core:Fragment
+												fragmentName="plants.ui.view.embedded.EventHeader"
+												type="XML"
+											/>
+										</m:FlexBox>
+										<m:FlexBox
+											visible="{= !!${events>observation} }"
+											width="10rem"
+											class="eventsListObservation sapUiTinyMarginEnd"
+										>
+											<core:Fragment
+												fragmentName="plants.ui.view.embedded.Observation"
+												type="XML"
+											/>
+										</m:FlexBox>
+										<m:FlexBox
+											visible="{= !!${events>pot} }"
+											width="10rem"
+											class="eventsListPot sapUiTinyMarginEnd"
+										>
+											<core:Fragment
+												fragmentName="plants.ui.view.embedded.Pot"
+												type="XML"
+											/>
+										</m:FlexBox>
+										<m:FlexBox
+											visible="{= !!${events>soil} }"
+											width="10rem"
+											class="eventsListSoil sapUiTinyMarginEnd"
+										>
+											<core:Fragment
+												fragmentName="plants.ui.view.embedded.Soil"
+												type="XML"
+											/>
+										</m:FlexBox>
+										<core:Fragment
+											fragmentName="plants.ui.view.embedded.ImageContainer"
+											type="XML"
+										/>
+									</m:HBox>
+								</m:CustomListItem>
+							</m:items>
+						</m:List>
 					</ObjectPageSubSection>
 					<ObjectPageSubSection
 						title="New"
@@ -306,10 +333,10 @@
 				</subSections>
 			</ObjectPageSection>
 			<!--Taxonomony-->
-			<ObjectPageSection 
+			<ObjectPageSection
 				title="{i18n>taxonomy}"
 				visible="{= (!!${taxon>}) }"
-				>
+			>
 				<subSections>
 					<ObjectPageSubSection
 						title="Taxonomy"
@@ -347,8 +374,10 @@
 					</ObjectPageSubSection>
 				</subSections>
 			</ObjectPageSection>
-			<ObjectPageSection title="Images"
-				id="imagesSection">
+			<ObjectPageSection
+				title="Images"
+				id="imagesSection"
+			>
 				<subSections>
 					<ObjectPageSubSection>
 						<blocks>

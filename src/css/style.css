@@ -24,7 +24,7 @@
   border-radius: 0.25rem;
   /*border: 1px solid #e5e5e5;*/
   /*border: 1px solid #73AD21;*/
-  background-color: antiquewhite;
+  background-color: #3c251326;
   padding: 5px;
   box-shadow: 0 0 0 0.0625rem rgba(0,0,0,0.1), 0 0.125rem 0.5rem 0 rgba(0,0,0,0.1);
 }
@@ -33,7 +33,7 @@
   border-radius: 0.25rem;
   /*border: 1px solid #e5e5e5;*/
   /*border: 1px solid #73AD21;*/
-  background-color: #f8caa5;
+  background-color: rgba(250, 235, 215, 0.635);
   padding: 5px;
   box-shadow: 0 0 0 0.0625rem rgba(0,0,0,0.1), 0 0.125rem 0.5rem 0 rgba(0,0,0,0.1);
 }

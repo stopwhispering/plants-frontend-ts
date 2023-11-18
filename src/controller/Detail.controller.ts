@@ -40,7 +40,6 @@ import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker"
 import { BTaxon } from "plants/ui/definitions/Taxon"
 import ImageKeywordTagger from "plants/ui/customClasses/images/ImageKeywordTagger"
 import ImagePlantTagger from "plants/ui/customClasses/images/ImagePlantTagger"
-import EventListItemFactory from "plants/ui/customClasses/events/EventListItemFactory"
 import ModelsHelper from "../model/ModelsHelper"
 import OccurrenceImagesFetcher from "../customClasses/taxonomy/OccurrenceImagesFetcher"
 import EventsListHandler from "../customClasses/events/EventsListHandler"
@@ -123,23 +122,30 @@ export default class Detail extends BaseController {
 		(<Route>this.oRouter.getRoute("detail")).attachPatternMatched(this._onPatternMatched, this);
 		this.oRouter.getRoute("untagged").attachPatternMatched(this._onPatternMatched, this);
 
-		// bind factory function to events list aggregation binding
-		var oEventsList = this.byId("eventsList");
+		// // bind factory function to events list aggregation binding
+		// var oEventsList = this.byId("eventsList");
 
-		// we want to pass the view to the factory function without changing this-context, 
-		// so instead of using .bind(...) we curry the factory function
-		const fnCurryFactory = (sId: string, oBindingContext: Context) => EventListItemFactory(this.getView(), sId, oBindingContext);
-		oEventsList.bindAggregation("items",
-			{
-				path: "events>",
-				templateShareable: false,
-				factory: fnCurryFactory,
-				sorter: new Sorter('date', true)  // descending by date
-			});
+		// // we want to pass the view to the factory function without changing this-context, 
+		// // so instead of using .bind(...) we curry the factory function
+		// const fnCurryFactory = (sId: string, oBindingContext: Context) => EventListItemFactory(this.getView(), sId, oBindingContext);
+		// oEventsList.bindAggregation("items",
+		// 	{
+		// 		path: "events>",
+		// 		templateShareable: false,
+		// 		factory: fnCurryFactory,
+		// 		sorter: new Sorter('date', true)  // descending by date
+		// 	});
+		// var oEventsList = this.byId("eventsList");
+		// oEventsList.bindAggregation("items",
+		// 	{
+		// 		path: "events>",
+		// 		templateShareable: false,
+		// 		sorter: new Sorter('date', true)  // descending by date
+		// 	});
 
 		this.oComponent.getModel('status').setProperty('/images_editable', false);
 	}
-
+	
 	private _onPatternMatched(oEvent: Route$PatternMatchedEvent) {
 		// if accessed directly, we might not have loaded the plants model, yet
 		// in that case, we have only the plant_id (from the url's hash), but not the position of that plant
