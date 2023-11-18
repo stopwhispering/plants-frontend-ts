@@ -7,7 +7,6 @@ import { BSaveConfirmation, FBMajorResource } from "plants/ui/definitions/Messag
 import { BPlant, PlantsUpdateRequest } from "plants/ui/definitions/Plants";
 import { BTaxon, FTaxon } from "plants/ui/definitions/Taxon";
 import { LTaxonData } from "plants/ui/definitions/TaxonLocal";
-import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "./ChangeTracker";
 import MessageHandler from "./MessageHandler";
 import { LEventsModelData, LPlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
@@ -59,7 +58,7 @@ export default class Saver extends ManagedObject {
 	}
 
 	saveMajorResources() {
-		Util.startBusyDialog('Saving...', 'Plants and Images');
+		Util.startBusyDialog('Saving...');
 		this._bSavingPlants = false;
 		this._bSavingImages = false;
 		this._bSavingTaxa = false;
@@ -112,7 +111,6 @@ export default class Saver extends ManagedObject {
 		// save taxa
 		if (aModifiedTaxa.length > 0) {
 			this._bSavingTaxa = true;
-
 
 			// cutting occurrence images (read-only)
 			const aModifiedTaxaUnattached: BTaxon[] = Util.getClonedObject(aModifiedTaxa);

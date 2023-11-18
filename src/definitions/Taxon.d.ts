@@ -142,7 +142,7 @@ export interface FTaxon {
   distribution_concat?: string;
   hybrid: boolean;
   hybridgenus: boolean;
-  gbif_id?: string;
+  gbif_id?: int;
   custom_notes?: string;
   distribution?: FBDistribution;
   images?: TaxonImageUpdate[];
