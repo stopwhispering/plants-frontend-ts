@@ -233,7 +233,6 @@
 									color="#FF6600"
 								/>
 							</HBox>
-							<!-- current soil name (hidden if no space available) -->
 							<ObjectIdentifier
 								title="{plants>current_soil/soil_name}"
 								text="{plants>current_soil/date}"
