@@ -43,6 +43,7 @@
 
 								<CustomListItem>
 									<HBox
+											class="sapUiTinyMarginEnd"
 										alignItems="Center" justifyContent="SpaceBetween">
 										<Label text="{i18n>active}" class="sapUiTinyMarginBegin"/>
 										<Switch 
