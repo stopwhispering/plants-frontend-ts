@@ -8,6 +8,7 @@ import Event from "sap/ui/base/Event";
 import { MessageType } from "sap/ui/core/library";
 import Navigation from "./Navigation";
 import ErrorHandling from "../shared/ErrorHandling";
+import { Model$RequestCompletedEvent } from "sap/ui/model/Model";
 
 /**
  * @namespace plants.ui.customClasses.singleton
@@ -36,7 +37,8 @@ export default class PlantsLoader extends ManagedObject {
 		//we need to add the event handlers to the jsonmodel here as this is executed only
 		//once; if we attach them before calling, they're adding up to one more each time
 		this._oPlantsModel.attachRequestCompleted(this._onReceivingPlantsFromBackend.bind(this));
-		this._oPlantsModel.attachRequestFailed(ErrorHandling.onFail.bind(this, 'Plants Model'));
+		// this._oPlantsModel.attachRequestFailed(ErrorHandling.onFail.bind(this, 'Plants Model'));
+		this._oPlantsModel.attachRequestFailed(ErrorHandling.onModelRequestFailed.bind(this));
 	}
 
     public loadPlants(iNavToPlantId: int = undefined): void {
@@ -46,7 +48,7 @@ export default class PlantsLoader extends ManagedObject {
 		Util.stopBusyDialog();  // todo: should be stopped only when everything has been reloaded, not only plants
 	}
 
-	private _onReceivingPlantsFromBackend(oRequestInfo: Event) {
+	private _onReceivingPlantsFromBackend(oRequestInfo: Model$RequestCompletedEvent) {
 		// create new clone objects to track changes
 		const oPlantsModel = <JSONModel>oRequestInfo.getSource();
 		ChangeTracker.getInstance().setOriginalPlants(<PlantsUpdateRequest>oPlantsModel.getData());

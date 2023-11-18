@@ -1,13 +1,12 @@
-import Dialog from "sap/m/Dialog";
+import Dialog, { Dialog$AfterCloseEvent } from "sap/m/Dialog";
 import ManagedObject from "sap/ui/base/ManagedObject";
-import Event from "sap/ui/base/Event";
 import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
 import Control from "sap/ui/core/Control";
 import MultiInput from "sap/m/MultiInput";
 import Token from "sap/m/Token";
 import Util from "../shared/Util";
-import FileUploader from "sap/ui/unified/FileUploader";
+import FileUploader, { FileUploader$TypeMissmatchEvent, FileUploader$UploadCompleteEvent } from "sap/ui/unified/FileUploader";
 import MessageToast from "sap/m/MessageToast";
 import { FBImage, FImageUploadedMetadata } from "plants/ui/definitions/Images";
 import MessageHandler from "../singleton/MessageHandler";
@@ -17,6 +16,7 @@ import ChangeTracker from "../singleton/ChangeTracker";
 import UntaggedImagesHandler from "./UntaggedImagesHandler";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import PlantLookup from "../plants/PlantLookup";
+import { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace plants.ui.customClasses.images
@@ -69,7 +69,7 @@ export default class UploadImagesDialogHandler extends ManagedObject {
 		return new Token({ key: text, text: text });
 	}
 
-	uploadPhotosToServer(oEvent: Event) {
+	uploadPhotosToServer(oEvent: Button$PressEvent) {
 		//triggered by upload-button in fragment after selecting files
 		if (!this._oFileUploader.getValue()) {
 			MessageToast.show("Choose a file first");
@@ -107,19 +107,19 @@ export default class UploadImagesDialogHandler extends ManagedObject {
 		this._oFileUploader.upload();
 	}
 
-	handleUploadComplete(oEvent: Event) {
+	handleUploadComplete(oEvent: FileUploader$UploadCompleteEvent) {
 		// handle message, show error if required
 		var sResponse = oEvent.getParameter('responseRaw');
 		if (!sResponse) {
 			var sMsg = "Upload complete, but can't determine status. No response received.";
-			MessageHandler.getInstance().addMessage(MessageType.Warning, sMsg, undefined, undefined);
+			MessageHandler.getInstance().addMessage(MessageType.Warning, sMsg, undefined);
 			Util.stopBusyDialog();
 			return;
 		}
 		var oResponse = JSON.parse(sResponse);
 		if (!oResponse) {
 			sMsg = "Upload complete, but can't determine status. Can't parse Response.";
-			MessageHandler.getInstance().addMessage(MessageType.Warning, sMsg, undefined, undefined);
+			MessageHandler.getInstance().addMessage(MessageType.Warning, sMsg, undefined);
 			Util.stopBusyDialog();
 			return;
 		}
@@ -149,7 +149,7 @@ export default class UploadImagesDialogHandler extends ManagedObject {
 		this._oUploadImagesDialog.close();
 	}
 
-	onIconPressAssignDetailsPlant(oEvent: Event) {
+	onIconPressAssignDetailsPlant(oEvent: Button$PressEvent) {
 		// triggered by assign-to-current-plant button in image upload dialog
 		// add current plant to plants multicombobox
 		var plant = this._oPlantLookup.getPlantById(this._iCurrentPlantId);
@@ -167,7 +167,7 @@ export default class UploadImagesDialogHandler extends ManagedObject {
 		}
 	}
 
-	onHandleTypeMissmatch(oEvent: Event) {
+	onHandleTypeMissmatch(oEvent: FileUploader$TypeMissmatchEvent) {
 		// handle file type missmatch for image upload
 		// note: there's a same-nemed method in detail controller handling uploads there
 		const oFileUpload = <FileUploader>oEvent.getSource();
@@ -180,11 +180,11 @@ export default class UploadImagesDialogHandler extends ManagedObject {
 								sSupportedFileTypes);		
 	}
 
-	onAfterCloseUploadPhotoseDialog(oEvent: Event) {
+	onAfterCloseUploadPhotoseDialog(oEvent: Dialog$AfterCloseEvent) {
 		this._oUploadImagesDialog.destroy();
 	}
     
-	onCancelUploadImagesDialog(oEvent: Event) {
+	onCancelUploadImagesDialog(oEvent: Button$PressEvent) {
 		this._oUploadImagesDialog.close();
 	}
 

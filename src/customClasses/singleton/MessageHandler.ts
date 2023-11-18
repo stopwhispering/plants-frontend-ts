@@ -39,7 +39,7 @@ export default class MessageHandler extends ManagedObject {
 		// message model; exception: debug messages are not inserted
 		if (backendMessage.type !== 'Debug') {
 			var oMessage = new Message({
-				type: backendMessage.type,
+				type: <MessageType>backendMessage.type,
 				message: backendMessage.message,
 				description: backendMessage.description
 			});

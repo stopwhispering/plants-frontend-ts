@@ -1,13 +1,12 @@
-import Dialog from "sap/m/Dialog";
+import Dialog, { Dialog$AfterCloseEvent } from "sap/m/Dialog";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { LSoilEditData } from "plants/ui/definitions/EventsLocal";
 import { FBSoil } from "plants/ui/definitions/Events"
 import Fragment from "sap/ui/core/Fragment";
 import Control from "sap/ui/core/Control";
-import Button from "sap/m/Button";
+import Button, { Button$PressEvent } from "sap/m/Button";
 import SoilCRUD from "./SoilCRUD";
-import Event from "sap/ui/base/Event";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -82,14 +81,14 @@ export default class SoilDialogHandler extends ManagedObject {
 		});	
 	}
 
-	onUpdateOrCreateSoil(oEvent: Event) {
+	onUpdateOrCreateSoil(oEvent: Button$PressEvent) {
 		const oEditedSoil = <LSoilEditData>(<Button>oEvent.getSource()).getBindingContext('editedSoil')!.getObject();
 		this._oSoilCRUD.updateOrCreateSoil(oEditedSoil, this._oSoilDialog);
 	}
-	onCancelEditSoil(oEvent: Event) {
+	onCancelEditSoil(oEvent: Button$PressEvent) {
 		this._oSoilDialog.close();
 	}
-	onAfterCloseEditSoil(oEvent: Event) {
+	onAfterCloseEditSoil(oEvent: Dialog$AfterCloseEvent) {
 		this._oSoilDialog.destroy();
 	}
 

@@ -8,11 +8,11 @@ import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import EventCRUD from "./EventCRUD";
-import Event from "sap/ui/base/Event";
 import Util from "../shared/Util";
 import { FBEvent, FBObservation, FBPot, FBSoil } from "plants/ui/definitions/Events";
 import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
 import EventDialogHandler from "./EventDialogHandler";
+import { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -64,13 +64,13 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 	//////////////////////////////////////////////////////////
 	// Event Handlers
 	//////////////////////////////////////////////////////////
-	onOpenDialogNewSoil(oEvent: Event) {
+	onOpenDialogNewSoil(oEvent: Button$PressEvent) {
 		// const oSoilDialogHandler = new SoilDialogHandler(this._oSoilsModel);
 		this._oSoilDialogHandler.openDialogNewSoil(this._oEventDialog);  // to does this work with a dialog instead of a view?
 		// oSoilDialogHandler.openDialogNewSoil(this.getView());
 	}
 
-	onAddOrEditEvent(oEvent: Event) {
+	onAddOrEditEvent(oEvent: Button$PressEvent) {
 		//Triggered by 'Add' / 'Update' Button in Create/Edit Event Dialog
 		const oEventNewOrEditData = <LEventEditData>this._oEventModel.getData();
 		const oPlant = <BPlant>this._oEventDialog.getBindingContext('plants')!.getObject();

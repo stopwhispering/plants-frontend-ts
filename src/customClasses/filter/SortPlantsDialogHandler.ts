@@ -1,7 +1,6 @@
-import ViewSettingsDialog from "sap/m/ViewSettingsDialog";
+import ViewSettingsDialog, { ViewSettingsDialog$ConfirmEvent } from "sap/m/ViewSettingsDialog";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import ListBinding from "sap/ui/model/ListBinding";
-import Event from "sap/ui/base/Event";
 import View from "sap/ui/core/mvc/View";
 import Control from "sap/ui/core/Control";
 import Fragment from "sap/ui/core/Fragment";
@@ -35,7 +34,7 @@ export default class SortPlantsDialogHandler extends ManagedObject {
 		}
     }
 
-    onSortDialogConfirm(oEvent: Event) {
+    onSortDialogConfirm(oEvent: ViewSettingsDialog$ConfirmEvent) {
 		const oSortItem = oEvent.getParameter('sortItem');
 		const bDescending = oEvent.getParameter('sortDescending');
 		const aSorters = [];

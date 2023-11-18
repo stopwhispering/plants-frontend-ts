@@ -1,8 +1,6 @@
-import { FBImage } from "plants/ui/definitions/Images";
 import { BPlant } from "plants/ui/definitions/Plants";
 import { LRenamePlantInputData } from "plants/ui/definitions/PlantsLocal";
-import { BTaxon } from "plants/ui/definitions/Taxon";
-import Dialog from "sap/m/Dialog";
+import Dialog, { Dialog$AfterCloseEvent } from "sap/m/Dialog";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Control from "sap/ui/core/Control";
@@ -10,9 +8,8 @@ import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import ChangeTracker from "../singleton/ChangeTracker";
-import Event from "sap/ui/base/Event";
 import PlantRenamer from "./PlantRenamer";
-import Navigation from "../singleton/Navigation";
+import { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -62,17 +59,17 @@ export default class RenamePlantDialogHandler extends ManagedObject {
 
     }
 
-	public onAfterCloseRenamePlantDialog(oEvent: Event): void {
+	public onAfterCloseRenamePlantDialog(oEvent: Dialog$AfterCloseEvent): void {
         const oRenamePlantModel = this._oRenamePlantDialog.getModel('renamePlant');
         oRenamePlantModel.destroy();
 		this._oRenamePlantDialog.destroy();
 	}
 
-	public onCancelRenamePlantDialog(oEvent: Event): void {
+	public onCancelRenamePlantDialog(oEvent: Button$PressEvent): void {
         this._oRenamePlantDialog.close();
 	}
 
-	public onPressButtonSubmitRenamePlant(oEvent: Event): void {
+	public onPressButtonSubmitRenamePlant(oEvent: Button$PressEvent): void {
         const oRenamePlantModel = <JSONModel>this._oRenamePlantDialog.getModel('renamePlant');
 		const oRenamePlantInputData: LRenamePlantInputData = oRenamePlantModel.getData();
 

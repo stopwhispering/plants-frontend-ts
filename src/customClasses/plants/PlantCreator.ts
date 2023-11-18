@@ -46,7 +46,7 @@ export default class PlantCreator extends ManagedObject {
 			return;
 		}
 
-		const oNewPlant = <FPlant>{
+		const oNewPlant = <PlantCreate>{
 			plant_name: sPlantName,
 			active: true,
 			descendant_plants_all: [],  //auto-derived in backend
@@ -99,7 +99,7 @@ export default class PlantCreator extends ManagedObject {
 		}
 		
 		// assemble new plant and save it
-		var newPlant = <FPlant>{
+		var newPlant = <PlantCreate>{
 			id: undefined,  // created in backend
 			plant_name: descendantPlantInput.descendantPlantName,
 			field_number: propagationType.hasParentPlantPollen ? '-' : oParentPlant.field_number,
@@ -136,7 +136,7 @@ export default class PlantCreator extends ManagedObject {
 		this._saveNewPlant(newPlant);
 	}    
 
-	private _saveNewPlant(oPlant: FPlant, cbCloseDialog?: Function): void {
+	private _saveNewPlant(oPlant: PlantCreate, cbCloseDialog?: Function): void {
 		// save plant to backend to receive plant id
 		var dPayloadPlants: PlantCreate = oPlant;
 		Util.startBusyDialog('Creating...', 'new plant ' + oPlant.plant_name);

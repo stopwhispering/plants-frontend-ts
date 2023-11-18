@@ -2,12 +2,13 @@ import Popover from "sap/m/Popover";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Control from "sap/ui/core/Control";
 import View from "sap/ui/core/mvc/View";
-import Event from "sap/ui/base/Event";
 import Fragment from "sap/ui/core/Fragment";
 import { LTagInput, LTagInputStatus } from "plants/ui/definitions/entities";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { BPlant } from "plants/ui/definitions/Plants";
 import PlantTagger from "./PlantTagger";
+import { Button$PressEvent } from "sap/m/Button";
+import { Input$SubmitEvent } from "sap/m/Input";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -58,12 +59,12 @@ export default class NewPlantTagPopoverHandler extends ManagedObject {
 		}
 	}
 	
-	public onCancelNewPlantTagDialog(oEvent: Event): void {
+	public onCancelNewPlantTagDialog(oEvent: Button$PressEvent): void {
 		this._oNewPlantTagPopover.close();
 		
 	}
 
-	onAddTag(oEvent: Event) {
+	onAddTag(oEvent: Input$SubmitEvent) {
 		// create a new tag inside the plant's object in the plants model
 		// it will be saved in backend when saving the plant
 		// new/deleted tags are within scope of the plants model modification tracking

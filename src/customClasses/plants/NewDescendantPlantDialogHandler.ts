@@ -1,7 +1,6 @@
-import Dialog from "sap/m/Dialog";
+import Dialog, { Dialog$AfterCloseEvent } from "sap/m/Dialog";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import View from "sap/ui/core/mvc/View";
-import Event from "sap/ui/base/Event";
 import Fragment from "sap/ui/core/Fragment";
 import Control from "sap/ui/core/Control";
 import ChangeTracker from "../singleton/ChangeTracker";
@@ -15,6 +14,8 @@ import PlantCreator from "./PlantCreator";
 import Input from "sap/m/Input";
 import formatter from "plants/ui/model/formatter";
 import SuggestionService from "../shared/SuggestionService";
+import { Button$PressEvent } from "sap/m/Button";
+import { InputBase$ChangeEvent } from "sap/m/InputBase";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -96,11 +97,11 @@ export default class NewDescendantPlantDialogHandler extends ManagedObject {
         oModelDescendantPlantInputModel.updateBindings(false);
     }
 
-    onCancelCreateDescendantPlantDialog(oEvent: Event) {
+    onCancelCreateDescendantPlantDialog(oEvent: Button$PressEvent) {
         this._oNewDescendantPlantDialog.close();
     }
 
-    onDescendantDialogAfterClose(oEvent: Event) {
+    onDescendantDialogAfterClose(oEvent: Dialog$AfterCloseEvent) {
         const oModelDescendantPlantInputModel = <JSONModel>this._oNewDescendantPlantDialog.getModel('descendant');
         oModelDescendantPlantInputModel.destroy();
         this._oNewDescendantPlantDialog.destroy();
@@ -125,7 +126,7 @@ export default class NewDescendantPlantDialogHandler extends ManagedObject {
 		this.onUpdatePlantNameSuggestion();
 	}
 
-	onDescendantDialogCreate(oEvent: Event) {
+	onDescendantDialogCreate(oEvent: Button$PressEvent) {
 		// triggered from create-descendant-dialog to create the descendant plant
         const oModelDescendantPlantInputModel = <JSONModel>this._oNewDescendantPlantDialog.getModel('descendant');
         const oDescendantPlantInputData = <LDescendantPlantInput>oModelDescendantPlantInputModel.getData();
@@ -133,9 +134,9 @@ export default class NewDescendantPlantDialogHandler extends ManagedObject {
         this._oNewDescendantPlantDialog.close();
 	}
 
-	onDescendantDialogChangeParent(oEvent: Event) {
+	onDescendantDialogChangeParent(oEvent: InputBase$ChangeEvent) {
 		// reset parent plant (/pollen) input if entered plant name is invalid
-		var parentPlantName = oEvent.getParameter('newValue').trim();
+		var parentPlantName = oEvent.getParameter('value').trim();
 
 		if (!parentPlantName || !this._oPlantLookup.plantNameExists(parentPlantName)) {
 			(<Input>oEvent.getSource()).setValue('');

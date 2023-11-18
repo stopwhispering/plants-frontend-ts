@@ -78,7 +78,7 @@ export default class PlantNameGenerator extends ManagedObject {
 		return suggestedName;
 	}	
 
-	public generatePlantNameWithRomanizedSuffix(baseName: string, beginWith: int): string {
+	private generatePlantNameWithRomanizedSuffix(baseName: string, beginWith: int): string {
 		// e.g. Aeonium spec. II -> Aeonium spec. III if the former already exists
 		for (var i = beginWith; i < 100; i++) {
 			var latinNumber = Util.romanize(i);

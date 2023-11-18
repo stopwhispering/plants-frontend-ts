@@ -6,7 +6,7 @@ import { FBImage } from "plants/ui/definitions/Images";
 import { LImageIdMap } from "plants/ui/definitions/ImageLocal";
 import { LPlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
 import { BTaxon } from "plants/ui/definitions/Taxon";
-import { BPlant, FPlant, PlantsUpdateRequest } from "plants/ui/definitions/Plants"
+import { BPlant, PlantUpdate, PlantsUpdateRequest } from "plants/ui/definitions/Plants"
 import { BEvents } from "plants/ui/definitions/Events";
 import ImageRegistryHandler from "./ImageRegistryHandler";
 
@@ -88,7 +88,7 @@ export default class ChangeTracker extends ManagedObject {
 		// get plants model and identify modified items
 		var dDataPlants = this._oPlantsModel.getData();
 		var aModifiedPlants = [];
-		var aOriginalPlants = this._oPlantsDataClone['PlantsCollection'];
+		var aOriginalPlants: PlantUpdate[] = this._oPlantsDataClone['PlantsCollection'];
 		for (var i = 0; i < dDataPlants['PlantsCollection'].length; i++) {
 			if (!Util.dictsAreEqual(dDataPlants['PlantsCollection'][i],
 				aOriginalPlants[i])) {
@@ -166,7 +166,7 @@ export default class ChangeTracker extends ManagedObject {
 
 		return oModifiedEventsDict;
 	}
-
+	
 	public getModifiedImages(): FBImage[] {
 		// identify modified images by comparing images with their clones (created after loading)
 		var aModifiedImages: FBImage[] = [];
@@ -185,20 +185,20 @@ export default class ChangeTracker extends ManagedObject {
 
 	public setOriginalPlants(oPlantsData: PlantsUpdateRequest): void{
 		// reset plants clone completely to supplied plants data
-		this._oPlantsDataClone = Util.getClonedObject(oPlantsData);
+		this._oPlantsDataClone = <PlantsUpdateRequest>Util.getClonedObject(oPlantsData);
 	}
 
-	public addOriginalPlant(oPlant: FPlant): void{
+	public addOriginalPlant(oPlant: PlantUpdate): void{
 		const oPlantClone = Util.getClonedObject(oPlant);
 		this._oPlantsDataClone.PlantsCollection.push(oPlantClone);		
 	}
 
-	public removeOriginalPlant(oPlant: FPlant): void{
+	public removeOriginalPlant(oPlant: PlantUpdate): void{
 		//delete from model clone
-		const aPlantsDataClone: FPlant[] = this._oPlantsDataClone.PlantsCollection;
+		const aPlantsDataClone: PlantUpdate[] = this._oPlantsDataClone.PlantsCollection;
 
 		//can't find position with object from above, so we use the unique id
-		const oPlantClone: FPlant|undefined = aPlantsDataClone.find(function (element) {
+		const oPlantClone: PlantUpdate|undefined = aPlantsDataClone.find(function (element) {
 			return element.id === oPlant.id;
 		});
 		if (oPlantClone) {

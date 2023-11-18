@@ -8,7 +8,7 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import PlantCreator from "./PlantCreator";
 import PlantLookup from "plants/ui//customClasses/plants/PlantLookup"
 import MessageToast from "sap/m/MessageToast";
-import Event from "sap/ui/base/Event";
+import { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -48,7 +48,7 @@ export default class NewPlantDialogHandler extends ManagedObject {
 		}
     }
 
-	public onSaveNewPlantButton(oEvent: Event): void {
+	public onSaveNewPlantButton(oEvent: Button$PressEvent): void {
         const oNewPlantInputData: LNewPlantInputData = (<JSONModel>this._oNewPlantDialog.getModel("newPlantInputData")).getData();
         if (!oNewPlantInputData.newPlantName){
             MessageToast.show("Please enter a name for the new plant");
@@ -58,7 +58,7 @@ export default class NewPlantDialogHandler extends ManagedObject {
         const cbCloseDialog = () => this._oNewPlantDialog.close();
 		this._oPlantCreator.addNewPlantAndSave(oNewPlantInputData.newPlantName, cbCloseDialog);
 	}
-	onCancelNewPlantDialog(oEvent: Event) {
+	onCancelNewPlantDialog(oEvent: Button$PressEvent) {
 		this._oNewPlantDialog.close();
 	}
 }

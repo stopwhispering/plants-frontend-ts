@@ -1,13 +1,10 @@
-import { BKewSearchResultEntry, ResultsTaxonInfoRequest, FAssignTaxonRequest, FNewTaxon, FTaxonInfoRequest } from "plants/ui/definitions/Taxon";
+import { BKewSearchResultEntry, ResultsTaxonInfoRequest, FNewTaxon, FTaxonInfoRequest } from "plants/ui/definitions/Taxon";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Util from "plants/ui/customClasses/shared/Util";
-import ModelsHelper from "plants/ui/model/ModelsHelper";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import MessageHandler from "../singleton/MessageHandler";
 import { ResponseStatus } from "plants/ui/definitions/SharedLocal";
-import { BPlant } from "plants/ui/definitions/Plants";
-import ColumnListItem from "sap/m/ColumnListItem";
 import { LAjaxLoadDetailsForSpeciesDoneCallback } from "plants/ui/definitions/TaxonLocal";
 import { SearchSpeciesCustomTaxonInputData } from "plants/ui/definitions/PlantsLocal";
 import ErrorHandling from "../shared/ErrorHandling";

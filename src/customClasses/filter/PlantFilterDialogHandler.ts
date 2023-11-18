@@ -3,19 +3,19 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import Util from "../shared/Util";
 import ListBinding from "sap/ui/model/ListBinding";
 import View from "sap/ui/core/mvc/View";
-import ViewSettingsDialog, { ViewSettingsDialog$ResetFiltersEvent } from "sap/m/ViewSettingsDialog";
+import ViewSettingsDialog, { ViewSettingsDialog$ConfirmEvent, ViewSettingsDialog$ResetFiltersEvent } from "sap/m/ViewSettingsDialog";
 import Control from "sap/ui/core/Control";
 import { LFilterHiddenChoice } from "plants/ui/definitions/PlantsLocal";
 import SegmentedButton from "sap/m/SegmentedButton";
 import Fragment from "sap/ui/core/Fragment";
 import { BPlant, FBPlantTag } from "plants/ui/definitions/Plants";
 import StandardTreeItem from "sap/m/StandardTreeItem";
-import Event from "sap/ui/base/Event";
 import FilterService from "plants/ui/customClasses/filter/PlantFilterService"
 import Filter from "sap/ui/model/Filter";
 import PlantFilterTaxonTree from "./PlantFilterTaxonTree";
 import { LStatusModelData } from "plants/ui/definitions/SharedLocal";
 import Tree from "sap/m/Tree";
+import { ListBase$SelectionChangeEvent } from "sap/m/ListBase";
 
 /**
  * @namespace plants.ui.customClasses.filter
@@ -119,13 +119,13 @@ export default class PlantFilterDialogHandler extends ManagedObject {
 		return Array.from(new Set(aTagsAll));
 	}
 
-	public onSelectionChangeTaxonTree(oEvent: Event): void {
+	public onSelectionChangeTaxonTree(oEvent: ListBase$SelectionChangeEvent): void {
 		const aSelectedItems = <StandardTreeItem[]>oEvent.getParameter("listItems");
 		const oPlantFilterTaxonTree = new PlantFilterTaxonTree(this._oTaxonTreeModel);
 		oPlantFilterTaxonTree.selectSubItemsInTaxonTree(aSelectedItems);
 	}
 
-	public onConfirmFilters(oEvent: Event): void {
+	public onConfirmFilters(oEvent: ViewSettingsDialog$ConfirmEvent): void {
 		const aFilterItems = oEvent.getParameter("filterItems");
 		const sFilterString = oEvent.getParameter("filterString");
 		// const oListBinding = <ListBinding>oPlantsTable.getBinding("items");

@@ -1,4 +1,5 @@
 import formatter from "plants/ui/model/formatter";
+import { Image$PressEvent } from "sap/m/Image";
 import Popover from "sap/m/Popover";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Control from "sap/ui/core/Control";
@@ -39,7 +40,7 @@ export default class ImagePreviewPopoverHandler extends ManagedObject {
 
     }
 
-	public onClickImagePopupImage(oEvent: Event): void {
+	public onClickImagePopupImage(oEvent: Image$PressEvent): void {
 		this._oImagePreviewPopover.close();
 	}
 

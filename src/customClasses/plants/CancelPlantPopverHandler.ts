@@ -1,13 +1,13 @@
 import { BPlant, FBCancellationReason } from "plants/ui/definitions/Plants";
 import { LCancellationReasonChoice, LCancelPlantInputData } from "plants/ui/definitions/PlantsLocal";
-import Popover from "sap/m/Popover";
+import Popover, { Popover$AfterCloseEvent } from "sap/m/Popover";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Control from "sap/ui/core/Control";
 import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import Event from "sap/ui/base/Event";
 import Util from "../shared/Util";
+import { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -50,16 +50,16 @@ export default class CancelPlantPopverHandler extends ManagedObject {
 
     }
 
-	onAfterCloseCancelPlantPopover(oEvent: Event) {
+	onAfterCloseCancelPlantPopover(oEvent: Popover$AfterCloseEvent) {
         const oModelDescendantPlantInputModel = <JSONModel>this._oCancelPlantPopover.getModel('cancelPlant');
         oModelDescendantPlantInputModel.destroy(); 
 		this._oCancelPlantPopover.destroy();
 	}
-	onCancelCancelPlantPopover(oEvent: Event) {
+	onCancelCancelPlantPopover(oEvent: Button$PressEvent) {
 		this._oCancelPlantPopover.close();
 	}
 
-	onSetPlantInactive(oEvent: Event) {
+	onSetPlantInactive(oEvent: Button$PressEvent) {
 		//set plant inactive after choosing a reason (e.g. freezing, drought, etc.)
 		//we don't use radiobuttongroup helper, so we must get selected element manually
 		

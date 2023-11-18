@@ -2,6 +2,8 @@ import ManagedObject from "sap/ui/base/ManagedObject";
 import Event from "sap/ui/base/Event";
 import MessageToast from "sap/m/MessageToast";
 import Util from "./Util";
+import { Model$RequestFailedEvent } from "sap/ui/model/Model";
+import JSONModel from "sap/ui/model/json/JSONModel";
 
 /**
  * @namespace pollination.ui.controller.custom
@@ -47,6 +49,7 @@ export default class ErrorHandling extends ManagedObject {
             return ErrorType.FASTAPILEGACYERROR;
         else if ((error) && (error.responseJSON) && (error.responseJSON.detail) && (!error.responseJSON.detail.type) && !Array.isArray(error.responseJSON.detail))
             return ErrorType.FASTAPIHTTPERROR;
+        //@ts-ignore
         else if ((<Event><unknown>error).getParameter && (<Event><unknown>error).getParameter('message'))
             return ErrorType.SERVERNOTREACHABLEERROR;
         else if (error && error.responseJSON && error.responseJSON.detail && Array.isArray(error.responseJSON.detail))
@@ -56,6 +59,16 @@ export default class ErrorHandling extends ManagedObject {
         else if (!error.responseJSON)
             return ErrorType.SERVERNOTREACHABLEERROR;
         return ErrorType.UNKNOWN;
+    }
+
+    public static onModelRequestFailed(oEvent: Model$RequestFailedEvent): void{
+        const oModel = <JSONModel>oEvent.getSource();
+		//@ts-ignore
+        const oBinding = <JSONListBinding>oModel.getBindings()[0];
+        const msg = oModel.getMetadata().getName() + ' for binding Path ' + oBinding.getPath() + ' failed.';
+        Util.stopBusyDialog();
+
+        MessageToast.show(msg);
     }
 
 

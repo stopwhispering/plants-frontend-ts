@@ -4,6 +4,7 @@ import Event from "sap/ui/base/Event";
 import View from "sap/ui/core/mvc/View";
 import Fragment from "sap/ui/core/Fragment";
 import Control from "sap/ui/core/Control";
+import { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace plants.ui.customClasses.taxonomy
@@ -33,7 +34,7 @@ export default class LeafletMapHandler extends ManagedObject {
         
     }
 
-	onCloseLeafletMap(oEvent: Event) {
+	onCloseLeafletMap(oEvent: Button$PressEvent) {
 		this._oLeafletMapDialog.close();
 	}
 

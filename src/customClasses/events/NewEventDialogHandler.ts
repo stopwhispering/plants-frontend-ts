@@ -9,13 +9,12 @@ import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import EventCRUD from "./EventCRUD";
-import Event from "sap/ui/base/Event";
 import Util from "../shared/Util";
 import { FBObservation, FBPot, FBSoil, FCreateOrUpdateEvent } from "plants/ui/definitions/Events";
 import { FBImage } from "plants/ui/definitions/Images";
 import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
 import EventDialogHandler from "./EventDialogHandler";
-import RadioButton from "sap/m/RadioButton";
+import { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -66,11 +65,11 @@ export default class NewEventDialogHandler extends EventDialogHandler {
 	//////////////////////////////////////////////////////////
 	// Event Handlers
 	//////////////////////////////////////////////////////////
-	onOpenDialogNewSoil(oEvent: Event) {
+	onOpenDialogNewSoil(oEvent: Button$PressEvent) {
 		this._oSoilDialogHandler.openDialogNewSoil(this._oEventDialog);  // todo does this work with a dialog instead of a view?
 	}
 
-	onAddOrEditEvent(oEvent: Event) {
+	onAddOrEditEvent(oEvent: Button$PressEvent) {
 		//Triggered by 'Add' / 'Update' Button in Create/Edit Event Dialog
 		const oEventNewOrEditData = <LEventEditData>this._oEventModel.getData();
 		const oPlant = <BPlant>this._oEventDialog.getBindingContext('plants')!.getObject();

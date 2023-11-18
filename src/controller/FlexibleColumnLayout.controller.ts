@@ -79,7 +79,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		// Save the current route name
 		this._currentRouteName = sRouteName;  // e.g. "detail"
 		// this.currentPlant = oArguments.product;
-		this._currentPlantId = oArguments.plant_id;
+		this._currentPlantId = parseInt(oArguments.plant_id);
 	}
 
 	//////////////////////////////////////////////////////////
@@ -94,7 +94,7 @@ export default class FlexibleColumnLayout extends BaseController {
 			const sLayout = oEvent.getParameter("layout");  // e.g. "OneColumn"
 			this._oRouter.navTo(this._currentRouteName, {
 				layout: sLayout,
-				plant_id: this._currentPlantId
+				plant_id: this._currentPlantId.toString()
 				// }, true);
 			});
 		}

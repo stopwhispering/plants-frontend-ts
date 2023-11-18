@@ -1,8 +1,6 @@
-import { FBImage } from "plants/ui/definitions/Images";
 import { BPlant } from "plants/ui/definitions/Plants";
 import { LClonePlantInputData } from "plants/ui/definitions/PlantsLocal";
-import { BTaxon } from "plants/ui/definitions/Taxon";
-import Dialog from "sap/m/Dialog";
+import Dialog, { Dialog$AfterCloseEvent } from "sap/m/Dialog";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Control from "sap/ui/core/Control";
@@ -12,8 +10,8 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import ChangeTracker from "../singleton/ChangeTracker";
 import PlantLookup from "./PlantLookup";
 import PlantNameGenerator from "./PlantNameGenerator";
-import Event from "sap/ui/base/Event";
 import PlantCloner from "./PlantCloner";
+import { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -69,16 +67,16 @@ export default class ClonePlantDialogHandler extends ManagedObject {
         });
     }
 
-	onAfterCloseClonePlantDialog(oEvent: Event) {
+	onAfterCloseClonePlantDialog(oEvent: Dialog$AfterCloseEvent) {
 		this._oClonePlantDialog.destroy();
 	}
-	onCancelClonePlantDialog(oEvent: Event) {
+	onCancelClonePlantDialog(oEvent: Button$PressEvent) {
 		const oClonePlantInputModel = this._oClonePlantDialog.getModel("clonePlant");
         oClonePlantInputModel.destroy();
 		this._oClonePlantDialog.close();
 	}
 
-	onPressButtonSubmitClonePlant(oEvent: Event) {
+	onPressButtonSubmitClonePlant(oEvent: Button$PressEvent) {
 		// use ajax to clone plant in backend
 		const oClonePlantInputModel = <JSONModel>this._oClonePlantDialog.getModel("clonePlant");
         const oClonePlantInputData: LClonePlantInputData = oClonePlantInputModel.getData();

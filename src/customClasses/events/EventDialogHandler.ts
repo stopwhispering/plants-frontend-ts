@@ -1,6 +1,6 @@
 // Handler for Dialog to edit an event or create a new one.
 import { LEventEditData } from "plants/ui/definitions/EventsLocal";
-import Button from "sap/m/Button";
+import Button, { Button$PressEvent } from "sap/m/Button";
 import Dialog from "sap/m/Dialog";
 import List from "sap/m/List";
 import MessageToast from "sap/m/MessageToast";
@@ -9,13 +9,14 @@ import Control from "sap/ui/core/Control";
 import View from "sap/ui/core/mvc/View";
 import Context from "sap/ui/model/Context";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import Event from "sap/ui/base/Event";
 import SoilDialogHandler from "./SoilDialogHandler";
 import RadioButton from "sap/m/RadioButton";
 import Util from "../shared/Util";
 import { FBObservation, FBPot, FBSoil } from "plants/ui/definitions/Events";
 import SoilCRUD from "./SoilCRUD";
 import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
+import { ListBase$SelectionChangeEvent } from "sap/m/ListBase";
+import { Image$PressEvent } from "sap/m/Image";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -43,11 +44,11 @@ export default abstract class EventDialogHandler extends ManagedObject {
 	//////////////////////////////////////////////////////////
 	// Shared Event Handlers
 	//////////////////////////////////////////////////////////
-	onOpenDialogNewSoil(oEvent: Event) {
+	onOpenDialogNewSoil(oEvent: Button$PressEvent) {
 		this._oSoilDialogHandler.openDialogNewSoil(this._oEventDialog);  // to does this work with a dialog instead of a view?
 	}
 
-	activateRadioButton(oEvent: Event): void {
+	activateRadioButton(oEvent: Image$PressEvent): void {
 		//todo refactor with input model
 		const oSource = <Control>oEvent.getSource();
 		const sRadioButtonId: string = oSource.data('radiobuttonId');
@@ -55,7 +56,7 @@ export default abstract class EventDialogHandler extends ManagedObject {
 		oRadioButton.setSelected(true);
 	}
 
-	onSoilMixSelect(oEvent: Event) {
+	onSoilMixSelect(oEvent: ListBase$SelectionChangeEvent) {
 		// transfer selected soil from soils model to new/edit-event model (which has only one entry)
 		const oSource = <List>oEvent.getSource()
 		const oContexts = <Context[]>oSource.getSelectedContexts();
@@ -68,13 +69,13 @@ export default abstract class EventDialogHandler extends ManagedObject {
 		this._oEventModel.setProperty('/soil', oSelectedDataNew);
 	}
 
-	onOpenDialogEditSoil(oEvent: Event) {
+	onOpenDialogEditSoil(oEvent: Button$PressEvent) {
 		const oSource = <Button>oEvent.getSource();
 		const oSoil = <FBSoil>oSource.getBindingContext('soils')!.getObject();
 		this._oSoilDialogHandler.openDialogEditSoil(oSoil, this._oEventDialog);  // todo does this work instead oif view?
 	}
 
-	onCancelAddOrEditEventDialog(oEvent: Event) {
+	onCancelAddOrEditEventDialog(oEvent: Button$PressEvent) {
 		this._oEventDialog.close();
 	}
 

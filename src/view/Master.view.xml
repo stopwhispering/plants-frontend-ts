@@ -34,7 +34,7 @@
 					}],
 					templateShareable: false
 				}"
-				class="myVeryCompactTable sapFDynamicPageAlignContent"
+				class="sapFDynamicPageAlignContent"
 				width="auto"
 				sticky="HeaderToolbar,ColumnHeaders"
 			>

@@ -4,6 +4,7 @@ import Control from "sap/ui/core/Control";
 import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
 import MessageHandler from "../singleton/MessageHandler";
+import { Button$PressEvent } from "sap/m/Button";
 
 /**
  * @namespace plants.ui.customClasses.shared
@@ -38,7 +39,7 @@ export default class MessagePopoverHandler extends ManagedObject {
         });
     }
 
-	onClearMessages(oEvent: Event) {
+	onClearMessages(oEvent: Button$PressEvent) {
 		//clear messages in message popover fragment
 		MessageHandler.getInstance().removeAllMessages();
 	}

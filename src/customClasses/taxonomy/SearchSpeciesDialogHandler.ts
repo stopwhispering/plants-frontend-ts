@@ -9,7 +9,6 @@ import Control from "sap/ui/core/Control";
 import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import Event from "sap/ui/base/Event";
 import SpeciesFinder from "./SpeciesFinder";
 import TaxonToPlantAssigner from "./TaxonToPlantAssigner";
 import { LAjaxLoadDetailsForSpeciesDoneCallback } from "plants/ui/definitions/TaxonLocal";
@@ -21,9 +20,12 @@ import ColumnListItem from "sap/m/ColumnListItem";
 import Context from "sap/ui/model/Context";
 import VBox from "sap/m/VBox";
 import formatter from "plants/ui/model/formatter";
-import Switch from "sap/m/Switch";
-import ModelsHelper from "plants/ui/model/ModelsHelper";
+import Switch, { Switch$ChangeEvent } from "sap/m/Switch";
 import ErrorHandling from "../shared/ErrorHandling";
+import { ListBase$SelectionChangeEvent } from "sap/m/ListBase";
+import { Input$SubmitEvent } from "sap/m/Input";
+import { Button$PressEvent } from "sap/m/Button";
+import { InputBase$ChangeEvent } from "sap/m/InputBase";
 
 /**
  * @namespace plants.ui.customClasses.taxonomy
@@ -120,7 +122,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
         return oCustomTaxonInputModel;
     }
 
-	onButtonFindSpecies(oEvent: Event) {
+	onButtonFindSpecies(oEvent: Input$SubmitEvent) {
 		// when hitting search, trigger a backend call to retrieve species matching the search pattern
         const oSearchSpeciesInputModel = <JSONModel>this._oSearchSpeciesDialog.getModel('searchSpeciesInput');
         const oSearchSpeciesInputData = <LSearchSpeciesInputData>oSearchSpeciesInputModel.getData();
@@ -132,7 +134,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
 		new SpeciesFinder(oModelKewSearchResults).searchSpecies(sTaxonNamePattern, bIncludeExternalApis, bSearchForGenusNotSpecies);
 	}
 
-	public onAssignTaxon(oEvent: Event): void {
+	public onAssignTaxon(oEvent: Button$PressEvent): void {
 		// when user chooses a species from the search results, trigger a backend call to retrieve additional information on
 		// that species and assign it to the current plant
         if (!this._oSelectedListItemBindingContext){
@@ -164,7 +166,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
 		new SpeciesFinder(oModelKewSearchResults).loadDetailsForSpecies(oSelectedSearchResult, oCustomTaxonInputData, cbReceivingAdditionalSpeciesInformation.bind(this));
 	}
 
-	public onFindSpeciesTableSelectedOrDataUpdated(oEvent: Event):void {
+	public onFindSpeciesTableSelectedOrDataUpdated(oEvent: ListBase$SelectionChangeEvent):void {
 		// depending on selected search result, the additional name input field is enabled or disabled and the preview custom name tag is updated
         if(!oEvent.getParameter('selected'))
             return
@@ -201,7 +203,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
 
 	}
 
-	public onFindSpeciesAdditionalNameLiveChange(oEvent: Event): void {
+	public onFindSpeciesAdditionalNameLiveChange(oEvent: InputBase$ChangeEvent): void {
         const oSelectedSearchResult = <BKewSearchResultEntry>this._oSelectedListItemBindingContext!.getObject();
         const oCustomTaxonInputModel = <JSONModel>this._oSearchSpeciesDialog.getModel('customTaxonInput');
         const oCustomTaxonInputData: SearchSpeciesCustomTaxonInputData = oCustomTaxonInputModel.getData()
@@ -292,10 +294,10 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
         oCustomTaxonInputModel.updateBindings(false);
     }
 
-	public onCancelSearchSpeciesDialog(oEvent: Event): void {
+	public onCancelSearchSpeciesDialog(oEvent: Button$PressEvent): void {
 		this._oSearchSpeciesDialog.close();
 	}
-	public onCustomTaxonChange(oEvent: Event): void {
+	public onCustomTaxonChange(oEvent: Switch$ChangeEvent): void {
         const oSwitch = <Switch>oEvent.getSource();
         const bState = oSwitch.getState();
 		if (!bState)
