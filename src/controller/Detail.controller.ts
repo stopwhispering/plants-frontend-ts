@@ -24,7 +24,7 @@ import Button, { Button$PressEvent } from "sap/m/Button"
 import Context from "sap/ui/model/Context"
 import { FBImage, FBImagePlantTag, FBKeyword } from "plants/ui/definitions/Images"
 import Token, { Token$PressEvent } from "sap/m/Token"
-import { FBAssociatedPlantExtractForPlant, BPlant, PlantRead } from "plants/ui/definitions/Plants"
+import { FBAssociatedPlantExtractForPlant, BPlant, PlantRead, FBPlantTag } from "plants/ui/definitions/Plants"
 import { LCurrentPlant } from "plants/ui/definitions/PlantsLocal"
 import Tokenizer, { Tokenizer$TokenDeleteEvent } from "sap/m/Tokenizer"
 import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
@@ -234,8 +234,9 @@ export default class Detail extends BaseController {
 			this.oDeletePlantTagMenuHandler = new DeletePlantTagMenuHandler(this.oComponent.getModel('plants'));
 		
 	const oSource = <Control>oEvent.getSource();
-	const sPathTag = oSource.getBindingContext('plants')!.getPath();
-	this.oDeletePlantTagMenuHandler.openDeletePlantTagMenu(this.mCurrentPlant.plant, sPathTag, this.getView(), oSource);
+	// const sPathTag = oSource.getBindingContext('plants')!.getPath();
+	const sTagText = (<FBPlantTag>oSource.getBindingContext('plants').getObject()).text;
+	this.oDeletePlantTagMenuHandler.openDeletePlantTagMenu(this.mCurrentPlant.plant, sTagText, this.getView(), oSource, "Plant");
 	}
 
 	onOpenAddTagDialog(oEvent: Button$PressEvent) {
@@ -243,7 +244,8 @@ export default class Detail extends BaseController {
 		if (!this.oNewPlantTagPopoverHandler)
 			this.oNewPlantTagPopoverHandler = new NewPlantTagPopoverHandler(this.oComponent.getModel('plants'));
 		var oButton = <Control>oEvent.getSource();
-		this.oNewPlantTagPopoverHandler.openNewPlantTagPopover([this.mCurrentPlant.plant], oButton, this.getView());
+		const bPlantHasTaxon = !!this.mCurrentPlant.plant.taxon_id;
+		this.oNewPlantTagPopoverHandler.openNewPlantTagPopover([this.mCurrentPlant.plant], oButton, this.getView(), bPlantHasTaxon);
 	}
 
 
@@ -646,5 +648,14 @@ export default class Detail extends BaseController {
 		const oDetailImagesGridList = <GridList>this.byId('detailImagesGridList');
 		var oBinding = <ListBinding>oDetailImagesGridList .getBinding("items");
 		oBinding.filter(aFilters, "Application");
+	}
+	onPressTaxonTag(oEvent: ObjectStatus$PressEvent) {
+	if (!this.oDeletePlantTagMenuHandler)
+		this.oDeletePlantTagMenuHandler = new DeletePlantTagMenuHandler(this.oComponent.getModel('plants'));
+		
+		const oSource = <Control>oEvent.getSource();
+		// const sPathTag = oSource.getBindingContext('plants')!.getPath();
+		const sTagText = (<FBPlantTag>oSource.getBindingContext('plants').getObject()).text;
+		this.oDeletePlantTagMenuHandler.openDeletePlantTagMenu(this.mCurrentPlant.plant, sTagText, this.getView(), oSource, "Taxon");
 	}
 }

@@ -8,6 +8,7 @@
 		class="sapUiContentPadding"
 		placement="Bottom"
 		contentWidth="22em"
+		afterClose=".onCloseNewPlantTagDialog"
 		initialFocus="inputTag">
 
 		<content>
@@ -26,6 +27,18 @@
 						class="sapUiTinyMargin"
 						submit=".onAddTag"
 						/>
+					<RadioButtonGroup
+						enabled="{tagInput>/DisplayTaxonOption}"
+						class="sapUiSmallMarginTop">
+						<RadioButton
+							text="Plant"
+							selected="{tagInput>/TagPlant}"
+						/>
+						<RadioButton
+							text="Taxon"
+							selected="{tagInput>/TagTaxon}"
+						/>
+					</RadioButtonGroup>
 				</VBox>
 	
         		

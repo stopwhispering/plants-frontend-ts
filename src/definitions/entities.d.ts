@@ -10,6 +10,8 @@ export interface NewPlant extends FBPlant {
     id: undefined;
 }
 
+export type LTagType = "Plant" | "Taxon";
+
 export interface LTagInputStatus {
     selected: boolean;
     text: string;
@@ -19,6 +21,9 @@ export interface LTagInputStatus {
 export interface LTagInput {
     TagStatusCollection: LTagInputStatus[];
     Value: string;
+    TagPlant: boolean;
+    TagTaxon: boolean;
+    DisplayTaxonOption: boolean;
 }
 
 export interface LRouteMatchedArguments{

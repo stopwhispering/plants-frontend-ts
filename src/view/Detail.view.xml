@@ -59,6 +59,25 @@
 							type="Transparent"
 							press="onOpenAddTagDialog"
 						/>
+							<!-- visible="{= !!${plants>taxon_tags} &amp;&amp; ${plants>taxon_tags}.length > 0 }" -->
+						<m:HBox
+							height="1.2em"
+							items="{
+								path: 'plants>taxon_tags',
+								templateShareable: true
+							}"
+						>
+							<m:items>
+								<m:ObjectStatus
+									text="{plants>text}"
+									icon="{plants>icon}"
+									state="{plants>state}"
+									inverted="true"
+									active="true"
+									press=".onPressTaxonTag"
+								/>
+							</m:items>
+						</m:HBox>
 						<m:HBox
 							height="1.2em"
 							items="{
@@ -199,6 +218,26 @@
 							type="Transparent"
 							press="onOpenAddTagDialog"
 						/>
+					</m:HBox>
+						<!-- visible="{= !!${plants>taxon_tags} &amp;&amp; ${plants>taxon_tags}.length > 0 }" -->
+					<m:HBox
+						height="1.2em"
+						items="{
+							path: 'plants>taxon_tags',
+							templateShareable: true
+						}"
+						wrap="Wrap"
+					>
+						<m:items>
+							<m:ObjectStatus
+								text="{plants>text}"
+								icon="{plants>icon}"
+								state="{plants>state}"
+								inverted="true"
+								active="true"
+								press=".onPressTaxonTag"
+							/>
+						</m:items>
 					</m:HBox>
 					<m:HBox
 						height="1.2em"

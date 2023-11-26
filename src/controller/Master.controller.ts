@@ -191,6 +191,6 @@ export default class Master extends BaseController {
 			this._oNewPlantTagPopoverHandler = new NewPlantTagPopoverHandler(oPlantsModel);
 		}
 
-		this._oNewPlantTagPopoverHandler.openNewPlantTagPopover(aSelectedPlants, oSource, this.getView());
+		this._oNewPlantTagPopoverHandler.openNewPlantTagPopover(aSelectedPlants, oSource, this.getView(), false);
 	}
 }

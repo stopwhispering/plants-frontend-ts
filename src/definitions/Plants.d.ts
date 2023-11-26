@@ -66,6 +66,7 @@ export interface BPlant {
   current_soil?: FBPlantCurrentSoil;
   latest_image?: FBPlantLatestImage;
   tags: FBPlantTag[];
+  taxon_tags: TaxonTagRead[];
   seed_planting_id?: number;
 }
 export interface FBAssociatedPlantExtractForPlant {
@@ -88,6 +89,12 @@ export interface FBPlantTag {
   last_update?: string;
   plant_id: number;
 }
+
+export interface TaxonTagRead extends FBPlantTag{
+  plant_id?: number;  // not needed for taxon tags
+  taxon_id: number;
+}
+
 export interface PlantRenameRequest {
   new_plant_name: string;
 }

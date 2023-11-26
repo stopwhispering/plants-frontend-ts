@@ -6,6 +6,8 @@ import View from "sap/ui/core/mvc/View";
 import Control from "sap/ui/core/Control";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import MenuItem, { MenuItem$PressEvent } from "sap/m/MenuItem";
+import { LTagInput, LTagType } from "plants/ui/definitions/entities";
+import PlantTagger from "./PlantTagger";
 /**
  * @namespace plants.ui.customClasses.plants
  */
@@ -13,14 +15,20 @@ export default class DeletePlantTagMenuHandler extends ManagedObject {
     private _oDeletePlantTagMenu: Menu;
     private _oPlant: BPlant;
     private _oPlantsModel: JSONModel;
+    private _eTagType: LTagType
+    private _sTagValue: string;
+	private _oPlantTagger: PlantTagger;
 
     public constructor(oPlantsModel: JSONModel) {
         super();
         this._oPlantsModel = oPlantsModel;
+		this._oPlantTagger = new PlantTagger(oPlantsModel);
     }
 
-    public openDeletePlantTagMenu(oPlant: BPlant, sPathTag: string, oAttachTo: View, oOpenBy: Control): void {
+    public openDeletePlantTagMenu(oPlant: BPlant, sTagValue: string, oAttachTo: View, oOpenBy: Control, eTagType: LTagType): void {
         this._oPlant = oPlant;
+        this._eTagType = eTagType;
+        this._sTagValue = sTagValue;
 
         if (!this._oDeletePlantTagMenu) {
             Fragment.load({
@@ -29,38 +37,31 @@ export default class DeletePlantTagMenuHandler extends ManagedObject {
                 controller: this
             }).then((oControl: Control | Control[]) => {
                 this._oDeletePlantTagMenu = <Menu>oControl;
-
-                // bind clicked tag to the popup menu
-                this._oDeletePlantTagMenu.bindElement({
-                    path: sPathTag,
-                    model: "plants"
-                });
-
                 oAttachTo.addDependent(this._oDeletePlantTagMenu);
                 this._oDeletePlantTagMenu.openBy(oOpenBy, true);
             });
         } else {
-            // bind clicked tag to the popup menu and open it
-            this._oDeletePlantTagMenu.bindElement({
-                path: sPathTag,
-                model: "plants"
-            });
             this._oDeletePlantTagMenu.openBy(oOpenBy, true);
         }
     }
 
     pressDeleteTag(oEvent: MenuItem$PressEvent) {
-        var oSource = <MenuItem>oEvent.getSource();
-        var oContext = oSource.getBindingContext('plants');
-        // get position in tags array
-        var sPathItem = oContext!.getPath();
-        var sIndex = sPathItem.substring(sPathItem.lastIndexOf('/') + 1);
-        const iIndex = parseInt(sIndex);
-        // remove item from array
-        // todo not here but in crud class
-        // this._oPlantsModel.getData().PlantsCollection[this.mCurrentPlant.plant_index!].tags.splice(iIndex, 1);
-        this._oPlant.tags.splice(iIndex, 1);
-        this._oPlantsModel.updateBindings(false);
+        if (this._eTagType === 'Plant') {
+            const iIndex  = this._oPlant.tags.findIndex(oTag=>oTag.text === this._sTagValue);
+            if (iIndex === -1) {
+                throw new Error('Tag not found');
+            }
+
+            // remove item from array
+            // todo not here but in crud class
+            this._oPlant.tags.splice(iIndex, 1);
+            this._oPlantsModel.updateBindings(true);  // have it updated in master view, too
+        } else {
+            // delete in all the taxon's plants
+            if(!this._oPlant.taxon_id)
+            throw new Error('Taxon ID is missing');
+            this._oPlantTagger.deleteTaxonTagFromPlants(this._sTagValue, this._oPlant.taxon_id);
+        }
     }
 
 }
