@@ -113,7 +113,7 @@
 						demandPopin="true"
 						popinDisplay="WithoutHeader"
 					>
-						<Text text="Tags"/>
+						<Text text="Species"/>
 					</Column>
 					<Column
 						minScreenWidth="30em"
@@ -150,16 +150,31 @@
 							<!-- plant name and botanical name plus icons for propagation type and geographic origin-->
 							<HBox justifyContent="SpaceBetween">
 								<VBox>
-									<Label 
-										text="{plants>plant_name}" 
-										design="Bold" 
-										wrapping="true"
-										tooltip="{plants>id} - {plants>plant_name}" />
-									<FormattedText 
-										visible="{= !!${plants>full_botanical_html_name} }"
-										htmlText="{plants>full_botanical_html_name}"
-										tooltip="{plants>id} - {plants>plant_name}"
-										/>
+										<Label 
+											text="{plants>plant_name}" 
+											design="Bold" 
+											wrapping="true"
+											tooltip="{plants>id} - {plants>plant_name}" />
+										<HBox
+											items="{
+												path: 'plants>tags',
+												templateShareable: false
+											}"
+											wrap="Wrap"
+											visible="{
+												path: 'plants>tags',
+												formatter: '.formatter.existsAndNotEmpty'
+											}"
+										>
+											<items>
+												<ObjectStatus
+													text="{plants>text}"
+													icon="{plants>icon}"
+													state="{plants>state}"
+													inverted="true"
+												/>
+											</items>
+										</HBox>
 								</VBox>
 								<VBox>
 									<Image
@@ -191,48 +206,35 @@
 								</VBox>
 							</HBox>
 							<!-- tags -->
-							<HBox>
-							<HBox
-								items="{
-									path: 'plants>taxon_tags',
-									templateShareable: false
-								}"
-								wrap="Wrap"
-								visible="{
-									path: 'plants>taxon_tags',
-									formatter: '.formatter.existsAndNotEmpty'
-								}"
-							>
-								<items>
-									<ObjectStatus
-										text="{plants>text}"
-										icon="{plants>icon}"
-										state="{plants>state}"
-										inverted="true"
-									/>
-								</items>
-							</HBox>
-							<HBox
-								items="{
-									path: 'plants>tags',
-									templateShareable: false
-								}"
-								wrap="Wrap"
-								visible="{
-									path: 'plants>tags',
-									formatter: '.formatter.existsAndNotEmpty'
-								}"
-							>
-								<items>
-									<ObjectStatus
-										text="{plants>text}"
-										icon="{plants>icon}"
-										state="{plants>state}"
-										inverted="true"
-									/>
-								</items>
-							</HBox>
-							</HBox>
+									<VBox>
+										<FormattedText 
+											visible="{= !!${plants>full_botanical_html_name} }"
+											htmlText="{plants>full_botanical_html_name}"
+											tooltip="{plants>id} - {plants>plant_name}"
+											/>
+										
+										
+										<HBox
+											items="{
+												path: 'plants>taxon_tags',
+												templateShareable: false
+											}"
+											wrap="Wrap"
+											visible="{
+												path: 'plants>taxon_tags',
+												formatter: '.formatter.existsAndNotEmpty'
+											}"
+										>
+											<items>
+												<ObjectStatus
+													text="{plants>text}"
+													icon="{plants>icon}"
+													state="{plants>state}"
+													inverted="true"
+												/>
+											</items>
+										</HBox>
+									</VBox>
 							<!-- latest image date -->
 							<HBox>
 								<ObjectIdentifier
