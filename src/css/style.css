@@ -45,6 +45,17 @@
   box-shadow: 0 0 0 0.0625rem rgba(0,0,0,0.1), 0 0.125rem 0.5rem 0 rgba(0,0,0,0.1);
 }
 
+
+
+.detailsInfoBox {
+  border-radius: 0.25rem;
+  /*border: 1px solid #e5e5e5;*/
+  /*border: 1px solid #73AD21;*/
+  background-color: rgba(109, 236, 45, 0.096);
+  padding: 5px;
+  box-shadow: 0 0 0 0.0625rem rgba(0,0,0,0.1), 0 0.125rem 0.5rem 0 rgba(0,0,0,0.1);
+}
+
 .noBorder{
 	border:none !important;
 	box-shadow:none !important;
@@ -118,7 +129,7 @@
 }
 
 .taxonLinkBox{
-  background-color: rgb(236, 254, 235);
+  background-color: rgba(109, 236, 45, 0.096);
   border-radius: 5px;
   border: 2px solid #d3d3d3;
   padding: 5px;

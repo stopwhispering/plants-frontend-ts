@@ -265,6 +265,14 @@
 			<!--General-->
 			<ObjectPageSection title="General">
 				<subSections>
+					<ObjectPageSubSection>
+						<blocks>
+							<core:Fragment
+								fragmentName="plants.ui.view.embedded.DetailPlantInfos"
+								type="XML"
+							/>
+						</blocks>
+					</ObjectPageSubSection>
 					<ObjectPageSubSection
 						id="flowerHistorySection"
 						title="Flowering"
@@ -273,14 +281,6 @@
 						<blocks>
 							<core:Fragment
 								fragmentName="plants.ui.view.embedded.DetailFlowerHistory"
-								type="XML"
-							/>
-						</blocks>
-					</ObjectPageSubSection>
-					<ObjectPageSubSection>
-						<blocks>
-							<core:Fragment
-								fragmentName="plants.ui.view.embedded.DetailPlantInfos"
 								type="XML"
 							/>
 						</blocks>
