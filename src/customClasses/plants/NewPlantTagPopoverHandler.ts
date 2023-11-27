@@ -35,7 +35,7 @@ export default class NewPlantTagPopoverHandler extends ManagedObject {
 		// })
 	}
 
-	public async openNewPlantTagPopover(aPlants: BPlant[], oOpenBy: Control, oAttachTo: View, bDisplayTaxonOption: boolean): void {
+	public async openNewPlantTagPopover(aPlants: BPlant[], oOpenBy: Control, oAttachTo: View, bDisplayTaxonOption: boolean) {
 		// this._oPlant = aPlants;
 		this._aPlants = aPlants;
 
