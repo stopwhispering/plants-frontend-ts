@@ -70,8 +70,7 @@
 					suggestionItems="{
 						path: 'keywords>/KeywordsCollection',
 						templateShareable: false
-						}"
-					showSuggestion="true">
+						}">
 					
 					<suggestionItems>
 						<core:Item text="{keywords>keyword}"/>

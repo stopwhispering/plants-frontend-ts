@@ -146,8 +146,8 @@ export default class FlexibleColumnLayout extends BaseController {
 
 		// check if there are any unsaved changes
 		const oChangeTracker = ChangeTracker.getInstance();
-		// const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-		// const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+		// const aModifiedPlants: PlantRead[] = oChangeTracker.getModifiedPlants();
+		// const aModifiedImages: ImageRead[] = oChangeTracker.getModifiedImages();
 		// const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
 
 		// // if modified data exists, ask for confirmation if all changes should be undone

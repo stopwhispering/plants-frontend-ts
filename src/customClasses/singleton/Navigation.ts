@@ -6,7 +6,7 @@ import { LayoutType } from "sap/f/library";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import View from "sap/ui/core/mvc/View";
 import Router from "sap/ui/core/routing/Router";
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 
 /**
  * @namespace plants.ui.customClasses.singleton
@@ -70,7 +70,7 @@ export default class Navigation extends ManagedObject {
 		}
 	}
 
-	public navToPlant(oPlant: BPlant): void {  //, oComponent: Component) {
+	public navToPlant(oPlant: PlantRead): void {  //, oComponent: Component) {
 		//similar to navToPlantDetails with two differences:
 		//  - requires the plant object instead of plant id
 		//  - requires component to be supplied as parameter (therefore we don't have to bind this to the calling function)

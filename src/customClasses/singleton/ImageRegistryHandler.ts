@@ -1,7 +1,7 @@
 import Util from "plants/ui/customClasses/shared/Util";
 import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
-import { FBImage, ImageRead } from "plants/ui/definitions/Images";
+import { ImageRead } from "plants/ui/definitions/Images";
 import { LImageIdMap } from "plants/ui/definitions/ImageLocal";
 
 /**
@@ -49,7 +49,7 @@ export default class ImageRegistryHandler extends ManagedObject {
 		this._oImageIdRegistry = {};
 	}
 
-	public addImageToImagesRegistry(aImages: FBImage[]) {
+	public addImageToImagesRegistry(aImages: ImageRead[]) {
 		// add photos loaded for a plant to the registry if not already loaded with other plant
 		// note: to avoid cross dependency, we don't add a copy of the photo to a clone registry
 		//       caller needs to do that separately 
@@ -60,7 +60,7 @@ export default class ImageRegistryHandler extends ManagedObject {
 		});
 	}
 
-	public addImageToRegistry(oImage: FBImage): void {
+	public addImageToRegistry(oImage: ImageRead): void {
 		this._oImageIdRegistry[oImage.id] = oImage;
 	}	
 
@@ -73,7 +73,7 @@ export default class ImageRegistryHandler extends ManagedObject {
 		return sKeys.map(s => parseInt(s));
 	}
 
-	public getImageInRegistryById(iImageId: int): FBImage {
+	public getImageInRegistryById(iImageId: int): ImageRead {
 		return this._oImageIdRegistry[iImageId];
 	}
 

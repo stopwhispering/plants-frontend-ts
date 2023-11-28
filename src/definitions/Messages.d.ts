@@ -12,16 +12,16 @@ export type FBMajorResource =
   | "PlantPropertyResource"
   | "TaxonPropertyResource";
 
-export interface BConfirmation {
-  action: string;
-  message: BMessage;
+export interface BackendConfirmation {
+  action?: string;
+  message: BackendMessage;
 }
-export interface BMessage {
+export interface BackendMessage {
   type: BMessageType;
   message: string;
   description?: string;
 }
-export interface BSaveConfirmation {
+export interface BackendSaveConfirmation {
   resource: FBMajorResource;
-  message: BMessage;
+  message: BackendMessage;
 }

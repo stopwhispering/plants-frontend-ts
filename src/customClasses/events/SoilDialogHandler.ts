@@ -2,7 +2,7 @@ import Dialog, { Dialog$AfterCloseEvent } from "sap/m/Dialog";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
 import { LSoilEditData } from "plants/ui/definitions/EventsLocal";
-import { FBSoil } from "plants/ui/definitions/Events"
+import { SoilRead } from "plants/ui/definitions/Events"
 import Fragment from "sap/ui/core/Fragment";
 import Control from "sap/ui/core/Control";
 import Button, { Button$PressEvent } from "sap/m/Button";
@@ -51,7 +51,7 @@ export default class SoilDialogHandler extends ManagedObject {
 		});
 	}
 
-	openDialogEditSoil(oSoil: FBSoil, oAttachTo: Dialog): void {
+	openDialogEditSoil(oSoil: SoilRead, oAttachTo: Dialog): void {
 		// open the new/edit-soil dialog when it's promise is resolved
 		var dEditedSoil = <LSoilEditData>{
 			dialog_title: 'Edit Soil (ID ' + oSoil.id + ')',

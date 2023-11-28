@@ -61,6 +61,14 @@ export default class Util extends ManagedObject {
 		return await Util.prototype.http<T>(new Request(path, args));
 	}
 
+	public static async delete_<T>(
+		path: string,
+		body?: any,
+		args: RequestInit = { method: "DELETE", body: JSON.stringify(body), headers: { 'Content-Type': 'application/json' } }
+	): Promise<any> {
+		return await Util.prototype.http<T>(new Request(path, args));
+	}
+
 	public static parse_resource_from_url(sUrl: string) {
 		var aItems = sUrl.split('/');
 		var iIndex = aItems.indexOf('backend');

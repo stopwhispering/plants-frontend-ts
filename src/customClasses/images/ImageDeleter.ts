@@ -2,13 +2,11 @@ import Util from "plants/ui/customClasses/shared/Util";
 import MessageBox from "sap/m/MessageBox";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { FImageDelete, FImagesToDelete } from "plants/ui/definitions/Events";
-import { FBImage } from "plants/ui/definitions/Images";
-import { BConfirmation } from "plants/ui/definitions/Messages";
-import ModelsHelper from "plants/ui/model/ModelsHelper";
+import { ImageToDelete, DeleteImagesRequest } from "plants/ui/definitions/Events";
+import { DeleteImagesResponse, ImageRead } from "plants/ui/definitions/Images";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler";
-import ErrorHandling from "../shared/ErrorHandling";
+import ModelsHelper from "plants/ui/model/ModelsHelper";
 
 /**
  * @namespace plants.ui.customClasses.images
@@ -17,20 +15,17 @@ export default class ImageDeleter extends ManagedObject {
 
 	private _oImagesModel: JSONModel;
 	private _oUntaggedImagesModel: JSONModel;
-	private fnOnAjaxSimpleSuccess: Function;
 
 	public constructor(
 		oImagesModel: JSONModel, 
-		oUntaggedImagesModel: JSONModel, 
-		fnOnAjaxSimpleSuccess: Function) {
+		oUntaggedImagesModel: JSONModel) {
 
 		super();
 		this._oImagesModel = oImagesModel;
 		this._oUntaggedImagesModel = oUntaggedImagesModel;
-		this.fnOnAjaxSimpleSuccess = fnOnAjaxSimpleSuccess;  // todo find a better way to do this
 	}	
 
-	public askToDeleteImage(oImage: FBImage, bCompact: boolean): void {
+	public askToDeleteImage(oImage: ImageRead, bCompact: boolean): void {
 		//ask to confirm deletion of image from detail or untagged view
 		MessageBox.confirm(
 			"Delete this image?", {
@@ -42,7 +37,7 @@ export default class ImageDeleter extends ManagedObject {
 		);
 	}
 
-	public askToDeleteMultipleImages(aImages: FBImage[], bCompact: boolean, cbResetSelection: Function): void{
+	public askToDeleteMultipleImages(aImages: ImageRead[], bCompact: boolean, cbResetSelection: Function): void{
 		MessageBox.confirm(
 			"Delete " + aImages.length + " images?", {
 			title: "Delete",
@@ -53,36 +48,32 @@ export default class ImageDeleter extends ManagedObject {
 		);
 	}
 
-	private _cbConfirmDelete(aImages: FBImage[], cbCallback: Function | undefined, sAction: string) {
+	private async _cbConfirmDelete(aImages: ImageRead[], cbCallback: Function | undefined, sAction: string) {
 		if (sAction !== 'Delete')
 			return;
 
-		const oPayload = <FImagesToDelete>{
-			images: aImages.map((oImage) => (<FImageDelete>{
+		const oPayload = <DeleteImagesRequest>{
+			images: aImages.map((oImage) => (<ImageToDelete>{
 				id: oImage.id,
 			}))
 		};
 
-		$.ajax({
-			url: Util.getServiceUrl('images/'),
-			type: 'DELETE',
-			contentType: "application/json",
-			data: JSON.stringify(oPayload),
-			context: this
-		})
-			.done(this._onAjaxDeletedImagesSuccess.bind(this, aImages, cbCallback))
-			.fail(ErrorHandling.onFail.bind(this, 'Image(s) (DELETE)'));
+		const oResult: DeleteImagesResponse = await Util.delete_(Util.getServiceUrl('images/'), oPayload);
+
+		ModelsHelper.onGenericSuccessWithMessage(oResult);
+		this._deleteImagesInModels(aImages);
+		if (!!cbCallback) {
+			cbCallback();
+		}
+
 	}
 
-	private _onAjaxDeletedImagesSuccess(aDeletedImages: FBImage[], cbCallback: Function | undefined, data: BConfirmation, textStats: any, jqXHR: any): void {
-		//show default success message after successfully deleting image in backend (either from untagged or detail view)
-		this.fnOnAjaxSimpleSuccess(data, textStats, jqXHR);  // todo find a better way to do this
-
+	private _deleteImagesInModels(aDeletedImages: ImageRead[]): void {
 		// delete image in models...
-		var aDataImages = <FBImage[]>this._oImagesModel.getData().ImagesCollection;
-		var aDataUntagged = <FBImage[]>this._oUntaggedImagesModel.getData().ImagesCollection;
+		var aDataImages = <ImageRead[]>this._oImagesModel.getData().ImagesCollection;
+		var aDataUntagged = <ImageRead[]>this._oUntaggedImagesModel.getData().ImagesCollection;
 
-		aDeletedImages.forEach(function (image: FBImage) {
+		aDeletedImages.forEach(function (image: ImageRead) {
 
 			var iPosImages = aDataImages.indexOf(image);
 			if (iPosImages >= 0) {
@@ -100,11 +91,7 @@ export default class ImageDeleter extends ManagedObject {
 
 		});
 		this._oImagesModel.refresh();
-		this._oUntaggedImagesModel.refresh();
-
-		if (!!cbCallback) {
-			cbCallback();
-		}
+		this._oUntaggedImagesModel.refresh();		
 	}
 
 }

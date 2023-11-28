@@ -8,7 +8,7 @@ import Control from "sap/ui/core/Control";
 import { LFilterHiddenChoice } from "plants/ui/definitions/PlantsLocal";
 import SegmentedButton from "sap/m/SegmentedButton";
 import Fragment from "sap/ui/core/Fragment";
-import { BPlant, FBPlantTag } from "plants/ui/definitions/Plants";
+import { PlantRead, PlantTag } from "plants/ui/definitions/Plants";
 import StandardTreeItem from "sap/m/StandardTreeItem";
 import FilterService from "plants/ui/customClasses/filter/PlantFilterService"
 import Filter from "sap/ui/model/Filter";
@@ -105,11 +105,11 @@ export default class PlantFilterDialogHandler extends ManagedObject {
 		// }
 	}
 
-	private _getDistinctTagsFromPlants(aPlants: BPlant[]) {
+	private _getDistinctTagsFromPlants(aPlants: PlantRead[]) {
 		// collect distinct tags assigned to any plant
 		var aTagsAll = <string[]>[];
 		for (var i = 0; i < aPlants.length; i++) {
-			var aTagObjects = <FBPlantTag[]>aPlants[i].tags;
+			var aTagObjects = <PlantTag[]>aPlants[i].tags;
 			if (!!aTagObjects.length) {
 				// get tag texts from tag object list
 				var aTags = <string[]>aTagObjects.map(function (tag_obj) { return tag_obj.text; });
@@ -161,7 +161,7 @@ export default class PlantFilterDialogHandler extends ManagedObject {
 
 	public onResetFilters(oEvent: ViewSettingsDialog$ResetFiltersEvent): void {
 		var sUrl = Util.getServiceUrl('selection_data');
-		this._oTaxonTreeModel.loadData(sUrl);
+		this._oTaxonTreeModel.loadData(sUrl);  // will receive GetSelectionDataResponse
 	}
 
 

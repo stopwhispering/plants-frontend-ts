@@ -1,14 +1,14 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
-import Event from "sap/ui/base/Event";
 import Control from "sap/ui/core/Control";
 import GridListItem from "sap/f/GridListItem";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { FBImage } from "plants/ui/definitions/Images";
-import { FBEvent } from "plants/ui/definitions/Events";
+import { ImageRead } from "plants/ui/definitions/Images";
+import { EventRead } from "plants/ui/definitions/Events";
 import ImageToEventAssigner from "plants/ui/customClasses/images/ImageToEventAssigner";
 import Popover from "sap/m/Popover";
+import { ListItemBase$PressEvent } from "sap/m/ListItemBase";
 
 /**
  * @namespace plants.ui.view.fragments.events
@@ -50,11 +50,11 @@ export default class AssignImageToEventDialogHandler extends ManagedObject {
         }
     }
 
-    onSelectEventForImage(oEvent: Event) {
+    onSelectEventForImage(oEvent: ListItemBase$PressEvent) {
         // triggered upon selection of event in event selection dialog for an image get selected event
         const oSource = <GridListItem>oEvent.getSource();
-        const oImage = <FBImage>oSource.getBindingContext('images')!.getObject();
-        const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
+        const oImage = <ImageRead>oSource.getBindingContext('images')!.getObject();
+        const oSelectedEvent = <EventRead>oSource.getBindingContext('events')!.getObject();
         new ImageToEventAssigner().assignImageToEvent(oImage, oSelectedEvent, this._oEventsModel);
         this._oAssignImageToEventDialog.close();
     }

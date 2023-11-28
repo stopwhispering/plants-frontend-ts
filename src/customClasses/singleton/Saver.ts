@@ -2,15 +2,16 @@ import Util from "plants/ui/customClasses/shared/Util";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { FBImage } from "plants/ui/definitions/Images";
-import { BSaveConfirmation, FBMajorResource } from "plants/ui/definitions/Messages";
-import { BPlant, PlantsUpdateRequest } from "plants/ui/definitions/Plants";
-import { BTaxon, FTaxon } from "plants/ui/definitions/Taxon";
+import { ImageRead, UpdateImageRequest } from "plants/ui/definitions/Images";
+import { BackendSaveConfirmation, FBMajorResource } from "plants/ui/definitions/Messages";
+import { PlantRead, UpdatePlantsRequest } from "plants/ui/definitions/Plants";
+import { TaxonRead, TaxonUpdate } from "plants/ui/definitions/Taxon";
 import { LTaxonData } from "plants/ui/definitions/TaxonLocal";
 import ChangeTracker from "./ChangeTracker";
 import MessageHandler from "./MessageHandler";
 import { LEventsModelData, LPlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
 import ErrorHandling from "../shared/ErrorHandling";
+import { CreateOrUpdateEventRequest } from "plants/ui/definitions/Events";
 
 /**
  * @namespace plants.ui.customClasses.singleton
@@ -65,9 +66,9 @@ export default class Saver extends ManagedObject {
 		this._bSavingEvents = false;
 
 		const oChangeTracker = ChangeTracker.getInstance();
-		const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-		const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
-		const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
+		const aModifiedPlants: PlantRead[] = oChangeTracker.getModifiedPlants();
+		const aModifiedImages: ImageRead[] = oChangeTracker.getModifiedImages();
+		const aModifiedTaxa: TaxonRead[] = oChangeTracker.getModifiedTaxa();
 		const dModifiedEvents: LPlantIdToEventsMap = oChangeTracker.getModifiedEvents();
 
 		// cancel busydialog if nothing was modified (callbacks not triggered)
@@ -81,7 +82,7 @@ export default class Saver extends ManagedObject {
 		// save plants
 		if (aModifiedPlants.length > 0) {
 			this._bSavingPlants = true;  // required in callback function  to find out if both savings are finished
-			var dPayloadPlants: PlantsUpdateRequest = { 'PlantsCollection': aModifiedPlants };
+			var dPayloadPlants: UpdatePlantsRequest = { 'PlantsCollection': aModifiedPlants };
 			$.ajax({
 				url: Util.getServiceUrl('plants/'),
 				type: 'PUT',
@@ -89,14 +90,14 @@ export default class Saver extends ManagedObject {
 				data: JSON.stringify(dPayloadPlants),
 				context: this
 			})
-				.done(this._onAjaxSuccessSave)
+				.done(this._onAjaxSuccessSave)  // returns UpdatePlantsResponse
 				.fail(ErrorHandling.onFail.bind(this, 'Plant (PUT)'));
 		}
 
 		// save images
 		if (aModifiedImages.length > 0) {
 			this._bSavingImages = true;
-			var dPayloadImages = { 'ImagesCollection': aModifiedImages };
+			var dPayloadImages: UpdateImageRequest = { 'ImagesCollection': aModifiedImages };
 			$.ajax({
 				url: Util.getServiceUrl('images/'),
 				type: 'PUT',
@@ -113,8 +114,8 @@ export default class Saver extends ManagedObject {
 			this._bSavingTaxa = true;
 
 			// cutting occurrence images (read-only)
-			const aModifiedTaxaUnattached: BTaxon[] = Util.getClonedObject(aModifiedTaxa);
-			const aModifiedTaxaSave = <FTaxon[]>aModifiedTaxaUnattached.map(m => {
+			const aModifiedTaxaUnattached: TaxonRead[] = Util.getClonedObject(aModifiedTaxa);
+			const aModifiedTaxaSave = <TaxonUpdate[]>aModifiedTaxaUnattached.map(m => {
 				// @ts-ignore
 				delete m.occurrence_images;
 				return m;
@@ -135,7 +136,7 @@ export default class Saver extends ManagedObject {
 		// save events
 		if (Object.keys(dModifiedEvents).length > 0) {
 			this._bSavingEvents = true;
-			var dPayloadEvents = { 'plants_to_events': dModifiedEvents };
+			var dPayloadEvents: CreateOrUpdateEventRequest = { 'plants_to_events': dModifiedEvents };
 			$.ajax({
 				url: Util.getServiceUrl('events/'),
 				type: 'POST',
@@ -149,12 +150,12 @@ export default class Saver extends ManagedObject {
 
 	}
 
-	private _onAjaxSuccessSave(oMsg: BSaveConfirmation, sStatus: string, oReturnData: object) {
+	private _onAjaxSuccessSave(oMsg: BackendSaveConfirmation, sStatus: string, oReturnData: object) {
 		// cancel busydialog only if neither saving plants nor images or taxa is still running
 		const sResource: FBMajorResource = oMsg.resource;
 		if (sResource === 'PlantResource') {
 			this._bSavingPlants = false;
-			var dDataPlants: PlantsUpdateRequest = this._oPlantsModel.getData();
+			var dDataPlants: UpdatePlantsRequest = this._oPlantsModel.getData();
 			ChangeTracker.getInstance().setOriginalPlants(dDataPlants);
 		} else if (sResource === 'ImageResource') {
 			this._bSavingImages = false;

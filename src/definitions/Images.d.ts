@@ -1,49 +1,36 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
-import { BMessage } from "./Messages";
+import { BackendMessage } from "./Messages";
 
 /**
  * @namespace plants.ui.definitions
  */
-export type FBImages = FBImage[];
 export type BMessageType = "Information" | "None" | "Success" | "Warning" | "Error" | "Debug";
 
-export interface BImageUpdated {
-  ImagesCollection: FBImages;
+export interface UpdateImageRequest {
+  ImagesCollection: ImageRead[];
 }
-export interface FBImage {
-  id: number;
-  filename: string;
-  keywords: FBKeyword[];
-  plants: FBImagePlantTag[];
-  description?: string;
-  record_date_time?: string;
-}
-export interface FBKeyword {
+export interface Keyword {
   keyword: string;
 }
-export interface FBImagePlantTag {
+export interface ImagePlantTag {
   plant_id?: number;
   plant_name: string;
   plant_name_short: string;
-  // key: string;
-  // text: string;
 }
-export interface BResultsImageDeleted {
-  action: string;
-  resource: string;
-  message: BMessage;
+export interface DeleteImagesResponse extends ResponseContainer {
 }
-export interface BResultsImageResource {
-  ImagesCollection: FBImages;
-  message: BMessage;
+
+export interface ResponseContainer {
+  action?: string;
+  message: BackendMessage;
 }
-export interface BResultsImagesUploaded {
-  action: string;
-  resource: string;
-  message: BMessage;
-  images: FBImages;
+export interface GetUntaggedImagesResponse extends ResponseContainer{
+  ImagesCollection: ImageRead[];
 }
-export interface FImageUploadedMetadata {
+export interface UploadImagesResponse extends ResponseContainer {
+  images: ImageRead[];
+}
+export interface UploadedImageMetadata {
   plants: number[];
   keywords: string[];
 }
@@ -51,8 +38,8 @@ export interface FImageUploadedMetadata {
 export interface ImageRead {
   id: number;
   filename: string;
-  keywords: FBKeyword[];
-  plants: FBImagePlantTag[];
+  keywords: Keyword[];
+  plants: ImagePlantTag[];
   description?: string;
   record_date_time?: string;
 }

@@ -2,8 +2,8 @@ import MessageToast from "sap/m/MessageToast"
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Icon from "sap/ui/core/Icon";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { FBImage } from "plants/ui/definitions/Images";
-import { BTaxon, TaxonImageUpdate } from "plants/ui/definitions/Taxon";
+import { TaxonRead, TaxonImageUpdate } from "plants/ui/definitions/Taxon";
+import { ImageRead } from "plants/ui/definitions/Images";
 
 /**
  * @namespace plants.ui.customClasses.images
@@ -14,14 +14,14 @@ export default class ImageToTaxonAssigner extends ManagedObject {
 		// triggered by clicking icon next to image in images list; moves the image to the taxon box
 
 		// get image
-		const oImage = <FBImage>oSource.getBindingContext('images')!.getObject();
+		const oImage = <ImageRead>oSource.getBindingContext('images')!.getObject();
 		var oImageAssignment = <TaxonImageUpdate>{
 			id: oImage.id,
 			description: oImage.description  // default description is image description, but may be altered later
 		};
 
 		// get current plant's taxon
-		const oTaxon = <BTaxon>oSource.getBindingContext('taxon')!.getObject();
+		const oTaxon = <TaxonRead>oSource.getBindingContext('taxon')!.getObject();
 
 		// check if already assigned
 		if (!!oTaxon.images && oTaxon.images.length > 0) {

@@ -1,23 +1,21 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
+import { ResponseContainer } from "./Images";
 
 /**
  * @namespace plants.ui.definitions.entities
  */
-export interface BResultsSelection {
-  action: string;
-  resource: string;
-  message: BMessage;
-  Selection: BTaxonTreeRoot;
+export interface GetSelectionDataResponse extends ResponseContainer {
+  Selection: TaxonTreeRoot;
 }
 
-export interface BTaxonTreeRoot {
-  TaxonTree: BTaxonTreeNode[];
+export interface TaxonTreeRoot {
+  TaxonTree: TaxonTreeNode[];
 }
 
-export interface BTaxonTreeNode {
+export interface TaxonTreeNode {
   key: string;
   level: number;
   count: number;
-  nodes?: BTaxonTreeNode[];
+  nodes?: TaxonTreeNode[];
   plant_ids?: number[];
 }

@@ -6,7 +6,7 @@ import Popover from "sap/m/Popover"
 import Table from "sap/m/Table"
 import ColumnListItem from "sap/m/ColumnListItem"
 import ListBinding from "sap/ui/model/ListBinding"
-import { BPlant, PlantRead } from "../definitions/Plants"
+import { PlantRead } from "../definitions/Plants"
 import Label from "sap/m/Label"
 import PlantSearcher from "plants/ui/customClasses/filter/PlantSearcher"
 import NewPlantDialogHandler from "../customClasses/plants/NewPlantDialogHandler"
@@ -55,7 +55,7 @@ export default class Master extends BaseController {
 	//////////////////////////////////////////////////////////	
 	onListItemPress(oEvent: ListItemBase$PressEvent) {
 		// get selected plant
-		var oPlant = <BPlant>(<ColumnListItem>oEvent.getSource()).getBindingContext("plants")!.getObject()
+		var oPlant = <PlantRead>(<ColumnListItem>oEvent.getSource()).getBindingContext("plants")!.getObject()
 		this.navigation.navToPlantDetails(oPlant.id!);
 	}
 
@@ -180,7 +180,7 @@ export default class Master extends BaseController {
 		const oSource = <OverflowToolbarButton>oEvent.getSource();
 		const oPlantsTable = <Table>this.byId('plantsTable');
 		const aSelectedItems = oPlantsTable.getSelectedItems();
-		const aSelectedPlants = <BPlant[]> aSelectedItems.map(item => item.getBindingContext('plants')!.getObject())
+		const aSelectedPlants = <PlantRead[]> aSelectedItems.map(item => item.getBindingContext('plants')!.getObject())
 		if (aSelectedItems.length == 0) {
 			MessageToast.show("Nothing selected.");
 			return;

@@ -2,7 +2,7 @@ import Util from "plants/ui/customClasses/shared/Util";
 import MessageBox from "sap/m/MessageBox";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import ErrorHandling from "../shared/ErrorHandling";
@@ -22,7 +22,7 @@ export default class PlantDeleter extends ManagedObject {
 		this.fnCloseDetails = fnCloseDetails;
 	}	
 
-	public askToDeletePlant(oPlant: BPlant, bCompact: boolean): void {
+	public askToDeletePlant(oPlant: PlantRead, bCompact: boolean): void {
 		//open confirmation dialog
 		const mOptions = {
 			title: "Delete",
@@ -34,14 +34,14 @@ export default class PlantDeleter extends ManagedObject {
 		MessageBox.confirm("Delete plant " + oPlant.plant_name + "?", mOptions);
 	}
 
-	private _confirmDeletePlant(oPlant: BPlant, sAction: string): void {
+	private _confirmDeletePlant(oPlant: PlantRead, sAction: string): void {
 		if (sAction !== 'Delete') {
 			return;
 		}
 		this._deletePlant(oPlant);
 	}
 	
-	private _deletePlant(oPlant: BPlant): void {
+	private _deletePlant(oPlant: PlantRead): void {
 
 		Util.startBusyDialog('Deleting', 'Deleting ' + oPlant.plant_name);
 		$.ajax({
@@ -54,7 +54,7 @@ export default class PlantDeleter extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Plant (DELETE)'));
 	}
 
-	private _onPlantDeleted(oPlantDeleted: BPlant, oMsg: any, sStatus: string, oReturnData: any): void {
+	private _onPlantDeleted(oPlantDeleted: PlantRead, oMsg: any, sStatus: string, oReturnData: any): void {
 		Util.stopBusyDialog();
 		// this.fnOnAjaxSimpleSuccess(oMsg, sStatus, oReturnData); 
 		ModelsHelper.onGenericSuccessWithMessage(oMsg, sStatus, oReturnData);

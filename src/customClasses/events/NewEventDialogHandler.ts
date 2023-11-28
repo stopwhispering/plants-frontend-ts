@@ -1,7 +1,7 @@
 // Handler for Dialog to edit an event or create a new one.
 
 import { LEventData, LEventEditData, LEventEditDataSegments, LInitialSoil, LNewEventData, LPotHeightOptions, LPotShapeOptions } from "plants/ui/definitions/EventsLocal";
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 import Dialog from "sap/m/Dialog";
 import MessageToast from "sap/m/MessageToast";
 import Control from "sap/ui/core/Control";
@@ -10,8 +10,8 @@ import View from "sap/ui/core/mvc/View";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import EventCRUD from "./EventCRUD";
 import Util from "../shared/Util";
-import { FBObservation, FBPot, FBSoil, FCreateOrUpdateEvent } from "plants/ui/definitions/Events";
-import { FBImage } from "plants/ui/definitions/Images";
+import { ObservationCreateUpdate, SoilRead, EventCreateUpdate, PotCreateUpdate } from "plants/ui/definitions/Events";
+import { ImageRead } from "plants/ui/definitions/Images";
 import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
 import EventDialogHandler from "./EventDialogHandler";
 import { Button$PressEvent } from "sap/m/Button";
@@ -35,7 +35,7 @@ export default class NewEventDialogHandler extends EventDialogHandler {
 	//////////////////////////////////////////////////////////
 	// Public
 	//////////////////////////////////////////////////////////
-	public openDialogNewEvent(oAttachTo: View, oPlant: BPlant): void {
+	public openDialogNewEvent(oAttachTo: View, oPlant: PlantRead): void {
 		// if dialog was instantiated before...
 		// if it was used to create a new event before, then just re-open it
 		// if it was used to edit an event before, then destroy model and dialog first, then re-instantiate
@@ -72,7 +72,7 @@ export default class NewEventDialogHandler extends EventDialogHandler {
 	onAddOrEditEvent(oEvent: Button$PressEvent) {
 		//Triggered by 'Add' / 'Update' Button in Create/Edit Event Dialog
 		const oEventNewOrEditData = <LEventEditData>this._oEventModel.getData();
-		const oPlant = <BPlant>this._oEventDialog.getBindingContext('plants')!.getObject();
+		const oPlant = <PlantRead>this._oEventDialog.getBindingContext('plants')!.getObject();
 		this._addEvent(oPlant, oEventNewOrEditData);
 		this._oEventDialog.close();
 	}
@@ -80,7 +80,7 @@ export default class NewEventDialogHandler extends EventDialogHandler {
 	//////////////////////////////////////////////////////////
 	// Private
 	//////////////////////////////////////////////////////////
-	private _addEvent(oPlant: BPlant, oEventNewData: LEventEditData){
+	private _addEvent(oPlant: PlantRead, oEventNewData: LEventEditData){
 		//triggered by add button in add/edit event dialog
 		//validates and filters data to be saved
 
@@ -93,11 +93,11 @@ export default class NewEventDialogHandler extends EventDialogHandler {
 		}
 
 		// get the data in the dialog's segments
-		const oNewObservation = <FBObservation | undefined>this._getObservationData(oNewEventSave);
-		const oNewPot = <FBPot | undefined>this._getPotData(oNewEventSave);
-		const oNewSoil = <FBSoil | undefined>this._getSoilData(oNewEventSave);
+		const oNewObservation = <ObservationCreateUpdate | undefined>this._getObservationData(oNewEventSave);
+		const oNewPot = <PotCreateUpdate | undefined>this._getPotData(oNewEventSave);
+		const oNewSoil = <SoilRead | undefined>this._getSoilData(oNewEventSave);
 
-		const oNewEvent: FCreateOrUpdateEvent = {
+		const oNewEvent: EventCreateUpdate = {
 			// id: number; no id, yet
 			date: oNewEventSave.date,
 			event_notes: <string | undefined>(oNewEventSave.event_notes && oNewEventSave.event_notes.length > 0 ? oNewEventSave.event_notes.trim() : undefined),
@@ -105,7 +105,7 @@ export default class NewEventDialogHandler extends EventDialogHandler {
 			pot: oNewPot,
 			soil: oNewSoil,
 			plant_id: oNewEventSave.plant_id,
-			images: <FBImage[]>[]
+			images: <ImageRead[]>[]
 		}
 
 		this._oEventCRUD.addEvent(oPlant, oNewEvent)
@@ -115,12 +115,12 @@ export default class NewEventDialogHandler extends EventDialogHandler {
 		// create initial data for the Create/Edit Event Dialog (we actually don't use the 
 		// data in case of editing an event)
 		// called by both function to add and to edit event
-		const oPot = <FBPot>{
+		const oPot = <PotCreateUpdate>{
 			'diameter_width': 4.0,  // in cm (decimal)
 			'material': this._oSuggestionsData['potMaterialCollection'][0].name
 		};
 
-		const oObservation: FBObservation = {
+		const oObservation: ObservationCreateUpdate = {
 			// 'height': 0.0,  // in cm (decimal)
 			// 'stem_max_diameter': 0.0,  // in cm (decimal)
 			'diseases': '',

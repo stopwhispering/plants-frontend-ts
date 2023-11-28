@@ -4,7 +4,7 @@ import View from "sap/ui/core/mvc/View";
 import Fragment from "sap/ui/core/Fragment";
 import Control from "sap/ui/core/Control";
 import ChangeTracker from "../singleton/ChangeTracker";
-import { BPlant, FBPropagationType } from "plants/ui/definitions/Plants";
+import { PlantRead, FBPropagationType } from "plants/ui/definitions/Plants";
 import MessageToast from "sap/m/MessageToast";
 import { LDescendantPlantInput } from "plants/ui/definitions/PlantsLocal";
 import PlantLookup from "./PlantLookup";
@@ -26,7 +26,7 @@ export default class NewDescendantPlantDialogHandler extends ManagedObject {
 
     private _oNewDescendantPlantDialog: Dialog;  // "dialogCreateDescendant"
 
-    private _oPlant: BPlant;
+    private _oPlant: PlantRead;
     private _oSuggestionsModel: JSONModel;
     private _oPlantsModel: JSONModel;
     public formatter: formatter;
@@ -42,12 +42,12 @@ export default class NewDescendantPlantDialogHandler extends ManagedObject {
         this._oPlantsModel = oPlantsModel;
     }
 
-    public openNewDescendantPlantDialog(oViewAttachTo: View, oPlant: BPlant): void {
+    public openNewDescendantPlantDialog(oViewAttachTo: View, oPlant: PlantRead): void {
 
         // cancel if there are any unsaved changes
         const oChangeTracker = ChangeTracker.getInstance();
-        // const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-        // const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+        // const aModifiedPlants: PlantRead[] = oChangeTracker.getModifiedPlants();
+        // const aModifiedImages: ImageRead[] = oChangeTracker.getModifiedImages();
         // const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
 		if (oChangeTracker.hasUnsavedChanges()) {
         // if (!!aModifiedPlants.length || !!aModifiedImages.length || !!aModifiedTaxa.length) {

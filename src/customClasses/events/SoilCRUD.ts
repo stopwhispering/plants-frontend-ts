@@ -3,7 +3,7 @@ import Dialog from "sap/m/Dialog";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { BPResultsUpdateCreateSoil, BResultsSoilsResource, FBSoil, FSoil, FSoilCreate } from "plants/ui/definitions/Events";
+import { CreateOrUpdateSoilResponse, GetSoilsResponse, SoilRead, SoilUpdate, SoilCreate } from "plants/ui/definitions/Events";
 import { LSoilEditData } from "plants/ui/definitions/EventsLocal";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import Control from "sap/ui/core/Control";
@@ -19,7 +19,7 @@ export default class SoilCRUD extends ManagedObject {
 	public constructor() {
 		super();
 
-		this._oSoilsModel = new JSONModel(<BResultsSoilsResource>{});  // will be loaded from backend
+		this._oSoilsModel = new JSONModel(<GetSoilsResponse>{});  // will be loaded from backend
 	}
 
 	public updateOrCreateSoil(oEditedSoil: LSoilEditData, oDialogToCloseAfter: Dialog): void {
@@ -43,7 +43,7 @@ export default class SoilCRUD extends ManagedObject {
 	private _saveNewSoil(oNewSoil: LSoilEditData, oDialogToCloseAfter: Dialog): void {
 
 		// check if there's already a same-named soil
-		var aSoils = <FBSoil[]>this._oSoilsModel.getData().SoilsCollection;
+		var aSoils = <SoilRead[]>this._oSoilsModel.getData().SoilsCollection;
 		var existing_soil_found = aSoils.find(function (element) {
 			return element.soil_name === oNewSoil.soil_name;
 		});
@@ -52,7 +52,7 @@ export default class SoilCRUD extends ManagedObject {
 			return;
 		}
 
-		var newSoil = <FSoilCreate>{
+		var newSoil = <SoilCreate>{
 			id: undefined,
 			soil_name: oNewSoil.soil_name,
 			description: oNewSoil.description,
@@ -71,7 +71,7 @@ export default class SoilCRUD extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Save New Soil'));
 	}
 
-	private _cbSavedNewSoil(oDialogToCloseAfter: Dialog, data: BPResultsUpdateCreateSoil): void {
+	private _cbSavedNewSoil(oDialogToCloseAfter: Dialog, data: CreateOrUpdateSoilResponse): void {
 		// callback for request saving new soil 
 		if (!data.soil.id) {
 			MessageToast.show("Unexpected backend error - No Soil ID")
@@ -94,7 +94,7 @@ export default class SoilCRUD extends ManagedObject {
 	}
 
 	private _updateExistingSoil(oSoilData: LSoilEditData, oDialogToCloseAfter: Dialog): void {
-		var updatedSoil = <FSoil>{
+		var updatedSoil = <SoilUpdate>{
 			id: oSoilData.id,
 			soil_name: oSoilData.soil_name,
 			description: oSoilData.description,
@@ -113,14 +113,15 @@ export default class SoilCRUD extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Save New Soil'));
 	}
 
-	private _cbUpdatedExistingSoil(oDialogToCloseAfter: Dialog, data: BPResultsUpdateCreateSoil): void {
+	private _cbUpdatedExistingSoil(oDialogToCloseAfter: Dialog, data: CreateOrUpdateSoilResponse): void {
 		// callback for request updating existing soil 
 		if (!data.soil.id) {
 			MessageToast.show("Unexpected backend error - No Soil ID")
 			return;
 		}
 
-		var aSoils = <FBSoil[]>this._oSoilsModel.getData().SoilsCollection;
+		// todo use SoilUpdate
+		var aSoils = <SoilRead[]>this._oSoilsModel.getData().SoilsCollection;
 		var oSOil = aSoils.find(function (element) {
 			return element.id === data.soil.id;
 		});
@@ -154,7 +155,7 @@ export default class SoilCRUD extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Get Soils'));
 	}	
 
-	private _cbSoilLoaded(oSetModelFor: Control, results: BResultsSoilsResource): void{
+	private _cbSoilLoaded(oSetModelFor: Control, results: GetSoilsResponse): void{
 		// callback for request to get soils collection
 		this._oSoilsModel.setData(results);
 		oSetModelFor.setModel(this._oSoilsModel, 'soils');

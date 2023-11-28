@@ -2,9 +2,9 @@ import MessageToast from "sap/m/MessageToast";
 import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { ResultsPlantCloned } from "plants/ui/definitions/Plants";
+import { ClonePlantResponse } from "plants/ui/definitions/Plants";
 import PlantLookup from "./PlantLookup"
-import { BPlant} from "plants/ui/definitions/Plants";
+import { PlantRead} from "plants/ui/definitions/Plants";
 import Navigation from "plants/ui/customClasses/singleton/Navigation";
 import ModelsHelper from "plants/ui/model/ModelsHelper";
 import Dialog from "sap/m/Dialog";
@@ -26,7 +26,7 @@ export default class PlantCloner extends ManagedObject {
         this._oPlantLookup = oPlantLookup;
 	}	
 
-	public clonePlant(oPlant: BPlant, sClonedPlantName: string, oDialogClonePlant: Dialog ): void {
+	public clonePlant(oPlant: PlantRead, sClonedPlantName: string, oDialogClonePlant: Dialog ): void {
 		// use ajax to clone plant in backend, then add clone to plants model and open in details view, also add
 		// cloned plant to the plants model clone to track changes
 
@@ -54,12 +54,12 @@ export default class PlantCloner extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Clone Plant (POST)'));
 	}
 
-	private _onReceivingPlantCloned(oDialogClonePlant: Dialog, oBackendResultPlantCloned: ResultsPlantCloned): void {
+	private _onReceivingPlantCloned(oDialogClonePlant: Dialog, oBackendResultPlantCloned: ClonePlantResponse): void {
 		// Cloning plant was successful; add clone to model and open in details view
 		oDialogClonePlant.close();
 		MessageHandler.getInstance().addMessageFromBackend(oBackendResultPlantCloned.message);
 
-		var oPlantSaved = <BPlant>oBackendResultPlantCloned.plant;
+		var oPlantSaved = <PlantRead>oBackendResultPlantCloned.plant;
 		var aPlants = this._oPlantsModel.getProperty('/PlantsCollection');
 		aPlants.push(oPlantSaved);  // append at end to preserve change tracking with clone 
 		this._oPlantsModel.updateBindings(false);

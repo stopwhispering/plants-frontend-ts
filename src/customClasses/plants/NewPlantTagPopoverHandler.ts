@@ -5,7 +5,7 @@ import View from "sap/ui/core/mvc/View";
 import Fragment from "sap/ui/core/Fragment";
 import { LTagInput, LTagInputStatus } from "plants/ui/definitions/entities";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 import PlantTagger from "./PlantTagger";
 import { Button$PressEvent } from "sap/m/Button";
 import { Input$SubmitEvent } from "sap/m/Input";
@@ -15,7 +15,7 @@ import { Input$SubmitEvent } from "sap/m/Input";
  */
 export default class NewPlantTagPopoverHandler extends ManagedObject {
 	private _oNewPlantTagPopover: Popover;
-	private _aPlants: BPlant[];
+	private _aPlants: PlantRead[];
 	private _oPlantTagger: PlantTagger;
 
 	public constructor(oPlantsModel: JSONModel) {
@@ -35,7 +35,7 @@ export default class NewPlantTagPopoverHandler extends ManagedObject {
 		// })
 	}
 
-	public async openNewPlantTagPopover(aPlants: BPlant[], oOpenBy: Control, oAttachTo: View, bDisplayTaxonOption: boolean) {
+	public async openNewPlantTagPopover(aPlants: PlantRead[], oOpenBy: Control, oAttachTo: View, bDisplayTaxonOption: boolean) {
 		// this._oPlant = aPlants;
 		this._aPlants = aPlants;
 

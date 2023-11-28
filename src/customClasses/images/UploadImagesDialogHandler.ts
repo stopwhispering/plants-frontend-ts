@@ -8,7 +8,7 @@ import Token from "sap/m/Token";
 import Util from "../shared/Util";
 import FileUploader, { FileUploader$TypeMissmatchEvent, FileUploader$UploadCompleteEvent } from "sap/ui/unified/FileUploader";
 import MessageToast from "sap/m/MessageToast";
-import { FBImage, FImageUploadedMetadata } from "plants/ui/definitions/Images";
+import { ImageRead, UploadedImageMetadata } from "plants/ui/definitions/Images";
 import MessageHandler from "../singleton/MessageHandler";
 import { MessageType } from "sap/ui/core/library";
 import ImageRegistryHandler from "../singleton/ImageRegistryHandler";
@@ -97,7 +97,7 @@ export default class UploadImagesDialogHandler extends ManagedObject {
 			}
 		} 
 
-		var oAdditionalData = <FImageUploadedMetadata>{
+		var oAdditionalData = <UploadedImageMetadata>{
 			'plants': aSelectedPlantIds,
 			'keywords': aSelectedKeywords
 		};
@@ -109,6 +109,7 @@ export default class UploadImagesDialogHandler extends ManagedObject {
 
 	handleUploadComplete(oEvent: FileUploader$UploadCompleteEvent) {
 		// handle message, show error if required
+		// note: backend sends a UploadImagesResponse object, which we don't get from the FileUploader
 		var sResponse = oEvent.getParameter('responseRaw');
 		if (!sResponse) {
 			var sMsg = "Upload complete, but can't determine status. No response received.";
@@ -127,7 +128,7 @@ export default class UploadImagesDialogHandler extends ManagedObject {
 		MessageHandler.getInstance().addMessageFromBackend(oResponse.message);
 		// add to images registry and refresh current plant's images
 		if (oResponse.images.length > 0) {
-			const aImages: FBImage[] = oResponse.images;
+			const aImages: ImageRead[] = oResponse.images;
 			// ModelsHelper.getInstance().addToImagesRegistry(oResponse.images);
 			const oImageRegistryHandler = ImageRegistryHandler.getInstance();
 			oImageRegistryHandler.addImageToImagesRegistry(aImages);

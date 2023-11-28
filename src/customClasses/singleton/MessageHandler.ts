@@ -1,7 +1,7 @@
 import Message from "sap/ui/core/message/Message"
 import ManagedObject from "sap/ui/base/ManagedObject";
 import { MessageType } from "sap/ui/core/library";
-import { BMessage } from "plants/ui/definitions/Messages";
+import { BackendMessage } from "plants/ui/definitions/Messages";
 
 /**
  * @namespace plants.ui.customClasses.singleton
@@ -34,7 +34,7 @@ export default class MessageHandler extends ManagedObject {
 		return this._oMessageManager;
 	} 
 
-	public addMessageFromBackend(backendMessage: BMessage) {
+	public addMessageFromBackend(backendMessage: BackendMessage) {
 		// wrapper with only one parameter, just adding a message from frontend as is into 
 		// message model; exception: debug messages are not inserted
 		if (backendMessage.type !== 'Debug') {

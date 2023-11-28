@@ -2,12 +2,12 @@ import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
 import Util from "plants/ui/customClasses/shared/Util";
 import { LTaxonData, LTaxonMap } from "plants/ui/definitions/TaxonLocal";
-import { FBImage } from "plants/ui/definitions/Images";
+import { ImageRead } from "plants/ui/definitions/Images";
 import { LImageIdMap } from "plants/ui/definitions/ImageLocal";
 import { LPlantIdToEventsMap } from "plants/ui/definitions/EventsLocal";
-import { BTaxon } from "plants/ui/definitions/Taxon";
-import { BPlant, PlantUpdate, PlantsUpdateRequest } from "plants/ui/definitions/Plants"
-import { BEvents } from "plants/ui/definitions/Events";
+import { TaxonRead } from "plants/ui/definitions/Taxon";
+import { PlantRead, PlantUpdate, UpdatePlantsRequest } from "plants/ui/definitions/Plants"
+import { EventRead } from "plants/ui/definitions/Events";
 import ImageRegistryHandler from "./ImageRegistryHandler";
 
 /**
@@ -17,7 +17,7 @@ export default class ChangeTracker extends ManagedObject {
 
 	private static _instance: ChangeTracker;
 	private _oPlantsModel: JSONModel;
-	private _oPlantsDataClone: PlantsUpdateRequest;  // todo find other entity
+	private _oPlantsDataClone: UpdatePlantsRequest;  // todo find other entity
 	private _oEventsModel: JSONModel;
 	private _oEventsDataClone: LPlantIdToEventsMap;
 	private _oTaxonModel: JSONModel;
@@ -57,7 +57,7 @@ export default class ChangeTracker extends ManagedObject {
 		this._oEventsModel = oEventsModel;;
 		this._oTaxonModel = oTaxonModel;
 		
-		this._oPlantsDataClone = <PlantsUpdateRequest>{};
+		this._oPlantsDataClone = <UpdatePlantsRequest>{};
 		this._oEventsDataClone = <LPlantIdToEventsMap>{};
 		this._oTaxonDataClone = <LTaxonData>{TaxaDict: <LTaxonMap>{}};
 		this._oImageIdRegistryClone = <LImageIdMap>{};
@@ -84,7 +84,7 @@ export default class ChangeTracker extends ManagedObject {
 	}
 
 
-	public getModifiedPlants(): BPlant[] {
+	public getModifiedPlants(): PlantRead[] {
 		// get plants model and identify modified items
 		var dDataPlants = this._oPlantsModel.getData();
 		var aModifiedPlants = [];
@@ -111,7 +111,7 @@ export default class ChangeTracker extends ManagedObject {
 		return aModifiedPlants;
 	}
 
-	public getModifiedTaxa(): BTaxon[] {
+	public getModifiedTaxa(): TaxonRead[] {
 		// get taxon model and identify modified items
 		// difference to plants and images: data is stored with key in a dictionary, not in an array
 		// we identify the modified sub-dictionaries and return a list of these
@@ -126,7 +126,7 @@ export default class ChangeTracker extends ManagedObject {
 		var keys = <int[]>keys_s.map(k => parseInt(k));
 
 		//for each key, check if it's value is different from the clone
-		var aModifiedTaxonList: BTaxon[] = [];
+		var aModifiedTaxonList: TaxonRead[] = [];
 
 		keys.forEach(function (key) {
 			if (!Util.dictsAreEqual(dDataTaxonOriginal[key],
@@ -167,14 +167,14 @@ export default class ChangeTracker extends ManagedObject {
 		return oModifiedEventsDict;
 	}
 	
-	public getModifiedImages(): FBImage[] {
+	public getModifiedImages(): ImageRead[] {
 		// identify modified images by comparing images with their clones (created after loading)
-		var aModifiedImages: FBImage[] = [];
+		var aModifiedImages: ImageRead[] = [];
 		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
 		const aImageIds = oImageRegistryHandler.getIdsInImageRegistry();
 		aImageIds.forEach(iImageId => {
-			const oImage: FBImage = oImageRegistryHandler.getImageInRegistryById(iImageId);
-			const oImageOriginal: FBImage = this._oImageIdRegistryClone[iImageId];
+			const oImage: ImageRead = oImageRegistryHandler.getImageInRegistryById(iImageId);
+			const oImageOriginal: ImageRead = this._oImageIdRegistryClone[iImageId];
 			if (!oImageOriginal || !Util.dictsAreEqual(oImage, oImageOriginal)) {
 				aModifiedImages.push(oImage);
 			}
@@ -183,9 +183,9 @@ export default class ChangeTracker extends ManagedObject {
 		return aModifiedImages;
 	}
 
-	public setOriginalPlants(oPlantsData: PlantsUpdateRequest): void{
+	public setOriginalPlants(oPlantsData: UpdatePlantsRequest): void{
 		// reset plants clone completely to supplied plants data
-		this._oPlantsDataClone = <PlantsUpdateRequest>Util.getClonedObject(oPlantsData);
+		this._oPlantsDataClone = <UpdatePlantsRequest>Util.getClonedObject(oPlantsData);
 	}
 
 	public addOriginalPlant(oPlant: PlantUpdate): void{
@@ -208,7 +208,7 @@ export default class ChangeTracker extends ManagedObject {
 		}
 	}
 
-	public setOriginalEventsForPlant(aEvents: BEvents, iPlantId: int): void {
+	public setOriginalEventsForPlant(aEvents: EventRead[], iPlantId: int): void {
 		//reset all events data for supplied plant ID
 		this._oEventsDataClone[iPlantId] = Util.getClonedObject(aEvents);
 	}
@@ -228,12 +228,12 @@ export default class ChangeTracker extends ManagedObject {
 		this._oImageIdRegistryClone = Util.getClonedObject(oImageIdMap);
 	}
 
-	public addOriginalImage(oImage: FBImage): void {
+	public addOriginalImage(oImage: ImageRead): void {
 		this._oImageIdRegistryClone[oImage.id] = Util.getClonedObject(oImage);
 	}
 
-	public addOriginalImages(aImages: FBImage[]): void {
-		aImages.forEach((oImage: FBImage) => {
+	public addOriginalImages(aImages: ImageRead[]): void {
+		aImages.forEach((oImage: ImageRead) => {
 			this._oImageIdRegistryClone[oImage.id] = Util.getClonedObject(oImage);
 		});
 	}
@@ -248,7 +248,7 @@ export default class ChangeTracker extends ManagedObject {
 		};
 	}
 
-	public addOriginalTaxon(oTaxon: BTaxon): void {
+	public addOriginalTaxon(oTaxon: TaxonRead): void {
 		this._oTaxonDataClone.TaxaDict[oTaxon.id] = Util.getClonedObject(oTaxon);
 	}
 

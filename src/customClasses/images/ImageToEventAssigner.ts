@@ -1,8 +1,8 @@
 import MessageToast from "sap/m/MessageToast"
 import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { FBImage } from "plants/ui/definitions/Images";
-import { FBEvent, ImageAssignedToEvent } from "plants/ui/definitions/Events";
+import { ImageRead } from "plants/ui/definitions/Images";
+import { EventRead, ImageAssignedToEvent } from "plants/ui/definitions/Events";
 
 /**
  * @namespace plants.ui.customClasses.images
@@ -13,7 +13,7 @@ export default class ImageToEventAssigner extends ManagedObject {
 		super();
 	}
 
-	assignImageToEvent(oImage: FBImage, oSelectedEvent: FBEvent, oEventsModel: JSONModel) {
+	assignImageToEvent(oImage: ImageRead, oSelectedEvent: EventRead, oEventsModel: JSONModel) {
 		// check if already assigned
 		const aSelectedEventImages = <ImageAssignedToEvent[]>oSelectedEvent.images;
 		if (!!aSelectedEventImages && aSelectedEventImages.length > 0) {

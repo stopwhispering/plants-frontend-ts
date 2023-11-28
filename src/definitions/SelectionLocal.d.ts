@@ -1,11 +1,11 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
-import { BTaxonTreeNode } from "./Selection";
+import { TaxonTreeNode } from "./Selection";
 
 /**
  * @namespace plants.ui.definitions.entities
  */
 
-  export interface LTaxonTreeNodeInFilterDialog extends BTaxonTreeNode {
+  export interface LTaxonTreeNodeInFilterDialog extends TaxonTreeNode {
     selected: boolean
     nodes?: TaxonTreeNodeInFilterDialog[];
   }  

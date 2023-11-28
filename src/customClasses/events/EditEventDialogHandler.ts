@@ -1,6 +1,6 @@
 // Handler for Dialog to edit an event or create a new one.
 import { LEventEditData, LPotHeightOptions, LPotShapeOptions, LEventEditDataSegments } from "plants/ui/definitions/EventsLocal";
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 import Dialog from "sap/m/Dialog";
 import MessageToast from "sap/m/MessageToast";
 import Control from "sap/ui/core/Control";
@@ -9,7 +9,7 @@ import View from "sap/ui/core/mvc/View";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import EventCRUD from "./EventCRUD";
 import Util from "../shared/Util";
-import { FBEvent, FBObservation, FBPot, FBSoil } from "plants/ui/definitions/Events";
+import { ObservationCreateUpdate, SoilRead, EventRead, PotCreateUpdate, EventCreateUpdate } from "plants/ui/definitions/Events";
 import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
 import EventDialogHandler from "./EventDialogHandler";
 import { Button$PressEvent } from "sap/m/Button";
@@ -32,7 +32,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 	//////////////////////////////////////////////////////////
 	// Public
 	//////////////////////////////////////////////////////////
-	public openDialogEditEvent(oAttachTo: View, oSelectedEvent: FBEvent): void {
+	public openDialogEditEvent(oAttachTo: View, oSelectedEvent: EventRead): void {
 
 		// if dialog was instantiated before, then destroy model and dialog first, then re-instantiate
 		if (this._oEventDialog){
@@ -73,7 +73,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 	onAddOrEditEvent(oEvent: Button$PressEvent) {
 		//Triggered by 'Add' / 'Update' Button in Create/Edit Event Dialog
 		const oEventNewOrEditData = <LEventEditData>this._oEventModel.getData();
-		const oPlant = <BPlant>this._oEventDialog.getBindingContext('plants')!.getObject();
+		const oPlant = <PlantRead>this._oEventDialog.getBindingContext('plants')!.getObject();
 		this._editEvent(oPlant, oEventNewOrEditData);
 		this._oEventDialog.close();
 	}
@@ -81,7 +81,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 	//////////////////////////////////////////////////////////
 	// Private
 	//////////////////////////////////////////////////////////
-	private _getSelectedEventInEditableFormat(oSelectedEvent: FBEvent): LEventEditData {
+	private _getSelectedEventInEditableFormat(oSelectedEvent: EventRead): LEventEditData {
 		let dPotHeightOptions: LPotHeightOptions;
 		let dPotShapeOptions: LPotShapeOptions;
 		if (oSelectedEvent.pot) {
@@ -107,7 +107,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 		};
 
 		//deep-clone event
-		var dClonedEvent: FBEvent = Util.getClonedObject(oSelectedEvent);
+		var dClonedEvent: EventRead = Util.getClonedObject(oSelectedEvent);
 		var dEventEdit: LEventEditData = {
 			...dClonedEvent,
 			oldEvent: oSelectedEvent,
@@ -119,7 +119,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 		return dEventEdit;
 	}
 
-	private _editEvent(oPlant: BPlant, oEventEditData: LEventEditData){
+	private _editEvent(oPlant: PlantRead, oEventEditData: LEventEditData){
 		//triggered by addOrEditEvent
 		//triggered by button in add/edit event dialog
 		//validates and filters data to be saved and triggers saving
@@ -129,7 +129,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 			MessageToast.show("Can't determine old record. Aborting.");
 			throw new Error("Can't determine old record. Aborting.");
 		}
-		const oOldEvent: FBEvent = oEventEditData.oldEvent;
+		const oOldEvent: EventCreateUpdate = oEventEditData.oldEvent;
 
 		if (oOldEvent.plant_id !== oEventEditData.plant_id) {
 			MessageToast.show('Plant ID cannot be changed.');
@@ -142,9 +142,9 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 		}
 
 		// get the data in the dialog's segments
-		const oEditedObservation = <FBObservation>this._getObservationData(oEventEditData);
-		const oEditedPot = <FBPot>this._getPotData(oEventEditData);
-		const oEditedSoil = <FBSoil>this._getSoilData(oEventEditData);
+		const oEditedObservation = <ObservationCreateUpdate>this._getObservationData(oEventEditData);
+		const oEditedPot = <PotCreateUpdate>this._getPotData(oEventEditData);
+		const oEditedSoil = <SoilRead>this._getSoilData(oEventEditData);
 
 		// update each attribute from the new model into the old event
 		const event_notes = <string | undefined>(oEventEditData.event_notes && oEventEditData.event_notes.length > 0 ? oEventEditData.event_notes.trim() : undefined);

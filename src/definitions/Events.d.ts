@@ -1,6 +1,7 @@
 
 import ManagedObject from "sap/ui/base/ManagedObject";
-import { BMessage } from "./Messages";
+import { BackendMessage } from "./Messages";
+import { ResponseContainer } from "./Images";
 
 /**
  * @namespace plants.ui.definitions
@@ -11,113 +12,119 @@ import { BMessage } from "./Messages";
 */
 export type FBShapeTop = "square" | "round" | "oval" | "hexagonal";
 export type FBShapeSide = "very flat" | "flat" | "high" | "very high";
-export type BEvents = FBEvent[];
-// export type FlowerHistoryRead = FBEvent[];
+export type BEvents = EventRead[];
 export type BMessageType = "Information" | "None" | "Success" | "Warning" | "Error" | "Debug";
 export type BFloweringState = "inflorescence_growing" | "flowering" | "seeds_ripening" | "not_flowering"
 
-export type PlantFlowerMonthRead = {
+export type PlantFlowerMonth = {
   flowering_state: BFloweringState;
 }
 
-export type PlantFlowerYearRead = {
+export type PlantFlowerYear = {
   year: number;
-  month_01: PlantFlowerMonthRead;
-  month_02: PlantFlowerMonthRead;
-  month_03: PlantFlowerMonthRead;
-  month_04: PlantFlowerMonthRead;
-  month_05: PlantFlowerMonthRead;
-  month_06: PlantFlowerMonthRead;
-  month_07: PlantFlowerMonthRead;
-  month_08: PlantFlowerMonthRead;
-  month_09: PlantFlowerMonthRead;
-  month_10: PlantFlowerMonthRead;
-  month_11: PlantFlowerMonthRead;
-  month_12: PlantFlowerMonthRead;
+  month_01: PlantFlowerMonth;
+  month_02: PlantFlowerMonth;
+  month_03: PlantFlowerMonth;
+  month_04: PlantFlowerMonth;
+  month_05: PlantFlowerMonth;
+  month_06: PlantFlowerMonth;
+  month_07: PlantFlowerMonth;
+  month_08: PlantFlowerMonth;
+  month_09: PlantFlowerMonth;
+  month_10: PlantFlowerMonth;
+  month_11: PlantFlowerMonth;
+  month_12: PlantFlowerMonth;
 }
 
-export interface FBEvent {
-  id: number;
-  plant_id: number;
+export interface EventBase{
+  plant_id: int
   date: string;
   event_notes?: string;
-  observation?: FBObservation;
-  soil?: FBSoil;
-  pot?: FBPot;
   images?: ImageAssignedToEvent[];
 }
-export interface FBObservation {
+
+export interface EventRead extends EventBase{
+  id: number;
+  observation?: ObservationRead;  // todo create
+  soil?: SoilRead;
+  pot?: PotRead;
+}
+
+export interface ObservationCreateUpdate {
   id?: number;
   diseases?: string;
   // stem_max_diameter?: number;  // in cm
   // height?: number;  // in cm
   observation_notes?: string;
 }
-export interface FBSoil {
+
+export interface SoilBase {
   id: number;
   soil_name: string;
-  mix?: string;
+  mix: string;
   description?: string;
 }
-export interface FBPot {
+
+export interface SoilRead extends SoilBase {
+}
+
+export interface SoilCreate extends SoilBase{
   id?: number;
+}
+
+export interface SoilUpdate extends SoilBase {
+}
+
+export interface SoilWithCount extends SoilBase {
+  plants_count: number;
+}
+
+export interface PotBase {
   material: string;
   shape_top: FBShapeTop;
   shape_side: FBShapeSide;
   diameter_width: number;  // in cm (decimal) 
 }
+
+export interface PotCreateUpdate extends PotBase{
+  id?: int;
+}
+
+export interface PotRead extends PotBase{
+  id: int;
+}
+
 export interface ImageAssignedToEvent {
   id: number;
 }
-export interface BPResultsUpdateCreateSoil {
-  soil: FBSoil;
-  message: BMessage;
+export interface CreateOrUpdateSoilResponse extends ResponseContainer {
+  soil: SoilRead;
 }
-export interface BResultsEventResource {
-  events: BEvents;
-  flower_history: PlantFlowerYearRead[];
-  message: BMessage;
+export interface GetEventsResponse extends ResponseContainer{
+  events: EventRead[];
+  flower_history: PlantFlowerYear[];
 }
-export interface BResultsSoilsResource {
-  SoilsCollection: BSoilWithCount[];
+export interface GetSoilsResponse {
+  SoilsCollection: SoilWithCount[];
 }
-export interface BSoilWithCount {
-  id: number;
-  soil_name: string;
-  mix?: string;
-  description?: string;
-  plants_count: number;
-}
-export interface FCreateOrUpdateEvent {
+export interface EventCreateUpdate {
   id?: number;
   plant_id: number;
   date: string;
   event_notes?: string;
-  observation?: FBObservation;
-  soil?: FBSoil;
-  pot?: FBPot;
-  images: FBImage[];
+  observation?: ObservationCreateUpdate;
+  soil?: SoilUpdate;
+  pot?: PotCreateUpdate;
+  images: ImageRead[];
 }
-export interface FImageDelete {
+export interface ImageToDelete {
   id: number;
 }
-export interface FImagesToDelete {
-  images: FImageDelete[];
+export interface DeleteImagesRequest {
+  images: ImageToDelete[];
 }
-export interface FRequestCreateOrUpdateEvent {
+export interface CreateOrUpdateEventRequest {
   plants_to_events: {
-    [k: string]: FCreateOrUpdateEvent[];
+    [k: int]: EventCreateUpdate[];
   };
-}
-export interface FSoilCreate {
-  id?: number;
-  soil_name: string;
-  mix?: string;
-  description?: string;
-}
-export interface FSoil {
-  id: number;
-  soil_name: string;
-  mix?: string;
-  description?: string;
 }

@@ -1,11 +1,9 @@
 import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { FBImage } from "plants/ui/definitions/Images";
-import ModelsHelper from "plants/ui/model/ModelsHelper";
+import { ImageRead } from "plants/ui/definitions/Images";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler";
-import ErrorHandling from "../shared/ErrorHandling";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -26,7 +24,7 @@ export default class PlantImagesLoader extends ManagedObject {
 		// to the view for images as the image model contains only the current plant's images
 		var sId = encodeURIComponent(iPlantId);
 		
-		const oResult: FBImage[] = await Util.get(Util.getServiceUrl('plants/' + sId + '/images/'));
+		const oResult: ImageRead[] = await Util.get(Util.getServiceUrl('plants/' + sId + '/images/'));
 		this._onReceivingImagesForPlant(iPlantId, oResult);
 		// todo: error handling
 		
@@ -41,7 +39,7 @@ export default class PlantImagesLoader extends ManagedObject {
 		// 	.fail(ErrorHandling.onFail.bind(this, 'Plant Images (GET)'));
 	}
 
-	private _onReceivingImagesForPlant(iPlantId: int, aImages: FBImage[]): void {
+	private _onReceivingImagesForPlant(iPlantId: int, aImages: ImageRead[]): void {
 		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
 		oImageRegistryHandler.addImageToImagesRegistry(aImages);
 		ChangeTracker.getInstance().addOriginalImages(aImages);

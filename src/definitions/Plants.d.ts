@@ -1,6 +1,6 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
 import { PMessage } from "./entities";
-import { TagState } from "./Images";
+import { ResponseContainer, TagState } from "./Images";
 
 /**
  * @namespace plants.ui.definitions
@@ -36,39 +36,30 @@ export type FBMajorResource =
   | "PlantPropertyResource"
   | "TaxonPropertyResource";
 
-export interface BMessage {
-  type: BMessageType;
-  message: string;
-  description?: string;
+export interface GetPlantsResponse extends ResponseContainer {
+  PlantsCollection: PlantRead[];
 }
-export interface BPlant {
+
+export interface PlantRead extends PlantBase{
   id: number;
-  plant_name: string;
-  field_number?: string;
-  geographic_origin?: string;
-  nursery_source?: string;
-  propagation_type?: FBPropagationType;
-  active: boolean;
-  cancellation_reason?: FBCancellationReason;
-  cancellation_date?: string;
-  generation_notes?: string;
-  taxon_id?: number;
+
   taxon_authors?: string;
   botanical_name?: string;
   full_botanical_html_name?: string;
-  parent_plant?: FBAssociatedPlantExtractForPlant;
-  parent_plant_pollen?: FBAssociatedPlantExtractForPlant;
-  plant_notes?: string;
+  created_at: string;
   last_update?: string;
-  descendant_plants_all: FBAssociatedPlantExtractForPlant[];
-  sibling_plants: FBAssociatedPlantExtractForPlant[];
-  same_taxon_plants: FBAssociatedPlantExtractForPlant[];
-  current_soil?: FBPlantCurrentSoil;
-  latest_image?: FBPlantLatestImage;
-  tags: FBPlantTag[];
-  taxon_tags: TaxonTagRead[];
-  seed_planting_id?: number;
+  
+  descendant_plants_all: ShortPlant[];
+  sibling_plants: ShortPlant[];
+  same_taxon_plants: ShortPlant[];
+  
+  current_soil?: PlantCurrentSoil;
+  latest_image?: PlantLatestImage;
+
+  taxon_tags: TaxonTag[];
+
 }
+
 export interface FBAssociatedPlantExtractForPlant {
   id: number;
   plant_name: string;
@@ -82,43 +73,34 @@ export interface FBPlantLatestImage {
   filename: string;
   record_date_time: string;
 }
-export interface FBPlantTag {
+
+export interface TagBase {
   id?: number;
   state: FBTagState;
   text: string;
   last_update?: string;
+}
+
+export interface PlantTag extends TagBase {
   plant_id: number;
 }
 
-export interface TaxonTagRead extends FBPlantTag{
-  plant_id?: number;  // not needed for taxon tags
+export interface TaxonTag extends TagBase{
   taxon_id: number;
 }
 
 export interface PlantRenameRequest {
   new_plant_name: string;
 }
-export interface ResultsPlantCloned {
-  action: string;
-  message: BMessage;
-  plant: BPlant;
+export interface ClonePlantResponse extends ResponseContainer {
+  plant: PlantRead;
 }
-export interface ResultsPlantCreated {
-  action?: string;
-  message: BMessage;
+export interface CreatePlantResponse extends ResponseContainer {
   resource: FBMajorResource;
   plant: PlantRead;
 }
-export interface ResultsPlantCreated {
-  action: string;
-  message: BMessage;
-  PlantsCollection: BPlant[];
-}
-export interface BResultsPlantsUpdate {
-  action: string;
+export interface UpdatePlantsResponse extends ResponseContainer {
   resource: FBMajorResource;
-  message: BMessage;
-  plants: BPlant[];
 }
 export interface PlantCreate {
   plant_name: string;
@@ -134,7 +116,7 @@ export interface PlantCreate {
   parent_plant?: FBAssociatedPlantExtractForPlant;
   parent_plant_pollen?: FBAssociatedPlantExtractForPlant;
   plant_notes?: string;
-  tags: FBPlantTag[];
+  tags: PlantTag[];
   seed_planting_id?: number;
 }
 export interface PlantUpdate {
@@ -160,18 +142,18 @@ export interface PlantUpdate {
   // same_taxon_plants: FBAssociatedPlantExtractForPlant[];
   // current_soil?: FBPlantCurrentSoil;
   // latest_image?: FBPlantLatestImage;
-  tags: FBPlantTag[];
+  tags: PlantTag[];
   seed_planting_id?: number;
 }
 
-export interface PlantsUpdateRequest {
+export interface UpdatePlantsRequest {
   PlantsCollection: PlantUpdate[];
 }
-export interface BResultsProposeSubsequentPlantName {
+export interface ProposeSubsequentPlantNameResponse {
   original_plant_name: string;
   subsequent_plant_name: string;
 }
-export interface PlantRead {
+export interface PlantBase {
   plant_name: string;
   field_number?: string;
   geographic_origin?: string;
@@ -186,17 +168,7 @@ export interface PlantRead {
   parent_plant_pollen?: ShortPlant;
   plant_notes?: string;
   preview_image_id?: number;
-  tags: FBPlantTag[];
-  id: number;
-  taxon_authors?: string;
-  botanical_name?: string;
-  full_botanical_html_name?: string;
-  created_at: string;
-  last_update?: string;
-  descendant_plants_all: ShortPlant[];
-  sibling_plants: ShortPlant[];
-  same_taxon_plants: ShortPlant[];
-  current_soil?: PlantCurrentSoil;
-  latest_image?: PlantLatestImage;
+  
+  tags: PlantTag[];
   seed_planting_id?: number;
 }

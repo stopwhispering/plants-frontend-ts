@@ -1,4 +1,4 @@
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 import { LClonePlantInputData } from "plants/ui/definitions/PlantsLocal";
 import Dialog, { Dialog$AfterCloseEvent } from "sap/m/Dialog";
 import MessageToast from "sap/m/MessageToast";
@@ -21,7 +21,7 @@ export default class ClonePlantDialogHandler extends ManagedObject {
 
     private _oClonePlantDialog: Dialog;  // "dialogClonePlant"
 
-    private _oPlant: BPlant;
+    private _oPlant: PlantRead;
 
     private _oPlantCloner: PlantCloner;
 
@@ -31,12 +31,12 @@ export default class ClonePlantDialogHandler extends ManagedObject {
         this._oPlantCloner = new PlantCloner(oPlantsModel, this._oPlantLookup)
     }
 
-    public openClonePlantDialog(oViewAttachTo: View, oPlant: BPlant): void {
+    public openClonePlantDialog(oViewAttachTo: View, oPlant: PlantRead): void {
 
 		// check if there are any unsaved changes
 		const oChangeTracker = ChangeTracker.getInstance();
-		// const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-		// const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+		// const aModifiedPlants: PlantRead[] = oChangeTracker.getModifiedPlants();
+		// const aModifiedImages: ImageRead[] = oChangeTracker.getModifiedImages();
 		// const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
         
 		if (oChangeTracker.hasUnsavedChanges()) {

@@ -1,6 +1,6 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
 import EventCRUD from "./EventCRUD";
-import { FBEvent } from "../../definitions/Events";
+import { EventRead } from "../../definitions/Events";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -15,7 +15,7 @@ export default class EventsListHandler extends ManagedObject {
         this._oEventCRUD = oEventCRUD;
         }   
 
-	public deleteRow(oSelectedEvent: FBEvent): void {
+	public deleteRow(oSelectedEvent: EventRead): void {
 		this._oEventCRUD.removeEvent(oSelectedEvent)
 	}
 

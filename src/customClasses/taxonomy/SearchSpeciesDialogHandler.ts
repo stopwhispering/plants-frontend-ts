@@ -1,7 +1,7 @@
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 import { LSearchSpeciesInputData, SearchSpeciesCustomTaxonInputData } from "plants/ui/definitions/PlantsLocal";
 import { 
-    BCreatedTaxonResponse, BKewSearchResultEntry, BResultsGetBotanicalName, BTaxon, FBotanicalAttributes 
+    CreateTaxonResponse, KewSearchResultEntry, CreateBotanicalNameResponse, TaxonRead, CreateBotanicalNameRequest 
 } from "plants/ui/definitions/Taxon";
 import Dialog from "sap/m/Dialog";
 import ManagedObject from "sap/ui/base/ManagedObject";
@@ -35,8 +35,8 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
     public formatter: formatter = new formatter();  // requires instant instantiation, otherwise formatter is not available in dialog
     
     private _oView: View;  // we need to bind the assigned taxon to the view later on
-    private _oPlant: BPlant;
-    private _oTaxon: BTaxon|undefined;
+    private _oPlant: PlantRead;
+    private _oTaxon: TaxonRead|undefined;
 
     private _oSearchSpeciesDialog: Dialog;  // "dialogFindSpecies"
 
@@ -51,7 +51,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
         this._oTaxonToPlantAssigner = new TaxonToPlantAssigner(oPlantsModel, oTaxonModel);
     }
 
-    public openSearchSpeciesDialog(oViewAttachTo: View, oPlant: BPlant, oTaxon: BTaxon|undefined): void {
+    public openSearchSpeciesDialog(oViewAttachTo: View, oPlant: PlantRead, oTaxon: TaxonRead|undefined): void {
         this._oPlant = oPlant;
         this._oTaxon = oTaxon;
 
@@ -143,7 +143,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
         }
 
 		const cbReceivingAdditionalSpeciesInformation: LAjaxLoadDetailsForSpeciesDoneCallback = (
-			data: BCreatedTaxonResponse, sStatus: ResponseStatus, oResponse: JQueryXHR) => {
+			data: CreateTaxonResponse, sStatus: ResponseStatus, oResponse: JQueryXHR) => {
 			Util.stopBusyDialog();
 			MessageToast.show(data.message.message);
 			MessageHandler.getInstance().addMessageFromBackend(data.message);
@@ -157,7 +157,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
 				model: "taxon"
 			});
 		}
-		const oSelectedSearchResult = <BKewSearchResultEntry>this._oSelectedListItemBindingContext.getObject();
+		const oSelectedSearchResult = <KewSearchResultEntry>this._oSelectedListItemBindingContext.getObject();
         const oCustomTaxonInputModel = <JSONModel>this._oSearchSpeciesDialog.getModel('customTaxonInput');
         const oCustomTaxonInputData: SearchSpeciesCustomTaxonInputData = oCustomTaxonInputModel.getData()
 
@@ -179,7 +179,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
         oSearchSpeciesInputData.resultSelected = true;
         oSearchSpeciesInputModel.updateBindings(false);
 
-        const oSelectedSearchResult = <BKewSearchResultEntry>this._oSelectedListItemBindingContext!.getObject();
+        const oSelectedSearchResult = <KewSearchResultEntry>this._oSelectedListItemBindingContext!.getObject();
         oSearchSpeciesInputData.searchResultName = oSelectedSearchResult.name;
     
         // change custom name input field depending on selected search result
@@ -204,13 +204,13 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
 	}
 
 	public onFindSpeciesAdditionalNameLiveChange(oEvent: InputBase$ChangeEvent): void {
-        const oSelectedSearchResult = <BKewSearchResultEntry>this._oSelectedListItemBindingContext!.getObject();
+        const oSelectedSearchResult = <KewSearchResultEntry>this._oSelectedListItemBindingContext!.getObject();
         const oCustomTaxonInputModel = <JSONModel>this._oSearchSpeciesDialog.getModel('customTaxonInput');
         const oCustomTaxonInputData: SearchSpeciesCustomTaxonInputData = oCustomTaxonInputModel.getData()
 
         const custom_rank = Util.extract_custom_rank(oCustomTaxonInputData);
 
-        const oPayload: FBotanicalAttributes = {
+        const oPayload: CreateBotanicalNameRequest = {
             rank: oSelectedSearchResult.rank,
             genus: oSelectedSearchResult.genus,
             species: oSelectedSearchResult.species,
@@ -238,7 +238,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Create Botanical Name (POST)'));
 	}
 
-	private _onReceivingBotanicalName(data: BResultsGetBotanicalName, sStatus: ResponseStatus, oResponse: JQueryXHR): void {
+	private _onReceivingBotanicalName(data: CreateBotanicalNameResponse, sStatus: ResponseStatus, oResponse: JQueryXHR): void {
 		let oBotanicalNamePreviewModel = <JSONModel>this._oSearchSpeciesDialog.getModel('botanicalNamePreview');
         if (!oBotanicalNamePreviewModel)
             oBotanicalNamePreviewModel = new JSONModel();
@@ -246,7 +246,7 @@ export default class SearchSpeciesDialogHandler extends ManagedObject {
         oBotanicalNamePreviewModel.setData(data);
 	}
     
-    private _displayCustomDetailsReadOnly(oSelectedSearchResult: BKewSearchResultEntry): void{
+    private _displayCustomDetailsReadOnly(oSelectedSearchResult: KewSearchResultEntry): void{
         const oCustomTaxonInputData: SearchSpeciesCustomTaxonInputData = {
             visible: true,
             editable: false,

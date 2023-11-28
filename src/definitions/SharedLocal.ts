@@ -1,6 +1,3 @@
-import ManagedObject from "sap/ui/base/ManagedObject";
-import { BResultsRetrieveTaxonDetailsRequest } from "./Taxon";
-
 /**
  * @namespace plants.ui.definitions.entities
  */

@@ -1,7 +1,7 @@
 import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import PlantLookup from "./PlantLookup"
-import { BPlant, BResultsProposeSubsequentPlantName} from "plants/ui/definitions/Plants";
+import { PlantRead, ProposeSubsequentPlantNameResponse} from "plants/ui/definitions/Plants";
 import { LClonePlantInputData, LDescendantPlantInput, LPropagationTypeData } from "plants/ui/definitions/PlantsLocal";
 import SuggestionService from "plants/ui/customClasses/shared/SuggestionService";
 import { ResponseStatus } from "plants/ui/definitions/SharedLocal";
@@ -32,7 +32,7 @@ export default class PlantNameGenerator extends ManagedObject {
 		const propagationType = <LPropagationTypeData>this._oSuggestionService.getSuggestionItem('propagationTypeCollection', oDescendantPlantInput.propagationType);
 
 		if (oDescendantPlantInput.parentPlant && oDescendantPlantInput.parentPlant.trim().length) {
-			const oParentPlant: BPlant = this._oPlantLookup.getPlantByName(oDescendantPlantInput.parentPlant);
+			const oParentPlant: PlantRead = this._oPlantLookup.getPlantByName(oDescendantPlantInput.parentPlant);
 			const oParentPlantPollen = (oDescendantPlantInput.parentPlantPollen && propagationType.hasParentPlantPollen) ? this._oPlantLookup.getPlantByName(oDescendantPlantInput.parentPlantPollen) : undefined;
 			return this._generateNewPlantNameSuggestion(oParentPlant, oParentPlantPollen);
 		} else {
@@ -40,7 +40,7 @@ export default class PlantNameGenerator extends ManagedObject {
 		}
 	}	
 
-	private _generateNewPlantNameSuggestion(oParentPlant: BPlant, oParentPlantPollen: BPlant | undefined): string {
+	private _generateNewPlantNameSuggestion(oParentPlant: PlantRead, oParentPlantPollen: PlantRead | undefined): string {
 		// generate new plant name suggestion
 		// ... only if parent plant names are set
 
@@ -90,7 +90,7 @@ export default class PlantNameGenerator extends ManagedObject {
 		throw new Error('Could not generate plant name with romanized suffix.');
 	}
 
-	public requestClonePlantName(oPlant: BPlant, oClonePlantInputModel: JSONModel): void{
+	public requestClonePlantName(oPlant: PlantRead, oClonePlantInputModel: JSONModel): void{
 		$.ajax({
 			url: Util.getServiceUrl('plants/propose_subsequent_plant_name/'+oPlant.plant_name),
 			type: 'POST',
@@ -101,7 +101,7 @@ export default class PlantNameGenerator extends ManagedObject {
 	}
 
 	private _onReceivingClonePlantName(oClonePlantInputModel: JSONModel, 
-		data: BResultsProposeSubsequentPlantName, sStatus: ResponseStatus, oResponse: JQueryXHR): void {
+		data: ProposeSubsequentPlantNameResponse, sStatus: ResponseStatus, oResponse: JQueryXHR): void {
 		console.log('Received clone plant name proposal: ', data);
 		const oClonePlantInputData: LClonePlantInputData = oClonePlantInputModel.getData();
 		oClonePlantInputData.plantName = data.subsequent_plant_name;

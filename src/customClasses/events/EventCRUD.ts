@@ -3,8 +3,8 @@ import MessageToast from "sap/m/MessageToast"
 import JSONModel from "sap/ui/model/json/JSONModel"
 import ManagedObject from "sap/ui/base/ManagedObject"
 import { LEventInEventsModel } from "plants/ui/definitions/EventsLocal";
-import { FBPot, FBEvent, FBObservation, FBSoil, FCreateOrUpdateEvent } from "plants/ui/definitions/Events";
-import { BPlant } from "plants/ui/definitions/Plants";
+import { ObservationCreateUpdate, EventCreateUpdate, EventRead, SoilRead, PotCreateUpdate } from "plants/ui/definitions/Events";
+import { PlantRead } from "plants/ui/definitions/Plants";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -19,7 +19,7 @@ export default class EventCRUD extends ManagedObject {
 		this._oEventsModel = oEventsModel;
 	}
 
-	removeEvent(oSelectedEvent: FBEvent): void {
+	removeEvent(oSelectedEvent: EventRead): void {
 		// remove an event from events model
 
 		const aEvents = this._oEventsModel.getProperty('/PlantsEventsDict/' + oSelectedEvent.plant_id);
@@ -34,11 +34,11 @@ export default class EventCRUD extends ManagedObject {
 		this._oEventsModel.refresh();
 	}
 
-	public addEvent(oPlant: BPlant, oNewEvent: FCreateOrUpdateEvent): void {
+	public addEvent(oPlant: PlantRead, oNewEvent: EventCreateUpdate): void {
 		//triggered by add button in add/edit event dialog
 		//validates and filters data to be saved
 		var sPathEventsModel = '/PlantsEventsDict/' + oPlant.id + '/';
-		var aEventsCurrentPlant: (FBEvent|FCreateOrUpdateEvent)[] = this._oEventsModel.getProperty(sPathEventsModel);
+		var aEventsCurrentPlant: (EventRead|EventCreateUpdate)[] = this._oEventsModel.getProperty(sPathEventsModel);
 
 		// assert date matches pattern "YYYY-MM-DD"
 		Util.assertCorrectDate(oNewEvent.date);
@@ -50,7 +50,7 @@ export default class EventCRUD extends ManagedObject {
 		this._oEventsModel.updateBindings(false);
 	}
 
-	private _assertNoDuplicateOnDate(aEventsCurrentPlant: LEventInEventsModel[], sDate: string, oEvent?: FBEvent): void {
+	private _assertNoDuplicateOnDate(aEventsCurrentPlant: LEventInEventsModel[], sDate: string, oEvent?: EventRead | EventCreateUpdate): void {
 		// make sure there's only one event per day and plant (otherwise backend problems would occur)
 		// if new event data is supplied, we're editing an event and need to make sure we're not comparing the event to itself
 		const found = aEventsCurrentPlant.find(function (element) {
@@ -62,13 +62,13 @@ export default class EventCRUD extends ManagedObject {
 		}
 	}
 
-	public updateEvent(oPlant: BPlant, oEvent: FBEvent, date: string, event_notes: string|undefined, iObservationId: int|undefined,
-		observation: FBObservation|undefined, pot:FBPot|undefined, soil: FBSoil|undefined): void {
+	public updateEvent(oPlant: PlantRead, oEvent: EventCreateUpdate, date: string, event_notes: string|undefined, iObservationId: int|undefined,
+		observation: ObservationCreateUpdate|undefined, pot:PotCreateUpdate|undefined, soil: SoilRead|undefined): void {
 		//triggered by addOrEditEvent
 		//triggered by button in add/edit event dialog
 		//validates and filters data to be saved and triggers saving
 		var sPathEventsModel = '/PlantsEventsDict/' + oPlant.id + '/';
-		var aEventsCurrentPlant: FBEvent[] = this._oEventsModel.getProperty(sPathEventsModel);
+		var aEventsCurrentPlant: EventRead[] = this._oEventsModel.getProperty(sPathEventsModel);
 
 		// assert date matches pattern "YYYY-MM-DD"
 		Util.assertCorrectDate(date);

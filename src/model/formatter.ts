@@ -1,9 +1,8 @@
 import Util from "plants/ui/customClasses/shared/Util";
 import Constants from "../Constants";
-import Detail from "../controller/Detail.controller";
 import NewDescendantPlantDialogHandler from "../customClasses/plants/NewDescendantPlantDialogHandler";
 import SuggestionService from "../customClasses/shared/SuggestionService";
-import { FBEvent, ImageAssignedToEvent } from "../definitions/Events";
+import { EventRead, ImageAssignedToEvent } from "../definitions/Events";
 import { FBPropagationType } from "../definitions/Plants";
 import { LPropagationTypeData } from "../definitions/PlantsLocal";
 
@@ -39,7 +38,7 @@ export default class formatter{
 		return (iImageId && iPlantPreviewImageId && iImageId === iPlantPreviewImageId) ? 'blue' : '#E69A17';
 	}
 
-	public colorByAssigedToEventOrNot(iImageId: int, aEvents: FBEvent[]){	
+	public colorByAssigedToEventOrNot(iImageId: int, aEvents: EventRead[]){	
 		// flatten array of events' images 
 		if (!iImageId || !aEvents || !aEvents.length) return '#000000';
 		let aEventsWithImages = aEvents.filter(event => event.images && event.images.length);

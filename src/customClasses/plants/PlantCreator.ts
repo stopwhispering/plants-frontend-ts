@@ -2,9 +2,8 @@ import MessageToast from "sap/m/MessageToast";
 import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { PlantCreate, PlantRead, ResultsPlantCreated } from "plants/ui/definitions/Plants";
+import { PlantCreate, FBAssociatedPlantExtractForPlant, PlantRead, CreatePlantResponse } from "plants/ui/definitions/Plants";
 import PlantLookup from "plants/ui//customClasses/plants/PlantLookup";
-import { BPlant, FBAssociatedPlantExtractForPlant } from "plants/ui/definitions/Plants";
 import { LDescendantPlantInput, LPropagationTypeData } from "plants/ui/definitions/PlantsLocal";
 import SuggestionService from "plants/ui/customClasses/shared/SuggestionService";
 import Navigation from "plants/ui/customClasses/singleton/Navigation";
@@ -92,7 +91,7 @@ export default class PlantCreator extends ManagedObject {
 			return;
 		};
 
-		const aPlants: BPlant[] = this._oPlantsModel.getProperty('/PlantsCollection');
+		const aPlants: PlantRead[] = this._oPlantsModel.getProperty('/PlantsCollection');
 		const oParentPlant = aPlants.find(ele => ele.plant_name === descendantPlantInput.parentPlant);
 		if (!oParentPlant) {
 			throw new Error('Parent plant not found.');
@@ -154,7 +153,7 @@ export default class PlantCreator extends ManagedObject {
 			});
 	}	
 	
-	private _cbSavedPlant(cbCloseDialog: Function|undefined, oData: ResultsPlantCreated, sStatus: string, oReturnData: any): void {
+	private _cbSavedPlant(cbCloseDialog: Function|undefined, oData: CreatePlantResponse, sStatus: string, oReturnData: any): void {
 				// add new plant to model
 				var oPlantSaved: PlantRead = oData.plant;
 				var aPlants = this._oPlantsModel.getProperty('/PlantsCollection');

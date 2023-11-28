@@ -1,4 +1,4 @@
-import { BPlant, FBCancellationReason } from "plants/ui/definitions/Plants";
+import { PlantRead, FBCancellationReason } from "plants/ui/definitions/Plants";
 import { LCancellationReasonChoice, LCancelPlantInputData } from "plants/ui/definitions/PlantsLocal";
 import Popover, { Popover$AfterCloseEvent } from "sap/m/Popover";
 import ManagedObject from "sap/ui/base/ManagedObject";
@@ -18,7 +18,7 @@ export default class CancelPlantPopverHandler extends ManagedObject {
 
     private _oCancelPlantPopover: Popover;  // "dialogCancellation"
 
-	private _oPlant: BPlant;
+	private _oPlant: PlantRead;
 
     constructor(oSuggestionsModel: JSONModel, oPlantsModel: JSONModel) {
         super();
@@ -26,7 +26,7 @@ export default class CancelPlantPopverHandler extends ManagedObject {
 		this._oPlantsModel = oPlantsModel;
     }
 
-    public openCancelPlantPopover(oViewAttachTo: View, oPlant: BPlant, oOpenBy: Control): void {
+    public openCancelPlantPopover(oViewAttachTo: View, oPlant: PlantRead, oOpenBy: Control): void {
 		this._oPlant = oPlant;
 
 		Fragment.load({
@@ -73,7 +73,7 @@ export default class CancelPlantPopverHandler extends ManagedObject {
 		// todo move to crud class!!!!!!!!!!
 
 		//set current plant's cancellation reason and date
-		// var oCurrentPlant = <BPlant>this.getView().getBindingContext('plants')!.getObject();
+		// var oCurrentPlant = <PlantRead>this.getView().getBindingContext('plants')!.getObject();
 		this._oPlant.cancellation_reason = oReasonSelected!.text as FBCancellationReason;
 		// var oDatePicker = <DatePicker>this.byId("cancellationDate");
 		// let oDate: Date = oDatePicker.getDateValue() as unknown as Date;

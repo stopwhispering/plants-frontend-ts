@@ -2,11 +2,9 @@
 import MessageToast from "sap/m/MessageToast";
 import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
-import { BPlant, PlantRenameRequest } from "plants/ui/definitions/Plants";
-import ModelsHelper from "plants/ui/model/ModelsHelper";
+import { PlantRead, PlantRenameRequest } from "plants/ui/definitions/Plants";
 import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler";
-import Dialog from "sap/m/Dialog";
-import { BConfirmation } from "plants/ui/definitions/Messages";
+import { BackendConfirmation } from "plants/ui/definitions/Messages";
 import PlantLookup from "./PlantLookup";
 import PlantImagesLoader from "./PlantImagesLoader";
 import PlantsLoader from "plants/ui/customClasses/singleton/PlantsLoader"
@@ -33,7 +31,7 @@ export default class PlantRenamer extends ManagedObject {
 		this._oUntaggedImagesModel = oUntaggedImagesModel;
 	}
 
-	public renamePlant(oPlant: BPlant, sNewPlantName: string, closeDialogFn: Function): void {
+	public renamePlant(oPlant: PlantRead, sNewPlantName: string, closeDialogFn: Function): void {
 		// use ajax to rename plant in backend
 
 		// check if duplicate
@@ -64,7 +62,7 @@ export default class PlantRenamer extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Plant (PUT)'));
 	}
 
-	private _onReceivingPlantNameRenamed(oPlant: BPlant, closeDialogFn: Function, oMsg: BConfirmation): void {
+	private _onReceivingPlantNameRenamed(oPlant: PlantRead, closeDialogFn: Function, oMsg: BackendConfirmation): void {
 		//plant was renamed in backend
 		Util.stopBusyDialog();
 		MessageToast.show(oMsg.message.message);

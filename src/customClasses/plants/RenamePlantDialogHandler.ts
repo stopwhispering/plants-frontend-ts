@@ -1,4 +1,4 @@
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 import { LRenamePlantInputData } from "plants/ui/definitions/PlantsLocal";
 import Dialog, { Dialog$AfterCloseEvent } from "sap/m/Dialog";
 import MessageToast from "sap/m/MessageToast";
@@ -18,21 +18,21 @@ export default class RenamePlantDialogHandler extends ManagedObject {
     private _oPlantRenamer: PlantRenamer;
     private _oRenamePlantDialog: Dialog;  // "dialogRenamePlant"
 
-    private _oPlant: BPlant;
+    private _oPlant: PlantRead;
 
     public constructor(oPlantRenamer: PlantRenamer) {
         super();
         this._oPlantRenamer = oPlantRenamer;
     }
 
-    public openRenamePlantDialog(oAttachToView: View, oPlant: BPlant): void {
+    public openRenamePlantDialog(oAttachToView: View, oPlant: PlantRead): void {
 
         this._oPlant = oPlant;
 
         // check if there are any unsaved changes
         const oChangeTracker = ChangeTracker.getInstance();
-        // const aModifiedPlants: BPlant[] = oChangeTracker.getModifiedPlants();
-        // const aModifiedImages: FBImage[] = oChangeTracker.getModifiedImages();
+        // const aModifiedPlants: PlantRead[] = oChangeTracker.getModifiedPlants();
+        // const aModifiedImages: ImageRead[] = oChangeTracker.getModifiedImages();
         // const aModifiedTaxa: BTaxon[] = oChangeTracker.getModifiedTaxa();
 		if (oChangeTracker.hasUnsavedChanges()) {
         // if (!!aModifiedPlants.length || !!aModifiedImages.length || !!aModifiedTaxa.length) {

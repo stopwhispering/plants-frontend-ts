@@ -1,8 +1,7 @@
 import Util from "plants/ui/customClasses/shared/Util";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { BResultsImageResource, FBImage } from "../../definitions/Images";
-import ModelsHelper from "plants/ui/model/ModelsHelper";
+import { GetUntaggedImagesResponse, ImageRead } from "../../definitions/Images";
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import ImageRegistryHandler from "plants/ui/customClasses/singleton/ImageRegistryHandler";
 import ErrorHandling from "../shared/ErrorHandling";
@@ -32,16 +31,16 @@ export default class UntaggedImagesHandler extends ManagedObject {
 	}
 
 	// load untagged images to display number as badge in top row
-	private _onReceivingUntaggedImages(oData: BResultsImageResource, sStatus: any, oReturnData: any){
-		this._addPhotosToRegistry(<FBImage[]>oData.ImagesCollection);
+	private _onReceivingUntaggedImages(oData: GetUntaggedImagesResponse, sStatus: any, oReturnData: any){
+		this._addPhotosToRegistry(<ImageRead[]>oData.ImagesCollection);
 		this.resetUntaggedImages();
 	}
 
-	private _addPhotosToRegistry(aImages: FBImage[]): void {
+	private _addPhotosToRegistry(aImages: ImageRead[]): void {
 		// add photos loaded for a plant to the registry if not already loaded with other plant
 		// plus add a copy of the photo to a clone registry for getting changed photos when saving
 		const oImageRegistryHandler = ImageRegistryHandler.getInstance();
-		aImages.forEach((oImage: FBImage) => {
+		aImages.forEach((oImage: ImageRead) => {
 			if (!oImageRegistryHandler.isImageIdInRegistry(oImage.id)){
 				oImageRegistryHandler.addImageToRegistry(oImage);
 				ChangeTracker.getInstance().addOriginalImage(oImage);

@@ -3,7 +3,7 @@ import ManagedObject from "sap/ui/base/ManagedObject"
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker";
 import { LTaxonMap } from "plants/ui/definitions/TaxonLocal";
 import TaxonLoader from "./TaxonLoader";
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 
 /**
  * @namespace plants.ui.customClasses.taxonomy
@@ -30,7 +30,7 @@ export default class TaxonRegistryHandler extends ManagedObject {
 		const iPlantId = this._parse_plant_id_from_hash();
 		if (!iPlantId)
 			return;
-		const aPlants = <BPlant[]>this._oPlantsModel.getProperty('/PlantsCollection/');
+		const aPlants = <PlantRead[]>this._oPlantsModel.getProperty('/PlantsCollection/');
 		const oCurrentPlant = aPlants.find(p => p.id === iPlantId);
 		if (!oCurrentPlant)
 			throw new Error('Plant with id ' + iPlantId + ' not found in plants collection');

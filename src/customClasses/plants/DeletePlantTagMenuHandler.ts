@@ -1,4 +1,4 @@
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 import Menu from "sap/m/Menu";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Fragment from "sap/ui/core/Fragment";
@@ -13,7 +13,7 @@ import PlantTagger from "./PlantTagger";
  */
 export default class DeletePlantTagMenuHandler extends ManagedObject {
     private _oDeletePlantTagMenu: Menu;
-    private _oPlant: BPlant;
+    private _oPlant: PlantRead;
     private _oPlantsModel: JSONModel;
     private _eTagType: LTagType
     private _sTagValue: string;
@@ -25,7 +25,7 @@ export default class DeletePlantTagMenuHandler extends ManagedObject {
 		this._oPlantTagger = new PlantTagger(oPlantsModel);
     }
 
-    public openDeletePlantTagMenu(oPlant: BPlant, sTagValue: string, oAttachTo: View, oOpenBy: Control, eTagType: LTagType): void {
+    public openDeletePlantTagMenu(oPlant: PlantRead, sTagValue: string, oAttachTo: View, oOpenBy: Control, eTagType: LTagType): void {
         this._oPlant = oPlant;
         this._eTagType = eTagType;
         this._sTagValue = sTagValue;

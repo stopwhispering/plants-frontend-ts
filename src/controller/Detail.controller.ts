@@ -7,11 +7,10 @@ import Util from "plants/ui/customClasses/shared/Util";
 import Navigation from "plants/ui/customClasses/singleton/Navigation"
 import MessageHandler from "plants/ui/customClasses/singleton/MessageHandler"
 import EventCRUD from "plants/ui/customClasses/events/EventCRUD"
-import Sorter from "sap/ui/model/Sorter"
 import FilterOperator from "sap/ui/model/FilterOperator"
 import ImageToTaxonAssigner from "plants/ui/customClasses/images/ImageToTaxonAssigner"
 import ImageToEventAssigner from "plants/ui/customClasses/images/ImageToEventAssigner"
-import { FBEvent } from "plants/ui/definitions/Events"
+import { EventRead } from "plants/ui/definitions/Events"
 import Control from "sap/ui/core/Control"
 import Input, { Input$SubmitEvent, Input$SuggestEvent, Input$SuggestionItemSelectedEvent } from "sap/m/Input"
 import Icon, { Icon$PressEvent } from "sap/ui/core/Icon"
@@ -22,9 +21,9 @@ import { MessageType } from "sap/ui/core/library"
 import FileUploader, { FileUploader$ChangeEvent, FileUploader$TypeMissmatchEvent, FileUploader$UploadAbortedEvent, FileUploader$UploadCompleteEvent } from "sap/ui/unified/FileUploader"
 import Button, { Button$PressEvent } from "sap/m/Button"
 import Context from "sap/ui/model/Context"
-import { FBImage, FBImagePlantTag, FBKeyword } from "plants/ui/definitions/Images"
+import { ImagePlantTag, Keyword } from "plants/ui/definitions/Images"
 import Token, { Token$PressEvent } from "sap/m/Token"
-import { FBAssociatedPlantExtractForPlant, BPlant, PlantRead, FBPlantTag } from "plants/ui/definitions/Plants"
+import { FBAssociatedPlantExtractForPlant, PlantRead, PlantTag } from "plants/ui/definitions/Plants"
 import { LCurrentPlant } from "plants/ui/definitions/PlantsLocal"
 import Tokenizer, { Tokenizer$TokenDeleteEvent } from "sap/m/Tokenizer"
 import PlantLookup from "plants/ui/customClasses/plants/PlantLookup"
@@ -37,7 +36,7 @@ import PlantImagesLoader from "plants/ui/customClasses/plants/PlantImagesLoader"
 import ImageDeleter from "plants/ui/customClasses/images/ImageDeleter"
 import MessageBox from "sap/m/MessageBox"
 import ChangeTracker from "plants/ui/customClasses/singleton/ChangeTracker"
-import { BTaxon } from "plants/ui/definitions/Taxon"
+import { TaxonRead } from "plants/ui/definitions/Taxon"
 import ImageKeywordTagger from "plants/ui/customClasses/images/ImageKeywordTagger"
 import ImagePlantTagger from "plants/ui/customClasses/images/ImagePlantTagger"
 import ModelsHelper from "../model/ModelsHelper"
@@ -235,7 +234,7 @@ export default class Detail extends BaseController {
 		
 	const oSource = <Control>oEvent.getSource();
 	// const sPathTag = oSource.getBindingContext('plants')!.getPath();
-	const sTagText = (<FBPlantTag>oSource.getBindingContext('plants').getObject()).text;
+	const sTagText = (<PlantTag>oSource.getBindingContext('plants').getObject()).text;
 	this.oDeletePlantTagMenuHandler.openDeletePlantTagMenu(this.mCurrentPlant.plant, sTagText, this.getView(), oSource, "Plant");
 	}
 
@@ -294,7 +293,7 @@ export default class Detail extends BaseController {
 
 	onChangeParent(oEvent: InputBase$ChangeEvent) {
 		// verify entered parent and set parent plant id
-		var aPlants = <BPlant[]>this.getView().getModel('plants').getProperty('/PlantsCollection');
+		var aPlants = <PlantRead[]>this.getView().getModel('plants').getProperty('/PlantsCollection');
 		var parentPlant = aPlants.find(plant => plant.plant_name === oEvent.getParameter('value').trim());
 
 		// if (!oEvent.getParameter('newValue').trim() || !parentPlant) {
@@ -324,7 +323,7 @@ export default class Detail extends BaseController {
 	onPressButtonDeletePlant(oEvent: MenuItem$PressEvent) {
 		//confirm dialog
 		var oMenuItem = <MenuItem>oEvent.getSource();
-		var oPlant = <BPlant>oMenuItem.getBindingContext('plants')!.getObject();
+		var oPlant = <PlantRead>oMenuItem.getBindingContext('plants')!.getObject();
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
 
 		const oPlantDeleter = new PlantDeleter(this.oComponent.getModel('plants'), this.onHandleClose.bind(this));
@@ -364,7 +363,7 @@ export default class Detail extends BaseController {
 		if (!oTaxonContext){
 			return;
 		}
-		const oTaxon = <BTaxon|undefined>oTaxonContext.getObject(); 
+		const oTaxon = <TaxonRead|undefined>oTaxonContext.getObject(); 
 		this._oSearchSpeciesDialogHandler.openSearchSpeciesDialog(this.getView(), 
 			this.mCurrentPlant.plant, oTaxon);
 	}
@@ -384,7 +383,7 @@ export default class Detail extends BaseController {
 	// Taxonomy Handlers
 	//////////////////////////////////////////////////////////	
 	onRefetchGbifImages(oEvent: Button$PressEvent) {
-		const oTaxon = <BTaxon>(<Control>oEvent.getSource()).getBindingContext('taxon')!.getObject()
+		const oTaxon = <TaxonRead>(<Control>oEvent.getSource()).getBindingContext('taxon')!.getObject()
 		if (!oTaxon.gbif_id)
 			throw new Error('No gbif_id found for taxon ' + oTaxon.name);
 		new OccurrenceImagesFetcher(this.oComponent.getModel('taxon')).fetchOccurrenceImages(oTaxon.gbif_id, this.mCurrentPlant.plant);
@@ -412,12 +411,12 @@ export default class Detail extends BaseController {
 	onEditEvent(oEvent: Button$PressEvent) {
 		// triggered by edit button in a custom list item header in events list
 		const oSource = <Button>oEvent.getSource();
-		const oSelectedEvent = <FBEvent>oSource.getBindingContext('events')!.getObject();
+		const oSelectedEvent = <EventRead>oSource.getBindingContext('events')!.getObject();
 		this.oEditEventDialogHandler.openDialogEditEvent(this.getView(), oSelectedEvent)
 	}
 
 	onDeleteEventsTableRow(oEvent: ListBase$DeleteEvent) {
-		const oSelectedEvent = <FBEvent>oEvent.getParameter('listItem').getBindingContext('events').getObject();
+		const oSelectedEvent = <EventRead>oEvent.getParameter('listItem').getBindingContext('events').getObject();
 		this.oEventsListHandler.deleteRow(oSelectedEvent);
 	}
 
@@ -466,9 +465,9 @@ export default class Detail extends BaseController {
 		//adds selected plant in input field (via suggestions) to an image in (details view)
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Input>oEvent.getSource();
-		const oImage = <FBImage>oSource.getBindingContext("images")!.getObject()
+		const oImage = <ImageRead>oSource.getBindingContext("images")!.getObject()
 		const oSelectedSuggestion = oEvent.getParameter('selectedRow');
-		const oSelectedPlant = <BPlant>oSelectedSuggestion.getBindingContext('plants').getObject();
+		const oSelectedPlant = <PlantRead>oSelectedSuggestion.getBindingContext('plants').getObject();
 		const oImagesModel = this.oComponent.getModel('images');
 		// this.imageEventHandlers.assignPlantToImage(oSelectedPlant, oImage, oImagesModel);
 		new ImagePlantTagger(oImagesModel).addPlantToImage(oSelectedPlant, oImage);
@@ -480,7 +479,7 @@ export default class Detail extends BaseController {
 		//navigate to chosen plant in plant details view when clicking on plant token in untagged images view
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Token>oEvent.getSource();
-		const oPlantTag = <FBImagePlantTag>oSource.getBindingContext('images')!.getObject();
+		const oPlantTag = <ImagePlantTag>oSource.getBindingContext('images')!.getObject();
 		if (!oPlantTag.plant_id || oPlantTag.plant_id <= 0) throw new Error("Unexpected error: No Plant ID");
 
 		if (oPlantTag.plant_id === this.mCurrentPlant.plant.id) return; //already on this plant (no need to navigate)
@@ -492,13 +491,13 @@ export default class Detail extends BaseController {
 	onIconPressDeleteImage(oEvent: Icon$PressEvent) {
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oSource = <Icon>oEvent.getSource();
-		const oImage = <FBImage>oSource.getBindingContext("images")!.getObject()
+		const oImage = <ImageRead>oSource.getBindingContext("images")!.getObject()
 		var bCompact = !!this.getView().$().closest(".sapUiSizeCompact").length;
 
 		const oImagesModel = this.oComponent.getModel('images');;
 		const oUntaggedImagesModel = this.oComponent.getModel('untaggedImages');
 		//todo use imageregistryhandler instaed in imagedeleter
-		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel, ModelsHelper.onGenericSuccessWithMessage);
+		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel);
 		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
 
@@ -507,7 +506,7 @@ export default class Detail extends BaseController {
 		const oInput = <Input>oEvent.getSource();
 		oInput.setValue('');
 		const sKeyword = oEvent.getParameter('value').trim();
-		const oImage = <FBImage>oInput.getParent().getBindingContext('images')!.getObject();
+		const oImage = <ImageRead>oInput.getParent().getBindingContext('images')!.getObject();
 		new ImageKeywordTagger(this.oComponent.getModel('images')).addKeywordToImage(sKeyword, oImage);
 	}
 
@@ -534,7 +533,7 @@ export default class Detail extends BaseController {
 
 		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer>oEvent.getSource();
-		const oImage = <FBImage>oTokenizer.getBindingContext('images')!.getObject();
+		const oImage = <ImageRead>oTokenizer.getBindingContext('images')!.getObject();
 
 		// const oImagesModel = this.oComponent.getModel('images');
 		// this.imageEventHandlers.removeKeywordImageTokenFromModel(sKeywordTokenKey, oImage, oImagesModel);
@@ -555,7 +554,7 @@ export default class Detail extends BaseController {
 
 		// the event's source is the tokenizer
 		const oTokenizer = <Tokenizer>oEvent.getSource();
-		const oImage = <FBImage>oTokenizer.getBindingContext('images')!.getObject();
+		const oImage = <ImageRead>oTokenizer.getBindingContext('images')!.getObject();
 
 		new ImagePlantTagger(this.oComponent.getModel('images')).removePlantFromImage(iPlantId, oImage);
 
@@ -593,7 +592,7 @@ export default class Detail extends BaseController {
 		MessageHandler.getInstance().addMessageFromBackend(oResponse.message);
 
 		// add to images registry and refresh current plant's images
-		const aImages: FBImage[] = oResponse.images;
+		const aImages: ImageRead[] = oResponse.images;
 		if (aImages.length > 0) {
 			// this.modelsHelper.addToImagesRegistry(oResponse.images);
 			const oImageRegistryHandler = ImageRegistryHandler.getInstance();
@@ -631,12 +630,12 @@ export default class Detail extends BaseController {
 				new Filter("description", function (sDescription) {
 					return (sDescription || "").toUpperCase().indexOf(sQuery) > -1;
 				}),
-				new Filter("plants", function (aPlants: FBImagePlantTag[]) {
+				new Filter("plants", function (aPlants: ImagePlantTag[]) {
 					return (aPlants.some(oPlantTag => 
 						oPlantTag.plant_name.toUpperCase().includes(sQuery) ||
 						oPlantTag.plant_id === parseInt(sQuery)))
 				}),
-				new Filter("keywords", function (aKeywords: FBKeyword[]) {
+				new Filter("keywords", function (aKeywords: Keyword[]) {
 					return (aKeywords.some(oKeywordTag => oKeywordTag.keyword.toUpperCase().includes(sQuery)))
 				}),
 				new Filter("record_date_time", FilterOperator.Contains, sQuery),
@@ -655,7 +654,7 @@ export default class Detail extends BaseController {
 		
 		const oSource = <Control>oEvent.getSource();
 		// const sPathTag = oSource.getBindingContext('plants')!.getPath();
-		const sTagText = (<FBPlantTag>oSource.getBindingContext('plants').getObject()).text;
+		const sTagText = (<PlantTag>oSource.getBindingContext('plants').getObject()).text;
 		this.oDeletePlantTagMenuHandler.openDeletePlantTagMenu(this.mCurrentPlant.plant, sTagText, this.getView(), oSource, "Taxon");
 	}
 }

@@ -12,7 +12,7 @@ import JSONModel from "sap/ui/model/json/JSONModel";
 import SoilDialogHandler from "./SoilDialogHandler";
 import RadioButton from "sap/m/RadioButton";
 import Util from "../shared/Util";
-import { FBObservation, FBPot, FBSoil } from "plants/ui/definitions/Events";
+import { ObservationCreateUpdate, SoilRead, PotCreateUpdate } from "plants/ui/definitions/Events";
 import SoilCRUD from "./SoilCRUD";
 import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
 import { ListBase$SelectionChangeEvent } from "sap/m/ListBase";
@@ -64,14 +64,14 @@ export default abstract class EventDialogHandler extends ManagedObject {
 			MessageToast.show('No or more than one soil selected');
 			throw new Error('No or more than one soil selected');
 		}
-		var oSelectedSoil = <FBSoil>oContexts[0].getObject();
+		var oSelectedSoil = <SoilRead>oContexts[0].getObject();
 		const oSelectedDataNew = Util.getClonedObject(oSelectedSoil);
 		this._oEventModel.setProperty('/soil', oSelectedDataNew);
 	}
 
 	onOpenDialogEditSoil(oEvent: Button$PressEvent) {
 		const oSource = <Button>oEvent.getSource();
-		const oSoil = <FBSoil>oSource.getBindingContext('soils')!.getObject();
+		const oSoil = <SoilRead>oSource.getBindingContext('soils')!.getObject();
 		this._oSoilDialogHandler.openDialogEditSoil(oSoil, this._oEventDialog);  // todo does this work instead oif view?
 	}
 
@@ -82,7 +82,7 @@ export default abstract class EventDialogHandler extends ManagedObject {
 	//////////////////////////////////////////////////////////
 	// Shared Protected
 	//////////////////////////////////////////////////////////
-	protected _getSoilData(oEventEditData: LEventEditData): FBSoil | null {
+	protected _getSoilData(oEventEditData: LEventEditData): SoilRead | null {
 		//loads, parses, and cleanses the soil data from the the dialog control
 		//note: we submit the whole soil object to the backend, but the backend does only care about the id
 		//      for modifying or creating a soil, there's a separate service
@@ -90,18 +90,18 @@ export default abstract class EventDialogHandler extends ManagedObject {
 		if (!oEventEditData.segments.soil)
 			return null;
 
-		const oSoilDataClone = <FBSoil>JSON.parse(JSON.stringify(oEventEditData.soil));
+		const oSoilDataClone = <SoilRead>JSON.parse(JSON.stringify(oEventEditData.soil));
 		if (!oSoilDataClone.description || oSoilDataClone.description.length == 0) {
 			oSoilDataClone.description = undefined;
 		}
 		return oSoilDataClone;
 	}
 
-	protected _getPotData(oEventEditData: LEventEditData): FBPot | null {
+	protected _getPotData(oEventEditData: LEventEditData): PotCreateUpdate | null {
 		//loads, parses, and cleanses the pot data from the the dialog control
 		if (!oEventEditData.segments.pot)
 			return null;
-		const oPotDataClone = <FBPot>JSON.parse(JSON.stringify(oEventEditData.pot));
+		const oPotDataClone = <PotCreateUpdate>JSON.parse(JSON.stringify(oEventEditData.pot));
 
 		if (oEventEditData.potHeightOptions.very_flat)
 			oPotDataClone.shape_side = 'very flat';
@@ -128,7 +128,7 @@ export default abstract class EventDialogHandler extends ManagedObject {
 		return oPotDataClone;
 	}
 
-	protected _getObservationData(oEventEditData: LEventEditData): FBObservation | null {
+	protected _getObservationData(oEventEditData: LEventEditData): ObservationCreateUpdate | null {
 		//returns the cleansed observation data from the event edit data
 		if (!oEventEditData.segments.observation)
 			return null;
@@ -151,6 +151,6 @@ export default abstract class EventDialogHandler extends ManagedObject {
 		} else {
 			oObservationDataClone.observation_notes = oObservationDataClone.observation_notes.trim();
 		}
-		return <FBObservation>oObservationDataClone;
+		return <ObservationCreateUpdate>oObservationDataClone;
 	}
 }

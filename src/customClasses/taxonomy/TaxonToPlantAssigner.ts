@@ -1,7 +1,7 @@
-import { BTaxon } from "plants/ui/definitions/Taxon";
+import { TaxonRead } from "plants/ui/definitions/Taxon";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { BPlant } from "plants/ui/definitions/Plants";
+import { PlantRead } from "plants/ui/definitions/Plants";
 import ChangeTracker from "../singleton/ChangeTracker";
 
 /**
@@ -19,7 +19,7 @@ export default class TaxonToPlantAssigner extends ManagedObject {
 		this._oTaxonModel = oTaxonModel;
 	}
 
-	public assignTaxonToPlant(oPlant: BPlant, oTaxon: BTaxon, sBotanicalName: string) {
+	public assignTaxonToPlant(oPlant: PlantRead, oTaxon: TaxonRead, sBotanicalName: string) {
 		//we assign that taxon id to the plant; this is persisted only upon saving
 		//the whole new taxon dictionary is added to the taxon model and it's clone
 		oPlant.botanical_name = sBotanicalName;

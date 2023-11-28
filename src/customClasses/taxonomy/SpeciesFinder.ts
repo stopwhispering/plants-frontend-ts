@@ -1,4 +1,4 @@
-import { BKewSearchResultEntry, ResultsTaxonInfoRequest, FNewTaxon, FTaxonInfoRequest } from "plants/ui/definitions/Taxon";
+import { KewSearchResultEntry, SearchTaxaResponse, FNewTaxon, SearchTaxaRequest } from "plants/ui/definitions/Taxon";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Util from "plants/ui/customClasses/shared/Util";
@@ -26,7 +26,7 @@ export default class SpeciesFinder extends ManagedObject {
 			return;
 		}
 		Util.startBusyDialog('Retrieving results from species search...');
-		var dPayload = <FTaxonInfoRequest>{
+		var dPayload = <SearchTaxaRequest>{
 			'include_external_apis': bIncludeExternalApis,
 			'taxon_name_pattern': sTaxonNamePattern,
 			'search_for_genus_not_species': bSearchForGenusNotSpecies
@@ -43,13 +43,13 @@ export default class SpeciesFinder extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Search Taxa by Name (POST)'));
 	}
 
-	private _onReceivingSpeciesSearchResult(data: ResultsTaxonInfoRequest, sStatus: ResponseStatus, oResponse: JQueryXHR): void {
+	private _onReceivingSpeciesSearchResult(data: SearchTaxaResponse, sStatus: ResponseStatus, oResponse: JQueryXHR): void {
 		Util.stopBusyDialog();
 		this._oModelKewSearchResults.setData(data);
 		MessageHandler.getInstance().addMessageFromBackend(data.message);
 	}
 
-	public loadDetailsForSpecies(oSelectedSearchResult: BKewSearchResultEntry, 
+	public loadDetailsForSpecies(oSelectedSearchResult: KewSearchResultEntry, 
 		oCustomTaxonInputData: SearchSpeciesCustomTaxonInputData,
 		cbReceivingAdditionalSpeciesInformation: LAjaxLoadDetailsForSpeciesDoneCallback){  // todo refactor
 			//having selected one of the search results (optionally with custom name), we now retrieve additional information

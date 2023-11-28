@@ -1,5 +1,5 @@
 import ManagedObject from "sap/ui/base/ManagedObject"
-import { BPlant} from "plants/ui/definitions/Plants";
+import { GetPlantsResponse, PlantRead} from "plants/ui/definitions/Plants";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import View from "sap/ui/core/mvc/View";
 import MessageToast from "sap/m/MessageToast";
@@ -109,7 +109,8 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 		// the taxon id 
 
 		// get current plant's position in plants model array
-		var aPlants = <BPlant[]>this._oPlantsModel.getProperty('/PlantsCollection');
+		const oPlantsData = <GetPlantsResponse>this._oPlantsModel.getData();
+		var aPlants = <PlantRead[]>oPlantsData.PlantsCollection;
 		this._mCurrentPlant.plant_index = aPlants.findIndex(plant => plant.id === this._mCurrentPlant.plant_id);
 		if (this._mCurrentPlant.plant_index === -1) {
 			MessageToast.show('Plant ID ' + this._mCurrentPlant.plant_id + ' not found. Redirecting.');
@@ -118,7 +119,7 @@ export default class PlantDetailsBootstrap extends ManagedObject {
 
 		// get current plant object in plants model array and bind plant to details view
 		var sPathCurrentPlant = "/PlantsCollection/" + this._mCurrentPlant.plant_index;
-		this._mCurrentPlant.plant = <BPlant>this._oPlantsModel.getProperty(sPathCurrentPlant);
+		this._mCurrentPlant.plant = <PlantRead>this._oPlantsModel.getProperty(sPathCurrentPlant);
 
 		this._oDetailView.bindElement({
 			path: sPathCurrentPlant,

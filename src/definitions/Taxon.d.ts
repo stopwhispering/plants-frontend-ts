@@ -1,15 +1,16 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
+import { ResponseContainer } from "./Images";
+import { BackendMessage } from "./Messages";
 
 /**
  * @namespace plants.ui.definitions.TaxonFromBackend
  */
-export type BSearchResultSource =
+export type TaxonSearchResultSource =
   | "Local DB"
   | "Plants of the World"
   | "International Plant Names Index + Plants of the World";
 
-  export interface BKewSearchResultEntry {
-    // source: BSearchResultSource;
+  export interface KewSearchResultEntry {
     id?: number;
     in_db: boolean;
     count: number;
@@ -39,17 +40,10 @@ export type BSearchResultSource =
     distribution_concat?: string;
   }
   
-export interface BMessage {
-  type: BMessageType;
-  message: string;
-  description?: string;
+export interface FetchTaxonOccurrenceImagesResponse extends ResponseContainer {
+  occurrence_images: TaxonOccurrenceImage[];
 }
-export interface BResultsFetchTaxonImages {
-  action: string;
-  message: BMessage;
-  occurrence_images: BTaxonOccurrenceImage[];
-}
-export interface BTaxonOccurrenceImage {
+export interface TaxonOccurrenceImage {
   occurrence_id: number;
   img_no: number;
   gbif_id: number;
@@ -62,12 +56,10 @@ export interface BTaxonOccurrenceImage {
   references?: string;
   href: string;
 }
-export interface BResultsGetTaxon {
-  action: string;
-  message: BMessage;
-  taxon: BTaxon;
+export interface GetTaxonResponse extends ResponseContainer {
+  taxon: TaxonRead;
 }
-export interface BTaxon {
+export interface TaxonRead {
   id: number;
   name: string;
   is_custom: boolean;
@@ -91,11 +83,11 @@ export interface BTaxon {
   hybridgenus: boolean;
   gbif_id?: int;
   custom_notes?: string;
-  distribution: FBDistribution;
+  distribution: DistributionRead;
   images: TaxonImageRead[];
-  occurrence_images: BTaxonOccurrenceImage[];
+  occurrence_images: TaxonOccurrenceImage[];
 }
-export interface FBDistribution {
+export interface DistributionRead {
   native: string[];
   introduced: string[];
 }
@@ -103,24 +95,18 @@ export interface TaxonImageRead {
   id: number;
   description?: string;
 }
-export interface BResultsRetrieveTaxonDetailsRequest {
+export interface SearchTaxaResponse {
   action: string;
-  message: BMessage;
-  botanical_name: string;
-  taxon_data: BTaxon;
+  message: BackendMessage;
+  ResultsCollection: KewSearchResultEntry[];
 }
-export interface ResultsTaxonInfoRequest {
-  action: string;
-  message: BMessage;
-  ResultsCollection: BKewSearchResultEntry[];
-}
-export interface FFetchTaxonOccurrenceImagesRequest {
+export interface FetchTaxonOccurrenceImagesRequest {
   gbif_id: number;
 }
-export interface FModifiedTaxa {
-  ModifiedTaxaCollection: FTaxon[];
+export interface UpdateTaxaRequest {
+  ModifiedTaxaCollection: TaxonUpdate[];
 }
-export interface FTaxon {
+export interface TaxonUpdate {
   id: number;
   name: string;
   is_custom: boolean;
@@ -144,7 +130,7 @@ export interface FTaxon {
   hybridgenus: boolean;
   gbif_id?: int;
   custom_notes?: string;
-  distribution?: FBDistribution;
+  distribution?: DistributionRead;
   images?: TaxonImageUpdate[];
 }
 export interface TaxonImageUpdate {
@@ -164,18 +150,18 @@ export interface FTaxonOccurrenceImage {
   references?: string;
   href: string;
 }
-export interface FTaxonInfoRequest {
+export interface SearchTaxaRequest {
   include_external_apis: boolean;
   taxon_name_pattern: string;
   search_for_genus_not_species: boolean;
 }
 
-export interface BResultsGetBotanicalName {
+export interface CreateBotanicalNameResponse {
   full_html_name: string;
   name: string;
 }
 
-export interface FBotanicalAttributes {
+export interface CreateBotanicalNameRequest {
   rank: string;
   genus: string;
   species?: string;
@@ -193,10 +179,8 @@ export interface FBotanicalAttributes {
   custom_suffix?: string;
 }
 
-export interface BCreatedTaxonResponse {
-  action: string;
-  message: BMessage;
-  new_taxon: BTaxon;
+export interface CreateTaxonResponse extends ResponseContainer{
+  new_taxon: TaxonRead;
 }
 
 export interface FNewTaxon {

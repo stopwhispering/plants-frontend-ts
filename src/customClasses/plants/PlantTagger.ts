@@ -2,7 +2,7 @@
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
-import { BPlant, FBPlantTag, FBTagState, TaxonTagRead } from "plants/ui/definitions/Plants";
+import { PlantRead, PlantTag, FBTagState, TaxonTag } from "plants/ui/definitions/Plants";
 
 /**
  * @namespace plants.ui.customClasses.plants
@@ -22,9 +22,9 @@ export default class PlantTagger extends ManagedObject {
 		}
 	}
 
-	private _getPlantsWithTaxon(taxon_id: int): BPlant[]{
-		const aAllPlants = <BPlant[]> this._oPlantsModel.getProperty('/PlantsCollection');
-		const aPlantsWithTaxon = aAllPlants.filter(function (oPlant: BPlant) {
+	private _getPlantsWithTaxon(taxon_id: int): PlantRead[]{
+		const aAllPlants = <PlantRead[]> this._oPlantsModel.getProperty('/PlantsCollection');
+		const aPlantsWithTaxon = aAllPlants.filter(function (oPlant: PlantRead) {
 			if (oPlant.taxon_id !== taxon_id)
 				return false;
 			
@@ -47,10 +47,10 @@ export default class PlantTagger extends ManagedObject {
 		const aPlantsWithTaxon = this._getPlantsWithTaxon(taxon_id);
 
 		// delete tag from all plants with that taxon
-		aPlantsWithTaxon.forEach(function (oPlant: BPlant) {
+		aPlantsWithTaxon.forEach(function (oPlant: PlantRead) {
 			// delete tag from plants model
 			if (oPlant.taxon_tags) {
-				oPlant.taxon_tags = oPlant.taxon_tags.filter(function (oTag: TaxonTagRead) {
+				oPlant.taxon_tags = oPlant.taxon_tags.filter(function (oTag: TaxonTag) {
 					return oTag.text !== sTagText;
 				});
 			}
@@ -65,9 +65,9 @@ export default class PlantTagger extends ManagedObject {
 		const aPlantsWithTaxon = this._getPlantsWithTaxon(taxon_id);
 
 		// filter out plants that already have the tag
-		const aPlantsWithoutTag = aPlantsWithTaxon.filter(function (oPlant: BPlant) {
+		const aPlantsWithoutTag = aPlantsWithTaxon.filter(function (oPlant: PlantRead) {
 			if (oPlant.taxon_tags) {
-				const bFound = oPlant.taxon_tags.find(function (oTag: TaxonTagRead) {
+				const bFound = oPlant.taxon_tags.find(function (oTag: TaxonTag) {
 					return oTag.text === sTagText;
 				});
 				if (bFound) {
@@ -78,9 +78,9 @@ export default class PlantTagger extends ManagedObject {
 		});
 
 		// add tag to all plants with that taxon
-		aPlantsWithoutTag.forEach(function (oPlant: BPlant) {
+		aPlantsWithoutTag.forEach(function (oPlant: PlantRead) {
 			// create new token object in plants model
-			const oTaxonTag = <TaxonTagRead>{
+			const oTaxonTag = <TaxonTag>{
 				text: sTagText,
 				state: eTagState,
 				// plant_id: oPlant.id,
@@ -96,18 +96,18 @@ export default class PlantTagger extends ManagedObject {
 		this._oPlantsModel.updateBindings(true);  // true required for master view plants table
 	}
 
-	public addTagToPlant(sTagText: string, eTagState: FBTagState, aPlants: BPlant[]): void{
+	public addTagToPlant(sTagText: string, eTagState: FBTagState, aPlants: PlantRead[]): void{
 		// create a new tag inside the plant's object in the plants model
 		// it will be saved in backend when saving the plant
 		// new/deleted tags are within scope of the plants model modification tracking
 		this._assertText(sTagText);
 
-		aPlants.forEach(function (oPlant: BPlant) {
+		aPlants.forEach(function (oPlant: PlantRead) {
 
 			// if only one plant is meant to be tagged and the new tag text already exists 
 			// for that plant, then display a message
 			if (oPlant.tags) {
-				var bFound = oPlant.tags.find(function (oTag: FBPlantTag) {
+				var bFound = oPlant.tags.find(function (oTag: PlantTag) {
 					return oTag.text === sTagText;
 				});
 				if (bFound) {
@@ -118,7 +118,7 @@ export default class PlantTagger extends ManagedObject {
 			}
 
 			// create new token object in plants model
-			const oPlantTag = <FBPlantTag>{
+			const oPlantTag = <PlantTag>{
 				text: sTagText,
 				state: eTagState,
 				plant_id: oPlant.id

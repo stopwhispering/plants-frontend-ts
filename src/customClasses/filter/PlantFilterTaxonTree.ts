@@ -1,7 +1,7 @@
 import ManagedObject from "sap/ui/base/ManagedObject"
 import JSONModel from "sap/ui/model/json/JSONModel";
 import StandardTreeItem from "sap/m/StandardTreeItem";
-import { BTaxonTreeNode } from "plants/ui/definitions/Selection";
+import { TaxonTreeNode } from "plants/ui/definitions/Selection";
 import { LTaxonTreeNodeInFilterDialog } from "plants/ui/definitions/SelectionLocal";
 
 /**
@@ -19,7 +19,7 @@ export default class PlantFilterTaxonTree extends ManagedObject {
 	public selectSubItemsInTaxonTree(aSelectedItems: StandardTreeItem[]) {
 		let that = this;
 		aSelectedItems.forEach(function (oItem: StandardTreeItem) {
-			var oNode = <BTaxonTreeNode>oItem.getBindingContext('selection')!.getObject();
+			var oNode = <TaxonTreeNode>oItem.getBindingContext('selection')!.getObject();
 			var bSelected = oItem.getSelected();
 			if (oNode.nodes) {
 				that._addSelectedFlag(oNode.nodes, bSelected);
@@ -28,9 +28,9 @@ export default class PlantFilterTaxonTree extends ManagedObject {
 		this._oTaxonTreeModel.refresh();
 	}
 
-	private _addSelectedFlag(aNodes: BTaxonTreeNode[], bSelected: boolean) {
+	private _addSelectedFlag(aNodes: TaxonTreeNode[], bSelected: boolean) {
 		const that = this;
-		aNodes.forEach(function (oNode: BTaxonTreeNode) {
+		aNodes.forEach(function (oNode: TaxonTreeNode) {
 			let oNodeInFilterDialog: LTaxonTreeNodeInFilterDialog = <LTaxonTreeNodeInFilterDialog>oNode;
 			oNodeInFilterDialog.selected = bSelected;
 			if (!!oNodeInFilterDialog.nodes && oNodeInFilterDialog.nodes.length > 0) {

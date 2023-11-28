@@ -1,5 +1,5 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
-import { FBSoil, FBObservation, FBPot, FBEvent } from "./Events";
+import { SoilRead, ObservationCreateUpdate } from "./Events";
 
 /**
  * @namespace plants.ui.definitions.entities
@@ -11,14 +11,13 @@ export interface LEventEditDataSegments{
 	soil: boolean;
 }
 
-export interface LEventInEventsModel extends Omit<FBEvent, "id">{
+export interface LEventInEventsModel extends Omit<EventRead, "id">{
     // only difference in comparison to PEvent from backend: id is optional
-    // to allow for new events  // todo replace everywhere with FBEvent|FCreateOrUpdateEvent
     id?: number;
 }
 
 export interface LPlantIdToEventsMap {
-    [key: int]: FBEvent[];  //plant_it to Events array
+    [key: int]: EventRead[];  //plant_it to Events array
 }
 
 export interface LPotHeightOptions{
@@ -39,10 +38,10 @@ export interface LEventData{
     // for new event or editing existing event
     date: string;
     event_notes?: string;
-    observation?: FBObservation;
-    soil?: FBSoil | LInitialSoil;
+    observation?: ObservationCreateUpdate;
+    soil?: SoilRead | LInitialSoil;
     plant_id: number;
-    pot?: FBPot;
+    pot?: PotCreateUpdate;
 
     potHeightOptions: LPotHeightOptions;
     potShapeOptions: LPotShapeOptions;
@@ -54,7 +53,7 @@ export interface LEventEditData extends LEventData{
     // might have no id, yet; has additional fields for dialog control
     // missing fields: observation_id, pot_id
     id?: number;  // undefined for unsaved event
-    oldEvent: FBEvent;
+    oldEvent: EventRead;
 }
 
 export interface LNewEventData extends LEventData{
@@ -76,11 +75,11 @@ export interface LSoilEditData {
 }
 
 export interface LPlantsEventsDict{
-    [key: int]: FBEvent[];
+    [key: int]: EventRead[];
 }
 
 export interface PlantsFlowerHistoryDict{
-    [key: int]: PlantFlowerYearReadFBEvent[];
+    [key: int]: PlantFlowerYearRead[];
 }
 
 export interface LEventsModelData {
@@ -91,7 +90,7 @@ export interface FlowerHistoryModelData {
     PlantsFlowerHistoryDict: PlantsFlowerHistoryDict;
 }
 
-export interface LInitialSoil extends Omit<FBSoil, "id" | "soil_name">{
+export interface LInitialSoil extends Omit<SoilRead, "id" | "soil_name">{
 // for initially opening the dialog before selecting a soil
     id?: number;
     soil_name?: string;

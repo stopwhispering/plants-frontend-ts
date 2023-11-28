@@ -2,7 +2,7 @@
 import ManagedObject from "sap/ui/base/ManagedObject";
 import { FBPlant } from "./Plants";
 import { ResponseStatus } from "./SharedLocal";
-import { BResultsRetrieveTaxonDetailsRequest, FBTaxon } from "./Taxon";
+import { FBTaxon } from "./Taxon";
 
 /**
  * @namespace plants.ui.definitions.TaxonLocal
