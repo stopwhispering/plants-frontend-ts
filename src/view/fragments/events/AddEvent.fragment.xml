@@ -318,9 +318,13 @@
 							includeItemInSelection="true"
 							selectionChange=".onSoilMixSelect"
 							noDataText="No soil mixes found on server"
+							
 						>
 							<items>
-								<CustomListItem>
+								<CustomListItem
+								selected="{= ${soils>id} === ${editOrNewEvent>/selectedSoilId} }"
+								>
+								<!-- selected="{= ${soils>id} === ${editOrNewEvent>/	selectedSoilId} }" -->
 									<HBox>
 										<VBox width="9rem">
 											<HBox justifyContent="SpaceBetween">

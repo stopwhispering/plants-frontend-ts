@@ -54,6 +54,7 @@ export interface LEventEditData extends LEventData{
     // missing fields: observation_id, pot_id
     id?: number;  // undefined for unsaved event
     oldEvent: EventRead;
+    selectedSoilId?: number;  // undefined for new event
 }
 
 export interface LNewEventData extends LEventData{

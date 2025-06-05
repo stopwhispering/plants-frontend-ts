@@ -102,7 +102,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 
 		const dSegments: LEventEditDataSegments = {
 			observation: (!!oSelectedEvent.observation),
-			soil: (!!oSelectedEvent.observation),
+			soil: (!!oSelectedEvent.soil),
 			pot: (!!oSelectedEvent.pot),
 		};
 
@@ -113,6 +113,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 			oldEvent: oSelectedEvent,
 			potHeightOptions: dPotHeightOptions,
 			potShapeOptions: dPotShapeOptions,
+			selectedSoilId: (oSelectedEvent.soil ? oSelectedEvent.soil.id : undefined),
 			segments: dSegments
 
 		}
