@@ -79,8 +79,12 @@
 					<Text
 						text="{flower_history>year}"
 						/>
+                                <!-- value="{= !!${flower_history>month_01/flowering_state} ? ${flower_history>month_01/flowering_state} : ${flower_history>month_01/flowering_probability} }" -->
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_01/flowering_probability}" 
+                            visible="{= !${flower_history>month_01/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -90,7 +94,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_02/flowering_probability}" 
+                            visible="{= !${flower_history>month_02/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -100,7 +107,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_03/flowering_probability}" 
+                            visible="{= !${flower_history>month_03/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -110,7 +120,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_04/flowering_probability}" 
+                            visible="{= !${flower_history>month_04/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -120,7 +133,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_05/flowering_probability}" 
+                            visible="{= !${flower_history>month_05/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -130,7 +146,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_06/flowering_probability}" 
+                            visible="{= !${flower_history>month_06/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -140,7 +159,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_07/flowering_probability}" 
+                            visible="{= !${flower_history>month_07/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -150,7 +172,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_08/flowering_probability}" 
+                            visible="{= !${flower_history>month_08/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -160,7 +185,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_09/flowering_probability}" 
+                            visible="{= !${flower_history>month_09/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -170,7 +198,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_10/flowering_probability}" 
+                            visible="{= !${flower_history>month_10/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -180,7 +211,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_11/flowering_probability}" 
+                            visible="{= !${flower_history>month_11/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 
@@ -190,7 +224,10 @@
                         </customData>
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
-                        <Label />
+                        <Label 
+                            text="{flower_history>month_12/flowering_probability}" 
+                            visible="{= !${flower_history>month_12/flowering_state} }"
+                        />
                         <customData>
                             <core:CustomData 
                                 xmlns:core="sap.ui.core" 

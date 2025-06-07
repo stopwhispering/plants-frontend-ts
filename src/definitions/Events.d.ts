@@ -16,8 +16,10 @@ export type BEvents = EventRead[];
 export type BMessageType = "Information" | "None" | "Success" | "Warning" | "Error" | "Debug";
 export type BFloweringState = "inflorescence_growing" | "flowering" | "seeds_ripening" | "not_flowering"
 
+// backend supplies either BFloweringState (usually until current month) or flowering_probability (usually for future months)
 export type PlantFlowerMonth = {
-  flowering_state: BFloweringState;
+  flowering_state?: BFloweringState;
+  flowering_probability?: number; 
 }
 
 export type PlantFlowerYear = {
