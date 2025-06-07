@@ -23,3 +23,5 @@ yarn.lock
 
 .env
 /.vscode
+
+sync_to_vps_and_rerun_container.bat
