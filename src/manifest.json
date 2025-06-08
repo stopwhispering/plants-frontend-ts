@@ -14,10 +14,6 @@
 			"localConfig": {
 				"uri": "localConfig.json",
 				"type": "JSON"
-			},
-			"suggestions": {
-				"uri": "model/suggestions.json",
-				"type": "JSON"
 			}
 		}
 	},
@@ -73,9 +69,6 @@
 					],
 					"fallbackLocale": "en"
 				}
-			},
-			"suggestions": {
-				"dataSource": "suggestions"
 			},
 			"localConfig": {
 				"dataSource": "localConfig"

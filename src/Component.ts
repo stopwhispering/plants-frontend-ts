@@ -50,6 +50,19 @@ export default class Component extends UIComponent {
 
 		this.setModel(models.createStatusModel(), "status");
 
+		//loading the suggesions.json model in manifest.json is async and in some situations not
+		//available when required in detail controller; therefore, we load it here, synchronously(!)
+		const oRequest = new XMLHttpRequest();
+		oRequest.open("GET", "model/suggestions.json", false); // false = sync
+		oRequest.send(null);
+		if (oRequest.status === 200) {
+			const oData = JSON.parse(oRequest.responseText);
+			const oModel = new JSONModel(oData);
+			this.setModel(oModel, "suggestions");
+		} else {
+			console.error("Failed to load suggestions.json synchronously.");
+		}
+
 		//////////////////////////////////////////////////////////
 		// Instantiate Singleton Classes
 		//////////////////////////////////////////////////////////		
