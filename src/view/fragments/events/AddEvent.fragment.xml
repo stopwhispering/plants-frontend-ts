@@ -207,7 +207,6 @@
 							required="true"
 						/>
 						<HBox>
-							<!-- todo: put to some collection file -->
 							<VBox
 								alignItems="Center"
 								class="sapUiTinyMarginEnd"

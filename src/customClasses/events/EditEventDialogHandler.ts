@@ -19,6 +19,7 @@ import { Button$PressEvent } from "sap/m/Button";
  */
 export default class EditEventDialogHandler extends EventDialogHandler {
 	private _oEventCRUD: EventCRUD;
+	private _oSuggestionsData: LSuggestions;
 	// protected _oEventModel: JSONModel;  // "editOrNewEvent"
 
 	public constructor(oEventCRUD: EventCRUD, oView: View, oSuggestionsData: LSuggestions) {
@@ -26,6 +27,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 
 		this._oEventCRUD = oEventCRUD;
 		this._oEventModel = new JSONModel(<LEventEditData>{});
+		this._oSuggestionsData = oSuggestionsData;
 	}
 
 
@@ -84,6 +86,14 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 	private _getSelectedEventInEditableFormat(oSelectedEvent: EventRead): LEventEditData {
 		let dPotHeightOptions: LPotHeightOptions;
 		let dPotShapeOptions: LPotShapeOptions;
+		let oPot: PotCreateUpdate;
+
+		const dSegments: LEventEditDataSegments = {
+			observation: (!!oSelectedEvent.observation),
+			soil: (!!oSelectedEvent.soil),
+			pot: (!!oSelectedEvent.pot),
+		};
+
 		if (oSelectedEvent.pot) {
 			dPotHeightOptions = {
 				very_flat: oSelectedEvent.pot.shape_side === 'very flat',
@@ -98,19 +108,35 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 				oval: oSelectedEvent.pot.shape_top === 'oval',
 				hexagonal: oSelectedEvent.pot.shape_top === 'hexagonal'
 			};
-		}
-
-		const dSegments: LEventEditDataSegments = {
-			observation: (!!oSelectedEvent.observation),
-			soil: (!!oSelectedEvent.soil),
-			pot: (!!oSelectedEvent.pot),
+			oPot = <PotCreateUpdate>{
+				'diameter_width': oSelectedEvent.pot.diameter_width,  // in cm (decimal)
+				'material': oSelectedEvent.pot.material,
+			};
+		} else {
+			dPotHeightOptions = {
+				very_flat: false,
+				flat: false,
+				high: true,  // default
+				very_high: false
+			};
+			dPotShapeOptions = {
+				square: true,  // default
+				round: false,
+				oval: false,
+				hexagonal: false
+			};
+		    oPot = <PotCreateUpdate>{
+			'diameter_width': 4.0,  // in cm (decimal)
+			'material': this._oSuggestionsData['potMaterialCollection'][0].name
 		};
+		}
 
 		//deep-clone event
 		var dClonedEvent: EventRead = Util.getClonedObject(oSelectedEvent);
 		var dEventEdit: LEventEditData = {
 			...dClonedEvent,
 			oldEvent: oSelectedEvent,
+			pot: oPot,
 			potHeightOptions: dPotHeightOptions,
 			potShapeOptions: dPotShapeOptions,
 			selectedSoilId: (oSelectedEvent.soil ? oSelectedEvent.soil.id : undefined),
