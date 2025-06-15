@@ -63,6 +63,7 @@ export interface TaxonRead {
   id: number;
   name: string;
   is_custom: boolean;
+  custom_suffix?: string;
   subsp?: string;
   species?: string;
   subgen?: string;
