@@ -54,7 +54,7 @@
 
             <f:customLayout>
                 <grid:GridBasicLayout 
-                    gridTemplateColumns="repeat(auto-fit, minmax(21rem, 21rem))" 
+                    gridTemplateColumns="repeat(auto-fit, minmax(20.4rem, 20.4rem))" 
                     gridGap="0.2rem" />
             </f:customLayout>
 
