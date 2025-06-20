@@ -21,14 +21,14 @@ import { Button$PressEvent } from "sap/m/Button";
  */
 export default class NewEventDialogHandler extends EventDialogHandler {
 	private _oEventCRUD: EventCRUD;
-	private _oSuggestionsData: LSuggestions;
+	// private _oSuggestionsData: LSuggestions;
 
 	public constructor(oEventCRUD: EventCRUD, oView: View, oSuggestionsData: LSuggestions) {
 		super(oView, oSuggestionsData);
 
 		this._oEventCRUD = oEventCRUD;
 		this._oEventModel = new JSONModel(<LNewEventData>{});
-		this._oSuggestionsData = oSuggestionsData;
+		// this._oSuggestionsData = oSuggestionsData;
 	}
 
 
@@ -111,14 +111,19 @@ export default class NewEventDialogHandler extends EventDialogHandler {
 		this._oEventCRUD.addEvent(oPlant, oNewEvent)
 	}
 
+	// private _getDefaultPot(): PotCreateUpdate {
+	// 	const oPot = <PotCreateUpdate>{
+	// 		'diameter_width': 4.0,  // in cm (decimal)
+	// 		'material': this._oSuggestionsData['potMaterialCollection'][0].name
+	// 	};
+	// 	return oPot;
+	// }
+
 	private _getInitialEvent(iCurrentPlantId: int): LEventData {
 		// create initial data for the Create/Edit Event Dialog (we actually don't use the 
 		// data in case of editing an event)
 		// called by both function to add and to edit event
-		const oPot = <PotCreateUpdate>{
-			'diameter_width': 4.0,  // in cm (decimal)
-			'material': this._oSuggestionsData['potMaterialCollection'][0].name
-		};
+		const oPot = this._getDefaultPot();
 
 		const oObservation: ObservationCreateUpdate = {
 			// 'height': 0.0,  // in cm (decimal)

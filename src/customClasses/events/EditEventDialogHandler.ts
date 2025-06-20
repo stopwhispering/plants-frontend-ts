@@ -13,6 +13,8 @@ import { ObservationCreateUpdate, SoilRead, EventRead, PotCreateUpdate, EventCre
 import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
 import EventDialogHandler from "./EventDialogHandler";
 import { Button$PressEvent } from "sap/m/Button";
+import Event from "sap/ui/base/Event";
+import { Switch$ChangeEvent } from "sap/m/Switch";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -20,12 +22,14 @@ import { Button$PressEvent } from "sap/m/Button";
 export default class EditEventDialogHandler extends EventDialogHandler {
 	private _oEventCRUD: EventCRUD;
 	// protected _oEventModel: JSONModel;  // "editOrNewEvent"
+	// private _oSuggestionsData: LSuggestions;
 
 	public constructor(oEventCRUD: EventCRUD, oView: View, oSuggestionsData: LSuggestions) {
 		super(oView, oSuggestionsData);
 
 		this._oEventCRUD = oEventCRUD;
 		this._oEventModel = new JSONModel(<LEventEditData>{});
+		// this._oSuggestionsData = oSuggestionsData;
 	}
 
 
@@ -84,21 +88,22 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 	private _getSelectedEventInEditableFormat(oSelectedEvent: EventRead): LEventEditData {
 		let dPotHeightOptions: LPotHeightOptions;
 		let dPotShapeOptions: LPotShapeOptions;
-		if (oSelectedEvent.pot) {
-			dPotHeightOptions = {
-				very_flat: oSelectedEvent.pot.shape_side === 'very flat',
-				flat: oSelectedEvent.pot.shape_side === 'flat',
-				high: oSelectedEvent.pot.shape_side === 'high',
-				very_high: oSelectedEvent.pot.shape_side === 'very high'
-			};
-			
-			dPotShapeOptions = {
-				square: oSelectedEvent.pot.shape_top === 'square',
-				round: oSelectedEvent.pot.shape_top === 'round',
-				oval: oSelectedEvent.pot.shape_top === 'oval',
-				hexagonal: oSelectedEvent.pot.shape_top === 'hexagonal'
-			};
-		}
+		
+		const shape_side = oSelectedEvent.pot ? oSelectedEvent.pot.shape_side : undefined;
+		const shape_top = oSelectedEvent.pot ? oSelectedEvent.pot.shape_top : undefined;
+		dPotHeightOptions = {
+			very_flat: shape_side === 'very flat',
+			flat: shape_side === 'flat',
+			high: shape_side === 'high',
+			very_high: shape_side === 'very high'
+		};
+		
+		dPotShapeOptions = {
+			square: shape_top === 'square',
+			round: shape_top === 'round',
+			oval: shape_top === 'oval',
+			hexagonal: shape_top === 'hexagonal'
+		};
 
 		const dSegments: LEventEditDataSegments = {
 			observation: (!!oSelectedEvent.observation),
@@ -154,6 +159,27 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 		this._oEventCRUD.updateEvent(oPlant, oOldEvent, <string>oEventEditData.date, event_notes, iOldObservationId, 
 			oEditedObservation, oEditedPot, oEditedSoil);
 
+	}
+
+	// private _getDefaultPot(): PotCreateUpdate {
+	// 	// todo merge with same function in NewEventDialogHandler.ts
+	// 	const oPot = <PotCreateUpdate>{
+	// 		'diameter_width': 4.0,  // in cm (decimal)
+	// 		'material': this._oSuggestionsData['potMaterialCollection'][0].name
+	// 	};
+	// 	return oPot;
+	// }
+
+	onPotSwitchChange(oEvent: Switch$ChangeEvent) {
+		// create default pot options if pot switch is turned on
+		const oEventEditData = <LEventEditData>this._oEventModel.getData();
+		const bPotSwitch = oEvent.getParameter("state");
+		if (bPotSwitch) {
+			// pot switch is on, so we need to set the pot width to a default value
+			if (!oEventEditData.pot) {
+				oEventEditData.pot = this._getDefaultPot();
+			}
+		}
 	}
 
 }
