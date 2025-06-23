@@ -188,14 +188,24 @@ export default class Untagged extends BaseController {
 		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel);
 		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
+
+	private _assignKeywordToImage(oInput: Input, sKeyword: string, oImage: ImageRead) {
+		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
+		oInput.setValue('');
+		new ImageKeywordTagger(this.oComponent.getModel('untaggedImages')).addKeywordToImage(sKeyword, oImage);
+	}
 	
 	onInputImageNewKeywordSubmit(oEvent: Input$SubmitEvent){
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oInput = <Input>oEvent.getSource();
-		oInput.setValue('');
-		const sKeyword = oEvent.getParameter('value').trim();
-		const oImage = <ImageRead> oInput.getParent().getBindingContext('untaggedImages')!.getObject();
-		new ImageKeywordTagger(this.oComponent.getModel('untaggedImages')).addKeywordToImage(sKeyword, oImage);
+		const oImage = <ImageRead>oInput.getParent().getBindingContext('untaggedImages')!.getObject();
+		this._assignKeywordToImage(oInput, oEvent.getParameter('value').trim(), oImage);
+
+		// const oInput = <Input>oEvent.getSource();
+		// oInput.setValue('');
+		// const sKeyword = oEvent.getParameter('value').trim();
+		// const oImage = <ImageRead> oInput.getParent().getBindingContext('untaggedImages')!.getObject();
+		// new ImageKeywordTagger(this.oComponent.getModel('untaggedImages')).addKeywordToImage(sKeyword, oImage);
 	}
 
 	onTokenizerKeywordImageTokenDelete(oEvent: Tokenizer$TokenDeleteEvent){
@@ -236,4 +246,17 @@ export default class Untagged extends BaseController {
 		
 		new ImagePlantTagger(this.oComponent.getModel('untaggedImages')).removePlantFromImage(iPlantId, oImage);
 	}	
+
+	onKeywordSuggestionItemSelected(oEvent: Input$SuggestionItemSelectedEvent) {
+		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
+		// triggered when a keyword suggestion is selected in the tokenizer; simulate behaviour of pressing the "Enter" key
+		const oInput = <Input>oEvent.getSource();
+		const oSelectedItem = oEvent.getParameter("selectedItem");
+
+		if (oSelectedItem) {
+			const oInput = <Input>oEvent.getSource();
+			const oImage = <ImageRead> oInput.getParent().getBindingContext('untaggedImages')!.getObject();
+			this._assignKeywordToImage(oInput, oSelectedItem.getText(), oImage);
+		}
+	}
 }
