@@ -28,6 +28,7 @@ export default abstract class EventDialogHandler extends ManagedObject {
 	protected _oView: View;
 
 	protected _oSoilDialogHandler: SoilDialogHandler;
+	private _oSuggestionsData: LSuggestions;
 
 	public constructor(oView: View, oSuggestionsData: LSuggestions) {
 		super();
@@ -39,6 +40,7 @@ export default abstract class EventDialogHandler extends ManagedObject {
 		this._oSoilCRUD = new SoilCRUD();
 		this._oSoilDialogHandler = new SoilDialogHandler(this._oSoilCRUD);
 		// this._oEventModel = new JSONModel(<LEventEditData>{});
+		this._oSuggestionsData = oSuggestionsData;
 	}
 
 	//////////////////////////////////////////////////////////
@@ -111,8 +113,10 @@ export default abstract class EventDialogHandler extends ManagedObject {
 			oPotDataClone.shape_side = 'high';
 		else if (oEventEditData.potHeightOptions.very_high)
 			oPotDataClone.shape_side = 'very high';
-		else
+		else {
+			MessageToast.show('Please select pot height');
 			throw new Error('Pot height not selected');
+		}
 
 		if (oEventEditData.potShapeOptions.square)
 			oPotDataClone.shape_top = 'square';
@@ -122,8 +126,10 @@ export default abstract class EventDialogHandler extends ManagedObject {
 			oPotDataClone.shape_top = 'oval';
 		else if (oEventEditData.potShapeOptions.hexagonal)
 			oPotDataClone.shape_top = 'hexagonal';
-		else
+		else {
+			MessageToast.show('Please select pot shape');
 			throw new Error('Pot shape not selected');
+		}
 
 		return oPotDataClone;
 	}
@@ -152,5 +158,13 @@ export default abstract class EventDialogHandler extends ManagedObject {
 			oObservationDataClone.observation_notes = oObservationDataClone.observation_notes.trim();
 		}
 		return <ObservationCreateUpdate>oObservationDataClone;
+	}
+
+	protected _getDefaultPot(): PotCreateUpdate {
+		const oPot = <PotCreateUpdate>{
+			'diameter_width': 4.0,  // in cm (decimal)
+			'material': this._oSuggestionsData['potMaterialCollection'][0].name
+		};
+		return oPot;
 	}
 }

@@ -54,7 +54,7 @@
 
             <f:customLayout>
                 <grid:GridBasicLayout 
-                    gridTemplateColumns="repeat(auto-fit, minmax(21rem, 21rem))" 
+                    gridTemplateColumns="repeat(auto-fit, minmax(20.4rem, 20.4rem))" 
                     gridGap="0.2rem" />
             </f:customLayout>
 
@@ -314,7 +314,8 @@
                                     placeholder="Keywords"
                                     tooltip="Add Keywords"
                                     autocomplete="false"
-                                    showSuggestion="true">
+                                    showSuggestion="true"
+                                    suggestionItemSelected=".onKeywordSuggestionItemSelected">
                                     <suggestionItems>
                                         <core:Item text="{keywords>keyword}"/>
                                     </suggestionItems>

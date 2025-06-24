@@ -15,6 +15,36 @@
 					text="{= (${taxon>is_custom}) ? (${taxon>name} + ' (Custom Name)' ) : (${taxon>name}) }"
 				/>
 			</m:VBox>
+			<m:VBox class="sapUiSmallMarginBottom" visible="{= !!${taxon>cultivar} }">
+				<m:Label
+					text="Cultivar"
+					labelFor="cultivarName"
+				/>
+				<m:Text
+					id="cultivarName"
+					text="'{taxon>cultivar}'"
+				/>
+			</m:VBox>
+			<m:VBox class="sapUiSmallMarginBottom" visible="{= !!${taxon>affinis} }">
+				<m:Label
+					text="Species affinis"
+					labelFor="affName"
+				/>
+				<m:Text
+					id="affName"
+					text="{taxon>affinis}"
+				/>
+			</m:VBox>
+			<m:VBox class="sapUiSmallMarginBottom" visible="{= !!${taxon>custom_suffix} }">
+				<m:Label
+					text="Custom Suffix"
+					labelFor="customSuffixName"
+				/>
+				<m:Text
+					id="customSuffixName"
+					text="{taxon>custom_suffix}"
+				/>
+			</m:VBox>
 		</VBox>
 		<VBox>
 			<m:VBox class="sapUiSmallMarginBottom">
@@ -97,14 +127,14 @@
 			</m:VBox>
 		</VBox>
 	</HBox>
-	<m:VBox>
+	<m:VBox visible="{= !(${taxon>is_custom}) }">
 		<m:Label
 			labelFor="textSynonyms"
 			text="Synonyms"
 		/>
 		<m:Text
 			id="textSynonyms"
-			text="{taxon>synonyms_concat}"
+			text="{= (!${taxon>synonyms_concat}) ? '-' : ${taxon>synonyms_concat} }"
 			visible="{= (!${taxon>synonym}) }"
 		/>
 		<MessageStrip
@@ -114,7 +144,7 @@
 			visible="{= ${taxon>synonym} === true }"
 		/>
 	</m:VBox>
-	<m:VBox class="">
+	<m:VBox  visible="{= !(${taxon>is_custom}) }">
 		<m:Label
 			labelFor="textDistribution"
 			text="Distribution"
@@ -133,6 +163,13 @@
 		/>
 	</m:VBox>
 	<VBox>
+		<MessageStrip
+			text="Custom Taxon"
+			type="Information"
+			showIcon="true"
+			visible="{= ${taxon>is_custom} === true }"
+			class="sapUiTinyMarginBottom"
+		/>
 		<m:VBox class="taxonLinkBox">
 			<m:Label
 				labelFor="linkGBIF"

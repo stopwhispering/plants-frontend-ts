@@ -500,14 +500,37 @@ export default class Detail extends BaseController {
 		const oImageDeleter = new ImageDeleter(oImagesModel, oUntaggedImagesModel);
 		oImageDeleter.askToDeleteImage(oImage, bCompact);
 	}
+	
+	private _assignKeywordToImage(oInput: Input, sKeyword: string, oImage: ImageRead) {
+		//note: there's a same-named function in untagged controller doing the same thing for untagged images
+		oInput.setValue('');
+		new ImageKeywordTagger(this.oComponent.getModel('images')).addKeywordToImage(sKeyword, oImage);
+	}
 
 	onInputImageNewKeywordSubmit(oEvent: Input$SubmitEvent) {
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oInput = <Input>oEvent.getSource();
-		oInput.setValue('');
-		const sKeyword = oEvent.getParameter('value').trim();
 		const oImage = <ImageRead>oInput.getParent().getBindingContext('images')!.getObject();
-		new ImageKeywordTagger(this.oComponent.getModel('images')).addKeywordToImage(sKeyword, oImage);
+		this._assignKeywordToImage(oInput, oEvent.getParameter('value').trim(), oImage);
+
+		// const oInput = <Input>oEvent.getSource();
+		// oInput.setValue('');
+		// const sKeyword = oEvent.getParameter('value').trim();
+		// const oImage = <ImageRead>oInput.getParent().getBindingContext('images')!.getObject();
+		// new ImageKeywordTagger(this.oComponent.getModel('images')).addKeywordToImage(sKeyword, oImage);
+	}
+	
+	onKeywordSuggestionItemSelected(oEvent: Input$SuggestionItemSelectedEvent) {
+		//note: there's a same-named function in untagged controller doing the same thing for untagged images
+		// triggered when a keyword suggestion is selected in the tokenizer; simulate behaviour of pressing the "Enter" key
+		const oInput = <Input>oEvent.getSource();
+		const oSelectedItem = oEvent.getParameter("selectedItem");
+
+		if (oSelectedItem) {
+			const oInput = <Input>oEvent.getSource();
+			const oImage = <ImageRead> oInput.getParent().getBindingContext('images')!.getObject();
+			this._assignKeywordToImage(oInput, oSelectedItem.getText(), oImage);
+		}
 	}
 
 	onSwitchImageEditDescription(oEvent: Icon$PressEvent) {

@@ -13,6 +13,8 @@ import { ObservationCreateUpdate, SoilRead, EventRead, PotCreateUpdate, EventCre
 import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
 import EventDialogHandler from "./EventDialogHandler";
 import { Button$PressEvent } from "sap/m/Button";
+import Event from "sap/ui/base/Event";
+import { Switch$ChangeEvent } from "sap/m/Switch";
 
 /**
  * @namespace plants.ui.customClasses.events
@@ -21,6 +23,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 	private _oEventCRUD: EventCRUD;
 	private _oSuggestionsData: LSuggestions;
 	// protected _oEventModel: JSONModel;  // "editOrNewEvent"
+	// private _oSuggestionsData: LSuggestions;
 
 	public constructor(oEventCRUD: EventCRUD, oView: View, oSuggestionsData: LSuggestions) {
 		super(oView, oSuggestionsData);
@@ -180,6 +183,27 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 		this._oEventCRUD.updateEvent(oPlant, oOldEvent, <string>oEventEditData.date, event_notes, iOldObservationId, 
 			oEditedObservation, oEditedPot, oEditedSoil);
 
+	}
+
+	// private _getDefaultPot(): PotCreateUpdate {
+	// 	// todo merge with same function in NewEventDialogHandler.ts
+	// 	const oPot = <PotCreateUpdate>{
+	// 		'diameter_width': 4.0,  // in cm (decimal)
+	// 		'material': this._oSuggestionsData['potMaterialCollection'][0].name
+	// 	};
+	// 	return oPot;
+	// }
+
+	onPotSwitchChange(oEvent: Switch$ChangeEvent) {
+		// create default pot options if pot switch is turned on
+		const oEventEditData = <LEventEditData>this._oEventModel.getData();
+		const bPotSwitch = oEvent.getParameter("state");
+		if (bPotSwitch) {
+			// pot switch is on, so we need to set the pot width to a default value
+			if (!oEventEditData.pot) {
+				oEventEditData.pot = this._getDefaultPot();
+			}
+		}
 	}
 
 }

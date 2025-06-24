@@ -38,7 +38,8 @@
 									<Switch 
 										state="{editOrNewEvent>/segments/pot}"
 										customTextOn=" " 
-										customTextOff=" ">
+										customTextOff=" "
+										change=".onPotSwitchChange">
 										<layoutData>
 											<FlexItemData growFactor="1" />
 										</layoutData>

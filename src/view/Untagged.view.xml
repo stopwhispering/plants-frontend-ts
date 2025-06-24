@@ -262,7 +262,8 @@
 													textAlign="Begin"
 													placeholder="Keywords"
 													autocomplete="false"
-													showSuggestion="true">
+													showSuggestion="true"
+													suggestionItemSelected=".onKeywordSuggestionItemSelected">
 													<m:suggestionItems>
 														<core:Item text="{keywords>keyword}"/>
 													</m:suggestionItems>
