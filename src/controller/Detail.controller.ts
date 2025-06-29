@@ -511,6 +511,10 @@ export default class Detail extends BaseController {
 		//note: there's a same-named function in untagged controller doing the same thing for untagged images
 		const oInput = <Input>oEvent.getSource();
 		const oImage = <ImageRead>oInput.getParent().getBindingContext('images')!.getObject();
+		if (oEvent.getParameter('value').trim().length < 1) {
+			MessageToast.show("Please enter a keyword with at least one character.");
+			return;
+		}
 		this._assignKeywordToImage(oInput, oEvent.getParameter('value').trim(), oImage);
 
 		// const oInput = <Input>oEvent.getSource();

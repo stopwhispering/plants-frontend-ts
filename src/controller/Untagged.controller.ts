@@ -199,6 +199,10 @@ export default class Untagged extends BaseController {
 		//note: there's a same-named function in detail controller doing the same thing for non-untagged images
 		const oInput = <Input>oEvent.getSource();
 		const oImage = <ImageRead>oInput.getParent().getBindingContext('untaggedImages')!.getObject();
+		if (oEvent.getParameter('value').trim().length < 1) {
+			MessageToast.show("Please enter a keyword with at least one character.");
+			return;
+		}
 		this._assignKeywordToImage(oInput, oEvent.getParameter('value').trim(), oImage);
 
 		// const oInput = <Input>oEvent.getSource();
