@@ -67,12 +67,18 @@
 								width="14em"
 								required="true"
 							/>
-							<MaskInput
+							<DatePicker
+								value="{editOrNewEvent>/date}"
+								valueFormat="yyyy-MM-dd"
+								displayFormat="yyyy-MM-dd"
+								placeholder="YYYY-MM-DD"
+								width="14em"/>
+							<!-- <MaskInput
 								required="true"
 								mask="9999-99-99"
 								value="{editOrNewEvent>/date}"
 								placeholder="Date"
-							/>
+							/> -->
 						</VBox>
 						<VBox class="sapUiTinyMarginBottom">
 							<Label text="Notes"/>
