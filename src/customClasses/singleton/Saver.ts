@@ -54,7 +54,7 @@ export default class Saver extends ManagedObject {
 
 		super();
 		this._oPlantsModel = oPlantsModel;
-		this._oEventsModel = oEventsModel;;
+		this._oEventsModel = oEventsModel;
 		this._oTaxonModel = oTaxonModel;
 	}
 

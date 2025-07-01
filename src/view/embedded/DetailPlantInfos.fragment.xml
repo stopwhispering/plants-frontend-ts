@@ -516,7 +516,7 @@
 								wrapping="true"
 								class="sapUiTinyMargin"
 								textAlign="Begin"
-								text="{plants>plant_name}"
+								text="{plants>id} {plants>plant_name}"
 								tooltip="Go to plant ID {plants>id}"
 								press="onPressGoToPlant(${plants>id})"
 							/>
