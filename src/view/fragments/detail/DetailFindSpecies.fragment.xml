@@ -17,7 +17,7 @@
 					<Label text="Botanical name"/>
 					<HBox>
 						<Input
-							maxLength="40"
+							maxLength="45"
 							width="12em"
 							submit=".onButtonFindSpecies"
 							id="inputSearchPattern"
