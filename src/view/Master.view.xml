@@ -100,6 +100,15 @@
 					</OverflowToolbar>
 				</infoToolbar>
 				<columns>
+					<!-- Preview Image -->
+					<Column
+						width="4rem"
+						hAlign="End"
+						styleClass="myVeryCompact"
+					>
+						<Text text=""/>
+					</Column>
+					<!-- Plant Name -->
 					<Column
 						styleClass="myVeryCompact"
 						width="{= (${device>/system/phone}) ? 10 : 11 }em"
@@ -133,13 +142,7 @@
 					<!-- todo
 					
 						width="4rem" -->
-					<Column
-						width="4rem"
-						hAlign="End"
-						styleClass="myVeryCompact"
-					>
-						<Text text=""/>
-					</Column>
+
 				</columns>
 				<items>
 					<ColumnListItem
@@ -147,6 +150,17 @@
 						press="onListItemPress"
 					>
 						<cells>
+							
+							<custom:HoverImage
+								width="80px"
+								densityAware="true"
+								visible="{= !!${plants>preview_image_id} }"
+								src="{
+									path: 'plants>preview_image_id',
+									formatter: '.formatter.getSrcAvatarImageL'
+								}"
+								hover=".onHoverImage"
+								/>
 							<!-- plant name and botanical name plus icons for propagation type and geographic origin-->
 							<HBox justifyContent="SpaceBetween">
 								<VBox>
@@ -261,16 +275,6 @@
 								title="{plants>current_soil/soil_name}"
 								text="{plants>current_soil/date}"
 							/>
-							<custom:HoverImage
-								width="80px"
-								densityAware="true"
-								visible="{= !!${plants>preview_image_id} }"
-								src="{
-									path: 'plants>preview_image_id',
-									formatter: '.formatter.getSrcAvatarImageL'
-								}"
-								hover=".onHoverImage"
-								/>
 						</cells>
 					</ColumnListItem>
 				</items>
