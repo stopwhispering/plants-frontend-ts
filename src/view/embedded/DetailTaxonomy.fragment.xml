@@ -215,7 +215,9 @@
 			/>
 		</m:VBox>
 	</VBox>
-	<m:VBox class="taxonCustomNotesBox">
+	<m:VBox class="taxonCustomNotesBox"
+		visible="{= (!!${taxon>custom_notes} &amp;&amp; ${taxon>custom_notes}.length > 0) 
+			|| ${status>/details_editable} }">
 		<m:Label
 			text="Custom Notes"
 			labelFor="textCustomNotes"
