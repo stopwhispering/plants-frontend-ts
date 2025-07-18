@@ -103,7 +103,7 @@
 					<!-- Preview Image -->
 					<Column
 						width="4rem"
-						hAlign="End"
+						hAlign="Begin"
 						styleClass="myVeryCompact"
 					>
 						<Text text=""/>
