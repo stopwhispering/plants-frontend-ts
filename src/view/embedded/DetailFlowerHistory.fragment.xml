@@ -24,51 +24,51 @@
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="01" />
+                    <Text text="Jan." />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="02" />
+                    <Text text="Feb." />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="03" />
+                    <Text text="Mar." />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="04" />
+                    <Text text="Apr." />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="05" />
+                    <Text text="May" />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="06" />
+                    <Text text="Jun." />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="07" />
+                    <Text text="Jul." />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="08" />
+                    <Text text="Aug." />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="09" />
+                    <Text text="Sep." />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="10" />
+                    <Text text="Oct." />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="11" />
+                    <Text text="Nov." />
                 </Column>
                 <Column
                     width="2em">
-                    <Text text="12" />
+                    <Text text="Dec." />
                 </Column>
             </columns>
 
@@ -82,7 +82,7 @@
                                 <!-- value="{= !!${flower_history>month_01/flowering_state} ? ${flower_history>month_01/flowering_state} : ${flower_history>month_01/flowering_probability} }" -->
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_01/flowering_probability}" 
+                            text="{path: 'flower_history>month_01', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -94,7 +94,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_02/flowering_probability}" 
+                            text="{path: 'flower_history>month_02', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -106,7 +106,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_03/flowering_probability}" 
+                            text="{path: 'flower_history>month_03', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -118,7 +118,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_04/flowering_probability}" 
+                            text="{path: 'flower_history>month_04', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -130,7 +130,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_05/flowering_probability}" 
+                            text="{path: 'flower_history>month_05', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -142,7 +142,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_06/flowering_probability}" 
+                            text="{path: 'flower_history>month_06', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -154,7 +154,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_07/flowering_probability}" 
+                            text="{path: 'flower_history>month_07', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -166,7 +166,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_08/flowering_probability}" 
+                            text="{path: 'flower_history>month_08', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -178,7 +178,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_09/flowering_probability}" 
+                            text="{path: 'flower_history>month_09', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -190,7 +190,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_10/flowering_probability}" 
+                            text="{path: 'flower_history>month_10', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -202,7 +202,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_11/flowering_probability}" 
+                            text="{path: 'flower_history>month_11', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 
@@ -214,7 +214,7 @@
                     </FlexBox>
                     <FlexBox class="customFlowerHistoryColor">
                         <Label 
-                            text="{flower_history>month_12/flowering_probability}" 
+                            text="{path: 'flower_history>month_12', formatter: '.formatter.getFlowerText'}"
                         />
                         <customData>
                             <core:CustomData 

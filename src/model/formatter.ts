@@ -2,7 +2,7 @@ import Util from "plants/ui/customClasses/shared/Util";
 import Constants from "../Constants";
 import NewDescendantPlantDialogHandler from "../customClasses/plants/NewDescendantPlantDialogHandler";
 import SuggestionService from "../customClasses/shared/SuggestionService";
-import { EventRead, ImageAssignedToEvent } from "../definitions/Events";
+import { EventRead, ImageAssignedToEvent, PlantFlowerMonth } from "../definitions/Events";
 import { FBPropagationType } from "../definitions/Plants";
 import { LPropagationTypeData } from "../definitions/PlantsLocal";
 
@@ -238,6 +238,15 @@ export default class formatter{
 		if (!!preview_image_id){
 			return Util.getImageIdUrl(preview_image_id, 'px', 1200, 800);
 		}
+	}
+
+	getFlowerText(flower: PlantFlowerMonth) {
+		// if flowering_probability is null or undefined, return empty string
+		if (flower.flowering_probability === undefined || flower.flowering_probability === null) {
+			return '';
+		}
+
+		return flower.flowering_probability * 100 + '%';
 	}
 
 }
