@@ -265,7 +265,9 @@
 			<!--General-->
 			<ObjectPageSection title="General">
 				<subSections>
-					<ObjectPageSubSection>
+					<ObjectPageSubSection
+						title="Information"
+						showTitle="false">
 						<blocks>
 							<core:Fragment
 								fragmentName="plants.ui.view.embedded.DetailPlantInfos"
@@ -292,6 +294,7 @@
 				<subSections>
 					<ObjectPageSubSection
 						id="eventsSection"
+						title="Events"
 						showTitle="false"
 					>
 						<m:List
