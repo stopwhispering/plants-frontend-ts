@@ -390,9 +390,9 @@
 						</blocks>
 					</ObjectPageSubSection>
 					<ObjectPageSubSection
-						visible="{= !!${taxon>occurrence_images} &amp;&amp; ${taxon>occurrence_images}.length > 0 }"
 						title="Images (GBIF Occurrences)"
 						showTitle="false"
+						visible="{= !!${taxon>occurrence_images} &amp;&amp; ${taxon>occurrence_images}.length > 0 }"
 					>
 						<blocks>
 							<core:Fragment
@@ -404,6 +404,7 @@
 					<ObjectPageSubSection
 						title="Images (custom assigned)"
 						showTitle="false"
+						visible="{= !!${taxon>images} &amp;&amp; ${taxon>images}.length > 0 }"
 					>
 						<blocks>
 							<core:Fragment
