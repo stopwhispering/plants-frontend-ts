@@ -52,7 +52,7 @@
 						<!-- icon="{= ${plants>active} ? 'sap-icon://log' : 'sap-icon://positive' }" -->
 						<Button
 							visible="{status>/details_editable}"
-							type="{= ${plants>active} ? 'Attention' : 'Ghost' }"
+							type="{= ${plants>active} ? 'Negative' : 'Ghost' }"
 							text="{= ${plants>active} ? 'Set Inactive' : 'Set Active' }"
 							icon="sap-icon://log"
 							tooltip="Switch Active/Inactive"
