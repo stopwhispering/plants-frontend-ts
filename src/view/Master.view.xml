@@ -172,9 +172,6 @@
 											tooltip="{plants>id} - {plants>plant_name}"
 											design="Bold" 
 											wrapping="true" />
-										<!-- <Text 
-											text="[{plants>id}] {plants>plant_name}" 
-											tooltip="{plants>id} - {plants>plant_name}" /> -->
 										<!-- <Label 
 											text="{plants>id} {plants>plant_name}" 
 											design="Bold" 
