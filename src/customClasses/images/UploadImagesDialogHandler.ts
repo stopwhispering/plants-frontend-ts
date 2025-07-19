@@ -17,6 +17,7 @@ import UntaggedImagesHandler from "./UntaggedImagesHandler";
 import JSONModel from "sap/ui/model/json/JSONModel";
 import PlantLookup from "../plants/PlantLookup";
 import { Button$PressEvent } from "sap/m/Button";
+import DateFormat from "sap/ui/core/format/DateFormat";
 
 /**
  * @namespace plants.ui.customClasses.images
@@ -31,12 +32,14 @@ export default class UploadImagesDialogHandler extends ManagedObject {
     private _oPlantLookup: PlantLookup;
     private _oMultiInputPlants: MultiInput;
     private _oMultiInputKeywords: MultiInput;
+	private _oStatusModel: JSONModel;
 
-    constructor(oImagesModel: JSONModel, oUntaggedImagesModel: JSONModel, 
+    constructor(oImagesModel: JSONModel, oUntaggedImagesModel: JSONModel, oStatusModel: JSONModel,
         oPlantLookup: PlantLookup) {
         super();
         this._oImagesModel = oImagesModel;
         this._oUntaggedImagesModel = oUntaggedImagesModel;
+		this._oStatusModel = oStatusModel;
         this._oPlantLookup = oPlantLookup;
     }
 
@@ -60,8 +63,17 @@ export default class UploadImagesDialogHandler extends ManagedObject {
             this._oMultiInputKeywords.addValidator(this._keywordValidator);            
 
             this._oUploadImagesDialog.open();
+
+			this.updateLastImageUploadTimeStamp()
         });
     }
+
+	private async updateLastImageUploadTimeStamp(){
+		// const oResult = <SeedPlantingPlantNameProposal> await Util.get(Util.getServiceUrl('seed_plantings' + '/' + oSeedPlanting.id + '/plant_name_proposal'));
+		const oResult = await Util.get(Util.getServiceUrl('images/last_image_upload_timestamp'));
+		this._oStatusModel.setProperty('/lastImageUploadTimeStamp', oResult.timestamp);
+		this._oStatusModel.setProperty('/lastImageUploadTimeStamp_tmp', "2025-07-19T05:04:07Z");  // todo remove, only for testing
+	}
 
 	private _keywordValidator(args: any){
 		// validator function for Keywords MultiInput
@@ -187,6 +199,27 @@ export default class UploadImagesDialogHandler extends ManagedObject {
     
 	onCancelUploadImagesDialog(oEvent: Button$PressEvent) {
 		this._oUploadImagesDialog.close();
+	}
+
+	formatDateTime(sDate: Date): string {
+		// Note: the preferred formatting option simply fails to work, for whatever reason; i tried very hard to get it working, don't ever try this again! just stick to the workaround!
+		// text="{ 
+		//     path: 'status>/lastImageUploadTimeStamp', 
+		//     type: 'sap.ui.model.type.DateTime', 
+		//     formatOptions: { timeZone: 'Europe/Berlin' } 
+		//   }" 
+		if (!sDate) return "";
+
+		const oDate: Date = sDate instanceof Date ? sDate : new Date(sDate);
+		
+		// @ts-ignore
+		const oDateFormat = DateFormat.getDateTimeInstance({  
+			pattern: "yyyy-MM-dd HH:mm",
+			timeZone: "Europe/Berlin"
+		});
+
+		return oDateFormat.format(oDate);
+
 	}
 
 }

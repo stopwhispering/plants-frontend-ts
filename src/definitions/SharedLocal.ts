@@ -24,4 +24,5 @@ export interface LStatusModelData {
   filterBarLabel: string;
   untagged_selectable: boolean;
   master_plants_selectable: boolean;
+	lastImageUploadTimeStamp: string | undefined;
 }

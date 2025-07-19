@@ -92,6 +92,7 @@ export function createStatusModel(): JSONModel {
 		filterBarLabel: "",
 		untagged_selectable: false,
 		master_plants_selectable: false,
+		lastImageUploadTimeStamp: undefined,  // updated upon clicking image upload button
 	}
 	const oModel = new JSONModel(oInitialData);
 	return oModel;

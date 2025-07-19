@@ -77,7 +77,18 @@
 					</suggestionItems>
 					<!--see controller for validator, can't assign it here-->
 				</MultiInput>
-				
+
+				<!-- short info on last upload timestamp -->
+				<HBox>
+					<Label
+						text="{i18n>last_upload_timestamp}"
+						labelFor="idLastUploadTimestampText"/>
+					<Text
+						id="idLastUploadTimestampText"
+						text="{ path: 'status>/lastImageUploadTimeStamp', formatter: '.formatDateTime' }" 
+    					class="sapUiTinyMarginBegin"/>
+				</HBox>
+
 		    </l:content>
 	    </l:Grid>
 	    

@@ -9,6 +9,7 @@ import ChangeTracker from "./customClasses/singleton/ChangeTracker"
 import UntaggedImagesHandler from "./customClasses/images/UntaggedImagesHandler"
 import Saver from "./customClasses/singleton/Saver"
 import PlantsLoader from "./customClasses/singleton/PlantsLoader"
+import Localization from "sap/base/i18n/Localization"
 
 /**
  * @namespace plants.ui
@@ -22,6 +23,9 @@ export default class Component extends UIComponent {
 	public init(): void {
 		super.init();
 		this.getRouter().initialize();
+		
+		// Set default timezone to Europe/Berlin (CET/CEST)
+		Localization.setTimezone("Europe/Berlin");
 
 		//////////////////////////////////////////////////////////
 		// Instantiate Models and name them
