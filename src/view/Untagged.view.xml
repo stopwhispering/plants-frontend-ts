@@ -229,6 +229,7 @@
 												<m:Tokenizer 
 													class="sapUiSizeCompact"
 													tokenDelete=".onTokenizerPlantImageTokenDelete"
+													renderMode="Loose"
 													tokens="{
 														path: 'untaggedImages>plants', templateShareable: false,
 														sorter: { path: 'text' }
@@ -273,6 +274,7 @@
 									        			class="sapUiSizeCompact"
 									        			width="100%"
 									        			tokenDelete=".onTokenizerKeywordImageTokenDelete"
+														renderMode="Loose"
 														tokens="{
 															path: 'untaggedImages>keywords', templateShareable: false,
 															sorter: { path: 'keyword' }
