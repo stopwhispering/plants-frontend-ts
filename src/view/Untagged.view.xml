@@ -252,7 +252,7 @@
 												<m:Input
 													width="5.5rem"
 													id="inputImageNewKeywordUntagged"
-                                    				startSuggestion="3"
+                                    				startSuggestion="2"
 													submit="onInputImageNewKeywordSubmit"
 													value=""
                                     				maxLength="30"
