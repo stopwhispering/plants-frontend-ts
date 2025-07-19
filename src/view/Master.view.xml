@@ -165,10 +165,21 @@
 							<HBox justifyContent="SpaceBetween">
 								<VBox>
 										<Label 
+											text="{plants>id}" 
+											tooltip="{plants>id} - {plants>plant_name}" />
+										<Label 
 											text="{plants>plant_name}" 
+											tooltip="{plants>id} - {plants>plant_name}"
+											design="Bold" 
+											wrapping="true" />
+										<!-- <Text 
+											text="[{plants>id}] {plants>plant_name}" 
+											tooltip="{plants>id} - {plants>plant_name}" /> -->
+										<!-- <Label 
+											text="{plants>id} {plants>plant_name}" 
 											design="Bold" 
 											wrapping="true"
-											tooltip="{plants>id} - {plants>plant_name}" />
+											tooltip="{plants>id} - {plants>plant_name}" /> -->
 										<HBox
 											items="{
 												path: 'plants>tags',
