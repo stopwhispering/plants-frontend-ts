@@ -20,25 +20,12 @@ export default class Component extends UIComponent {
 		manifest: "json"
 	}
 
-	public init(): void {
-		super.init();
-		this.getRouter().initialize();
-		
-		// Set default timezone to Europe/Berlin (CET/CEST)
-		Localization.setTimezone("Europe/Berlin");
-
-		//////////////////////////////////////////////////////////
-		// Instantiate Models and name them
-		//////////////////////////////////////////////////////////
-		this.setModel(models.createDeviceModel(), "device");
-		this.setModel(models.createLayoutModel());
-
-		const oSettingsModel = models.createSettingsModel();
-		this.setModel(oSettingsModel, "settings");
-		const oTaxonModel = models.createTaxonModel();
+	private _load_models(){
+	const oTaxonModel = models.createTaxonModel();
 		this.setModel(oTaxonModel, "taxon");
 		const oPlantsModel = models.createPlantsModel()
 		this.setModel(oPlantsModel, "plants");
+
 		const oImagesModel = models.createImagesModel();
 		this.setModel(oImagesModel, "images");
 		const oUntaggedImagesModel = models.createUntaggedImagesModel();
@@ -101,6 +88,29 @@ export default class Component extends UIComponent {
 		///////////////////////////////////////////////////////////////////////////////	
 		new UntaggedImagesHandler(oUntaggedImagesModel).requestUntaggedImages();
 		PlantsLoader.getInstance().loadPlants();;
+	}
+
+	public init(): void {
+		super.init();
+		this.getRouter().initialize();
+		
+		// Set default timezone to Europe/Berlin (CET/CEST)
+		Localization.setTimezone("Europe/Berlin");
+
+		//////////////////////////////////////////////////////////
+		// Instantiate Models and name them
+		//////////////////////////////////////////////////////////
+		this.setModel(models.createDeviceModel(), "device");
+		this.setModel(models.createLayoutModel());
+
+		const oSettingsModel = models.createSettingsModel();
+		this.setModel(oSettingsModel, "settings");
+
+		oSettingsModel.attachRequestCompleted(() => {
+			// Now it's safe to load the other models and populate the controls
+			this._load_models();
+		}, this);
+
 	}
 
 	///////////////////////////////////////////////////////////////////////////////	
