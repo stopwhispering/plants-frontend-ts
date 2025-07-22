@@ -6,6 +6,14 @@ import Fragment from "sap/ui/core/Fragment";
 import View from "sap/ui/core/mvc/View";
 import ErrorHandling from "./ErrorHandling";
 import Util from "./Util";
+import Dialog from "sap/m/Dialog";
+import Event from "sap/ui/base/Event";
+import { MenuItem$PressEvent } from "sap/m/MenuItem";
+import MessageToast from "sap/m/MessageToast";
+import { Button$PressEvent } from "sap/m/Button";
+import JSONModel from "sap/ui/model/json/JSONModel";
+import EditEventDialogHandler from "../events/EditEventDialogHandler";
+import SettingsDialogHandler from "./SettingsDialogHandler";
 
 /**
  * @namespace plants.ui.customClasses.shared
@@ -13,9 +21,14 @@ import Util from "./Util";
 export default class ShellBarMenuHandler extends ManagedObject {
 
     private _oShellBarMenu: Menu;  // "menuShellBarMenu"
+    private _oSettingsDialog: Dialog;
+    private _oSettingsDialogHandler: SettingsDialogHandler;
 
-    constructor() {
+    constructor(oView: View) {
         super();
+        this._oSettingsDialogHandler = new SettingsDialogHandler(
+            oView
+        );
     }
 
     public openShellBarMenu(oViewAttachTo: View, oOpenBy: Control): void {
@@ -47,6 +60,8 @@ export default class ShellBarMenuHandler extends ManagedObject {
 			.fail(ErrorHandling.onFail.bind(this, 'Generate Missing Thumbnails (POST)'));
 	}
 
-
+    openSettingsDialog(event: MenuItem$PressEvent): void {
+        this._oSettingsDialogHandler.openSettingsDialog();
+    }
 
 }

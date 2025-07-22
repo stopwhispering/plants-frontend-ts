@@ -97,3 +97,10 @@ export function createStatusModel(): JSONModel {
 	const oModel = new JSONModel(oInitialData);
 	return oModel;
 }
+
+export function createSettingsModel(): JSONModel {
+	const oModel = new JSONModel();
+	oModel.setSizeLimit(30);
+	oModel.loadData(Util.getServiceUrl('settings'));	
+	return oModel;
+}

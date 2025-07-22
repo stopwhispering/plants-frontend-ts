@@ -132,7 +132,7 @@ export default class FlexibleColumnLayout extends BaseController {
 		var oSource = <Control>oEvent.getSource();
 
 		if (!this._oShellBarMenuHandler) {
-			this._oShellBarMenuHandler = new ShellBarMenuHandler();
+			this._oShellBarMenuHandler = new ShellBarMenuHandler(this.getView());
 		}
 		this._oShellBarMenuHandler.openShellBarMenu(this.getView(), oSource)
 	}

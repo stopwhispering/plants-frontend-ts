@@ -1,0 +1,29 @@
+<c:FragmentDefinition xmlns="sap.m" xmlns:c="sap.ui.core">
+  <Dialog
+    id="settingsDialog"
+    title="Settings"
+    draggable="true"
+    resizable="true"
+    contentWidth="400px"
+    contentHeight="auto"
+    class="sapUiResponsivePadding">
+
+    <VBox class="sapUiSmallMargin">
+      <Label 
+        text="Last Image Warning after n Days" 
+        labelFor="lastImageWarningDaysInput"/>
+      <Input 
+        id="lastImageWarningDaysInput" 
+        value="{newSettings>/display_settings/last_image_warning_after_n_days}" 
+        placeholder="Enter number of days" 
+        />
+    </VBox>
+
+    <beginButton>
+      <Button text="Save" type="Emphasized" press=".onPressSaveSettings"/>
+    </beginButton>
+    <endButton>
+      <Button text="Cancel" press=".onPressCancelSettings"/>
+    </endButton>
+  </Dialog>
+</c:FragmentDefinition>

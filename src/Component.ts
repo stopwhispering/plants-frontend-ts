@@ -50,7 +50,9 @@ export default class Component extends UIComponent {
 		const oEventsModel = models.createEventsModel();
 		this.setModel(oEventsModel, "events");
 		const oFlowerHistoryModel = models.createFlowerHistoryModel();
-		this.setModel(oFlowerHistoryModel, "flower_history")
+		this.setModel(oFlowerHistoryModel, "flower_history");
+		const oSettingsModel = models.createSettingsModel();
+		this.setModel(oSettingsModel, "settings");
 
 		this.setModel(models.createStatusModel(), "status");
 

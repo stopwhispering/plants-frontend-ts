@@ -9,5 +9,10 @@
     		icon="sap-icon://crop"
     		tooltip="Generate missing thumbnails"
 			press=".generateMissingThumbnails"/>
+    	<MenuItem
+    		text="Settings"
+    		icon="sap-icon://settings"
+    		tooltip="Settings"
+			press=".openSettingsDialog"/>
 	</Menu>
 </core:FragmentDefinition>
