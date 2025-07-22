@@ -74,6 +74,7 @@ export default class Master extends BaseController {
 		// therefore, we are going to nest the filters:
 		// AND( filter_active, OR( filter_plant_name, filter_botanical_name))
 		var sQuery = oEvent.getParameter("query");
+		sQuery = sQuery.trim();
 		const oPlantsTableBinding = <ListBinding>this.getView()!.byId("plantsTable")!.getBinding('items')
 		const oPlantSearcher = new PlantSearcher(oPlantsTableBinding);
 		oPlantSearcher.search(sQuery);
