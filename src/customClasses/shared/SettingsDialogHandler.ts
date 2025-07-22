@@ -81,6 +81,8 @@ export default class SettingsDialogHandler extends ManagedObject {
         })
             .done((update_settings_response: UpdateSettingsResponse) => {
                 this._oSettingsModel.setData(update_settings_response);
+                // trigger reload of plants model to apply new settings
+                this._oView.getModel('plants').refresh(true);
                 MessageToast.show("Settings saved successfully.");
                 this._oSettingsDialog.close();
             })
