@@ -87,28 +87,57 @@
 							text="{plants>cancellation_date}"
 						/>
 					</HBox>
-					<HBox
+					<!-- <HBox
 						alignItems="Center"
 						justifyContent="SpaceBetween"
+						wrap="Wrap"
+					> -->
+					<VBox
 						wrap="Wrap"
 					>
 						<Label
 							text="Botanical Name"
 							class="sapUiTinyMarginBegin"
 						/>
+						<HBox
+							alignItems="Center"
+							justifyContent="SpaceBetween"
+						>
+							<Text
+								textAlign="End"
+								class="sapUiTinyMarginBegin"
+								text="{plants>botanical_name}"
+							/>
+							<Button
+								icon="sap-icon://sys-find"
+								visible="{status>/details_editable}"
+								tooltip="Find botanical name"
+								type="Transparent"
+								press=".onOpenFindSpeciesDialog"
+							/>
+						</HBox>
+					<!-- </HBox> -->
+					</VBox>
+					<VBox class="sapUiTinyMarginTop">
+						<Label
+							text="{i18n>alt_botanical_name}"
+							class="sapUiTinyMarginBegin"
+						/>
+						<TextArea
+							class="sapUiTinyMargin"
+							rows="2"
+							width="215px"
+							textAlign="Begin"
+							value="{plants>alternative_botanical_name}"
+							visible="{status>/details_editable}"
+						/>						
 						<Text
 							textAlign="End"
-							class="sapUiTinyMargin"
-							text="{plants>botanical_name}"
+							class="sapUiTinyMarginBegin"
+							text="{plants>alternative_botanical_name}"
+							visible="{= !${status>/details_editable} }"
 						/>
-						<Button
-							icon="sap-icon://sys-find"
-							visible="{status>/details_editable}"
-							tooltip="Find botanical name"
-							type="Transparent"
-							press=".onOpenFindSpeciesDialog"
-						/>
-					</HBox>
+					</VBox>
 				</VBox>
 				<VBox
 					width="16rem"
