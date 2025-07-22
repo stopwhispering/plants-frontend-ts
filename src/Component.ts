@@ -21,6 +21,10 @@ export default class Component extends UIComponent {
 	}
 
 	private _load_models(){
+		// settings need to be available before plants...
+		const oSettingsModel = models.createSettingsModel();
+		this.setModel(oSettingsModel, "settings");
+
 		const oTaxonModel = models.createTaxonModel();
 		this.setModel(oTaxonModel, "taxon");
 		const oPlantsModel = models.createPlantsModel()
@@ -103,14 +107,16 @@ export default class Component extends UIComponent {
 		this.setModel(models.createDeviceModel(), "device");
 		this.setModel(models.createLayoutModel());
 
-		// settings need to be available before plants...
-		const oSettingsModel = models.createSettingsModel();
-		this.setModel(oSettingsModel, "settings");
+		// // settings need to be available before plants...
+		// const oSettingsModel = models.createSettingsModel();
+		// this.setModel(oSettingsModel, "settings");
 
-		oSettingsModel.attachRequestCompleted(() => {
-			// Now it's safe to load the other models and populate the controls
-			this._load_models();
-		}, this);
+		// oSettingsModel.attachRequestCompleted(() => {
+		// 	// Now it's safe to load the other models and populate the controls
+		// 	this._load_models();
+		// }, this);
+
+		this._load_models();
 
 	}
 
