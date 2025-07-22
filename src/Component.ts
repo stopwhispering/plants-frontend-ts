@@ -21,7 +21,7 @@ export default class Component extends UIComponent {
 	}
 
 	private _load_models(){
-	const oTaxonModel = models.createTaxonModel();
+		const oTaxonModel = models.createTaxonModel();
 		this.setModel(oTaxonModel, "taxon");
 		const oPlantsModel = models.createPlantsModel()
 		this.setModel(oPlantsModel, "plants");

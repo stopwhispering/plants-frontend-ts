@@ -101,6 +101,6 @@ export function createStatusModel(): JSONModel {
 export function createSettingsModel(): JSONModel {
 	const oModel = new JSONModel();
 	oModel.setSizeLimit(30);
-	oModel.loadData(Util.getServiceUrl('settings'));	
+	oModel.loadData(Util.getServiceUrl('settings/'));	
 	return oModel;
 }
