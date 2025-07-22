@@ -125,7 +125,7 @@
 						/>
 						<TextArea
 							class="sapUiTinyMargin"
-							rows="2"
+							rows="5"
 							width="215px"
 							textAlign="Begin"
 							value="{plants>alternative_botanical_name}"
