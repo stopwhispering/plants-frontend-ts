@@ -132,7 +132,6 @@
 							visible="{status>/details_editable}"
 						/>						
 						<Text
-							textAlign="End"
 							class="sapUiTinyMarginBegin"
 							text="{plants>alternative_botanical_name}"
 							visible="{= !${status>/details_editable} }"
