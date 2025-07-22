@@ -51,12 +51,12 @@ export function createNurserySourcesModel(): JSONModel {
 	return oModel;
 }
 
-export function createPropertyNamesModel(): JSONModel {
-	const oModel = new JSONModel();
-	oModel.setSizeLimit(400);
-	oModel.loadData(Util.getServiceUrl('property_names/'));	
-	return oModel;
-}
+// export function createPropertyNamesModel(): JSONModel {
+// 	const oModel = new JSONModel();
+// 	oModel.setSizeLimit(400);
+// 	oModel.loadData(Util.getServiceUrl('property_names/'));	
+// 	return oModel;
+// }
 
 export function createProposalKeywordsModel(): JSONModel {
 	const oModel = new JSONModel();

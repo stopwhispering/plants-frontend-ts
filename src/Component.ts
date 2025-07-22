@@ -38,8 +38,8 @@ export default class Component extends UIComponent {
 		this.setModel(oProposalKeywordsModel, "keywords");
 		const oNurserySourcesModel = models.createNurserySourcesModel();
 		this.setModel(oNurserySourcesModel, "nurseries_sources");
-		const oPropertyNamesModel = models.createPropertyNamesModel();
-		this.setModel(oPropertyNamesModel, "propertyNames");
+		// const oPropertyNamesModel = models.createPropertyNamesModel();
+		// this.setModel(oPropertyNamesModel, "propertyNames");
 		const oEventsModel = models.createEventsModel();
 		this.setModel(oEventsModel, "events");
 		const oFlowerHistoryModel = models.createFlowerHistoryModel();
