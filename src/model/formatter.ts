@@ -141,7 +141,7 @@ export default class formatter{
 		var iDaysSince = Util.getDaysFromToday(sLastImageDate);
 		//@ts-ignore
 		const oSettings = <JSONModel>this.getView().getModel('settings').getData();
-		if (!oSettings) {
+		if (Object.keys(oSettings).length === 0) {
 			// if settings model is not available, assume no warning
 			return false;
 		}
