@@ -73,7 +73,7 @@ export default class SettingsDialogHandler extends ManagedObject {
         const oNewSettings = <LNewSettings>oNewSettingsModel.getData().settings;
 
         $.ajax({
-            url: Util.getServiceUrl('settings'),
+            url: Util.getServiceUrl('settings/'),
             type: 'PUT',
             contentType: "application/json",
             data: JSON.stringify({'settings': oNewSettings}),
