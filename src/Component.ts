@@ -33,6 +33,8 @@ export default class Component extends UIComponent {
 		this.setModel(models.createDeviceModel(), "device");
 		this.setModel(models.createLayoutModel());
 
+		const oSettingsModel = models.createSettingsModel();
+		this.setModel(oSettingsModel, "settings");
 		const oTaxonModel = models.createTaxonModel();
 		this.setModel(oTaxonModel, "taxon");
 		const oPlantsModel = models.createPlantsModel()
@@ -51,8 +53,6 @@ export default class Component extends UIComponent {
 		this.setModel(oEventsModel, "events");
 		const oFlowerHistoryModel = models.createFlowerHistoryModel();
 		this.setModel(oFlowerHistoryModel, "flower_history");
-		const oSettingsModel = models.createSettingsModel();
-		this.setModel(oSettingsModel, "settings");
 
 		this.setModel(models.createStatusModel(), "status");
 
