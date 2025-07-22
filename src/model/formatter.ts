@@ -140,7 +140,12 @@ export default class formatter{
 		}
 		var iDaysSince = Util.getDaysFromToday(sLastImageDate);
 		//@ts-ignore
-		const max_days = this.getView().getModel('settings').getData().settings.last_image_warning_after_n_days; 
+		const oSettings = <JSONModel>this.getView().getModel('settings').getData();
+		if (!oSettings) {
+			// if settings model is not available, assume no warning
+			return false;
+		}
+		const max_days = oSettings.settings.last_image_warning_after_n_days; 
 		return (iDaysSince > max_days) ? true : false;
 	}
 	

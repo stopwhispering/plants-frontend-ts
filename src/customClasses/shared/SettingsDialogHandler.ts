@@ -22,7 +22,6 @@ export default class SettingsDialogHandler extends ManagedObject {
 	private _oView: View;
     private _oSettingsDialog: Dialog;
     private _oSettingsModel: JSONModel; 
-    private _oNewSettingsModel: JSONModel; 
 
 	// protected _oSoilDialogHandler: SoilDialogHandler;
 	// private _oSuggestionsData: LSuggestions;
