@@ -27,7 +27,7 @@ export default class PlantSearcher extends ManagedObject {
 		//leave active state filter (and possible others) as is
 		//therefore collect other filters
 		var aNewFilters = [];
-		const aRelevantPaths: (string | undefined)[] = ['plant_name', 'botanical_name', undefined]
+		const aRelevantPaths: (string | undefined)[] = ['plant_name', 'botanical_name', 'alternative_botanical_name', undefined]
 		for (var i = 0; i < aActiveFilters.length; i++) {
 			const oActiveFilter = <Filter>aActiveFilters[i];
 			const sPath: string | undefined = oActiveFilter.getPath();
@@ -37,8 +37,11 @@ export default class PlantSearcher extends ManagedObject {
 		}
 
 		// create new filters for plant_name and botanical_name (linked with OR)
-		var aNestedFilters = [new Filter("plant_name", FilterOperator.Contains, sQuery),
-		new Filter("botanical_name", FilterOperator.Contains, sQuery)];
+		var aNestedFilters = [
+			new Filter("plant_name", FilterOperator.Contains, sQuery),
+			new Filter("botanical_name", FilterOperator.Contains, sQuery),
+			new Filter("alternative_botanical_name", FilterOperator.Contains, sQuery)
+		];
 		var oFilterOr = new Filter({
 			filters: aNestedFilters,
 			and: false
