@@ -5,5 +5,5 @@ import ManagedObject from "sap/ui/base/ManagedObject";
  */
 
 export interface LNewSettings{
-    display_settings: DisplaySettingsBase;
+    settings: SettingsBase;
 }

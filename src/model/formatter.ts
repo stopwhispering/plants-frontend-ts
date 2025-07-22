@@ -139,7 +139,9 @@ export default class formatter{
 			return true;
 		}
 		var iDaysSince = Util.getDaysFromToday(sLastImageDate);
-		return (iDaysSince > 80) ? true : false;
+		//@ts-ignore
+		const max_days = this.getView().getModel('settings').getData().settings.last_image_warning_after_n_days; 
+		return (iDaysSince > max_days) ? true : false;
 	}
 	
 	public visibleByPropagationType(sPropagationType: string){

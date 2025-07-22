@@ -14,7 +14,7 @@
         labelFor="lastImageWarningDaysInput"/>
       <Input 
         id="lastImageWarningDaysInput" 
-        value="{newSettings>/display_settings/last_image_warning_after_n_days}" 
+        value="{newSettings>/settings/last_image_warning_after_n_days}" 
         placeholder="Enter number of days" 
         />
     </VBox>

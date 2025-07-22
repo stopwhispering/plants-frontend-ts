@@ -1,25 +1,16 @@
 // Handler for the Settings Dialog
-import { LEventEditData } from "plants/ui/definitions/EventsLocal";
-import Button, { Button$PressEvent } from "sap/m/Button";
+import { Button$PressEvent } from "sap/m/Button";
 import Dialog from "sap/m/Dialog";
-import List from "sap/m/List";
 import MessageToast from "sap/m/MessageToast";
 import ManagedObject from "sap/ui/base/ManagedObject";
 import Control from "sap/ui/core/Control";
 import View from "sap/ui/core/mvc/View";
-import Context from "sap/ui/model/Context";
 import JSONModel from "sap/ui/model/json/JSONModel";
-import SoilDialogHandler from "./SoilDialogHandler";
-import RadioButton from "sap/m/RadioButton";
 import Util from "../shared/Util";
-import { ObservationCreateUpdate, SoilRead, PotCreateUpdate } from "plants/ui/definitions/Events";
-import SoilCRUD from "./SoilCRUD";
-import { LSuggestions } from "plants/ui/definitions/PlantsLocal";
-import { ListBase$SelectionChangeEvent } from "sap/m/ListBase";
-import { Image$PressEvent } from "sap/m/Image";
 import Fragment from "sap/ui/core/Fragment";
 import { LNewSettings } from "plants/ui/definitions/SettingsLocal";
 import ErrorHandling from "./ErrorHandling";
+import { UpdateSettingsResponse } from "plants/ui/definitions/Settings";
 
 /**
  * @namespace plants.ui.customClasses.shared
@@ -41,7 +32,7 @@ export default class SettingsDialogHandler extends ManagedObject {
     ) {
 		super();
 		this._oView = oView;  // todo refactor view out
-		this._oSettingsModel = new JSONModel(<LEventEditData>{});
+        this._oSettingsModel = <JSONModel>this._oView.getModel('settings');
 	}
 
     public openSettingsDialog(): void {
@@ -60,9 +51,9 @@ export default class SettingsDialogHandler extends ManagedObject {
         }).then((oControl: Control | Control[]) => {
             this._oSettingsDialog = <Dialog>oControl;
             this._oView.addDependent(this._oSettingsDialog);
-            const oDisplaySettings = (<JSONModel>this._oView.getModel('settings')).getData().display_settings;
+            const oSettings = (<JSONModel>this._oView.getModel('settings')).getData().settings;
             const mNewSettings: LNewSettings = {
-                display_settings: Util.getClonedObject(oDisplaySettings),
+                settings: Util.getClonedObject(oSettings),
             }
             const oNewSettingsModel = new JSONModel(mNewSettings);
             if (this._oSettingsDialog.getModel("newSettings")) {
@@ -79,16 +70,18 @@ export default class SettingsDialogHandler extends ManagedObject {
     }
 
     onPressSaveSettings(event: Button$PressEvent): void {
-        const oSettingsModel = <JSONModel>this._oSettingsDialog.getModel('newSettings');
+        const oNewSettingsModel = <JSONModel>this._oSettingsDialog.getModel('newSettings');
+        const oNewSettings = <LNewSettings>oNewSettingsModel.getData().settings;
 
         $.ajax({
             url: Util.getServiceUrl('settings'),
-            type: 'POST',
+            type: 'PUT',
             contentType: "application/json",
-            data: JSON.stringify(oSettingsModel.getData()),
+            data: JSON.stringify({'settings': oNewSettings}),
             context: this
         })
-            .done(() => {
+            .done((update_settings_response: UpdateSettingsResponse) => {
+                this._oSettingsModel.setData(update_settings_response);
                 MessageToast.show("Settings saved successfully.");
                 this._oSettingsDialog.close();
             })

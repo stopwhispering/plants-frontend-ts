@@ -11,14 +11,18 @@ export interface ResponseContainer {
   message: BackendMessage;
 }
 
-export interface DisplaySettingsBase{
+export interface SettingsBase{
   last_image_warning_after_n_days: number;
 }
 
-export interface DisplaySettingsRead extends DisplaySettingsBase {
+export interface SettingsRead extends SettingsBase {
   last_updated_at: string;
 }
 
 export interface GetSettingsResponse extends ResponseContainer {
-    display_settings: DisplaySettingsRead;
+    settings: SettingsRead;
+}
+
+export interface UpdateSettingsResponse extends ResponseContainer {
+    settings: SettingsRead;
 }
