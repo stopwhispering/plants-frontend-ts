@@ -139,7 +139,7 @@ export default class formatter{
 			return true;
 		}
 		var iDaysSince = Util.getDaysFromToday(sLastImageDate);
-		return (iDaysSince > 380) ? true : false;
+		return (iDaysSince > 80) ? true : false;
 	}
 	
 	public visibleByPropagationType(sPropagationType: string){
