@@ -108,6 +108,8 @@ export default class PlantFilterDialogHandler extends ManagedObject {
 	private _getDistinctTagsFromPlants(aPlants: PlantRead[]) {
 		// collect distinct tags assigned to any plant
 		var aTagsAll = <string[]>[];
+		// consider only active plants
+		aPlants = aPlants.filter(function (plant) { return !!plant.active; });
 		for (var i = 0; i < aPlants.length; i++) {
 			var aTagObjects = <PlantTag[]>aPlants[i].tags;
 			if (!!aTagObjects.length) {
