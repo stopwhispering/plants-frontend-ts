@@ -10,19 +10,18 @@
  
 	    <content>
 	    	<VBox>
-				<Text
-					class="sapUiTinyMarginBottom"
-					text="Renaming might take some time as it involves modifying image files."/>
 				<Label 
 					text="New Plant Name"
 					labelFor='inputNewPlantName'/>
 				<Input
-					width='15rem'
+					width='35rem'
 					value="{renamePlant>/newPlantName}"
 					autocomplete="false"
 					maxLength="100"
 					required="true"
-					placeholder="New plant name"/>
+					placeholder="New plant name"
+					submit=".onPressButtonSubmitRenamePlant"
+					/>
 			</VBox>
 		</content>
 
