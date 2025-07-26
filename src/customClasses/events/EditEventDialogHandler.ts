@@ -97,6 +97,7 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 			pot: (!!oSelectedEvent.pot),
 		};
 
+
 		if (oSelectedEvent.pot) {
 			dPotHeightOptions = {
 				very_flat: oSelectedEvent.pot.shape_side === 'very flat',
@@ -136,6 +137,16 @@ export default class EditEventDialogHandler extends EventDialogHandler {
 
 		//deep-clone event
 		var dClonedEvent: EventRead = Util.getClonedObject(oSelectedEvent);
+
+
+		// we need some observation sub properties to exist, otherwise we can't add observation data to an existing event
+		if (!dClonedEvent.observation) {
+			dClonedEvent.observation = {
+				'diseases': '',
+				'observation_notes': ''
+			}
+		}
+
 		var dEventEdit: LEventEditData = {
 			...dClonedEvent,
 			oldEvent: oSelectedEvent,

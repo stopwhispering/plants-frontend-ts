@@ -93,32 +93,6 @@
 						enabled="{= ${editOrNewEvent>/segments/observation}}"
 						text="Observation"
 					>
-						<!-- <VBox class="sapUiTinyMarginBottom">
-							<Label text="Height"/>
-							<StepInput
-								value="{editOrNewEvent>/observation/height}"
-								displayValuePrecision="1"
-								min="0"
-								max="999"
-								width="5em"
-								step="0.5"
-								largerStep="5"
-								description="cm"
-							/>
-						</VBox>
-						<VBox class="sapUiTinyMarginBottom">
-							<Label text="Stem/Caudex diameter at max."/>
-							<StepInput
-								value="{editOrNewEvent>/observation/stem_max_diameter}"
-								displayValuePrecision="1"
-								min="0"
-								max="999"
-								width="5em"
-								step="0.5"
-								largerStep="5"
-								description="cm"
-							/>
-						</VBox> -->
 						<VBox class="sapUiTinyMarginBottom">
 							<Label text="Diseases &amp; Treatments"/>
 							<TextArea
