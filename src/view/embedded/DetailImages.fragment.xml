@@ -304,7 +304,7 @@
                                     visible="{status>/images_editable}"
                                     value=""
                                     maxLength="30"
-                                    startSuggestion="3"
+                                    startSuggestion="2"
                                     maxSuggestionWidth="25rem"
                                     suggestionItems="{
                                         path: 'keywords>/KeywordsCollection',
