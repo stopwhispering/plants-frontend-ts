@@ -199,10 +199,30 @@ export default class FlexibleColumnLayout extends BaseController {
 	}
 
 	onShellBarSearch(oEvent: SearchManager$SearchEvent) {
-		// navigate to selected plant
+		// if using suggestions, navigate to selected plant
+		// if entering a plant id, navigate to that plant
 		//@ts-ignore
-		var plantId = oEvent.getParameter('suggestionItem').getBindingContext('plants').getObject().id;
-		Navigation.getInstance().navToPlantDetails(plantId);
+
+		// check if the search field has a suggestion item selected
+		const oSuggestionItemsBinding = <SuggestionItem>oEvent.getParameter('suggestionItem');
+		if (oSuggestionItemsBinding) {
+			var plantId = oSuggestionItemsBinding.getBindingContext('plants').getObject().id;
+			Navigation.getInstance().navToPlantDetails(plantId);
+			return;
+		}
+
+		// if no suggestion item is selected, check if the search value is a plant id
+		var sValue = oEvent.getParameter("query");
+		if (sValue) {
+			sValue = sValue.trim();
+
+		}
+		if (sValue && !isNaN(parseInt(sValue))) {
+			// if the value is a number, navigate to the plant with that id
+			var iPlantId = parseInt(sValue);
+			Navigation.getInstance().navToPlantDetails(iPlantId);
+			return;
+		}
 	}
 
 	onShellBarSuggest(oEvent: SearchManager$SuggestEvent) {
