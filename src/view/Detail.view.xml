@@ -99,6 +99,7 @@
 					</m:FlexBox>
 				</snappedHeading>
 				<actions>
+				
 					<m:OverflowToolbarButton
 						icon="sap-icon://edit"
 						id="buttonEdit"

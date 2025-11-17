@@ -231,7 +231,7 @@
                                     <suggestionColumns>
                                         <Column
                                             importance="High"
-                                            width="3em">
+                                            width="3.5em">
                                             <Label 
                                                 text="{i18n>id}"
                                             />
