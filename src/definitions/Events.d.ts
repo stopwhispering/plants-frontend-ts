@@ -14,7 +14,7 @@ export type FBShapeTop = "square" | "round" | "oval" | "hexagonal";
 export type FBShapeSide = "very flat" | "flat" | "high" | "very high";
 export type BEvents = EventRead[];
 export type BMessageType = "Information" | "None" | "Success" | "Warning" | "Error" | "Debug";
-export type BFloweringState = "inflorescence_growing" | "flowering" | "seeds_ripening" | "not_flowering"
+export type BFloweringState = "inflorescence_growing" | "flowering" | "seeds_ripening" | "not_flowering" | "not_available";
 
 // backend supplies either BFloweringState (usually until current month) or flowering_probability (usually for future months)
 export type PlantFlowerMonth = {

@@ -102,6 +102,13 @@
   background-color: transparent;
 }
 
+.customFlowerHistoryColor[data-nodecolor='not_available'] {
+  /* color: #ff5c00;
+  font-weight: bold; */
+  /* background-color: #fde9d9; */
+  background-color: #e2dfdc;
+}
+
 .customFlowerHistoryColor[data-nodecolor='inflorescence_growing'] {
   /* color: #009db8;
   font-weight: bold; */
