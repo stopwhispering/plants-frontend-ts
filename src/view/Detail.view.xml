@@ -204,7 +204,7 @@
 					class="sapUiSmallMarginEnd"
 					width="15rem"
 				>
-					<m:Label text="Botanical Name" />
+					<m:Label text="Full Botanical Name" />
 					<m:FormattedText
 						visible="{= !!${plants>full_botanical_html_name} }"
 						htmlText="{plants>full_botanical_html_name}"
