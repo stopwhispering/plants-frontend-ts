@@ -62,7 +62,6 @@ import { InputBase$ChangeEvent } from "sap/m/InputBase"
 import { ObjectStatus$PressEvent } from "sap/m/ObjectStatus"
 import Route, { Route$PatternMatchedEvent } from "sap/ui/core/routing/Route"
 import { LRouteMatchedArguments } from "../definitions/entities"
-import Event from "sap/ui/base/Event"
 import InputWithIcon, { InputWithIcon$EndButtonPressEvent } from "../control/InputWithIcon"
 
 

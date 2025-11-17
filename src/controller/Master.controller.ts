@@ -21,7 +21,8 @@ import { Button$PressEvent } from "sap/m/Button"
 import { SearchField$SearchEvent } from "sap/m/SearchField"
 import Control from "sap/ui/core/Control"
 import Image from "sap/m/Image"
-import { HoverImage$HoverEvent, HoverImage$HoverEventParameters } from "../control/HoverImage"
+import HoverImage$HoverEvent from "../control/HoverImage"
+import UIComponent from "sap/ui/core/UIComponent"
 
 /**
  * @namespace plants.ui.controller
@@ -127,9 +128,9 @@ export default class Master extends BaseController {
 		if (is_touch)
 			return;
 
-		const sAction = oEvent.getParameter('action');
+		const sAction = (oEvent as any).getParameter('action');
 		if (sAction === 'on') {
-			this._onHoverOnImage(<Image>oEvent.getSource());
+			this._onHoverOnImage(<Image>(oEvent as any).getSource());
 			return;
 		} else if (sAction === 'out') {
 			this._onHoverAwayFromImage();
@@ -193,5 +194,50 @@ export default class Master extends BaseController {
 		}
 
 		this._oNewPlantTagPopoverHandler.openNewPlantTagPopover(aSelectedPlants, oSource, this.getView(), false);
+	}
+	onVisitPreviousPlant(oEvent: Button$PressEvent) {
+		const oPlantsTable = <Table>this.byId('plantsTable');
+		const oBinding = <ListBinding>oPlantsTable.getBinding('items');
+		const aPlantsDisplayed = <PlantRead[]> oBinding.getContexts().map(ctx => ctx.getObject());
+
+		// Get current plant ID from URL
+		const oRouter = (this.getOwnerComponent() as UIComponent).getRouter();
+		const oCurrentRoute = oRouter.getHashChanger().getHash();
+		const aMatches = oCurrentRoute.match(/detail\/(\d+)/);
+		const iCurrentPlantId = aMatches ? parseInt(aMatches[1]) : null;
+		
+		// Find current plant in displayed plants
+		const iCurrentIndex = aPlantsDisplayed.findIndex(plant => plant.id === iCurrentPlantId);
+		
+		// Navigate to previous plant if possible
+		if (iCurrentIndex > 0) {
+			const oPreviousPlant = aPlantsDisplayed[iCurrentIndex - 1];
+			this.navigation.navToPlantDetails(oPreviousPlant.id!);
+		} else {
+			MessageToast.show("Already at first plant.");
+		}
+	}
+
+	onVisitNextPlant(oEvent: Button$PressEvent) {
+		const oPlantsTable = <Table>this.byId('plantsTable');
+		const oBinding = <ListBinding>oPlantsTable.getBinding('items');
+		const aPlantsDisplayed = <PlantRead[]> oBinding.getContexts().map(ctx => ctx.getObject());
+
+		// Get current plant ID from URL
+		const oRouter = (this.getOwnerComponent() as UIComponent).getRouter();
+		const oCurrentRoute = oRouter.getHashChanger().getHash();
+		const aMatches = oCurrentRoute.match(/detail\/(\d+)/);
+		const iCurrentPlantId = aMatches ? parseInt(aMatches[1]) : null;	
+
+		// Find current plant in displayed plants
+		const iCurrentIndex = aPlantsDisplayed.findIndex(plant => plant.id === iCurrentPlantId);
+		
+		// Navigate to next plant if possible
+		if (iCurrentIndex >= 0 && iCurrentIndex < aPlantsDisplayed.length - 1) {
+			const oNextPlant = aPlantsDisplayed[iCurrentIndex + 1];
+			this.navigation.navToPlantDetails(oNextPlant.id!);
+		} else {
+			MessageToast.show("Already at last plant.");
+		}	
 	}
 }

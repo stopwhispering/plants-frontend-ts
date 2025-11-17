@@ -56,6 +56,23 @@
 							})"
 						/>
 						<ToolbarSpacer/>
+
+
+						<OverflowToolbarButton
+							type="Transparent"
+							icon="sap-icon://arrow-top"
+							press=".onVisitPreviousPlant"
+							tooltip="Previous Plant"
+							visible="{= !!${/actionButtonsInfo/midColumn/closeColumn} }"
+						/>
+						<OverflowToolbarButton
+							type="Transparent"
+							icon="sap-icon://arrow-bottom"
+							press=".onVisitNextPlant"
+							tooltip="Next Plant"
+							visible="{= !!${/actionButtonsInfo/midColumn/closeColumn} }"
+						/>
+
 						<OverflowToolbarButton
 							icon="sap-icon://e-care"
 							tooltip="{i18n>new_plant}"
