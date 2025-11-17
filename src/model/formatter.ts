@@ -253,7 +253,8 @@ export default class formatter{
 			return '';
 		}
 
-		return flower.flowering_probability * 100 + '%';
+		const iRounded = Math.round(flower.flowering_probability * 100);
+		return iRounded + '%';
 	}
 
 }
