@@ -92,6 +92,8 @@ export default class ImageDeleter extends ManagedObject {
 		});
 		this._oImagesModel.refresh();
 		this._oUntaggedImagesModel.refresh();		
+		// make sure the number of untagged images in the top right corner is updated
+		this._oUntaggedImagesModel.updateBindings(true);
 	}
 
 }
