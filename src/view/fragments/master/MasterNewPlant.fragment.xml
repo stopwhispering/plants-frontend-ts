@@ -13,12 +13,14 @@
 			<Input
 				maxLength="1000"
 				value="{newPlantInputData>/newPlantName}"
+				submit=".onSaveNewPlantButton"
 			/>
 		</content>
 		<beginButton>
 			<Button
 				text="Save"
 				press=".onSaveNewPlantButton"
+				type="Emphasized"
 			/>
 		</beginButton>
 		<endButton>
