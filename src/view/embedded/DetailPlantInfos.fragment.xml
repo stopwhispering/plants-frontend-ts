@@ -340,15 +340,30 @@
 								</ColumnListItem>
 							</suggestionRows>
 						</Input>
-						<Link
-							wrapping="true"
-							class="sapUiTinyMargin"
-							textAlign="End"
-							text="{plants>parent_plant/id} {plants>parent_plant/plant_name}"
-							visible="{= !${status>/details_editable} }"
-							tooltip="Go to plant ID {plants>parent_plant/id}"
-							press="onPressGoToPlant(${plants>parent_plant/id})"
-						/>
+						
+						<VBox
+							visible="{= !${status>/details_editable} }">
+							<HBox justifyContent="End">
+								<custom:HoverImage
+									width="80px"
+									densityAware="true"
+									visible="{= !!${plants>parent_plant/preview_image_id} }"
+									src="{
+										path: 'plants>parent_plant/preview_image_id',
+										formatter: '.formatter.getSrcAvatarImageL'
+									}"
+								/>
+							</HBox>
+							<Link
+								wrapping="true"
+								class="sapUiTinyMargin"
+								textAlign="End"
+								text="{plants>parent_plant/id} {plants>parent_plant/plant_name}"
+								visible="{= !${status>/details_editable} }"
+								tooltip="Go to plant ID {plants>parent_plant/id}"
+								press="onPressGoToPlant(${plants>parent_plant/id})"
+							/>
+						</VBox>
 					</HBox>
 					<HBox
 						visible="{
@@ -409,15 +424,29 @@
 								</ColumnListItem>
 							</suggestionRows>
 						</Input>
-						<Link
-							wrapping="true"
-							class="sapUiTinyMargin"
-							textAlign="End"
-							text="{plants>parent_plant_pollen/id} {plants>parent_plant_pollen/plant_name}"
-							visible="{= !${status>/details_editable} }"
-							tooltip="Go to plant ID {plants>parent_plant_pollen/id}"
-							press="onPressGoToPlant(${plants>parent_plant_pollen/id})"
-						/>
+						<VBox
+							visible="{= !${status>/details_editable} }">
+							<HBox justifyContent="End">
+								<custom:HoverImage
+									width="80px"
+									densityAware="true"
+									visible="{= !!${plants>parent_plant_pollen/preview_image_id} }"
+									src="{
+										path: 'plants>parent_plant_pollen/preview_image_id',
+										formatter: '.formatter.getSrcAvatarImageL'
+									}"
+								/>
+							</HBox>
+							<Link
+								wrapping="true"
+								class="sapUiTinyMargin"
+								textAlign="End"
+								text="{plants>parent_plant_pollen/id} {plants>parent_plant_pollen/plant_name}"
+								visible="{= !${status>/details_editable} }"
+								tooltip="Go to plant ID {plants>parent_plant_pollen/id}"
+								press="onPressGoToPlant(${plants>parent_plant_pollen/id})"
+							/>
+						</VBox>
 					</HBox>
 					<HBox
 						alignItems="Center"
@@ -472,7 +501,7 @@
 				<VBox
 					visible="{= !!${plants>descendant_plants_all} &amp;&amp; ${plants>descendant_plants_all}.length > 0 }"
 					class="detailsInfoBox sapUiTinyMargin"
-					width="11rem"
+					width="16rem"
 				>
 					<Title
 						class="sapUiTinyMarginBegin sapUiTinyMarginBottom"
@@ -513,7 +542,7 @@
 				<VBox
 					visible="{= !!${plants>sibling_plants} &amp;&amp; ${plants>sibling_plants}.length > 0 }"
 					class="detailsInfoBox sapUiTinyMargin"
-					width="11rem"
+					width="16rem"
 				>
 					<Title
 						class="sapUiTinyMarginBegin sapUiTinyMarginBottom"
@@ -528,6 +557,19 @@
 						}
 					}">
 						<HBox alignItems="Center">
+
+							<HBox justifyContent="End">
+								<custom:HoverImage
+									width="80px"
+									densityAware="true"
+									visible="{= !!${plants>preview_image_id} }"
+									src="{
+										path: 'plants>preview_image_id',
+										formatter: '.formatter.getSrcAvatarImageL'
+									}"
+								/>
+							</HBox>
+
 							<core:Icon
 								visible="{= !${plants>active} }"
 								class="sapUiTinyMarginBegin"
@@ -554,7 +596,7 @@
 				<VBox
 					visible="{= !!${plants>same_taxon_plants} &amp;&amp; ${plants>same_taxon_plants}.length > 0 }"
 					class="detailsInfoBox sapUiTinyMargin"
-					width="11rem"
+					width="16rem"
 				>
 					<Title
 						class="sapUiTinyMarginBegin sapUiTinyMarginBottom"
@@ -569,6 +611,19 @@
 						}
 					}">
 						<HBox alignItems="Center">
+
+							<HBox justifyContent="End">
+								<custom:HoverImage
+									width="80px"
+									densityAware="true"
+									visible="{= !!${plants>preview_image_id} }"
+									src="{
+										path: 'plants>preview_image_id',
+										formatter: '.formatter.getSrcAvatarImageL'
+									}"
+								/>
+							</HBox>
+
 							<core:Icon
 								visible="{= !${plants>active} }"
 								class="sapUiTinyMarginBegin"
