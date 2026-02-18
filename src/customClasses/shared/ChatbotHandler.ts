@@ -272,7 +272,7 @@ export default class ChatbotHandler {
 	 * Handle plant ID button press to navigate to plant details
 	 */
 	public onPlantIdButtonPress(oEvent: Button$PressEvent): void {
-        console.warn("Plant ID button pressed", oEvent);
+        // console.warn("Plant ID button pressed", oEvent);
 		const oButton = oEvent.getSource() as Button;
 		const oBindingContext = oButton.getBindingContext("chatbot");
 		if (oBindingContext) {
