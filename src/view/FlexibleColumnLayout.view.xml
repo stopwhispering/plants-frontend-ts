@@ -94,6 +94,12 @@
 								/>
 							</m:customData>
 						</m:OverflowToolbarButton>
+						<m:OverflowToolbarButton
+							icon="sap-icon://da"
+							tooltip="Plant Assistant Chatbot"
+							type="Transparent"
+							press="onOpenChatbot"
+						/>
 					</additionalContent>
 				</ShellBar>
 			</m:customHeader>

@@ -20,6 +20,7 @@ import ShellBarMenuHandler from "../customClasses/shared/ShellBarMenuHandler"
 import Control from "sap/ui/core/Control"
 import MessagePopoverHandler from "../customClasses/shared/MessagePopoverHandler"
 import UntaggedImagesHandler from "../customClasses/images/UntaggedImagesHandler";
+import ChatbotHandler from "../customClasses/shared/ChatbotHandler"
 import { LBeforeRouteMatchedArguments, LRouteMatchedArguments } from "../definitions/entities";
 import { FlexibleColumnLayout$StateChangeEvent } from "sap/f/FlexibleColumnLayout";
 import { ShellBar$HomeIconPressedEvent, ShellBar$MenuButtonPressedEvent, ShellBar$NotificationsPressedEvent } from "sap/f/ShellBar";
@@ -40,6 +41,7 @@ export default class FlexibleColumnLayout extends BaseController {
 	private _oShellBarMenuHandler: ShellBarMenuHandler;  // lazy loaded
 	private _oMessagePopoverHandler: MessagePopoverHandler;  // lazy loaded
 	private _oUploadImagesDialogHandler: UploadImagesDialogHandler;  // lazy loaded
+	private _oChatbotHandler: ChatbotHandler;  // lazy loaded
 
 	onInit() {
 		super.onInit();
@@ -296,5 +298,43 @@ export default class FlexibleColumnLayout extends BaseController {
 		}
 		this._oUploadImagesDialogHandler.openUploadImagesDialog(this.getView(), this._currentPlantId);
 	}
+	//////////////////////////////////////////////////////////
+	// Chatbot Handler  # todo get rid of this
+	//////////////////////////////////////////////////////////	
+	public onOpenChatbot() {
+		if (!this._oChatbotHandler) {
+			this._oChatbotHandler = new ChatbotHandler(this);
+		}
+		this._oChatbotHandler.open();
+	}
+
+	public onCloseChatbot() {
+		if (this._oChatbotHandler) {
+			this._oChatbotHandler.close();
+		}
+	}
+
+	public onSendMessage() {
+		if (this._oChatbotHandler) {
+			this._oChatbotHandler.sendMessage();
+		}
+	}
+
+	public onClearChat() {
+		if (this._oChatbotHandler) {
+			this._oChatbotHandler.clearChat();
+		}
+	}
+
+	public onPlantIdButtonPress(oEvent: Button$PressEvent) {{}
+		if (this._oChatbotHandler) {
+			this._oChatbotHandler.onPlantIdButtonPress(oEvent);
+		}
+	}
+
+	public onChatbotDialogClose() {
+		// Called when dialog is closed - cleanup if needed
+	}
+
 
 }

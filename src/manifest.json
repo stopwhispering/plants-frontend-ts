@@ -48,6 +48,9 @@
 			"css": [
 				{
 					"uri": "css/style.css"
+				},
+				{
+					"uri": "css/chatbot.css"
 				}
 			]
 		},

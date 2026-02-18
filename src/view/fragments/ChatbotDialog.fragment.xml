@@ -1,0 +1,163 @@
+<core:FragmentDefinition
+	xmlns:core="sap.ui.core"
+	xmlns="sap.m"
+	xmlns:l="sap.ui.layout"
+>
+	<Dialog
+		id="chatbotDialog"
+		title="Plant Assistant Chatbot"
+		contentWidth="650px"
+		contentHeight="600px"
+		resizable="true"
+		draggable="true"
+		afterClose="onChatbotDialogClose"
+	>
+		<customHeader>
+			<Bar>
+				<contentLeft>
+					<Image
+						src="./css/aloe-vera.png"
+						width="2rem"
+						height="2rem"
+						class="sapUiTinyMarginEnd"
+					/>
+					<Title text="Plant Assistant" level="H5"/>
+				</contentLeft>
+				<contentRight>
+					<Button
+						icon="sap-icon://refresh"
+						tooltip="Clear Chat"
+						press="onClearChat"
+						type="Transparent"
+					/>
+					<Button
+						icon="sap-icon://decline"
+						tooltip="Close"
+						press="onCloseChatbot"
+						type="Transparent"
+					/>
+				</contentRight>
+			</Bar>
+		</customHeader>
+
+		<content>
+			<VBox class="chatbotContainer">
+				<!-- Chat Messages Container -->
+				<ScrollContainer
+					id="chatMessagesContainer"
+					height="100%"
+					width="100%"
+					vertical="true"
+					horizontal="false"
+					class="chatMessagesScrollContainer"
+				>
+					<VBox
+						id="chatMessagesBox"
+						class="chatMessagesBox"
+						items="{chatbot>/messages}"
+					>
+						<customData>
+							<core:CustomData key="scrollToBottom" value="true" />
+						</customData>
+						
+						<items>
+							<VBox 
+								class="{= ${chatbot>role} === 'user' ? 'chatMessageUser' : 'chatMessageBot' }"
+								visible="{= ${chatbot&gt;text} !== '' }"
+							>
+								<HBox alignItems="Start" class="chatMessageHeader">
+									<Avatar
+										src="{= ${chatbot>role} === 'user' ? 'sap-icon://customer' : 'sap-icon://marketing-campaign' }"
+										displaySize="XS"
+										class="chatAvatar"
+										backgroundColor="{= ${chatbot>role} === 'user' ? 'Accent6' : 'Accent8' }"
+									/>
+									<VBox class="chatMessageContent">
+										<FormattedText
+											htmlText="{chatbot>text}"
+										/>
+										<HBox
+											visible="{= ${chatbot>plant_ids} &amp;&amp; ${chatbot>plant_ids}.length > 0 }"
+											wrap="Wrap"
+											class="sapUiTinyMarginTop"
+											items="{path: 'chatbot>plant_ids'}"
+										>
+											<Button
+												text="Plant {chatbot>}"
+												type="Emphasized"
+												class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
+                                                press="onPlantIdButtonPress"/>
+										</HBox>
+										<Text
+											text="{chatbot>timestamp}"
+											class="chatMessageTimestamp"
+										/>
+									</VBox>
+								</HBox>
+							</VBox>
+						</items>
+					</VBox>
+				</ScrollContainer>
+
+				<!-- Typing Indicator -->
+				<HBox
+					id="typingIndicator"
+					visible="{chatbot>/isTyping}"
+					class="typingIndicatorContainer"
+					alignItems="Center"
+				>
+					<Avatar
+						src="sap-icon://marketing-campaign"
+						displaySize="XS"
+						backgroundColor="Accent8"
+						class="chatAvatar"
+					/>
+					<HBox class="typingIndicator">
+						<core:HTML content="&lt;div class='typing-dot'&gt;&lt;/div&gt;&lt;div class='typing-dot'&gt;&lt;/div&gt;&lt;div class='typing-dot'&gt;&lt;/div&gt;" />
+					</HBox>
+				</HBox>
+
+				<!-- Input Area -->
+				<Bar class="chatInputBar">
+					<!-- <contentLeft>
+						<Button
+							icon="sap-icon://attachment"
+							tooltip="Attach File (Coming Soon)"
+							type="Transparent"
+							enabled="false"
+						/>
+					</contentLeft> -->
+					<contentMiddle>
+						<TextArea
+							id="chatInputField"
+							value="{chatbot>/currentMessage}"
+							placeholder="Ask me about your plants..."
+							rows="1"
+							maxLength="600"
+							width="100%"
+							valueLiveUpdate="true"
+							submit="onSendMessage"
+							class="chatInputField"
+						/>
+					</contentMiddle>
+					<contentRight>
+						<Button
+							icon="sap-icon://paper-plane"
+							type="Emphasized"
+							press="onSendMessage"
+							enabled="{= ${chatbot>/currentMessage}.trim().length &gt; 0 }"
+							tooltip="Send Message"
+						/>
+					</contentRight>
+				</Bar>
+			</VBox>
+		</content>
+
+		<beginButton>
+			<Button
+				text="Close"
+				press="onCloseChatbot"
+			/>
+		</beginButton>
+	</Dialog>
+</core:FragmentDefinition>

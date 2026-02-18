@@ -1,0 +1,203 @@
+/* Chatbot Dialog Styles */
+
+.chatbotContainer {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.chatMessagesScrollContainer {
+	flex: 1;
+	background-color: #f5f5f5;
+	padding: 0.5rem;
+}
+
+.chatMessagesBox {
+	padding: 0.5rem;
+	gap: 0.75rem;
+}
+
+/* User Message Styles */
+.chatMessageUser {
+	align-self: flex-end;
+	max-width: 80%;
+	margin-bottom: 0.5rem;
+}
+
+.chatMessageUser .chatMessageContent {
+	background-color: #0070f2;
+	color: white;
+	border-radius: 1rem 1rem 0 1rem;
+	padding: 0.75rem 1rem;
+	margin-left: 0.5rem;
+}
+
+.chatMessageUser .chatMessageText {
+	color: white !important;
+	word-wrap: break-word;
+	white-space: pre-wrap;
+}
+
+.chatMessageUser .chatMessageTimestamp {
+	color: rgba(255, 255, 255, 0.8) !important;
+	font-size: 0.75rem;
+	margin-top: 0.25rem;
+}
+
+/* Bot Message Styles */
+.chatMessageBot {
+	align-self: flex-start;
+	max-width: 80%;
+	margin-bottom: 0.5rem;
+}
+
+.chatMessageBot .chatMessageContent {
+	background-color: white;
+	border: 1px solid #e0e0e0;
+	border-radius: 1rem 1rem 1rem 0;
+	padding: 0.75rem 1rem;
+	margin-left: 0.5rem;
+}
+
+.chatMessageBot .chatMessageText {
+	color: #333;
+	word-wrap: break-word;
+	white-space: pre-wrap;
+}
+
+.chatMessageBot .chatMessageTimestamp {
+	color: #666;
+	font-size: 0.75rem;
+	margin-top: 0.25rem;
+}
+
+/* Message Header */
+.chatMessageHeader {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.5rem;
+}
+
+.chatAvatar {
+	flex-shrink: 0;
+	margin-top: 0.25rem;
+}
+
+.chatMessageContent {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+
+/* Typing Indicator */
+.typingIndicatorContainer {
+	padding: 0.5rem 1rem;
+	background-color: #f5f5f5;
+	border-top: 1px solid #e0e0e0;
+}
+
+.typingIndicator {
+	background-color: white;
+	border: 1px solid #e0e0e0;
+	border-radius: 1rem;
+	padding: 0.75rem 1rem;
+	margin-left: 0.5rem;
+	display: flex;
+	gap: 0.25rem;
+	align-items: center;
+}
+
+.typing-dot {
+	width: 8px;
+	height: 8px;
+	background-color: #999;
+	border-radius: 50%;
+	animation: typing 1.4s infinite;
+	margin: 0 2px;
+	display: inline-block;
+}
+
+.typing-dot:nth-child(1) {
+	animation-delay: 0s;
+}
+
+.typing-dot:nth-child(2) {
+	animation-delay: 0.2s;
+}
+
+.typing-dot:nth-child(3) {
+	animation-delay: 0.4s;
+}
+
+@keyframes typing {
+	0%, 60%, 100% {
+		transform: translateY(0);
+		opacity: 0.4;
+	}
+	30% {
+		transform: translateY(-10px);
+		opacity: 1;
+	}
+}
+
+/* Input Area */
+.chatInputBar {
+	border-top: 2px solid #e0e0e0;
+	background-color: white;
+	padding: 0.5rem;
+}
+
+.chatInputField textarea {
+	border: 1px solid #e0e0e0 !important;
+	border-radius: 1rem !important;
+	padding: 0.5rem 1rem !important;
+	resize: none !important;
+}
+
+.chatInputField textarea:focus {
+	border-color: #0070f2 !important;
+	box-shadow: 0 0 0 1px #0070f2 !important;
+}
+
+/* Dialog Customization */
+.sapMDialog .sapMDialogScrollCont {
+	padding: 0 !important;
+}
+
+#chatbotDialog {
+	min-width: 350px;
+	max-width: 600px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+	#chatbotDialog {
+		width: 100% !important;
+		height: 100% !important;
+		max-width: 100% !important;
+		max-height: 100% !important;
+	}
+	
+	.chatMessageUser,
+	.chatMessageBot {
+		max-width: 90%;
+	}
+}
+
+/* Scrollbar styling */
+.chatMessagesScrollContainer .sapMScrollContScroll::-webkit-scrollbar {
+	width: 6px;
+}
+
+.chatMessagesScrollContainer .sapMScrollContScroll::-webkit-scrollbar-track {
+	background: #f1f1f1;
+}
+
+.chatMessagesScrollContainer .sapMScrollContScroll::-webkit-scrollbar-thumb {
+	background: #888;
+	border-radius: 3px;
+}
+
+.chatMessagesScrollContainer .sapMScrollContScroll::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
