@@ -9,11 +9,18 @@ import Constants from "plants/ui/Constants";
 import Navigation from "plants/ui/customClasses/singleton/Navigation";
 import Button, { Button$PressEvent } from "sap/m/Button";
 
+interface IPlantReference {
+	plant_id: number;
+	plant_name: string;
+}
+
 interface IChatMessage {
 	role: "user" | "bot";
 	text: string;
 	timestamp: string;
 	plant_ids?: number[];
+	plant_names?: string[];
+	plant_refs?: IPlantReference[];
 }
 
 interface IChatbotModel {
@@ -35,6 +42,7 @@ interface IChatResponse {
 	history: IChatMessage[];
     reasoning: string;
     plant_ids: number[];
+	plant_names: string[];
 }
 
 /**
@@ -179,11 +187,17 @@ export default class ChatbotHandler {
 
 			// Add bot's response to messages
 			const aMessages: IChatMessage[] = this.oChatbotModel.getProperty("/messages");
+			const aPlantRefs: IPlantReference[] = (data.plant_ids || []).map((plantId, index) => ({
+				plant_id: plantId,
+				plant_name: data.plant_names?.[index] ?? ""
+			}));
 			aMessages.push({
 				role: "bot",
 				text: data.reply,
 				timestamp: this._getFormattedTime(),
-				plant_ids: data.plant_ids
+				plant_ids: data.plant_ids,
+				plant_names: data.plant_names,
+				plant_refs: aPlantRefs
 			});
 
 			this.oChatbotModel.setProperty("/messages", aMessages);
@@ -276,7 +290,11 @@ export default class ChatbotHandler {
 		const oButton = oEvent.getSource() as Button;
 		const oBindingContext = oButton.getBindingContext("chatbot");
 		if (oBindingContext) {
-			const iPlantId = oBindingContext.getObject() as number;
+			const oBoundValue = oBindingContext.getObject() as number | IPlantReference;
+			const iPlantId = typeof oBoundValue === "number" ? oBoundValue : oBoundValue?.plant_id;
+			if (!iPlantId) {
+				return;
+			}
 			Navigation.getInstance().navToPlantDetails(iPlantId);
 			// Optionally close the chatbot dialog after navigation
 			this.close();

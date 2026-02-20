@@ -77,13 +77,13 @@
 											htmlText="{chatbot>text}"
 										/>
 										<HBox
-											visible="{= ${chatbot>plant_ids} &amp;&amp; ${chatbot>plant_ids}.length > 0 }"
+											visible="{= ${chatbot>plant_refs} &amp;&amp; ${chatbot>plant_refs}.length > 0 }"
 											wrap="Wrap"
 											class="sapUiTinyMarginTop"
-											items="{path: 'chatbot>plant_ids'}"
+											items="{path: 'chatbot>plant_refs'}"
 										>
 											<Button
-												text="Plant {chatbot>}"
+												text="{= ${chatbot>plant_name} ? ${chatbot>plant_id} + ' ' + ${chatbot>plant_name} : ${chatbot>plant_id} }"
 												type="Emphasized"
 												class="sapUiTinyMarginEnd sapUiTinyMarginBottom"
                                                 press="onPlantIdButtonPress"/>
