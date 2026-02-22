@@ -6,7 +6,7 @@
 	<Dialog
 		id="chatbotDialog"
 		title="Plant Assistant Chatbot"
-		contentWidth="650px"
+		contentWidth="750px"
 		contentHeight="600px"
 		resizable="true"
 		draggable="true"
@@ -43,13 +43,10 @@
 		<content>
 			<VBox class="chatbotContainer">
 				<!-- Chat Messages Container -->
-				<ScrollContainer
+				<VBox
 					id="chatMessagesContainer"
-					height="100%"
-					width="100%"
-					vertical="true"
-					horizontal="false"
 					class="chatMessagesScrollContainer"
+					height="100%"
 				>
 					<VBox
 						id="chatMessagesBox"
@@ -62,9 +59,12 @@
 						
 						<items>
 							<VBox 
-								class="{= ${chatbot>role} === 'user' ? 'chatMessageUser' : 'chatMessageBot' }"
+								class="chatMessage"
 								visible="{= ${chatbot&gt;text} !== '' }"
 							>
+								<customData>
+									<core:CustomData key="role" value="{chatbot>role}" writeToDom="true" />
+								</customData>
 								<HBox alignItems="Start" class="chatMessageHeader">
 									<Avatar
 										src="{= ${chatbot>role} === 'user' ? 'sap-icon://customer' : 'sap-icon://marketing-campaign' }"
@@ -73,8 +73,13 @@
 										backgroundColor="{= ${chatbot>role} === 'user' ? 'Accent6' : 'Accent8' }"
 									/>
 									<VBox class="chatMessageContent">
+										<Text
+											text="{= ${chatbot>role} === 'user' ? 'You' : 'Plant Assistant' }"
+											class="chatSpeakerLabel"
+										/>
 										<FormattedText
 											htmlText="{chatbot>text}"
+											class="chatMessageText"
 										/>
 										<HBox
 											visible="{= ${chatbot>plant_refs} &amp;&amp; ${chatbot>plant_refs}.length > 0 }"
@@ -97,7 +102,7 @@
 							</VBox>
 						</items>
 					</VBox>
-				</ScrollContainer>
+				</VBox>
 
 				<!-- Typing Indicator -->
 				<HBox
@@ -116,42 +121,26 @@
 						<core:HTML content="&lt;div class='typing-dot'&gt;&lt;/div&gt;&lt;div class='typing-dot'&gt;&lt;/div&gt;&lt;div class='typing-dot'&gt;&lt;/div&gt;" />
 					</HBox>
 				</HBox>
-
-				<!-- Input Area -->
-				<Bar class="chatInputBar">
-					<!-- <contentLeft>
-						<Button
-							icon="sap-icon://attachment"
-							tooltip="Attach File (Coming Soon)"
-							type="Transparent"
-							enabled="false"
-						/>
-					</contentLeft> -->
-					<contentMiddle>
-						<TextArea
-							id="chatInputField"
-							value="{chatbot>/currentMessage}"
-							placeholder="Ask me about your plants..."
-							rows="1"
-							maxLength="600"
-							width="100%"
-							valueLiveUpdate="true"
-							submit="onSendMessage"
-							class="chatInputField"
-						/>
-					</contentMiddle>
-					<contentRight>
-						<Button
-							icon="sap-icon://paper-plane"
-							type="Emphasized"
-							press="onSendMessage"
-							enabled="{= ${chatbot>/currentMessage}.trim().length &gt; 0 }"
-							tooltip="Send Message"
-						/>
-					</contentRight>
-				</Bar>
 			</VBox>
 		</content>
+
+		<footer>
+			<Toolbar class="chatInputBar">
+				<TextArea
+					growing="true"
+					growingMaxLines="4"
+					width="100%"
+					value="{chatbot>/currentMessage}"
+					placeholder="Ask me about your plants..."
+				/>
+				<ToolbarSpacer />
+				<Button
+					icon="sap-icon://paper-plane"
+					type="Emphasized"
+					press="onSendMessage"
+				/>
+			</Toolbar>
+		</footer>
 
 		<beginButton>
 			<Button
