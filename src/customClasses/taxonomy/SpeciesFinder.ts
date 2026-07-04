@@ -71,7 +71,7 @@ export default class SpeciesFinder extends ManagedObject {
 			synonym: oSelectedSearchResult.synonym,
 			authors: oSelectedSearchResult.authors,
 			name_published_in_year: oSelectedSearchResult.name_published_in_year,
-			basionym: oSelectedSearchResult.basionym,
+			// basionym: oSelectedSearchResult.basionym,
 			hybrid: oSelectedSearchResult.hybrid,
 			hybridgenus: oSelectedSearchResult.hybridgenus,
 			synonyms_concat: oSelectedSearchResult.synonyms_concat,

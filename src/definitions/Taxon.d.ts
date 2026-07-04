@@ -34,7 +34,7 @@ export type TaxonSearchResultSource =
     hybrid: boolean;
     hybridgenus: boolean;
     name_published_in_year: number;
-    basionym?: string;
+    // basionym?: string;
     // phylum: string;
     synonyms_concat?: string;
     distribution_concat?: string;
@@ -77,7 +77,7 @@ export interface TaxonRead {
   synonym: boolean;
   lsid?: string;
   authors?: string;
-  basionym?: string;
+  // basionym?: string;
   synonyms_concat?: string;
   distribution_concat?: string;
   hybrid: boolean;
@@ -124,7 +124,7 @@ export interface TaxonUpdate {
   synonym: boolean;
   lsid?: string;
   authors?: string;
-  basionym?: string;
+  // basionym?: string;
   synonyms_concat?: string;
   distribution_concat?: string;
   hybrid: boolean;
@@ -196,7 +196,7 @@ export interface FNewTaxon {
   synonym: boolean;
   authors: string;
   name_published_in_year?: number;
-  basionym?: string;
+  // basionym?: string;
   hybrid: boolean;
   hybridgenus: boolean;
   synonyms_concat?: string;
