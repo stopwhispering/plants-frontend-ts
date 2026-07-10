@@ -296,6 +296,7 @@
 						<Input
 							width="130px"
 							change=".onChangeParent"
+							suggestionItemSelected=".onChangeParent"
 							app:parentType="parent"
 							class="sapUiTinyMargin"
 							value="{plants>parent_plant/plant_name}"
@@ -380,6 +381,7 @@
 						<Input
 							width="130px"
 							change=".onChangeParent"
+							suggestionItemSelected=".onChangeParent"
 							app:parentType="parent_pollen"
 							class="sapUiTinyMargin"
 							value="{plants>parent_plant_pollen/plant_name}"

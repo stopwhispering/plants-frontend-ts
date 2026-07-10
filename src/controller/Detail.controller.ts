@@ -291,25 +291,31 @@ export default class Detail extends BaseController {
 	}
 
 	onChangeParent(oEvent: InputBase$ChangeEvent) {
-		// verify entered parent and set parent plant id
-		var aPlants = <PlantRead[]>this.getView().getModel('plants').getProperty('/PlantsCollection');
-		var parentPlant = aPlants.find(plant => plant.plant_name === oEvent.getParameter('value').trim());
-
-		// if (!oEvent.getParameter('newValue').trim() || !parentPlant) {
-		if (!oEvent.getParameter('value').trim() || !parentPlant) {
-			var parentalPlant = undefined;
-
-		} else {
-			// set parent plant
-			parentalPlant = <FBAssociatedPlantExtractForPlant>{
-				id: parentPlant.id,
-				plant_name: parentPlant.plant_name,
-				active: parentPlant.active
-			}
+		const oSource = <Input>oEvent.getSource();
+		const oSelectedSuggestion = (<Input$SuggestionItemSelectedEvent><unknown>oEvent).getParameter('selectedRow');
+		if (!oSelectedSuggestion) {
+			// verify entered parent and set parent plant id
+			var aPlants = <PlantRead[]>this.getView().getModel('plants').getProperty('/PlantsCollection');
+			var parentPlantName = (oEvent.getParameter('value') || oSource.getValue() || '').trim();
+			var parentPlant = aPlants.find(plant => plant.plant_name === parentPlantName);
+			this._setParentPlant(oSource, parentPlant);
+			return;
 		}
 
-		// fn is fired by changes for parent and parent_ollen
-		if ((<Input>oEvent.getSource()).data('parentType') === "parent_pollen") {
+		const oSelectedPlant = <PlantRead>oSelectedSuggestion.getBindingContext('plants').getObject();
+		oSource.setValue(oSelectedPlant.plant_name);
+		this._setParentPlant(oSource, oSelectedPlant);
+	}
+
+	private _setParentPlant(oSource: Input, oParentPlant: PlantRead | undefined) {
+		const parentalPlant = oParentPlant ? <FBAssociatedPlantExtractForPlant>{
+			id: oParentPlant.id,
+			plant_name: oParentPlant.plant_name,
+			active: oParentPlant.active
+		} : undefined;
+
+		// fn is fired by changes for parent and parent_pollen
+		if (oSource.data('parentType') === "parent_pollen") {
 			this.mCurrentPlant.plant.parent_plant_pollen = parentalPlant;
 		} else {
 			this.mCurrentPlant.plant.parent_plant = parentalPlant;
